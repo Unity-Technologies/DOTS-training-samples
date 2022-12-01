@@ -1,10 +1,11 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-struct BeeState : IComponentData
+public struct BeeState : IComponentData
 {
     public BeeStateEnumerator beeState;
     public float3 velocity;
+    public float deathTimer;
 }
 
 public enum BeeStateEnumerator

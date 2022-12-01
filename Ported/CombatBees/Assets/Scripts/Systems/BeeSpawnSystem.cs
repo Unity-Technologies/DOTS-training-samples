@@ -4,18 +4,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 [BurstCompile]
 partial struct BeeSpawnSystem : ISystem
 {
-    float aggressiveThreshold;
-
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        aggressiveThreshold = 0.8f; // Some hardcoded value. If the bee's scale is above it, the bee will be aggressive and attack.
         state.RequireForUpdate<Config>();
     }
 

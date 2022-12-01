@@ -19,7 +19,6 @@ class HiveBaker : Baker<HiveAuthoring>
             boundsExtents = bounds.extents,
         }) ;
 
-        AddBuffer<EnemyBees>();
-        AddBuffer<AvailableResources>();
+        AddBuffer<TargetBee>();
     }
 }

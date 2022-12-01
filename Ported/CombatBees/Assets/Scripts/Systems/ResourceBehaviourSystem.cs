@@ -35,8 +35,6 @@ partial struct ResourceBehaviourSystem : ISystem
                 var targetPos = ownerTransform.WorldPosition - (up * 5f);
                 transform.WorldPosition = math.lerp(ownerTransform.WorldPosition, targetPos, config.carryStiffness * timeData.DeltaTime);
                 resource.ValueRW.velocity = ownerBeeState.velocity;
-                // var beeTransform = SystemAPI.GetAspectRW<TransformAspect>(resourceComponent.ValueRO.ownerBee);
-                // transform.WorldPosition = beeTransform.WorldPosition - new float3(0f, .4f, 0f);
             }
 
             if (!SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && transform.WorldPosition.y > floorY)

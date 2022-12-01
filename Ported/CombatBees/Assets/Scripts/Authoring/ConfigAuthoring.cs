@@ -66,5 +66,6 @@ class ConfigBaker : Baker<ConfigAuthoring>
             hitDistance = authoring.hitDistance,
             carryStiffness = authoring.carryStiffness
         });
+        AddBuffer<AvailableResources>();
     }
 }
