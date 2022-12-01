@@ -16,6 +16,11 @@ struct Config : IComponentData
     public int AmountOfWalls;
     public float TimeScale; // Simulation time scale, multiply with SystemAPI.Time.DeltaTime
     public float RandomSteeringAmount;
+    
+    public float MoveTargetWeight;
+    public float MoveRandomWeight;
+    public float MoveWallWeight;
+    public float MovePheromoneWeight;
 
     public int PheromoneSampleDistPixels;   // Neighborhood size, -pixels < x < pixels
     public int PheromoneSampleStepAngle;

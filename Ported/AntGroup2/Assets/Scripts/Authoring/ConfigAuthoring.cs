@@ -14,6 +14,11 @@ public class ConfigAuthoring : UnityEngine.MonoBehaviour
     public float TimeScale = 1.0f;
     public float RandomSteeringAmount = 0.14f;
     
+    public float MoveTargetWeight = 1.0f;
+    public float MoveRandomWeight = 0.8f;
+    public float MoveWallWeight = 1.0f;
+    public float MovePheromoneWeight = 0.3f;
+    
     public int PheromoneSampleDistPixels = 5;
     public int PheromoneSampleStepAngle = 15;
     public int PheromoneSampleStepCount = 2;
@@ -38,6 +43,12 @@ class ConfigBaker : Baker<ConfigAuthoring>
             ColonyPrefab = GetEntity(authoring.ColonyPrefab),
             TimeScale = authoring.TimeScale,
             RandomSteeringAmount = authoring.RandomSteeringAmount,
+            
+            MoveTargetWeight = authoring.MoveTargetWeight,
+            MoveRandomWeight = authoring.MoveRandomWeight,
+            MoveWallWeight = authoring.MoveWallWeight,
+            MovePheromoneWeight = authoring.MovePheromoneWeight,
+            
             PheromoneSampleDistPixels = authoring.PheromoneSampleDistPixels,
             PheromoneSampleStepAngle = authoring.PheromoneSampleStepAngle,
             PheromoneSampleStepCount = authoring.PheromoneSampleStepCount,

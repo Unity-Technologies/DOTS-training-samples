@@ -14,6 +14,7 @@ partial struct WorldSpawnerSystem : ISystem
     private EntityQuery wallQuery;
     private EntityQuery foodQuery;
     private EntityQuery colonyQuery;
+    private Random currentRandomeGen;
     
     public void OnCreate(ref SystemState state)
     {
@@ -21,6 +22,8 @@ partial struct WorldSpawnerSystem : ISystem
         wallQuery = state.GetEntityQuery(typeof(Obstacle));
         foodQuery = state.GetEntityQuery(typeof(Food));
         colonyQuery = state.GetEntityQuery(typeof(Colony));
+        
+        currentRandomeGen = Random.CreateFromIndex(12345);
     }
 
     public void OnDestroy(ref SystemState state)
@@ -56,6 +59,8 @@ partial struct WorldSpawnerSystem : ISystem
             {
                 ecb.DestroyEntity(colony);
             }
+            
+            currentRandomeGen = Random.CreateFromIndex((uint)(Time.realtimeSinceStartup*1000.0f));
 
             hasSpawnedWalls = false;
         }
@@ -89,7 +94,7 @@ partial struct WorldSpawnerSystem : ISystem
 
         int MinGapCount = 2;
         int MaxGapCount = 4;
-        var random = Random.CreateFromIndex((uint)(Time.realtimeSinceStartup*1000.0f));
+        var random = currentRandomeGen;
 
         NativeList<float> Gaps = new NativeList<float>(Allocator.Temp);
         for (int i = 1; i <= WallRingCount + 1; ++i)

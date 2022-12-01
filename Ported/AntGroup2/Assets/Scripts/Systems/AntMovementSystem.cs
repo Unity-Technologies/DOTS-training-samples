@@ -47,10 +47,10 @@ partial struct AntMovementSystem : ISystem
         {
             var random = Unity.Mathematics.Random.CreateFromIndex(seed+(uint)entityIndex);
             
-            float pheromoneWeight = 0.3f;
-            float WallWeight = 1.0f;
-            float TargetWeight = 1.0f;
-            float RandomWeight = 0.8f;
+            float PheromoneWeight = config.MovePheromoneWeight;
+            float WallWeight = config.MoveWallWeight;
+            float TargetWeight = config.MoveTargetWeight;
+            float RandomWeight = config.MoveRandomWeight;
 
             float antSpeed = 1.0f;
             float newDirection = 0;
@@ -96,11 +96,11 @@ partial struct AntMovementSystem : ISystem
                 
                 newDirection += direction.WallDirection * WallWeight;
                 newDirection += direction.TargetDirection * TargetWeight;
-                newDirection += direction.PheromoneDirection * pheromoneWeight;
+                newDirection += direction.PheromoneDirection * PheromoneWeight;
                 newDirection += randomDir *
                                 RandomWeight;
 
-                newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
+                newDirection /= PheromoneWeight + WallWeight + TargetWeight + RandomWeight;
                 newDirection = math.clamp(newDirection, -math.PI / 2.0f, math.PI / 2.0f);
 
                 antSpeed -= math.abs(newDirection / (math.PI / 2.0f));
