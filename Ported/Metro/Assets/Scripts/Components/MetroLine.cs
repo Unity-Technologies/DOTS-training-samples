@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 public struct MetroLine : IComponentData
 {
-    public NativeArray<Entity> Platforms; 
+    public NativeArray<int> Platforms; 
     
     public NativeArray<float3> RailwayPositions;
     public NativeArray<quaternion> RailwayRotations;
@@ -20,6 +20,6 @@ public struct MetroLine : IComponentData
         var nextIndex = index - 1;
         if (nextIndex < 0)
             nextIndex = RailwayPositions.Length - 1;
-        return (RailwayPositions[nextIndex], RailwayTypes[nextIndex], index);
+        return (RailwayPositions[nextIndex], RailwayTypes[nextIndex], nextIndex);
     }
 }

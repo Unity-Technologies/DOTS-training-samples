@@ -7,7 +7,7 @@ using Unity.Transforms;
 
 namespace Systems
 {
-    [BurstCompile]
+    /*[BurstCompile]
     partial struct TrainPositionsCopy : IJobEntity
     {
         public NativeParallelHashMap<int, float3> positions;
@@ -18,22 +18,21 @@ namespace Systems
             positions[train.ID] = train.Position;
             rotations[train.ID] = train.Rotation;
         }
-    }
+    }*/
 
-    [BurstCompile]
+    /*[BurstCompile]
     partial struct CopyPositions : IJobParallelFor
     {
-        [ReadOnly] public NativeParallelHashMap<int, float3> positions;
-        [ReadOnly] public NativeParallelHashMap<int, quaternion> rotations;
+        [ReadOnly] public ComponentLookup<WorldTransform> Train;
 
         public TrainPositions TrainPositions;
 
         public void Execute(int index)
         {
-            TrainPositions.TrainsPositions[index] = positions[index];
-            TrainPositions.TrainsRotations[index] = rotations[index];
+            TrainPositions.TrainsPositions[index] = Train[index];
+            TrainPositions.TrainsRotations[index] = Train[index];
         }
-    }
+    }*/
 
     [BurstCompile]
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
@@ -59,11 +58,10 @@ namespace Systems
             if (trainPositions.TrainsPositions.Length == 0)
                 return;
 
-            foreach (var (train,entity) in SystemAPI.Query<UniqueTrainID>().WithEntityAccess())
+            foreach (var (train,worldTransform) in SystemAPI.Query<UniqueTrainID, WorldTransform>())
             {
-                var transform = SystemAPI.GetComponent<WorldTransform>(entity);
-                trainPositions.TrainsPositions[train.ID] = transform.Position;
-                trainPositions.TrainsRotations[train.ID] = transform.Rotation;
+                trainPositions.TrainsPositions[train.ID] = worldTransform.Position;
+                trainPositions.TrainsRotations[train.ID] = worldTransform.Rotation;
             }
             
             /*var tempPositions = new NativeParallelHashMap<int, float3>(trainPositions.TrainsPositions.Length, Allocator.TempJob);
