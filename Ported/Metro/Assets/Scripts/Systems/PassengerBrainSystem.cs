@@ -155,7 +155,7 @@ partial struct PassengerBrainSystem : ISystem
         //     stationIds = platformConfig.StationIds
         // };
         // decisionJob.Schedule();
-        foreach (var (passenger, passengerPlatformId, entity) in SystemAPI.Query<Passenger, PlatformId>().WithEntityAccess())
+        foreach (var (passenger, passengerPlatformId, transform, entity) in SystemAPI.Query<Passenger, PlatformId, LocalToWorld>().WithEntityAccess())
         {
             if (_waypointsLookup.IsBufferEnabled(entity))
                 continue;
@@ -208,10 +208,10 @@ partial struct PassengerBrainSystem : ISystem
                     _waypointsLookup.SetBufferEnabled(entity, true);
                     
                     var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(entity);
-                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackLower});
-                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackUpper});
-                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontUpper});
-                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontLower});
+                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackLower + transform.Position});
+                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackUpper + transform.Position});
+                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontUpper + transform.Position});
+                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontLower + transform.Position});
 
                     // Updates the component values
                     ecb.SetComponent(entity, new PlatformId{Value = destinationPlatformId});
