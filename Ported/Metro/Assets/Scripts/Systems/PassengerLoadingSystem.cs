@@ -38,14 +38,20 @@ namespace Systems
                             {
                                 Train = trainEntity
                             });
-                            SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.WaitingOnPlatform });
+                            SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.Unloading });
                             break;
                         }
 
                         break;
                     }
-                    case TrainState.Departing:
+                    case TrainState.Unloading:
                     {
+                        SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.Loading });
+                        break;
+                    }
+                    case TrainState.Loading:
+                    {
+                        SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.WaitingOnPlatform });
                         break;
                     }
                     case TrainState.WaitingOnPlatform:
