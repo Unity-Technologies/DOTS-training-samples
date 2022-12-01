@@ -21,7 +21,7 @@ readonly partial struct CarriageAspect : IAspect
         set => Transform.LocalPosition = value;
     }
 
-    public int UniqueTrainID => CarriageComponent.ValueRO.uniqueTrainID;
+    public int TrainID => CarriageComponent.ValueRO.uniqueTrainID;
     public int Index => CarriageComponent.ValueRO.Index;
     public float Width => ObjectBounds.ValueRO.Width;
 

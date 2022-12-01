@@ -13,13 +13,19 @@ readonly partial struct TrainSpeedControllerAspect : IAspect
     readonly RefRO<Train> Train;
 
     readonly RefRO<MetroLineID> LineID;
+    readonly RefRO<UniqueTrainID> TrainID;
 
-    public Entity MetroLine => Train.ValueRO.MetroLine;
+    readonly RefRW<TrainStateComponent> StateComponent;
+    
+    public TrainState State
+    {
+        get => StateComponent.ValueRO.State;
+        set => StateComponent.ValueRW.State = value;
+    }
 
     public int MetroLineID => LineID.ValueRO.ID;
-    public int AmountOfTrains => Train.ValueRO.AmountOfTrainsOnMetroLine;
 
-    public int UniqueTrainID => Train.ValueRO.UniqueTrainID;
+    public int NextTrainID => TrainID.ValueRO.NextTrainID;
 
     public float Speed
     {

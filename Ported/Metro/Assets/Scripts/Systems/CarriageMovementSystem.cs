@@ -12,8 +12,8 @@ namespace Systems
         
         void Execute(ref CarriageAspect carriage)
         {
-            var trainPosition = TrainPositions.TrainsPositions[carriage.UniqueTrainID];
-            var trainRotation = TrainPositions.TrainsRotations[carriage.UniqueTrainID];
+            var trainPosition = TrainPositions.TrainsPositions[carriage.TrainID];
+            var trainRotation = TrainPositions.TrainsRotations[carriage.TrainID];
             var direction = math.rotate(trainRotation, math.forward());
             
             carriage.Position = trainPosition - direction * carriage.Width * carriage.Index;

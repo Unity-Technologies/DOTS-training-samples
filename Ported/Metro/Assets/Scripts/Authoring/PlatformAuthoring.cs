@@ -31,5 +31,6 @@ class PlatformBaker : Baker<PlatformAuthoring>
             WalkwayBackLower = authoring.WalkwayBackLower.position,
             WalkwayBackUpper = authoring.WalkwayBackUpper.position
         });
+        AddComponent<TrainOnPlatform>();
     }
 }

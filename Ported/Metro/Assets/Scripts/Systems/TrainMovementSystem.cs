@@ -11,37 +11,32 @@ namespace Systems
     {
         [ReadOnly] public TrainPositions TrainPositions;
         public float DeltaTime;
-        
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetNextTrainID(ref NativeArray<int> indexes, int metroLineID, int trainAmount, int trainID)
-        {
-            var startIndex = indexes[metroLineID];
-            var lastIndex = startIndex + trainAmount - 1;
-            var nextIndexOnLine = trainID - 1;
-            if (nextIndexOnLine < startIndex)
-                nextIndexOnLine = lastIndex;
-            return nextIndexOnLine;
-        }
 
         void Execute(ref TrainSpeedControllerAspect train)
         {
-            var nextTrainID = GetNextTrainID(ref TrainPositions.StartIndexForMetroLine, train.MetroLineID, train.AmountOfTrains, train.UniqueTrainID);
-            var nextTrainPosition = TrainPositions.TrainsPositions[nextTrainID];
-            var distance = math.distance(train.Position, nextTrainPosition);
-            if (distance < 35f )
+            if (train.State == TrainState.EnRoute)
             {
-                train.Speed = math.min(train.Speed - (0.25f * DeltaTime) * train.MaxSpeed, 0f);
+                var nextTrainPosition = TrainPositions.TrainsPositions[train.NextTrainID];
+                var distance = math.distance(train.Position, nextTrainPosition);
+                if (distance < 35f)
+                {
+                    train.Speed = math.min(train.Speed - (0.25f * DeltaTime) * train.MaxSpeed, 0f);
+                }
+                else
+                {
+                    var distanceToDestination = math.distance(train.Destination, train.Position);
+                    if (distanceToDestination > 20f)
+                        train.Speed = math.min(train.Speed + (0.25f * DeltaTime) * train.MaxSpeed, train.MaxSpeed);
+                    else if (train.DestinationType == RailwayPointType.Platform)
+                    {
+                        var minimalSpeed = distanceToDestination < 0.1f ? 0f : 0.05f * train.MaxSpeed;
+                        train.Speed = math.max(train.Speed - (0.25f * DeltaTime) * train.MaxSpeed, minimalSpeed);
+                    }
+                }
             }
             else
             {
-                var distanceToDestination = math.distance(train.Destination, train.Position);
-                if (distanceToDestination > 20f)
-                    train.Speed = math.min(train.Speed + (0.25f * DeltaTime) * train.MaxSpeed, train.MaxSpeed);
-                else if (train.DestinationType == RailwayPointType.Platform)
-                {
-                    var minimalSpeed = distanceToDestination < 0.1f ? 0f: 0.05f * train.MaxSpeed;
-                    train.Speed = math.max(train.Speed - (0.25f * DeltaTime) * train.MaxSpeed, minimalSpeed);
-                }
+                train.Speed = 0;
             }
         }
     }
@@ -85,8 +80,14 @@ namespace Systems
             else
             {
                 var distanceToThePoint = math.lengthsq(direction);
-                if (distanceToThePoint > 0.001f)
+                if (distanceToThePoint > 0.01f)
+                {
                     train.Position += math.normalize(direction) * (DeltaTime * train.CurrentSpeed);
+                }
+                else
+                {
+                    train.State = TrainState.Arrived;
+                }
             }
         }
     }
@@ -132,6 +133,18 @@ namespace Systems
 
             var speedHandle = speedController.ScheduleParallel(state.Dependency);
             trainMovementJob.ScheduleParallel(speedHandle).Complete();
+
+            /*foreach (var (trainState, entity) in SystemAPI.Query<TrainStateComponent>().WithEntityAccess())
+            {
+                if (trainState.State != TrainState.Arrived) continue;
+                var train = SystemAPI.GetComponent<Train>(entity);
+                var metroLine = SystemAPI.GetComponent<MetroLine>(train.MetroLine);
+                var platformEntity = metroLine.Platforms[train.DestinationIndex];
+                SystemAPI.SetComponent(platformEntity, new TrainOnPlatform
+                {
+                    Train = entity
+                });
+            }*/
         }
     }
 }

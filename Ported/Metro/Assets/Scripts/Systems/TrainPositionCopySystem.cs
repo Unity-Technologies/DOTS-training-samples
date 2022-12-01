@@ -59,11 +59,11 @@ namespace Systems
             if (trainPositions.TrainsPositions.Length == 0)
                 return;
 
-            foreach (var (train,entity) in SystemAPI.Query<Train>().WithEntityAccess())
+            foreach (var (train,entity) in SystemAPI.Query<UniqueTrainID>().WithEntityAccess())
             {
                 var transform = SystemAPI.GetComponent<WorldTransform>(entity);
-                trainPositions.TrainsPositions[train.UniqueTrainID] = transform.Position;
-                trainPositions.TrainsRotations[train.UniqueTrainID] = transform.Rotation;
+                trainPositions.TrainsPositions[train.ID] = transform.Position;
+                trainPositions.TrainsRotations[train.ID] = transform.Rotation;
             }
             
             /*var tempPositions = new NativeParallelHashMap<int, float3>(trainPositions.TrainsPositions.Length, Allocator.TempJob);
