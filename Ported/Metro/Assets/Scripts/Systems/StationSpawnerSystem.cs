@@ -14,7 +14,7 @@ partial struct StationSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         // _baseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
-        state.RequireForUpdate<StationId>();
+        state.RequireForUpdate<Platform>();
         //_platformQueueQuery = state.GetEntityQuery(ComponentType.ReadOnly<PlatformQueue>());
     }
     
@@ -26,37 +26,43 @@ partial struct StationSpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        state.Enabled = false;
-        //var platformConfig = SystemAPI.GetSingleton<PlatformConfig>();
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        int highestId = 0;
+        var platformConfig = SystemAPI.GetSingleton<PlatformConfig>();
+        // var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        // var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
-        // var queryMask = _baseColorQuery.GetEntityQueryMask();
-        foreach (var stationId in SystemAPI.Query<StationId>())
+        foreach (var(platformId, stationId, platform) in SystemAPI.Query<PlatformId, StationId, Platform>())
         {
-            highestId = math.max(stationId.Value, highestId);
+            platformConfig.Platforms[platformId.Value] = platform;
+            platformConfig.StationIds[platformId.Value] = stationId;
         }
 
-        var stations = CollectionHelper.CreateNativeArray<Station>(highestId, Allocator.Temp);
-        for (int i = 0; i < highestId; i++)
-        {
-            var stationComp = new Station{ Platforms = new NativeArray<Entity>() };
-            var stationEntity = ecb.CreateEntity();
-            ecb.SetComponent(stationEntity, stationComp);
-            stations[i] = stationComp;
-        }
-
-        //var platformQueueQueryMask = _platformQueueQuery.ToEntityArray(Allocator.Persistent);;
-        foreach (var (platform, stationId, entity) in SystemAPI.Query<Platform, StationId>().WithEntityAccess())
-        {
-            var stationComp = stations[stationId.Value];
-            //state.GetComponentLookup<PlatformQueue>(entity);
-            //stationComp.Platforms.Add(platform);
-            // ecb.SetComponentObject(_platformQueueQuery, );
-            // platform.PlatformQueues = platformQueueQueryMask;
-        }
+        // int highestId = 0;
+        //
+        // // var queryMask = _baseColorQuery.GetEntityQueryMask();
+        // foreach (var stationId in SystemAPI.Query<StationId>())
+        // {
+        //     highestId = math.max(stationId.Value, highestId);
+        // }
+        //
+        // var stations = CollectionHelper.CreateNativeArray<Station>(highestId, Allocator.Temp);
+        // for (int i = 0; i < highestId; i++)
+        // {
+        //     var stationComp = new Station{ Platforms = new NativeArray<Entity>() };
+        //     var stationEntity = ecb.CreateEntity();
+        //     ecb.SetComponent(stationEntity, stationComp);
+        //     stations[i] = stationComp;
+        // }
+        //
+        // //var platformQueueQueryMask = _platformQueueQuery.ToEntityArray(Allocator.Persistent);;
+        // foreach (var (platform, stationId, entity) in SystemAPI.Query<Platform, StationId>().WithEntityAccess())
+        // {
+        //     var stationComp = stations[stationId.Value];
+        //     //state.GetComponentLookup<PlatformQueue>(entity);
+        //     //stationComp.Platforms.Add(platform);
+        //     // ecb.SetComponentObject(_platformQueueQuery, );
+        //     // platform.PlatformQueues = platformQueueQueryMask;
+        // }
+        state.Enabled = false;
     }
 }
 */

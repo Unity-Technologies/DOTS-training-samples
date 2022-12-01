@@ -16,3 +16,10 @@ class PlatformConfigBaker : Baker<PlatformConfigAuthoring>
         });
     }
 }
+
+// TODO - Move this to another file
+// [InternalBufferCapacity(40)]
+// public struct Platform : IBufferElementData
+// {
+//     public Platform Value;
+// }

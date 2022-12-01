@@ -65,8 +65,12 @@ partial struct PlatformSpawnerSystem : ISystem
             };
             ecb.SetComponent(entity, newMetroLine);
         }
-        
-        
+
+        // var platfontConfigQuery = state.GetEntityQuery(ComponentType.ReadWrite<PlatformConfig>());
+        // var platfontConfigEntity = platfontConfigQuery.GetSingletonEntity();
+        // platformConfig.Platforms = new NativeArray<Platform>(platformId, Allocator.Persistent);
+        // platformConfig.StationIds = new NativeArray<StationId>(platformId, Allocator.Persistent);
+        // ecb.SetComponent(platfontConfigEntity, platformConfig);
         state.Enabled = false;
     }
 }
