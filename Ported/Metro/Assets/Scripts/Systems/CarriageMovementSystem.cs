@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -7,19 +8,81 @@ using Unity.Transforms;
 namespace Systems
 {
     [BurstCompile]
+    [WithNone(typeof(TempCarriageDestination))]
     partial struct CarriageJob : IJobEntity
     {        
         [ReadOnly] public TrainPositions TrainPositions;
+        public EntityCommandBuffer.ParallelWriter ECB;
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MoveCarriage(ref CarriageAspect carriage, float3 trainPosition, float3 trainForward, quaternion trainRotation)
+        {
+            carriage.Position = trainPosition - trainForward * carriage.Width * carriage.Index;
+            carriage.Rotation = trainRotation;
+        }
 
-        void Execute(ref CarriageAspect carriage)
+        void Execute([ChunkIndexInQuery] int chunkIndex, ref CarriageAspect carriage)
         {
             var trainPosition = TrainPositions.TrainsPositions[carriage.TrainID];
             var trainRotation = TrainPositions.TrainsRotations[carriage.TrainID];
-            var direction = math.rotate(trainRotation, math.forward());
-            
-            carriage.Position = trainPosition - direction * carriage.Width * carriage.Index;
+            var trainForward = math.rotate(trainRotation, math.forward());
+            if (carriage.Index == 0)
+            {
+                MoveCarriage(ref carriage, trainPosition, trainForward, trainRotation);
+            }
+            else
+            {
+                var carriageForward = carriage.Forward;
+                if (math.dot(trainForward, carriageForward) > 0.95f)
+                {
+                    MoveCarriage(ref carriage, trainPosition, trainForward, trainRotation);
+                }
+                else
+                {
+                    ECB.AddComponent(chunkIndex,carriage.Self,new TempCarriageDestination
+                    {
+                        TempDestination = trainPosition
+                    });
+                }
+            }
+        }
+    }
+    
+    [BurstCompile]
+    partial struct TempCarriageJob : IJobEntity
+    {        
+        [ReadOnly] public TrainPositions TrainPositions;
+        public EntityCommandBuffer.ParallelWriter ECB;
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MoveCarriage(ref TempCarriageAspect carriage, float3 trainPosition, float3 trainForward, quaternion trainRotation)
+        {
+            carriage.Position = trainPosition - trainForward * carriage.Width * carriage.Index;
             carriage.Rotation = trainRotation;
         }
+
+        void Execute([ChunkIndexInQuery] int chunkIndex, ref TempCarriageAspect carriage)
+        {
+            
+            var trainMovedDistance = TrainPositions.TrainsDistanceChanged[carriage.TrainID];
+            var trainDistance = math.length(trainMovedDistance);
+
+            var destinationDirection = carriage.TempDestination - carriage.Position;
+            var distanceToDestination = math.length(destinationDirection);
+            if (distanceToDestination < trainDistance)
+            {
+                ECB.RemoveComponent<TempCarriageDestination>(chunkIndex, carriage.Self);
+                var trainPosition = TrainPositions.TrainsPositions[carriage.TrainID];
+                var trainRotation = TrainPositions.TrainsRotations[carriage.TrainID];
+                var trainForward = math.rotate(trainRotation, math.forward());
+                MoveCarriage(ref carriage, trainPosition, trainForward, trainRotation);
+            }
+            else
+            {
+                carriage.Position += math.normalize(destinationDirection) * trainDistance;
+            }
+        }
+
     }
     
     [BurstCompile]
@@ -30,6 +93,8 @@ namespace Systems
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            state.RequireForUpdate<Carriage>();
+            state.RequireForUpdate<TrainPositions>();
         }
 
         [BurstCompile]
@@ -40,13 +105,25 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var trainPositions = SystemAPI.GetSingleton<TrainPositions>();
+            if(trainPositions.TrainsPositions.Length == 0) return;
+            
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-            
-            var trainPositions = SystemAPI.GetSingleton<TrainPositions>();
-            var carriageJob = new CarriageJob { TrainPositions = trainPositions };
 
-            carriageJob.ScheduleParallel(state.Dependency).Complete();
+            var carriageJob = new CarriageJob
+            {
+                TrainPositions = trainPositions,
+                ECB = ecb.AsParallelWriter()
+            };
+            var tempCarriageJob = new TempCarriageJob
+            {
+                TrainPositions = trainPositions,
+                ECB = ecb.AsParallelWriter()
+            };
+
+            var carriageHandle = carriageJob.ScheduleParallel(state.Dependency);
+            tempCarriageJob.ScheduleParallel(carriageHandle).Complete();
 
             foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeatsPositions,DynamicBuffer<CarriagePassengers>,LocalTransform>())
             {

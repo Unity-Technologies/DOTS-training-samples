@@ -27,10 +27,8 @@ namespace Systems
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-            foreach (var (metroLine, entity) in SystemAPI.Query<MetroLine>().WithEntityAccess())
+            foreach (var (metroLine, id,entity) in SystemAPI.Query<MetroLine,MetroLineID>().WithEntityAccess())
             {
-                var id = SystemAPI.GetComponent<MetroLineID>(entity);
-                
                 var countTrains = 0;
                 for (int i = 0; i < metroLine.RailwayPositions.Length; i++)
                 {

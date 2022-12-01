@@ -79,15 +79,15 @@ namespace Systems
 
             trainPositions.ValueRW.Trains = new NativeArray<Entity>(amountOfTrains, Allocator.Persistent);
             trainPositions.ValueRW.TrainsPositions = new NativeArray<float3>(amountOfTrains, Allocator.Persistent);
+            trainPositions.ValueRW.TrainsDistanceChanged = new NativeArray<float3>(amountOfTrains, Allocator.Persistent);
             trainPositions.ValueRW.TrainsRotations = new NativeArray<quaternion>(amountOfTrains, Allocator.Persistent);
 
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-            foreach (var (train, entity) in SystemAPI.Query<UniqueTrainID>().WithEntityAccess())
+            foreach (var (train,metroLine, trainIndex, localTransform, entity) in SystemAPI.Query<UniqueTrainID, MetroLineID,TrainIndexOnMetroLine, LocalTransform>().WithEntityAccess())
             {
-                var metroLine = SystemAPI.GetComponent<MetroLineID>(entity);
-                var trainIndex = SystemAPI.GetComponent<TrainIndexOnMetroLine>(entity);
+                
                 var uniqueID = trainPositions.ValueRW.StartIndexForMetroLine[metroLine.ID] + trainIndex.IndexOnMetroLine;
                 var nextTrainID = GetNextTrainID(ref trainPositions.ValueRW.StartIndexForMetroLine, metroLine.ID, trainIndex.AmountOfTrainsOnMetroLine, uniqueID);
                 SystemAPI.SetComponent(entity, new UniqueTrainID
@@ -96,10 +96,9 @@ namespace Systems
                     NextTrainID = nextTrainID
                 });
                 
-                var worldTransform = SystemAPI.GetComponent<WorldTransform>(entity);
                 trainPositions.ValueRW.Trains[train.ID] = entity;
-                trainPositions.ValueRW.TrainsPositions[train.ID] = worldTransform.Position;
-                trainPositions.ValueRW.TrainsRotations[train.ID] = worldTransform.Rotation;
+                trainPositions.ValueRW.TrainsPositions[train.ID] = localTransform.Position;
+                trainPositions.ValueRW.TrainsRotations[train.ID] = localTransform.Rotation;
 
                 var carriages = CollectionHelper.CreateNativeArray<Entity>(trainConfig.CarriageCount, Allocator.Temp);
                 ecb.Instantiate(trainConfig.CarriagePrefab, carriages);
@@ -114,8 +113,9 @@ namespace Systems
                         Train = entity
                     };
                     ecb.AddComponent(carriageEntity, carriage);
-                    ecb.SetComponentForLinkedEntityGroup(carriageEntity, baseColorQueryMask, new URPMaterialPropertyBaseColor { Value = metroLineColors[metroLine.ID]});
-                }
+                    ecb.SetComponent(carriageEntity, LocalTransform.FromPositionRotation(localTransform.Position, localTransform.Rotation));
+                ecb.SetComponentForLinkedEntityGroup(carriageEntity, baseColorQueryMask, new URPMaterialPropertyBaseColor { Value = metroLineColors[metroLine.ID]});
+             }
             }
 
             state.Enabled = false;

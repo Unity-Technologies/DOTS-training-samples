@@ -1,9 +1,8 @@
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public readonly partial struct CarriageAspect : IAspect
+public readonly partial struct TempCarriageAspect : IAspect
 {
     public readonly Entity Self;
     
@@ -13,6 +12,7 @@ public readonly partial struct CarriageAspect : IAspect
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
     readonly RefRO<Carriage> CarriageComponent;
+    public readonly RefRO<TempCarriageDestination> TempCarriageDestination;
     readonly RefRO<CarriageSeatsPositions> CarriageSeats;
     
     readonly RefRO<CarriageBounds> ObjectBounds;
@@ -24,6 +24,8 @@ public readonly partial struct CarriageAspect : IAspect
         get => Transform.LocalPosition;
         set => Transform.LocalPosition = value;
     }
+    
+    public float3 TempDestination => TempCarriageDestination.ValueRO.TempDestination;
 
     public float3 Forward => Transform.Forward;
 

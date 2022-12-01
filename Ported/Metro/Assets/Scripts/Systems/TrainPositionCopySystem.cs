@@ -1,8 +1,5 @@
 ﻿using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Systems
@@ -35,8 +32,7 @@ namespace Systems
     }*/
 
     [BurstCompile]
-    [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-    [UpdateBefore(typeof(TrainSpawnerSystem))]
+    [UpdateBefore(typeof(TrainMovementSystem))]
     public partial struct TrainPositionCopySystem : ISystem
     {
         [BurstCompile]
@@ -58,12 +54,13 @@ namespace Systems
             if (trainPositions.TrainsPositions.Length == 0)
                 return;
 
-            foreach (var (train,worldTransform) in SystemAPI.Query<UniqueTrainID, WorldTransform>())
+            foreach (var (train, worldTransform) in SystemAPI.Query<UniqueTrainID, WorldTransform>())
             {
+                trainPositions.TrainsDistanceChanged[train.ID] = trainPositions.TrainsPositions[train.ID] - worldTransform.Position;
                 trainPositions.TrainsPositions[train.ID] = worldTransform.Position;
                 trainPositions.TrainsRotations[train.ID] = worldTransform.Rotation;
             }
-            
+
             /*var tempPositions = new NativeParallelHashMap<int, float3>(trainPositions.TrainsPositions.Length, Allocator.TempJob);
             var tempRotations = new NativeParallelHashMap<int, quaternion>(trainPositions.TrainsPositions.Length, Allocator.TempJob);
 
