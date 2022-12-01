@@ -67,18 +67,23 @@ partial struct BeeBehaviourSystem2 : ISystem
 
             var allies = team.number == 0 ? hive0Bees : hive1Bees;
             var enemies = team.number == 0 ? hive1Bees : hive0Bees;
-            var attractiveFriend = allies[random.NextInt(0, allies.Length)];
-            var delta = attractiveFriend.enemyPosition - transform.WorldPosition;
-            var dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
-            if (dist > 0f) {
-                velocity += delta * (config.teamAttraction * deltaTime / dist);
-            }
+            if (allies.Length > 0)
+            {
+                var attractiveFriend = allies[random.NextInt(0, allies.Length)];
+                var delta = attractiveFriend.enemyPosition - transform.WorldPosition;
+                var dist = math.sqrt((delta.x * delta.x) + (delta.y * delta.y) + (delta.z * delta.z));
+                if (dist > 0f)
+                {
+                    velocity += delta * (config.teamAttraction * deltaTime / dist);
+                }
 
-            var repellentFriend = allies[random.NextInt(0, allies.Length)];
-            delta = repellentFriend.enemyPosition - transform.WorldPosition;
-            dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
-            if (dist > 0f) {
-                velocity -= delta * (config.teamRepulsion * deltaTime / dist);
+                var repellentFriend = allies[random.NextInt(0, allies.Length)];
+                delta = repellentFriend.enemyPosition - transform.WorldPosition;
+                dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                if (dist > 0f)
+                {
+                    velocity -= delta * (config.teamRepulsion * deltaTime / dist);
+                }
             }
 
             switch (bee.ValueRO.beeState)
@@ -88,7 +93,7 @@ partial struct BeeBehaviourSystem2 : ISystem
                     {
                         if (enemies.Length > 0)
                         {
-                            var enemy = enemies[random.NextInt(0, enemies.Length - 1)];
+                            var enemy = enemies[random.NextInt(0, enemies.Length)];
                             target.ValueRW.target = enemy.enemy;
                             target.ValueRW.targetPosition = enemy.enemyPosition;
                             bee.ValueRW.beeState = BeeStateEnumerator.Attacking;
@@ -98,7 +103,7 @@ partial struct BeeBehaviourSystem2 : ISystem
                     {
                         if (availableResources.Length > 0)
                         {
-                            var resource = availableResources[random.NextInt(0, availableResources.Length - 1)];
+                            var resource = availableResources[random.NextInt(0, availableResources.Length)];
                             target.ValueRW.target = resource.resource;
                             target.ValueRW.targetPosition = resource.resourcePosition;
                             bee.ValueRW.beeState = BeeStateEnumerator.Gathering;
@@ -116,7 +121,7 @@ partial struct BeeBehaviourSystem2 : ISystem
                     {
                         var enemyTransform = SystemAPI.GetAspectRW<TransformAspect>(target.ValueRO.target);
                         var enemyState = SystemAPI.GetComponent<BeeState>(target.ValueRO.target);
-                        delta = enemyTransform.WorldPosition - transform.WorldPosition;
+                        var delta = enemyTransform.WorldPosition - transform.WorldPosition;
                         float sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                         if (sqrDist > config.attackDistance * config.attackDistance)
                         {
@@ -166,7 +171,7 @@ partial struct BeeBehaviourSystem2 : ISystem
                         else
                         {
                             var targetTransform = SystemAPI.GetAspectRO<TransformAspect>(target.ValueRO.target);
-                            delta = targetTransform.WorldPosition - transform.WorldPosition;
+                            var delta = targetTransform.WorldPosition - transform.WorldPosition;
                             var sqrDist = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
                             if (sqrDist > config.grabDistance * config.grabDistance)
                             {
@@ -190,8 +195,8 @@ partial struct BeeBehaviourSystem2 : ISystem
                 {
                     var targetPos = new float3(-config.fieldSize.x * .45f + config.fieldSize.x * .9f * team.number, 0f,
                         transform.WorldPosition.z);
-                    delta = targetPos - transform.WorldPosition;
-                    dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+                    var delta = targetPos - transform.WorldPosition;
+                    var dist = math.sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
                     velocity += (targetPos - transform.WorldPosition) * (config.carryForce * deltaTime / dist);
                     if (dist < 1f)
                     {
