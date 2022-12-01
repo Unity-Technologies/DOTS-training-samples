@@ -26,9 +26,9 @@ public partial struct PheromoneSamplingSystem : ISystem
         float steerAngleRad = config.PheromoneSampleStepAngle;
         int stepCount = config.PheromoneSampleStepCount;
         
-        foreach (var (transform, currentDirection, pheromoneDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRW<PheromoneDirection>, Ant>())
+        foreach (var (transform, currentDirection, pheromoneDirection) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<CurrentDirection>, RefRW<PheromoneDirection>>().WithAll<Ant>())
         {
-            float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz);
+            float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.ValueRO.Position.xz);
             float curAngle = currentDirection.ValueRO.Angle;
 
             float angle = 0;
