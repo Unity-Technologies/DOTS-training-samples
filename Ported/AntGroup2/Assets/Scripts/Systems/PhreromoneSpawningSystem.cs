@@ -46,6 +46,7 @@ public partial struct PheromoneSpawningSystem : ISystem
                 pheromoneMap.ElementAt(i).amount = 0;
         }
 
+    #if false
         foreach( var (transform, curDirection, prevDirection, ant) in SystemAPI.Query<TransformAspect, RefRO<CurrentDirection>, RefRO<PreviousDirection>, Ant>())
         {
             int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.LocalPosition.xz));
@@ -61,6 +62,48 @@ public partial struct PheromoneSpawningSystem : ISystem
                     PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * spawnTurnStrength * pheromoneSpawnAmount);
                 }    
             }
+        }
+    #else
+        var job = new PheromoneSpawnJob()
+        {
+            playAreaSize = config.PlaySize, 
+            pheromoneSpawnAmount = pheromoneSpawnAmount,
+            spawnDistanceMax = maxDist,
+            spawnDistanceX = sdx,
+            spawnDistanceY = sdy
+        };
+        job.Schedule();
+    #endif
+
+    }
+}
+
+[BurstCompile]
+[WithAll(typeof(Ant))]
+partial struct PheromoneSpawnJob : IJobEntity
+{
+    public int playAreaSize;
+    public float pheromoneSpawnAmount;
+    
+    public float spawnDistanceMax;
+    public int spawnDistanceX;
+    public int spawnDistanceY;
+    public void Execute(in TransformAspect transform, ref DynamicBuffer<PheromoneMap> pheromoneMap, in CurrentDirection curDirection, in PreviousDirection prevDirection)
+    {
+        int2 posTex = new int2(PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, transform.LocalPosition.xz));
+        float turnAngle = math.abs(curDirection.Angle - prevDirection.Angle);
+        float spawnTurnStrength = 1.0f - math.saturate(turnAngle / (math.PI/2));
+
+        for (int y = -spawnDistanceY; y < spawnDistanceY + 1; y++)
+        {
+            for (int x = -spawnDistanceX; x < spawnDistanceX + 1; x++)
+            {
+                int d = x * x + y * y;
+                float strength = math.max(1.0f - d / spawnDistanceMax, 0);
+                
+                // TODO: parallel, NativeList<T>.ParallelWriter??
+                PheromoneMapUtil.AddAmount(ref pheromoneMap, posTex.x + x, posTex.y + y, strength * spawnTurnStrength * pheromoneSpawnAmount);
+            }    
         }
     }
 }
