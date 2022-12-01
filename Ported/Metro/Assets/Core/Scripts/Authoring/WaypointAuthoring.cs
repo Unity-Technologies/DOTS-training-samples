@@ -3,9 +3,6 @@ using UnityEngine;
 
 class WaypointAuthoring : MonoBehaviour
 {
-    //public int PathID;
-    public int WaypointID;
-
     public Transform NextWaypoint;
 
     private void OnDrawGizmos()
@@ -20,7 +17,7 @@ class WaypointAuthoring : MonoBehaviour
             Gizmos.DrawLine(transform.position, nextChild.transform.position);
         }
 
-        Gizmos.DrawCube(transform.position, Vector3.one * 1f);
+       // Gizmos.DrawCube(transform.position, Vector3.one * 1f);
     }
 }
  
