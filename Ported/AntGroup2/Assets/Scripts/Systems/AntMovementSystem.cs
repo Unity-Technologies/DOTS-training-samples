@@ -47,8 +47,8 @@ partial struct AntMovementSystem : ISystem
         {
             var random = Unity.Mathematics.Random.CreateFromIndex(seed+(uint)entityIndex);
             
-            float pheromoneWeight = 0.0f;
-            float WallWeight = 2.0f;
+            float pheromoneWeight = 0.3f;
+            float WallWeight = 1.0f;
             float TargetWeight = 1.0f;
             float RandomWeight = 0.8f;
 
@@ -68,10 +68,36 @@ partial struct AntMovementSystem : ISystem
             }
             else
             {
+                float randomDir = random.NextFloat(-config.RandomSteeringAmount, config.RandomSteeringAmount);
+                if (true)
+                {
+                    float3 dir = new float3(math.sin(direction.CurrentDirection + direction.WallDirection), 0,
+                       math.cos(direction.CurrentDirection + direction.WallDirection));
+                    
+                    //Debug.DrawLine(transform.WorldPosition, transform.WorldPosition + dir * 3.0f, Color.yellow);
+                    
+                    
+                    
+                    //dir = new float3(math.sin(direction.CurrentDirection + direction.TargetDirection), 0,
+                    //    math.cos(direction.CurrentDirection + direction.TargetDirection));
+                    //Debug.DrawLine(transform.WorldPosition, transform.WorldPosition + dir * 3.0f, Color.green);
+                    
+                    dir = new float3(math.sin(direction.CurrentDirection + direction.PheromoneDirection), 0,
+                        math.cos(direction.CurrentDirection + direction.PheromoneDirection));
+                    Debug.DrawLine(transform.WorldPosition, transform.WorldPosition + dir * 3.0f, Color.blue);
+                    
+                    //dir = new float3(math.sin(direction.CurrentDirection + randomDir), 0,
+                    //    math.cos(direction.CurrentDirection + randomDir));
+                    //Debug.DrawLine(transform.WorldPosition, transform.WorldPosition + dir * 3.0f, Color.red);
+                    
+                    
+                }
+                
+                
                 newDirection += direction.WallDirection * WallWeight;
                 newDirection += direction.TargetDirection * TargetWeight;
                 newDirection += direction.PheromoneDirection * pheromoneWeight;
-                newDirection += random.NextFloat(-config.RandomSteeringAmount, config.RandomSteeringAmount) *
+                newDirection += randomDir *
                                 RandomWeight;
 
                 newDirection /= pheromoneWeight + WallWeight + TargetWeight + RandomWeight;
@@ -79,24 +105,29 @@ partial struct AntMovementSystem : ISystem
 
                 antSpeed -= math.abs(newDirection / (math.PI / 2.0f));
                 newDirection += direction.CurrentDirection;
+
             }
 
             float2 normalizedDir = new float2(math.sin(newDirection), math.cos(newDirection));
             normalizedDir *= config.TimeScale * deltaTime * antSpeed;
 
             transform.WorldPosition += new float3(normalizedDir.x, 0, normalizedDir.y);
-            quaternion rotation = quaternion.RotateY(newDirection);
-            transform.WorldRotation = rotation;
+            transform.LookAt(transform.WorldPosition + new float3(normalizedDir.x, 0, normalizedDir.y));
 
             direction.PreviousDirection = direction.CurrentDirection;
-            direction.CurrentDirection = newDirection;
-            if (direction.CurrentDirection > math.PI * 2.0f)
-                direction.CurrentDirection -= (float)(math.PI * 2.0f);
-            if (direction.CurrentDirection < 0)
-                direction.CurrentDirection += (float)(math.PI * 2.0f);
+            direction.CurrentDirection = math.atan2(transform.Forward.x, transform.Forward.z);
+            //if (direction.CurrentDirection > math.PI * 2.0f)
+            //    direction.CurrentDirection -= (float)(math.PI * 2.0f);
+            //if (direction.CurrentDirection < 0)
+            //    direction.CurrentDirection += (float)(math.PI * 2.0f);
+            
+            float3 disr = new float3(math.sin(direction.CurrentDirection), 0,
+                math.cos(direction.CurrentDirection));
+            Debug.DrawLine(transform.WorldPosition, transform.WorldPosition + disr * 3.0f, Color.magenta);
 
             direction.WallDirection = 0;
             direction.TargetDirection = 0;
+            direction.PheromoneDirection = 0;
         }
     }
 }

@@ -100,7 +100,7 @@ partial struct TargetSeekingSystem : ISystem
             } else {
                 ant.Item2.TargetDirection = 0;
             }
-            Debug.DrawLine(targetPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
+            //Debug.DrawLine(targetPos, new float3(ant.Item1.LocalPosition.x, 0, ant.Item1.LocalPosition.z), lineOfSight ? Color.green : Color.red);
         }
 
         //foreach (var ant in SystemAPI.Query<TargetDirectionAspect, TransformAspect>().WithAll<Ant>())
