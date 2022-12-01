@@ -23,7 +23,6 @@ namespace Authoring
             AddComponent<URPMaterialPropertyBaseColor>();
 
             var seats = new NativeArray<float3>(authoring.seats.Length, Allocator.Persistent);
-            var passengers = new DynamicBuffer<Entity>();
             for (int i = 0; i < seats.Length; i++)
             {
                 var worldSeatPosition = authoring.seats[i].transform.position;
@@ -31,9 +30,9 @@ namespace Authoring
             }
             AddComponent(new CarriageSeats
             {
-                Passengers = passengers,
                 Seats = seats
             });
+            AddBuffer<CarriagePassengers>();
         }
     }
 }
