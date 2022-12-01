@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct ParticleSystem : ISystem
@@ -25,11 +26,18 @@ partial struct ParticleSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         var timeData = state.WorldUnmanaged.Time;
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var halfFieldSize = config.fieldSize * .5f;
 
-        foreach(var (particle, colorProp, transform, entity) in SystemAPI.Query<RefRW<Particle>, RefRW<URPMaterialPropertyBaseColor>, TransformAspect>().WithEntityAccess())
+        var particleJob = new ParticleJob()
+        {
+            ecb = ecb.AsParallelWriter(),
+            deltaTime = timeData.DeltaTime,
+            config = config
+        };
+        particleJob.ScheduleParallel();
+
+        /*foreach(var (particle, transform, entity) in SystemAPI.Query<RefRW<Particle>, TransformAspect>().WithEntityAccess())
         {
             particle.ValueRW.life -= timeData.DeltaTime / particle.ValueRW.lifeTime;
             if (particle.ValueRW.life <= 0f)
@@ -37,9 +45,6 @@ partial struct ParticleSystem : ISystem
                 ecb.DestroyEntity(entity);
                 continue;
             }
-            // var color = colorProp.ValueRW.Value;
-            // color.w = particle.ValueRW.life;
-            // colorProp.ValueRW.Value = color;
             transform.LocalScale = particle.ValueRW.size * particle.ValueRW.life;
             
             if (!particle.ValueRW.stuck)
@@ -84,6 +89,69 @@ partial struct ParticleSystem : ISystem
                         Value = float3x3.Scale(size * splat, size * splat, size)
                     });
                 }
+            }
+        }*/
+    }
+}
+
+[BurstCompile]
+public partial struct ParticleJob : IJobEntity
+{
+    public EntityCommandBuffer.ParallelWriter ecb;
+    public float deltaTime;
+    public Config config;
+
+    private void Execute([ChunkIndexInQuery] int chunkIndex, ref ParticleAspect particle)
+    {
+        var halfFieldSize = config.fieldSize * .5f;
+        particle.Life -= deltaTime / particle.LifeTime;
+        if (particle.Life <= 0f)
+        {
+            ecb.DestroyEntity(chunkIndex, particle.self);
+            return;
+        }
+        particle.LocalScale = math.clamp(particle.Size * particle.Life, 0f, 1f);
+        //Debug.Log($"stuck {particle.Stuck}, life {particle.Life}");
+        if (!particle.Stuck)
+        {
+            particle.Velocity += config.gravity * deltaTime;
+            particle.WorldPosition += particle.Velocity * deltaTime;
+            
+            if (math.abs(particle.WorldPosition.x) > halfFieldSize.x)
+            {
+                var worldX = config.fieldSize.x * .5f * math.sign(particle.WorldPosition.x);
+                particle.WorldPosition = new float3(worldX, particle.WorldPosition.y, particle.WorldPosition.z);
+                var splat = math.abs(particle.Velocity.x * .3f) + 1f;
+                particle.Stuck = true;
+                var size = particle.Size;
+                ecb.SetComponent(chunkIndex, particle.self, new PostTransformScale()
+                {
+                    Value = float3x3.Scale(size, size * splat, size * splat)
+                });
+            }
+            else if (math.abs(particle.WorldPosition.y) > halfFieldSize.y)
+            {
+                var worldY = config.fieldSize.y * .5f * math.sign(particle.WorldPosition.y);
+                particle.WorldPosition = new float3(particle.WorldPosition.x, worldY, particle.WorldPosition.z);
+                var splat = math.abs(particle.Velocity.y * .3f) + 1f;
+                particle.Stuck = true;
+                var size = particle.Size;
+                ecb.SetComponent(chunkIndex, particle.self, new PostTransformScale()
+                {
+                    Value = float3x3.Scale(size * splat, size, size * splat)
+                });
+            }
+            else if (math.abs(particle.WorldPosition.z) > halfFieldSize.z)
+            {
+                var worldZ = config.fieldSize.z * .5f * math.sign(particle.WorldPosition.z);
+                particle.WorldPosition = new float3(particle.WorldPosition.x, particle.WorldPosition.y, worldZ);
+                var splat = math.abs(particle.Velocity.z * .3f) + 1f;
+                particle.Stuck = true;
+                var size = particle.Size;
+                ecb.SetComponent(chunkIndex, particle.self, new PostTransformScale()
+                {
+                    Value = float3x3.Scale(size * splat, size * splat, size)
+                });
             }
         }
     }

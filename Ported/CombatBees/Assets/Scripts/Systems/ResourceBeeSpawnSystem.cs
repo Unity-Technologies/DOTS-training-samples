@@ -67,6 +67,12 @@ partial struct ResourceBeeSpawnSystem : ISystem
                 Scale = scale,
                 Rotation = quaternion.identity
             });
+            ecb.SetComponent(particle, new WorldTransform()
+            {
+                Position = position,
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
             ecb.SetComponent(particle, new Particle()
             {
                 life = 1f,

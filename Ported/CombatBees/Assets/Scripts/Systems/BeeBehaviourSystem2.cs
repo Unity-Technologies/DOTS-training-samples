@@ -279,6 +279,12 @@ partial struct BeeBehaviourSystem2 : ISystem
                 Scale = scale,
                 Rotation = quaternion.identity
             });
+            ecb.SetComponent(particle, new WorldTransform()
+            {
+                Position = position,
+                Scale = scale,
+                Rotation = quaternion.identity
+            });
             ecb.SetComponent(particle, new Particle()
             {
                 life = 1f,
@@ -291,11 +297,5 @@ partial struct BeeBehaviourSystem2 : ISystem
                 Value = float3x3.Scale(scale)
             });
         }
-    }
-    
-    bool CheckBoundingBox(float3 topRight, float3 bottomLeft, float3 beePosition)
-    {
-        return (topRight.x <= beePosition.x && beePosition.x <= bottomLeft.x
-                                            && topRight.z <= beePosition.x && beePosition.x <= bottomLeft.z);
     }
 }
