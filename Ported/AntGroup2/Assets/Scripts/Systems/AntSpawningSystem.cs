@@ -46,11 +46,14 @@ partial struct AntSpawningSystem : ISystem
 
         if (config.TotalAmountOfAnts < antQuery.CalculateEntityCount())
             return;
-
+        
         var randomAngle = 2.0f * math.PI * random.NextFloat();
 
-        Entity newAnt = ecb.Instantiate(config.AntPrefab);
-        ecb.AddComponent<CurrentDirection>(newAnt, new CurrentDirection { Angle = randomAngle });
-        ecb.AddComponent<PreviousDirection>(newAnt, new PreviousDirection { Angle = randomAngle });
+        for (int i = 0; i < 500; ++i)
+        {
+            Entity newAnt = ecb.Instantiate(config.AntPrefab);
+            ecb.AddComponent<CurrentDirection>(newAnt, new CurrentDirection { Angle = randomAngle });
+            ecb.AddComponent<PreviousDirection>(newAnt, new PreviousDirection { Angle = randomAngle });
+        }
     }
 }

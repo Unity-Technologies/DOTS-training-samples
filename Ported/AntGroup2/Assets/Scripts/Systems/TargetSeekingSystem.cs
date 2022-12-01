@@ -4,7 +4,9 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Burst;
 
+[BurstCompile]
 partial struct TargetSeekingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -16,7 +18,7 @@ partial struct TargetSeekingSystem : ISystem
     {
 
     }
-
+    [BurstCompile]
     private bool Intersect(float2 p1, float2 p2, float2 center, float radius)
     {
         //  get the distance between X and Z on the segment
@@ -37,7 +39,7 @@ partial struct TargetSeekingSystem : ISystem
 
         return (t1 > 0.0f && t1 < 1.0f) || (t2 > 0.0f && t2 < 1.0f);
     }
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         /*

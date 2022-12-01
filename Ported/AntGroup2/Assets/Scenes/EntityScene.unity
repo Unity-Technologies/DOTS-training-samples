@@ -175,14 +175,14 @@ MonoBehaviour:
     type: 3}
   ColonyPrefab: {fileID: 14412920256834417, guid: ec211ac0882f9324392f65cba1676342,
     type: 3}
-  TotalAmountOfAnts: 5
+  TotalAmountOfAnts: 3000
   PlaySize: 70
   AmountOfWalls: 3
   TimeScale: 8
-  RandomSteeringAmount: 0.14
+  RandomSteeringAmount: 0.4
   PheromoneSampleDistPixels: 1
   PheromoneSampleStepAngle: 15
   PheromoneSampleStepCount: 2
   PheromoneSpawnDistPixels: 1
-  PheromoneSpawnRateSec: 0.1
-  PheromoneDecayRateSec: 0.005
+  PheromoneSpawnRateSec: 0.3
+  PheromoneDecayRateSec: 0.01

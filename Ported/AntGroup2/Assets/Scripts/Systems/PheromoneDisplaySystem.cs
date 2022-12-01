@@ -1,6 +1,8 @@
+using Unity.Burst;
 using UnityEngine;
 using Unity.Entities;
 
+[BurstCompile]
 [UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial class PheromoneDisplaySystem : SystemBase
 {
@@ -11,6 +13,7 @@ partial class PheromoneDisplaySystem : SystemBase
     private Material displayMaterial;
     private Texture2D pheromoneTexture;
 
+    [BurstCompile]
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -23,6 +26,7 @@ partial class PheromoneDisplaySystem : SystemBase
             displayMaterial = displayRenderer.material;
     }
 
+    [BurstCompile]
     protected override void OnUpdate()
     {
         var config = SystemAPI.GetSingleton<Config>();
