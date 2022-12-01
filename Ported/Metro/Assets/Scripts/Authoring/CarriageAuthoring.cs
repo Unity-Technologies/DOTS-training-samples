@@ -28,7 +28,7 @@ namespace Authoring
                 var worldSeatPosition = authoring.seats[i].transform.position;
                 seats[i] = authoring.transform.position - worldSeatPosition;
             }
-            AddComponent(new CarriageSeats
+            AddComponent(new CarriageSeatsPositions
             {
                 Seats = seats
             });

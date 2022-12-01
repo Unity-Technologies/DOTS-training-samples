@@ -48,7 +48,7 @@ namespace Systems
 
             carriageJob.ScheduleParallel(state.Dependency).Complete();
 
-            foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeats,DynamicBuffer<CarriagePassengers>,LocalTransform>())
+            foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeatsPositions,DynamicBuffer<CarriagePassengers>,LocalTransform>())
             {
                 for (int i = 0; i < passengers.Length; i++)
                 {

@@ -11,7 +11,7 @@ readonly partial struct CarriageAspect : IAspect
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
     readonly RefRO<Carriage> CarriageComponent;
-    readonly RefRO<CarriageSeats> CarriageSeats;
+    readonly RefRO<CarriageSeatsPositions> CarriageSeats;
     
     readonly RefRO<CarriageBounds> ObjectBounds;
 

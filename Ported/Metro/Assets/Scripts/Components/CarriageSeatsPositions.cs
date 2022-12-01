@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct CarriageSeats : IComponentData
+public struct CarriageSeatsPositions : IComponentData
 {
     public NativeArray<float3> Seats;
 }
