@@ -6,17 +6,17 @@ using Unity.Mathematics;
 using UnityEngine;
 
 [UpdateBefore(typeof(AntMovementSystem))]
-//[BurstCompile]
+[BurstCompile]
 public partial struct PheromoneSamplingSystem : ISystem
 {
-    //[BurstCompile]
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
     }
-    //[BurstCompile]
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) {}
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
