@@ -17,5 +17,7 @@ class AntBaker : Baker<AntAuthoring>
         AddComponent(new WallDirection() { Angle = 0 });
         AddComponent(new HasResource() { Value = false });
         AddComponent(new URPMaterialPropertyBaseColor() { Value = new float4(1.0f, 1.0f, 1.0f, 1.0f) });
+        AddComponent(new CurrentDirection { Angle = 0 });
+        AddComponent(new PreviousDirection { Angle = 0 });
     }
 }
