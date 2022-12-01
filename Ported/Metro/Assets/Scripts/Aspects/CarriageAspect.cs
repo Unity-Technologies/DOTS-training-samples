@@ -25,8 +25,6 @@ readonly partial struct CarriageAspect : IAspect
 
     public int TrainID => CarriageComponent.ValueRO.uniqueTrainID;
     public int Index => CarriageComponent.ValueRO.Index;
-    
-    public NativeArray<Entity> Passengers => CarriageSeats.ValueRO.Passengers;
     public float Width => ObjectBounds.ValueRO.Width;
 
     public quaternion Rotation  
