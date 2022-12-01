@@ -101,7 +101,7 @@ partial struct WorldSpawnerSystem : ISystem
         {
             currentDistance += WallSpacing;
             if(i == WallRingCount + 1)
-                currentDistance += WallSpacing;
+                currentDistance += WallSpacing*0.3f;
             angleBetweenWalls = distanceBetweenWalls / currentDistance;
             
             
