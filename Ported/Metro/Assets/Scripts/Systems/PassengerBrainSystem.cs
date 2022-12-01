@@ -94,13 +94,13 @@ partial struct PassengerDecisionJob : IJobEntity
                 return;
 
 
-            case PassengerState.ReadyToEnterTrain:
+            /*case PassengerState.ReadyToEnterTrain:
 
                 return;
 
             case PassengerState.ReadyToExitTrain:
 
-                return;
+                return;*/
 
             case PassengerState.WalkingToPlatform:
             case PassengerState.WalkingToQueue:
@@ -245,13 +245,13 @@ partial struct PassengerBrainSystem : ISystem
                     continue;
 
 
-                case PassengerState.ReadyToEnterTrain:
+                /*case PassengerState.ReadyToEnterTrain:
 
                     continue;
 
                 case PassengerState.ReadyToExitTrain:
 
-                    continue;
+                    continue;*/
 
                 case PassengerState.WalkingToPlatform:
                 case PassengerState.WalkingToQueue:

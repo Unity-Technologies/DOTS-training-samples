@@ -27,12 +27,12 @@ partial struct PassengerMovementJob : IJobEntity
         WaypointLookup.TryGetBuffer(passenger.Self, out var waypoints);
         if (waypoints.Length == 0)
         {
-            if(passenger.State != PassengerState.WalkingToQueue)
-                WaypointLookup.SetBufferEnabled(passenger.Self, false);
             if (passenger.State == PassengerState.OffBoarding)
                 passenger.State = PassengerState.Idle;
             else
                 passenger.State++;
+            if(passenger.State != PassengerState.InQueue && passenger.State != PassengerState.Seated )
+                WaypointLookup.SetBufferEnabled(passenger.Self, false);
             return;
         }
         float3 destination = waypoints[0].Value;

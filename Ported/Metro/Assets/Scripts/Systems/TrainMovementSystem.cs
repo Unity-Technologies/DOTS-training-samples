@@ -33,8 +33,8 @@ namespace Systems
                             train.Speed = math.min(train.Speed + (0.25f * DeltaTime) * train.MaxSpeed, train.MaxSpeed);
                         else if (train.DestinationType == RailwayPointType.Platform)
                         {
-                            var minimalSpeed = distanceToDestination < 0.1f ? 0f : 0.05f * train.MaxSpeed;
-                            train.Speed = math.max(train.Speed - (0.25f * DeltaTime) * train.MaxSpeed, minimalSpeed);
+                            var minimalSpeed = distanceToDestination < 0.1f ? 0f : 0.1f * train.MaxSpeed;
+                            train.Speed = math.max(train.Speed - (1 - distanceToDestination/20f) * DeltaTime * train.MaxSpeed, minimalSpeed);
                         }
                     }
 

@@ -18,6 +18,7 @@ class PassengerBaker : Baker<PassengerAuthoring>
         AddComponent(new PlatformId());
         AddComponent(new PlatformQueueId());
         AddComponent(new SpeedComponent());
+        AddComponent(new PassengerSeatIndex());
         AddBuffer<Waypoint>();
     }
 }

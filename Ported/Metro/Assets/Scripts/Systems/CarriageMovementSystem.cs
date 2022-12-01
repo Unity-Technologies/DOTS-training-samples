@@ -40,11 +40,11 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            
             var trainPositions = SystemAPI.GetSingleton<TrainPositions>();
-            var carriageJob = new CarriageJob
-            {
-                TrainPositions = trainPositions
-            };
+            var carriageJob = new CarriageJob { TrainPositions = trainPositions };
 
             carriageJob.ScheduleParallel(state.Dependency).Complete();
 
@@ -53,7 +53,7 @@ namespace Systems
                 for (int i = 0; i < passengers.Length; i++)
                 {
                     var seatPosition = carriage.Position + math.rotate(carriage.Rotation,seats.Seats[i]);
-                    SystemAPI.SetComponent(passengers[i].Value, LocalTransform.FromPosition(seatPosition));
+                    ecb.SetComponent(passengers[i].Value, LocalTransform.FromPosition(seatPosition));
                 }
             }
         }
