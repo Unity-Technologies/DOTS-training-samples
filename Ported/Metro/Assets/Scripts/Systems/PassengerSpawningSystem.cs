@@ -71,6 +71,7 @@ partial struct PassengerSpawningSystem : ISystem
             ecb.SetComponentForLinkedEntityGroup(passenger, platformIdQueryMask, new PlatformId{Value = queues[queueIndex].PlatformId});
             ecb.SetComponent(passenger, new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) });
             ecb.SetComponentEnabled<Waypoint>(passenger, false);
+            ecb.SetComponent<SpeedComponent>(passenger, new SpeedComponent(){ Current = random.NextFloat(3f, 5f), Max = 5f});
         }
 
         state.Enabled = false;
