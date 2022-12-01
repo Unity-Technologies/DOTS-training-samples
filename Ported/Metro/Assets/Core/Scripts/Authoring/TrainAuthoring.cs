@@ -46,5 +46,6 @@ class TrainBaker : Baker<TrainAuthoring>
         });
         */
         AddComponent<TrainInfo>();
+        AddComponent<LocationInfo>();
     }
 }

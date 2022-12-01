@@ -10,5 +10,6 @@ class PassengerBaker : Baker<PassengerAuthoring>
     {
         // maybe this should be added dynamically instead, when taking a train
         //AddComponent(new PassengerTag());
+        AddComponent(new LocationInfo());
     }
 }
