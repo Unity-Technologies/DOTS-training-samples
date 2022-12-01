@@ -3,7 +3,8 @@ using Unity.Entities;
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject CommuterPrefab;
-    public int CommuterCount;
+
+    public UnityEngine.GameObject PlatformPrefab;
 }
 
 class ConfigBaker : Baker<ConfigAuthoring>
@@ -13,7 +14,7 @@ class ConfigBaker : Baker<ConfigAuthoring>
         AddComponent(new Config
         {
             CommuterPrefab = GetEntity(authoring.CommuterPrefab),
-            CommuterCount = authoring.CommuterCount
+            PlatformPrefab = GetEntity(authoring.PlatformPrefab)
         });
     }
 }
