@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 namespace Systems
@@ -11,9 +12,11 @@ namespace Systems
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
     public partial struct TrainSpawnerSystem : ISystem
     {
+        EntityQuery _baseColorQuery;
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
+            _baseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
             state.RequireForUpdate<Train>();
             state.RequireForUpdate<TrainPositions>();
         }
@@ -40,6 +43,8 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var trainPositions = SystemAPI.GetSingletonRW<TrainPositions>();
+            var baseColorQueryMask = _baseColorQuery.GetEntityQueryMask();
+            
             var amountOfTrains = 0;
             foreach (var train in SystemAPI.Query<Train>())
             {
@@ -50,6 +55,12 @@ namespace Systems
             foreach (var metroLine in SystemAPI.Query<MetroLineID>().WithAll<MetroLine>())
             {
                 amountOfMetroLines++;
+            }
+            
+            var metroLineColors = new NativeArray<float4>(amountOfMetroLines, Allocator.Temp);
+            foreach (var (metroLineId, metroLine) in SystemAPI.Query<MetroLineID, MetroLine>())
+            {
+                metroLineColors[metroLineId.ID] = (UnityEngine.Vector4)metroLine.Color;
             }
 
             var amountOfTrainsOnLine = new NativeArray<int>(amountOfMetroLines, Allocator.Temp);
@@ -103,6 +114,7 @@ namespace Systems
                         Train = entity
                     };
                     ecb.AddComponent(carriageEntity, carriage);
+                    ecb.SetComponentForLinkedEntityGroup(carriageEntity, baseColorQueryMask, new URPMaterialPropertyBaseColor { Value = metroLineColors[metroLine.ID]});
                 }
             }
 
