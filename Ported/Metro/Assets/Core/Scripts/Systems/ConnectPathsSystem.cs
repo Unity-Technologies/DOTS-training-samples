@@ -61,13 +61,16 @@ partial struct ConnectPathsSystem : ISystem
             paths[pathID.Value] = path;
         }
         
-        for (int i = 0; i < pathsCount - 1; i++)
+        for (int i = 0; i < pathsCount; i++)
         {
+            if (i >= (config.PlatformCountPerStation - 1) * config.NumberOfStations)
+                break;
+            
             var entryWaypointLeft = paths[i].Entry;
-            var entryWaypointRight = paths[i + 1].Entry;
+            var entryWaypointRight = paths[i + config.NumberOfStations].Entry;
             
             var exitWaypointLeft = paths[i].Exit;
-            var exitWaypointRight = paths[i + 1].Exit;
+            var exitWaypointRight = paths[i + config.NumberOfStations].Exit;
 
             Connect(ref state, entryWaypointLeft, exitWaypointRight);
             Connect(ref state, entryWaypointRight, exitWaypointLeft);

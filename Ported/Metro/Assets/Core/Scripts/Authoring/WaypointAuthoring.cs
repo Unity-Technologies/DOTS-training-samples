@@ -28,12 +28,11 @@ class WaypointBaker : Baker<WaypointAuthoring>
 {
     public override void Bake(WaypointAuthoring authoring)
     {
-        var pathAuth = authoring.transform.parent.parent.GetComponent<PathAuthoring>();
+        var pathAuth = GetComponentInParent<PathAuthoring>();
      
         AddComponent(new Waypoint
         {
             PathEntity = pathAuth != null ? GetEntity(pathAuth.transform) : default,
-            WaypointID = authoring.WaypointID,
             NextWaypointEntity = GetEntity(authoring.NextWaypoint)
         });
     }

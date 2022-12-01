@@ -8,6 +8,7 @@ class PassengerBaker : Baker<PassengerAuthoring>
 {
     public override void Bake(PassengerAuthoring authoring)
     {
-        AddComponent(new PassengerTag());
+        // maybe this should be added dynamically instead, when taking a train
+        //AddComponent(new PassengerTag());
     }
 }

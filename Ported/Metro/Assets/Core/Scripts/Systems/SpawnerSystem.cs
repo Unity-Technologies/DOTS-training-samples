@@ -55,13 +55,12 @@ partial struct SpawnerSystem : ISystem
                 var path = SpawnPath(ref state, ecb, spawnLocalToWorld, config.PathPrefab, platformID);
                 var pathCom = SystemAPI.GetComponent<Path>(path);
                 var defaultWaypoint = pathCom.Default;
-                var waypointTransf = SystemAPI.GetComponent<WorldTransform>(defaultWaypoint);
-                var waypointPos = waypointTransf.Position;
-                
-                for (int c = 0; c < 10; c++)
+                var initTarget = spawnLocalToWorld.Position;
+
+                for (int c = 0; c < config.PersonCount; c++)
                 {
-                    LocalTransform personSpawn = LocalTransform.FromPosition(2 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + 2 * c);
-                    SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab, platformID, defaultWaypoint, waypointPos);
+                    var personSpawn = WorldTransform.FromPosition(2 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + 2 * c);
+                    SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab, platformID, defaultWaypoint, initTarget);
                 }
             }
         }
@@ -73,17 +72,21 @@ partial struct SpawnerSystem : ISystem
     {
         LocalTransform trainTransform = LocalTransform.FromPosition(spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y, random.NextInt(-(int)Globals.RailSize/2, (int)Globals.RailSize / 2));
         Entity train = state.EntityManager.Instantiate(prefab);
-        ecb.SetComponent<LocalTransform>(train, trainTransform);
-        Waypoint waypoint = new Waypoint();
+        ecb.SetComponent(train, trainTransform);
+        
+        WaypointID waypoint = new WaypointID();
         float pos = Globals.RailSize * 0.5f + trainTransform.Position.z;
-        waypoint.WaypointID = (int)(pos / (Globals.RailSize / (config.NumberOfStations + 1)));
-        ecb.SetComponent(train, waypoint);
+        waypoint.Value = (int)(pos / (Globals.RailSize / (config.NumberOfStations + 1)));
+        ecb.AddComponent(train, waypoint);
+        
         IdleTime idleTime = new IdleTime();
         idleTime.Value = 0f;
         ecb.SetComponent(train, idleTime);
+        
         TrainInfo trainInfo = new TrainInfo();
         trainInfo.Id = index;
         ecb.SetComponent(train, trainInfo);
+        
     }
 
     private void SpawnRail(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab)
@@ -107,7 +110,7 @@ partial struct SpawnerSystem : ISystem
         return path;
     }
 
-    private Entity SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, LocalTransform spawnLocalToWorld, Entity prefab, int platformID, Entity defaultWaypoint, float3 waypointPos)
+    private Entity SpawnPerson(ref SystemState state, EntityCommandBuffer ecb, WorldTransform spawnLocalToWorld, Entity prefab, int platformID, Entity defaultWaypoint, float3 waypointPos)
     {
         var hue = random.NextFloat();
         URPMaterialPropertyBaseColor RandomColor()
@@ -118,7 +121,7 @@ partial struct SpawnerSystem : ISystem
         }
 
         Entity person = state.EntityManager.Instantiate(prefab);
-        ecb.SetComponent<LocalTransform>(person, spawnLocalToWorld);
+        ecb.SetComponent(person, spawnLocalToWorld);
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
         ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());
         
@@ -127,6 +130,7 @@ partial struct SpawnerSystem : ISystem
         ecb.AddComponent(person, new TargetPosition{ Value = waypointPos});
         ecb.AddComponent(person, new Speed { Value = 5f });
         ecb.AddComponent(person, new WaypointMovementTag());
+        //ecb.AddComponent(person, new PassengerTag());
 
         return person;
     }

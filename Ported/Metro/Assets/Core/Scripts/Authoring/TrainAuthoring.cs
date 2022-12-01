@@ -13,12 +13,11 @@ class TrainBaker : Baker<TrainAuthoring>
 {
     public override void Bake(TrainAuthoring authoring)
     {
-        /*
         AddComponent(new IdleTime
         {
             Value = authoring.StopTime
         });
-        */
+        
         AddComponent(new Speed
         {
             Value = authoring.MaxSpeed
@@ -37,13 +36,15 @@ class TrainBaker : Baker<TrainAuthoring>
         {
             Value = new float2(initTarget.x, initTarget.z)
         });
-        //AddComponent<Waypoint>();
-        */
+         */
+        
+       // AddComponent<Waypoint>();
+       /*
         AddComponent(new Agent
         {
             CurrentWaypoint = GetEntity(authoring.InitWaypoint)
         });
-        
+        */
         AddComponent<TrainInfo>();
     }
 }

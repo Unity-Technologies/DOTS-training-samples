@@ -25,7 +25,7 @@ partial struct TrainSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var trainPositions = SystemAPI.GetSingletonBuffer<TrainPositionsBuffer>();
 
-        foreach (var (transform, speed, waypoint, time, trainInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<Waypoint>, RefRW<IdleTime>, TrainInfo>())
+        foreach (var (transform, speed, waypoint, time, trainInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<WaypointID>, RefRW<IdleTime>, TrainInfo>())
         {
             if (time.ValueRO.Value > 0)
             {
@@ -33,12 +33,12 @@ partial struct TrainSystem : ISystem
                 continue;
             }
 
-            float nextWaypointZ = -Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.WaypointID + 1) - Globals.PlatformSize*0.5f;
+            float nextWaypointZ = -Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.Value + 1) - Globals.PlatformSize*0.5f;
 
-            if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.WaypointID < config.NumberOfStations)
+            if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.Value < config.NumberOfStations)
             {
                 time.ValueRW.Value = Globals.TrainWaitTime;
-                waypoint.ValueRW.WaypointID++;
+                waypoint.ValueRW.Value++;
                 continue;
             }
 
@@ -46,7 +46,7 @@ partial struct TrainSystem : ISystem
 
             if (transform.LocalPosition.z > Globals.RailSize * 0.5f)
             {
-                waypoint.ValueRW.WaypointID = 0;
+                waypoint.ValueRW.Value = 0;
                 transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, -Globals.RailSize * 0.5f);
             }
             trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { positionZ = transform.LocalPosition.z };
