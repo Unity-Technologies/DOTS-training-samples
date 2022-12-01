@@ -43,7 +43,7 @@ partial struct ConnectPathsSystem : ISystem
         */
         
         // wait until all dynamically spawned entities are created
-        if (SystemAPI.Time.ElapsedTime < 0.1f) return;
+        if (SystemAPI.Time.ElapsedTime < 0.5f) return;
         if (!SystemAPI.HasSingleton<Config>()) return;
         var config = SystemAPI.GetSingleton<Config>();
         state.Enabled = false;
@@ -68,14 +68,14 @@ partial struct ConnectPathsSystem : ISystem
             if (i >= (config.PlatformCountPerStation - 1) * config.NumberOfStations)
                 break;
             
-            var entryWaypointLeft = paths[i].Entry;
-            var entryWaypointRight = paths[i + config.NumberOfStations].Entry;
+            var entryWaypointLeft = paths[i].EntryLeft;
+            var exitWaypointLeft = paths[i + config.NumberOfStations].ExitLeft;
             
-            var exitWaypointLeft = paths[i].Exit;
-            var exitWaypointRight = paths[i + config.NumberOfStations].Exit;
-
-            Connect(ref state, entryWaypointLeft, exitWaypointRight, ecb);
-            Connect(ref state, entryWaypointRight, exitWaypointLeft, ecb);
+            var entryWaypointRight = paths[i].EntryRight;
+            var exitWaypointRight = paths[i + config.NumberOfStations].ExitRight;
+            
+            Connect(ref state, entryWaypointLeft, exitWaypointLeft, ecb);
+            Connect(ref state, entryWaypointRight, exitWaypointRight, ecb);
         }
 
         paths.Dispose();
@@ -83,16 +83,21 @@ partial struct ConnectPathsSystem : ISystem
     
     private void Connect(ref SystemState state, Entity entry, Entity exit, EntityCommandBuffer ecb)
     {
-        var entryWaypoint = SystemAPI.GetComponent<Waypoint>(entry);
-        entryWaypoint.Connection = exit;
-        SystemAPI.SetComponent(entry, entryWaypoint);
-        
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
-        
         // entry green
         ecb.SetComponentForLinkedEntityGroup(entry, queryMask, new URPMaterialPropertyBaseColor { Value = new float4(0f,1f,0f,1f) });
         // exit red
         ecb.SetComponentForLinkedEntityGroup(exit, queryMask, new URPMaterialPropertyBaseColor { Value = new float4(1f,0f,0f,1f) });
+        
+        // forward connection
+        var entryWaypoint = SystemAPI.GetComponent<Waypoint>(entry);
+        entryWaypoint.Connection = exit;
+        SystemAPI.SetComponent(entry, entryWaypoint);
+        
+        // backward connection
+        var exitWaypoint = SystemAPI.GetComponent<Waypoint>(exit);
+        exitWaypoint.Connection = entry;
+        SystemAPI.SetComponent(exit, exitWaypoint);
     }
 
  /* 

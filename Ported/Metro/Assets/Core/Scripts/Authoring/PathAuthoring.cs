@@ -5,8 +5,8 @@ class PathAuthoring : MonoBehaviour
 {
     public int PathID;
     public Transform Default;
-    public Transform Entry;
-    public Transform Exit;
+    public Transform EntryLeft, ExitLeft;
+    public Transform EntryRight, ExitRight;
 }
  
 class PathBaker : Baker<PathAuthoring>
@@ -17,8 +17,10 @@ class PathBaker : Baker<PathAuthoring>
         AddComponent(new Path
         {
             Default = GetEntity(authoring.Default),
-            Entry = GetEntity(authoring.Entry),
-            Exit = GetEntity(authoring.Exit)
+            EntryLeft = GetEntity(authoring.EntryLeft),
+            ExitLeft = GetEntity(authoring.ExitLeft),
+            EntryRight = GetEntity(authoring.EntryRight),
+            ExitRight = GetEntity(authoring.ExitRight)
         });
     }
 }
