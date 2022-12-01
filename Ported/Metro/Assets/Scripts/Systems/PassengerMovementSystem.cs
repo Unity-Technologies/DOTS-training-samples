@@ -22,7 +22,7 @@ partial struct PassengerMovementJob : IJobEntity
     {
         if (!WaypointLookup.IsBufferEnabled(passenger.Self))
             return;
-        if (passenger.State == PassengerState.Idle || passenger.State == PassengerState.InQueue)
+        if (passenger.State == PassengerState.Idle || passenger.State == PassengerState.InQueue || passenger.State == PassengerState.Seated)
             return;
         WaypointLookup.TryGetBuffer(passenger.Self, out var waypoints);
         if (waypoints.Length == 0)

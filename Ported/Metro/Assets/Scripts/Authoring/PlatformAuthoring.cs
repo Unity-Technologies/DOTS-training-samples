@@ -23,13 +23,14 @@ class PlatformBaker : Baker<PlatformAuthoring>
             queuesPosRotations[i] = new float3x2(authoring.PlatformQueues[i].position, authoring.PlatformQueues[i].forward);
         }
 
+        var position = authoring.transform.position;
         AddComponent(new Platform
         {
             PlatformQueues = queuesPosRotations,
-            WalkwayFrontLower = authoring.WalkwayFrontLower.position,
-            WalkwayFrontUpper = authoring.WalkwayFrontUpper.position,
-            WalkwayBackLower = authoring.WalkwayBackLower.position,
-            WalkwayBackUpper = authoring.WalkwayBackUpper.position
+            WalkwayFrontLower = authoring.WalkwayFrontLower.position - position,
+            WalkwayFrontUpper = authoring.WalkwayFrontUpper.position - position,
+            WalkwayBackLower = authoring.WalkwayBackLower.position - position,
+            WalkwayBackUpper = authoring.WalkwayBackUpper.position - position
         });
         AddComponent<TrainOnPlatform>();
     }

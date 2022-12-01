@@ -1,17 +1,14 @@
-using Unity.Collections;
-using System.Collections.Generic;
-using Systems;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 // TODO - Move to different file!
 readonly partial struct PassengerDecisionAspect : IAspect
 {
     public readonly Entity Self;
+
     //public readonly TransformAspect Transform;
     public readonly RefRW<Passenger> Passenger;
     public readonly DynamicBuffer<Waypoint> Waypoints;
@@ -31,12 +28,12 @@ partial struct PassengerDecisionJob : IJobEntity
     {
         if (waypointsLookup.IsBufferEnabled(passengerDecisionAspect.Self))
             return;
-        
+
         switch (passengerDecisionAspect.Passenger.ValueRO.State)
         {
             case PassengerState.Idle: // Passenger has just arrived at the station
                 var currentPlatformId = passengerDecisionAspect.PlatformId.ValueRO.Value;
-                
+
                 // Get Station the Passenger is on
                 var currentStationId = stationIds[currentPlatformId].Value;
                 Platform currentPlatform = platforms[currentPlatformId];
@@ -65,7 +62,7 @@ partial struct PassengerDecisionJob : IJobEntity
 
                 for (var i = 0; i < stationIds.Length; i++)
                 {
-                    if(stationIds[i].Value != currentStationId)
+                    if (stationIds[i].Value != currentStationId)
                         continue;
                     otherPlatformsIds[otherPlatformsCount] = i;
                     otherPlatformsCount++;
@@ -78,33 +75,33 @@ partial struct PassengerDecisionJob : IJobEntity
 
                 // Set the destination waypoints
                 waypointsLookup.SetBufferEnabled(passengerDecisionAspect.Self, true);
-                
+
                 //var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(passengerDecisionAspect.Self);
-                passengerDecisionAspect.Waypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackLower});
-                passengerDecisionAspect.Waypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackUpper});
-                passengerDecisionAspect.Waypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontUpper});
-                passengerDecisionAspect.Waypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontLower});
+                passengerDecisionAspect.Waypoints.Add(new Waypoint { Value = currentPlatform.WalkwayBackLower });
+                passengerDecisionAspect.Waypoints.Add(new Waypoint { Value = currentPlatform.WalkwayBackUpper });
+                passengerDecisionAspect.Waypoints.Add(new Waypoint { Value = destinationPlatform.WalkwayFrontUpper });
+                passengerDecisionAspect.Waypoints.Add(new Waypoint { Value = destinationPlatform.WalkwayFrontLower });
 
                 // Updates the component values
                 passengerDecisionAspect.Passenger.ValueRW.State = PassengerState.WalkingToPlatform;
                 passengerDecisionAspect.PlatformId.ValueRW.Value = destinationPlatformId;
                 return;
-            
+
             case PassengerState.ChoosingQueue:
                 waypointsLookup.SetBufferEnabled(passengerDecisionAspect.Self, true);
                 var queueWaypoints = SystemAPI.GetBuffer<Waypoint>(passengerDecisionAspect.Self);
-                queueWaypoints.Add(new Waypoint{Value = new float3(1, 0, 1)});
+                queueWaypoints.Add(new Waypoint { Value = new float3(1, 0, 1) });
                 return;
-            
-                
+
+
             case PassengerState.ReadyToEnterTrain:
-                
+
                 return;
-            
+
             case PassengerState.ReadyToExitTrain:
 
                 return;
-            
+
             case PassengerState.WalkingToPlatform:
             case PassengerState.WalkingToQueue:
             case PassengerState.InQueue:
@@ -113,18 +110,19 @@ partial struct PassengerDecisionJob : IJobEntity
             case PassengerState.Seated:
                 return; // This should have been caught by the lookup, but you never know...
         }
-        
+
         //TurretActiveFromEntity.SetComponentEnabled(entity, math.lengthsq(transform.Position) > SquaredRadius);
     }
 }
 
 [BurstCompile]
 //[RequireMatchingQueriesForUpdate]
+[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct PassengerBrainSystem : ISystem
 {
     private BufferLookup<Waypoint> _waypointsLookup;
     private Random _random;
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -155,26 +153,28 @@ partial struct PassengerBrainSystem : ISystem
         //     stationIds = platformConfig.StationIds
         // };
         // decisionJob.Schedule();
-        foreach (var (passenger, passengerPlatformId, transform, entity) in SystemAPI.Query<Passenger, PlatformId, LocalToWorld>().WithEntityAccess())
+        foreach (var (passenger, passengerPlatformId, transform, entity) in SystemAPI.Query<Passenger, PlatformId, WorldTransform>().WithEntityAccess())
         {
             if (_waypointsLookup.IsBufferEnabled(entity))
                 continue;
-        
+
             switch (passenger.State)
             {
                 case PassengerState.Idle: // Passenger has just arrived at the station
                     var currentPlatformId = passengerPlatformId.Value;
-                    
+
                     // Get Station the Passenger is on
                     var currentStationId = -1;
                     Platform currentPlatform = default;
-                    foreach (var (platformId, stationId, platform) in SystemAPI.Query<PlatformId, StationId, Platform>())
+                    WorldTransform currentPlatformTransform = default;
+                    foreach (var (platformId, stationId, platform, currentTransform) in SystemAPI.Query<PlatformId, StationId, Platform, WorldTransform>())
                     {
-                        currentPlatform = platform;
-                        if(platformId.Value != currentPlatformId)
+                        if (platformId.Value != currentPlatformId)
                             continue;
-                        
+
+                        currentPlatform = platform;
                         currentStationId = stationId.Value;
+                        currentPlatformTransform = currentTransform;
                         break;
                     }
 
@@ -182,12 +182,14 @@ partial struct PassengerBrainSystem : ISystem
                     int otherPlatformsCount = 0;
                     var otherPlatformsIds = CollectionHelper.CreateNativeArray<int>(20, Allocator.TempJob);
                     var otherPlatforms = CollectionHelper.CreateNativeArray<Platform>(20, Allocator.TempJob);
-                    foreach (var (platformId, stationId, platform) in SystemAPI.Query<PlatformId, StationId, Platform>())
+                    var otherPlatformsPosition = CollectionHelper.CreateNativeArray<WorldTransform>(20, Allocator.TempJob);
+                    foreach (var (platformId, stationId, platform, otherPlatformTransform) in SystemAPI.Query<PlatformId, StationId, Platform, WorldTransform>())
                     {
-                        if(stationId.Value != currentStationId || platformId.Value == currentPlatformId)
+                        if (stationId.Value != currentStationId || platformId.Value == currentPlatformId)
                             continue;
                         otherPlatformsIds[otherPlatformsCount] = platformId.Value;
                         otherPlatforms[otherPlatformsCount] = platform;
+                        otherPlatformsPosition[otherPlatformsCount] = otherPlatformTransform;
                         otherPlatformsCount++;
                     }
 
@@ -203,37 +205,39 @@ partial struct PassengerBrainSystem : ISystem
                     var randomIndex = _random.NextInt(0, otherPlatformsCount);
                     var destinationPlatformId = otherPlatformsIds[randomIndex];
                     var destinationPlatform = otherPlatforms[randomIndex];
+                    var destinationTransform = otherPlatformsPosition[randomIndex];
 
                     // Set the destination waypoints
                     _waypointsLookup.SetBufferEnabled(entity, true);
-                    
+
                     var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(entity);
-                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackLower + transform.Position});
-                    platformWaypoints.Add(new Waypoint{Value = currentPlatform.WalkwayBackUpper + transform.Position});
-                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontUpper + transform.Position});
-                    platformWaypoints.Add(new Waypoint{Value = destinationPlatform.WalkwayFrontLower + transform.Position});
+                    platformWaypoints.Add(new Waypoint { Value = math.rotate(currentPlatformTransform.Rotation, currentPlatform.WalkwayBackLower) + currentPlatformTransform.Position });
+                    platformWaypoints.Add(new Waypoint { Value = math.rotate(currentPlatformTransform.Rotation, currentPlatform.WalkwayBackUpper) + currentPlatformTransform.Position });
+                    platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, currentPlatform.WalkwayFrontUpper) + destinationTransform.Position });
+                    platformWaypoints.Add(new Waypoint { Value = math.rotate(destinationTransform.Rotation, currentPlatform.WalkwayFrontLower) + destinationTransform.Position });
 
                     // Updates the component values
-                    ecb.SetComponent(entity, new PlatformId{Value = destinationPlatformId});
-                    ecb.SetComponent(entity, new Passenger{State = PassengerState.WalkingToPlatform});
+                    ecb.SetComponent(entity, new PlatformId { Value = destinationPlatformId });
+                    ecb.SetComponent(entity, new Passenger { State = PassengerState.WalkingToPlatform });
                     continue;
-                
+
                 case PassengerState.ChoosingQueue:
                     _waypointsLookup.SetBufferEnabled(entity, true);
+
                     // TODO - Pick a random queue
                     var waypoints = SystemAPI.GetBuffer<Waypoint>(entity);
-                    waypoints.Add(new Waypoint{Value = new float3(1, 0, 1)});
+                    waypoints.Add(new Waypoint { Value = new float3(1, 0, 1) });
                     continue;
-                
-                    
+
+
                 case PassengerState.ReadyToEnterTrain:
-                    
+
                     continue;
-                
+
                 case PassengerState.ReadyToExitTrain:
 
                     continue;
-                
+
                 case PassengerState.WalkingToPlatform:
                 case PassengerState.WalkingToQueue:
                 case PassengerState.InQueue:

@@ -22,11 +22,12 @@ namespace Authoring
             });
             AddComponent<URPMaterialPropertyBaseColor>();
 
+            var position = authoring.transform.position;
             var seats = new NativeArray<float3>(authoring.seats.Length, Allocator.Persistent);
             for (int i = 0; i < seats.Length; i++)
             {
                 var worldSeatPosition = authoring.seats[i].transform.position;
-                seats[i] = authoring.transform.position - worldSeatPosition;
+                seats[i] = worldSeatPosition - position;
             }
             AddComponent(new CarriageSeatsPositions
             {
