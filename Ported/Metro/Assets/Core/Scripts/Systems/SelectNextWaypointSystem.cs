@@ -24,13 +24,13 @@ partial struct SelectNextWaypointSystem : ISystem
         m_LocalToWorldTransformFromEntity = state.GetComponentLookup<LocalToWorld>(true);
         m_WaypointFromEntity = state.GetComponentLookup<Waypoint>(true);
 
-        foreach (var path in
+       /* foreach (var path in
                  SystemAPI.Query<
                      Path
                  >())
         {
             
-        }
+        }*/
     }
     
     [BurstCompile]

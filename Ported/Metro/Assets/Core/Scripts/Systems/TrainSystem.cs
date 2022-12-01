@@ -57,7 +57,7 @@ partial struct TrainSystem : ISystem
                 waypoint.ValueRW.Value = 0;
                 transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, -Globals.RailSize * 0.5f);
             }
-            trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { positionZ = transform.LocalPosition.z };
+            trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { position = transform.LocalPosition };
         }
     }
 }

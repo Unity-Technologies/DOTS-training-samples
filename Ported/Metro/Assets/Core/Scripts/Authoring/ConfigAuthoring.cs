@@ -19,6 +19,8 @@ class ConfigBaker : Baker<ConfigAuthoring>
 {
     public override void Bake(ConfigAuthoring authoring)
     {
+        
+        
         AddComponent(new Config
         {
             PersonPrefab = GetEntity(authoring.PersonPrefab),

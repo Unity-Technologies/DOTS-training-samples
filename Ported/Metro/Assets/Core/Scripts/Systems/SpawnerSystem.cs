@@ -51,6 +51,8 @@ partial struct SpawnerSystem : ISystem
         DynamicBuffer<TrainCapacityBuffer> trainCapacity = state.EntityManager.AddBuffer<TrainCapacityBuffer>(configEntity);
         trainCapacity.Length = config.PlatformCountPerStation;
 
+        for (int i = 0; i < trainCapacity.Length; i++)
+            trainCapacity[i] = new TrainCapacityBuffer() { Capacity = Globals.DefaultTrainCapacity };
 
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
 

@@ -27,6 +27,8 @@ class WaypointBaker : Baker<WaypointAuthoring>
     {
         var pathAuth = GetComponentInParent<PathAuthoring>();
      
+        
+        
         AddComponent(new Waypoint
         {
             PathEntity = pathAuth != null ? GetEntity(pathAuth.transform) : default,
