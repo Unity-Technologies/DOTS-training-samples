@@ -4,16 +4,16 @@ using Unity.Transforms;
 
 readonly partial struct TrainAspect : IAspect
 {
-    // An Entity field in an aspect provides access to the entity itself.
-    // This is required for registering commands in an EntityCommandBuffer for example.
     public readonly Entity Self;
-
+    
     // Aspects can contain other aspects.
     readonly TransformAspect Transform;
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
     public readonly RefRW<Train> Train;
+    public readonly RefRW<UniqueTrainID> TrainID;
+    readonly RefRW<TrainStateComponent> StateComponent;
 
     // A RefRW field provides read write access to a component. If the aspect is taken as an "in"
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
@@ -34,6 +34,13 @@ readonly partial struct TrainAspect : IAspect
     }
 
     public float3 Forward => Transform.Forward;
+    public Entity MetroLine => Train.ValueRO.MetroLine;
+
+    public TrainState State
+    {
+        get => StateComponent.ValueRO.State;
+        set => StateComponent.ValueRW.State = value;
+    }
 
     public float3 Destination
     {

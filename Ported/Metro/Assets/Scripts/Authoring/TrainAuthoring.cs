@@ -24,5 +24,8 @@ class TrainAuthoringBaker : Baker<TrainAuthoring>
         });
         AddComponent<URPMaterialPropertyBaseColor>();
         AddComponent<Train>();
+        AddComponent<TrainStateComponent>();
+        AddComponent<UniqueTrainID>();
+        AddComponent<TrainIndexOnMetroLine>();
     }
 }

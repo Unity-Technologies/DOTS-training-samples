@@ -39,7 +39,7 @@ partial struct PlatformSpawnerSystem : ISystem
         foreach (var (metroLine, entity) in SystemAPI.Query<MetroLine>().WithEntityAccess())
         {
             var metroLineColor = new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)metroLine.Color };
-            var platforms = new NativeArray<Entity>(metroLine.RailwayPositions.Length, Allocator.Persistent);
+            var platforms = new NativeArray<int>(metroLine.RailwayPositions.Length, Allocator.Persistent);
             for (int i = 0, count = metroLine.RailwayPositions.Length; i < count; i++)
             {
                 if(metroLine.RailwayTypes[i] != RailwayPointType.Platform)
@@ -49,7 +49,7 @@ partial struct PlatformSpawnerSystem : ISystem
                 ecb.SetComponentForLinkedEntityGroup(platform, baseColorQueryMask, metroLineColor);
                 ecb.SetComponentForLinkedEntityGroup(platform, platformIdQueryMask, new PlatformId{ Value = platformId });
                 ecb.SetComponentForLinkedEntityGroup(platform, stationIdQueryMask, new StationId{ Value = metroLine.StationIds[i] });
-                platforms[i] = platform;
+                platforms[i] = platformId;
                 platformId++;
             }
             
@@ -63,8 +63,9 @@ partial struct PlatformSpawnerSystem : ISystem
                 RailwayRotations = metroLine.RailwayRotations,
                 StationIds = metroLine.StationIds
             };
-            SystemAPI.SetComponent(entity, newMetroLine);
+            ecb.SetComponent(entity, newMetroLine);
         }
+        
         
         state.Enabled = false;
     }

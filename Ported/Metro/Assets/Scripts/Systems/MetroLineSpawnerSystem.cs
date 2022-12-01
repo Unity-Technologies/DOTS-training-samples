@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
@@ -26,7 +27,6 @@ namespace Systems
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
             var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-            var uniqueMetroIndex = 0;
             foreach (var (metroLine, entity) in SystemAPI.Query<MetroLine>().WithEntityAccess())
             {
                 var id = SystemAPI.GetComponent<MetroLineID>(entity);
@@ -39,6 +39,7 @@ namespace Systems
                     countTrains++;
                 }
 
+                var trainIndex = 0;
                 for (int i = 0; i < metroLine.RailwayPositions.Length; i++)
                 {
                     if (metroLine.RailwayTypes[i] != RailwayPointType.Route)
@@ -48,19 +49,26 @@ namespace Systems
                     var nextIndex = i - 1 < 0 ? metroLine.RailwayPositions.Length - 1 : i - 1;
                     ecb.SetComponent(train, new Train
                     {
-                        UniqueTrainID = uniqueMetroIndex,
-                        AmountOfTrainsOnMetroLine = countTrains,
                         DestinationIndex = nextIndex,
                         Destination = metroLine.RailwayPositions[nextIndex],
                         DestinationType = metroLine.RailwayTypes[nextIndex],
-                        State = TrainState.EnRoute,
+                        
                         MetroLine = entity
+                    });
+                    ecb.SetComponent(train, new TrainStateComponent
+                    {
+                        State = TrainState.EnRoute
                     });
                     ecb.SetComponent(train, new MetroLineID
                     {
                         ID = id.ID
                     });
-                    uniqueMetroIndex++;
+                    ecb.SetComponent(train, new TrainIndexOnMetroLine
+                    {
+                        IndexOnMetroLine = trainIndex,
+                        AmountOfTrainsOnMetroLine = countTrains,
+                    });
+                    trainIndex++;
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using System.Runtime.CompilerServices;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -22,6 +23,19 @@ namespace Systems
         {
         }
 
+                
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetNextTrainID(ref NativeArray<int> indexes, int metroLineID, int trainAmount, int trainID)
+        {
+            var startIndex = indexes[metroLineID];
+            var lastIndex = startIndex + trainAmount - 1;
+            var nextIndexOnLine = trainID - 1;
+            if (nextIndexOnLine < startIndex)
+                nextIndexOnLine = lastIndex;
+            return nextIndexOnLine;
+        }
+
+        
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -43,13 +57,13 @@ namespace Systems
             {
                 amountOfTrainsOnLine[id.ID]++;
             }
-
+            
             trainPositions.ValueRW.StartIndexForMetroLine = new NativeArray<int>(amountOfMetroLines, Allocator.Persistent);
             var counter = 0;
             for (int i = 0; i < amountOfMetroLines; i++)
             {
                 trainPositions.ValueRW.StartIndexForMetroLine[i] = counter;
-                counter = amountOfTrainsOnLine[i];
+                counter += amountOfTrainsOnLine[i];
             }
 
             trainPositions.ValueRW.Trains = new NativeArray<Entity>(amountOfTrains, Allocator.Persistent);
@@ -59,12 +73,22 @@ namespace Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-            foreach (var (train, entity) in SystemAPI.Query<Train>().WithEntityAccess())
+            foreach (var (train, entity) in SystemAPI.Query<UniqueTrainID>().WithEntityAccess())
             {
+                var metroLine = SystemAPI.GetComponent<MetroLineID>(entity);
+                var trainIndex = SystemAPI.GetComponent<TrainIndexOnMetroLine>(entity);
+                var uniqueID = trainPositions.ValueRW.StartIndexForMetroLine[metroLine.ID] + trainIndex.IndexOnMetroLine;
+                var nextTrainID = GetNextTrainID(ref trainPositions.ValueRW.StartIndexForMetroLine, metroLine.ID, trainIndex.AmountOfTrainsOnMetroLine, uniqueID);
+                SystemAPI.SetComponent(entity, new UniqueTrainID
+                {
+                    ID = uniqueID,
+                    NextTrainID = nextTrainID
+                });
+                
                 var worldTransform = SystemAPI.GetComponent<WorldTransform>(entity);
-                trainPositions.ValueRW.Trains[train.UniqueTrainID] = entity;
-                trainPositions.ValueRW.TrainsPositions[train.UniqueTrainID] = worldTransform.Position;
-                trainPositions.ValueRW.TrainsRotations[train.UniqueTrainID] = worldTransform.Rotation;
+                trainPositions.ValueRW.Trains[train.ID] = entity;
+                trainPositions.ValueRW.TrainsPositions[train.ID] = worldTransform.Position;
+                trainPositions.ValueRW.TrainsRotations[train.ID] = worldTransform.Rotation;
 
                 var carriages = CollectionHelper.CreateNativeArray<Entity>(trainConfig.CarriageCount, Allocator.Temp);
                 ecb.Instantiate(trainConfig.CarriagePrefab, carriages);
@@ -75,7 +99,7 @@ namespace Systems
                     var carriage = new Carriage
                     {
                         Index = i,
-                        uniqueTrainID = train.UniqueTrainID,
+                        uniqueTrainID = uniqueID,
                         Train = entity
                     };
                     ecb.AddComponent(carriageEntity, carriage);

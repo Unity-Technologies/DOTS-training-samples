@@ -7,8 +7,6 @@ using UnityEngine.SocialPlatforms;
 
 public struct Carriage : IComponentData
 {
-    public NativeArray<float2> Seats;
-    public NativeList<Entity> Passengers;
     public int Index;
 
     public Entity Train;

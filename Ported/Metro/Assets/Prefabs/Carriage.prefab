@@ -122,7 +122,7 @@ Transform:
   - {fileID: 4665579347215500}
   - {fileID: 4246679482719034}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2026227890442978079
 MonoBehaviour:
@@ -137,6 +137,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collider: {fileID: 2320794692493870216}
+  seats:
+  - {fileID: 1389197993839010}
+  - {fileID: 1094477703607906}
+  - {fileID: 1071443076819976}
+  - {fileID: 1052434976766370}
+  - {fileID: 1404726369512618}
+  - {fileID: 1206698157444620}
+  - {fileID: 1418032197752034}
+  - {fileID: 1688403988801290}
+  - {fileID: 1267406324615784}
+  - {fileID: 1148780039533762}
+  - {fileID: 1969653080027266}
+  - {fileID: 1712920590393626}
+  - {fileID: 1258080270596990}
+  - {fileID: 1301348022950904}
+  - {fileID: 1537671563657892}
+  - {fileID: 1999801222362766}
+  - {fileID: 1450364576365064}
+  - {fileID: 1249746083786610}
+  - {fileID: 1310222160243072}
+  - {fileID: 1480241160228784}
+  - {fileID: 1894733739123580}
+  - {fileID: 1308249162480722}
+  - {fileID: 1772992464055096}
+  - {fileID: 1371329695546690}
+  - {fileID: 1218860276445388}
+  - {fileID: 1194755893462626}
+  - {fileID: 1010550110454968}
 --- !u!65 &2320794692493870216
 BoxCollider:
   m_ObjectHideFlags: 0

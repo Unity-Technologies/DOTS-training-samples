@@ -1,25 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public enum TrainState
-{
-    EnRoute,
-    Arriving,
-    Unloading,
-    Loading,
-    Departing
-}
-
 public struct Train : IComponentData
 {
-    public int UniqueTrainID;
-    public int AmountOfTrainsOnMetroLine;
-
     public int DestinationIndex;
     public float3 Destination;
     public RailwayPointType DestinationType;
     public float DistanceToNextTrain;
-    public TrainState State;
 
     public Entity MetroLine;
 
@@ -27,4 +14,16 @@ public struct Train : IComponentData
     public float3 Forward;
     public float3 DestinationDirection;
     public float DistanceToDestination;*/
+}
+
+public struct TrainIndexOnMetroLine : IComponentData
+{
+    public int IndexOnMetroLine;
+    public int AmountOfTrainsOnMetroLine;
+}
+
+public struct UniqueTrainID : IComponentData
+{
+    public int ID;
+    public int NextTrainID;
 }
