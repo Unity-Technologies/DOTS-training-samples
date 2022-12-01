@@ -42,14 +42,12 @@ partial struct TrainSystem : ISystem
                 time.ValueRW.Value = Globals.TrainWaitTime;
                 waypoint.ValueRW.Value++;
                 platformTrainStatus[locationInfo.CurrentPlatform] = new PlatformTrainStatusBuffer() { TrainID = trainInfo.Id };
-                Debug.Log(locationInfo.CurrentPlatform + " status: " + platformTrainStatus[locationInfo.CurrentPlatform].TrainID);
                 continue;
             }
 
             if (platformTrainStatus[locationInfo.CurrentPlatform].TrainID == trainInfo.Id) // if we are moving and platform we are at has us marked, de-mark us
             {
                 platformTrainStatus[locationInfo.CurrentPlatform] = new PlatformTrainStatusBuffer() { TrainID = -1 };
-                Debug.Log("left: "+locationInfo.CurrentPlatform + " status: " + platformTrainStatus[locationInfo.CurrentPlatform].TrainID);
             }
 
             transform.LocalPosition += new float3(0, 0, speed.Value * Time.deltaTime);
