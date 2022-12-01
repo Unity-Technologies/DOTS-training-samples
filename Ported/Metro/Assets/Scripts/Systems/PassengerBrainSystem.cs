@@ -223,10 +223,25 @@ partial struct PassengerBrainSystem : ISystem
 
                 case PassengerState.ChoosingQueue:
                     _waypointsLookup.SetBufferEnabled(entity, true);
+                    
+                    (DynamicBuffer<PlatformQueueBuffer>, WorldTransform, PlatformQueueId) queueInfo = default;
+                    var queueLength = int.MaxValue;
+                    foreach (var (platformId, buffer, queueTransform, queueId) in
+                             SystemAPI.Query<PlatformId,DynamicBuffer<PlatformQueueBuffer>, WorldTransform, PlatformQueueId>())
+                    {
+                        if (platformId.Value == passengerPlatformId.Value && buffer.Length < queueLength)
+                        {
+                            queueInfo = (buffer, queueTransform, queueId);
+                            queueLength = buffer.Length;
+                        }
+                    }
 
-                    // TODO - Pick a random queue
+                    // TODO - Pick a shortest queue
                     var waypoints = SystemAPI.GetBuffer<Waypoint>(entity);
-                    waypoints.Add(new Waypoint { Value = new float3(1, 0, 1) });
+                    waypoints.Add(new Waypoint { Value = queueInfo.Item2.Position });
+                    queueInfo.Item1.Add(new PlatformQueueBuffer{Passenger = entity});
+                    ecb.SetComponent(entity, new Passenger { State = PassengerState.WalkingToQueue });
+                    ecb.SetComponent(entity, new PlatformQueueId() { Value = queueInfo.Item3.Value});
                     continue;
 
 

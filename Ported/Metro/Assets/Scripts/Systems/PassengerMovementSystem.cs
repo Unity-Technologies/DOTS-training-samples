@@ -27,7 +27,8 @@ partial struct PassengerMovementJob : IJobEntity
         WaypointLookup.TryGetBuffer(passenger.Self, out var waypoints);
         if (waypoints.Length == 0)
         {
-            WaypointLookup.SetBufferEnabled(passenger.Self, false);
+            if(passenger.State != PassengerState.WalkingToQueue)
+                WaypointLookup.SetBufferEnabled(passenger.Self, false);
             if (passenger.State == PassengerState.OffBoarding)
                 passenger.State = PassengerState.Idle;
             else

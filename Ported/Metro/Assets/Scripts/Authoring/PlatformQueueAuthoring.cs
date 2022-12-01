@@ -15,5 +15,6 @@ class PlatformQueueBaker : Baker<PlatformQueueAuthoring>
         {
             //Passengers = new NativeList<Entity>();
         });
+        AddBuffer<PlatformQueueBuffer>();
     }
 }

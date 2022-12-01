@@ -54,12 +54,12 @@ namespace Systems
                     case TrainState.Loading:
                     {
                         var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-                        var carriageInfos = new NativeArray<(Carriage, float3, NativeArray<float3>, DynamicBuffer<CarriagePassengers>)>(trainConfig.CarriageCount, Allocator.Temp);
+                        var carriageInfos = new NativeArray<(Carriage, float3, NativeArray<float3>, DynamicBuffer<CarriagePassengers>, quaternion)>(trainConfig.CarriageCount, Allocator.Temp);
                         var counter = 0;
                         foreach (var (carriage, transform,seatsPositions, seats) in SystemAPI.Query<Carriage, WorldTransform,  CarriageSeatsPositions, DynamicBuffer<CarriagePassengers>>())
                         {
                             if (carriage.Train != trainEntity) continue;
-                            carriageInfos[counter] = (carriage, transform.Position,seatsPositions.Seats, seats);
+                            carriageInfos[counter] = (carriage, transform.Position , seatsPositions.Seats, seats, transform.Rotation);
                             counter++;
                         }
                         
@@ -77,8 +77,11 @@ namespace Systems
                             var seatPositions = carriageInfo.Item3;
                             var freeSeatPosition = seatPositions[occupiedSeats];
                             waypoints.Add(new Waypoint { Value = carriageInfo.Item2 }); //carriage center
-                            waypoints.Add(new Waypoint { Value = carriageInfo.Item2 +  freeSeatPosition}); //seat pos
-                                
+                            waypoints.Add(new Waypoint { Value = carriageInfo.Item2 +  math.rotate(carriageInfo.Item5, freeSeatPosition)}); //seat pos
+                            seats.Add(new CarriagePassengers
+                            {
+                                Value = passengerEntity
+                            });
                             SystemAPI.SetComponent(passengerEntity, new Passenger { State = PassengerState.OnBoarding });
                         }
 

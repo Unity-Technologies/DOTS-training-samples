@@ -52,7 +52,7 @@ namespace Systems
             {
                 for (int i = 0; i < passengers.Length; i++)
                 {
-                    var seatPosition = carriage.Position + seats.Seats[i];
+                    var seatPosition = carriage.Position + math.rotate(carriage.Rotation,seats.Seats[i]);
                     SystemAPI.SetComponent(passengers[i].Value, LocalTransform.FromPosition(seatPosition));
                 }
             }
