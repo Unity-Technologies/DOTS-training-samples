@@ -1,47 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Systems;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-// [BurstCompile]
-// [WithAll(typeof(Train))]
-// partial struct PassengerMovementJob : IJobEntity
-// {
-//     // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-//     public float DeltaTime;
-//
-//     void Execute(ref TrainAspect train)
-//     {
-//         var direction = train.TrainDestination - train.Position;
-//         //train.Train.ValueRW.DestinationDirection = direction;
-//         var trainDirection = train.Forward;
-//         //train.Train.ValueRW.Forward = trainDirection;
-//         var angle = Utility.Angle(trainDirection, direction);
-//         //train.Train.ValueRW.Angle = angle;
-//         if(angle > 0.01f)
-//             train.Rotation = quaternion.RotateY(angle);
-//             
-//             
-//         var distanceToThePoint = math.lengthsq(direction);
-//         if (distanceToThePoint > 0.001f)
-//         {
-//             train.Position += math.normalize(direction) * (DeltaTime * train.CurrentSpeed);
-//         }
-//     }
-// }
+[BurstCompile]
+[WithAll(typeof(Passenger))]
+partial struct PassengerMovementJob : IJobEntity
+{
+    //public Entity PassengerEntity;
+    [NativeDisableParallelForRestriction] public BufferLookup<Waypoint> WaypointLookup;
+    public float Speed;
+    public float DeltaTime;
+    
+    void Execute(ref PassengerAspect passenger)
+    {
+        if (!WaypointLookup.IsBufferEnabled(passenger.Self))
+            return;
+        if (passenger.State == PassengerState.Idle || passenger.State == PassengerState.InQueue)
+            return;
+        DynamicBuffer<Waypoint> waypoints;
+        bool success = WaypointLookup.TryGetBuffer(passenger.Self, out waypoints);
+        if ((waypoints.Length == 0)||!success)
+        {
+            WaypointLookup.SetBufferEnabled(passenger.Self, false);
+            return;
+        }
+        float3 destination = waypoints[0].Value;
+        var direction = destination - passenger.Position;
+        var distance = math.lengthsq(direction);
+        if (distance > 0.001f)
+        {
+            passenger.Position += math.normalize(direction) * (DeltaTime * Speed);
+        }
+        else
+        {
+            waypoints.RemoveAt(0);
+            passenger.State = PassengerState.Idle;
+        }
+    }
+}
 
 [BurstCompile]
 [RequireMatchingQueriesForUpdate]
 partial struct PassengerMovementSystem : ISystem
 {
+    BufferLookup<Waypoint> m_WaypointLookup;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        m_WaypointLookup = state.GetBufferLookup<Waypoint>();
     }
 
     [BurstCompile]
@@ -52,7 +67,6 @@ partial struct PassengerMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        
         // Random random = new Random(1234);
         // foreach ((var passenger, var entity) in SystemAPI.Query<Passenger>().WithEntityAccess())
         // {
@@ -83,5 +97,15 @@ partial struct PassengerMovementSystem : ISystem
         //         }
         //     }
         // }
+        
+        m_WaypointLookup.Update(ref state);
+        float dt = SystemAPI.Time.DeltaTime;
+        var movementJob = new PassengerMovementJob
+        {
+            WaypointLookup = m_WaypointLookup,
+            Speed = 4,
+            DeltaTime = dt
+        };
+        movementJob.ScheduleParallel();
     }
 }
