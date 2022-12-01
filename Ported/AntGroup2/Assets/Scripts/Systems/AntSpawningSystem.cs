@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Unity.Collections;
 
+[BurstCompile]
 partial struct AntSpawningSystem : ISystem
 {
     private EntityQuery antQuery;
@@ -27,7 +28,7 @@ partial struct AntSpawningSystem : ISystem
     {
     }
 
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -36,24 +37,25 @@ partial struct AntSpawningSystem : ISystem
         if (Input.GetKeyDown(KeyCode.R))
         {
             var arr = antQuery.ToEntityArray(Allocator.Temp);
-            foreach (var ant in arr)
-            {
-                ecb.DestroyEntity(ant);
-            }
+            ecb.DestroyEntity(arr);
         }
         
         var config = SystemAPI.GetSingleton<Config>();
 
-        if (config.TotalAmountOfAnts < antQuery.CalculateEntityCount())
+        int currentAntCount = antQuery.CalculateEntityCount();
+        int antToBeCreated = math.min(config.TotalAmountOfAnts - currentAntCount, 500);
+
+        if (antToBeCreated < 1)
             return;
-        
-        for (int i = 0; i < 500; ++i)
+
+        var ants = CollectionHelper.CreateNativeArray<Entity>(antToBeCreated, Allocator.Temp);
+        ecb.Instantiate(config.AntPrefab, ants);
+
+        foreach (var ant in ants)
         {
             var randomAngle = 2.0f * math.PI * random.NextFloat();
-
-            Entity newAnt = ecb.Instantiate(config.AntPrefab);
-            ecb.SetComponent<CurrentDirection>(newAnt, new CurrentDirection { Angle = randomAngle });
-            ecb.SetComponent<PreviousDirection>(newAnt, new PreviousDirection { Angle = randomAngle });
+            ecb.SetComponent<CurrentDirection>(ant, new CurrentDirection { Angle = randomAngle });
+            ecb.SetComponent<PreviousDirection>(ant, new PreviousDirection { Angle = randomAngle });
         }
     }
 }
