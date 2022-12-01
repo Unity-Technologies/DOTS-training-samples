@@ -4738,6 +4738,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4472932178448170}
   - component: {fileID: 114896601653018800}
+  - component: {fileID: 9167827579989512069}
   m_Layer: 0
   m_Name: Platform
   m_TagString: Untagged
@@ -4793,6 +4794,18 @@ MonoBehaviour:
   temporary_routeDistance: 0
   temporary_accessedViaPlatform: {fileID: 0}
   temporary_connectionType: 0
+--- !u!114 &9167827579989512069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891511846621564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3efddc44fceea54fb733d141e5bc25d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1917900291829536
 GameObject:
   m_ObjectHideFlags: 0
