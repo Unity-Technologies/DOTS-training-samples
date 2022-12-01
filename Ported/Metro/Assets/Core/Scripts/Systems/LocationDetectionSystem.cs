@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -35,7 +36,7 @@ partial struct LocationDetectionSystem : ISystem
             int stationSpacing = (int)(Globals.RailSize / config.NumberOfStations);
             int column = locationInfo.CurrentStation = (int)((Globals.RailSize*0.5f+transform.LocalPosition.z) / stationSpacing);
             int row = (int)((transform.LocalPosition.x) / Globals.PlatformSpacing);
-            locationInfo.CurrentPlatform = (row * config.NumberOfStations) + column;
+            locationInfo.CurrentPlatform = math.clamp((row * config.NumberOfStations) + column, 0, (config.NumberOfStations*config.PlatformCountPerStation-1));
         }
     }
 }

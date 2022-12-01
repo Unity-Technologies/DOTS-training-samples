@@ -68,11 +68,13 @@ partial struct PassengerSystem : ISystem
         public void Execute(TransformAspect transform, LocationInfo locationInfo, PassengerInfo passengerInfo)
         {
             if (passengerInfo.TrainID != -1)
-                transform.LocalPosition = new float3(trainPositions[passengerInfo.TrainID].position.x, trainPositions[passengerInfo.TrainID].position.y, trainPositions[passengerInfo.TrainID].position.z);
+            {
+                transform.LocalPosition = new float3(trainPositions[passengerInfo.TrainID].position.x, trainPositions[passengerInfo.TrainID].position.y, trainPositions[passengerInfo.TrainID].position.z - Globals.TrainHalfLength + passengerInfo.Seat * Globals.TrainSeatSpacing);
+            }
         }
     }
 
-    [BurstCompile][WithNone(typeof(PassengerInfo))]
+    [BurstCompile][WithNone(typeof(PassengerInfo), typeof(TrainInfo))]
     public partial struct EmbarkJob : IJobEntity
     {
         [ReadOnly] public DynamicBuffer<TrainPositionsBuffer> trainPositions;
@@ -87,10 +89,10 @@ partial struct PassengerSystem : ISystem
 
             if (trainCapacity[trainID].Capacity > 0)
             {
-                transform.LocalPosition = new float3(trainPositions[platformTrainStatus[locationInfo.CurrentPlatform].TrainID].position.x, trainPositions[platformTrainStatus[locationInfo.CurrentPlatform].TrainID].position.y, trainPositions[platformTrainStatus[locationInfo.CurrentPlatform].TrainID].position.z);
-                trainCapacity[trainID] = new TrainCapacityBuffer() { Capacity = trainCapacity[trainID].Capacity - 1 };
-                PassengerInfo info = new PassengerInfo() { TrainID = trainID };
-                ecb.AddComponent(entity, info);
+                PassengerInfo passengerInfo = new PassengerInfo() { TrainID = trainID, Seat = trainCapacity[trainID].Capacity + 1 };
+                transform.LocalPosition = new float3(trainPositions[trainID].position.x, trainPositions[trainID].position.y, trainPositions[trainID].position.z - Globals.TrainHalfLength + passengerInfo.Seat * Globals.TrainSeatSpacing);
+                trainCapacity[trainID] = new TrainCapacityBuffer() { Capacity = (trainCapacity[trainID].Capacity - 1) };
+                ecb.AddComponent(entity, passengerInfo);
             }
         }
     }
