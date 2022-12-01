@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace Systems
 {
@@ -9,7 +10,7 @@ namespace Systems
     partial struct CarriageJob : IJobEntity
     {        
         [ReadOnly] public TrainPositions TrainPositions;
-        
+
         void Execute(ref CarriageAspect carriage)
         {
             var trainPosition = TrainPositions.TrainsPositions[carriage.TrainID];
@@ -20,7 +21,7 @@ namespace Systems
             carriage.Rotation = trainRotation;
         }
     }
-
+    
     [BurstCompile]
     [UpdateAfter(typeof(TrainMovementSystem))]
     public partial struct CarriageMovementSystem : ISystem
@@ -45,8 +46,16 @@ namespace Systems
                 TrainPositions = trainPositions
             };
 
-            carriageJob.ScheduleParallel();
+            carriageJob.ScheduleParallel(state.Dependency).Complete();
 
+            foreach (var (seats, carriage) in SystemAPI.Query<CarriageSeats,LocalTransform>())
+            {
+                for (int i = 0; i < seats.Passengers.Length; i++)
+                {
+                    var seatPosition = carriage.Position + seats.Seats[i];
+                    SystemAPI.SetComponent(seats.Passengers[i], LocalTransform.FromPosition(seatPosition));
+                }
+            }
         }
     }
 }
