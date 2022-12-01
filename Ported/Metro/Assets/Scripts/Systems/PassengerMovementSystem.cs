@@ -1,14 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using Systems;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
-using UnityEngine;
-using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 [WithAll(typeof(Passenger))]
@@ -17,7 +10,7 @@ partial struct PassengerMovementJob : IJobEntity
     //public Entity PassengerEntity;
     [NativeDisableParallelForRestriction] public BufferLookup<Waypoint> WaypointLookup;
     public float DeltaTime;
-    
+
     void Execute(ref PassengerAspect passenger)
     {
         if (!WaypointLookup.IsBufferEnabled(passenger.Self))
@@ -31,15 +24,23 @@ partial struct PassengerMovementJob : IJobEntity
                 passenger.State = PassengerState.Idle;
             else
                 passenger.State++;
-            if(passenger.State != PassengerState.InQueue && passenger.State != PassengerState.Seated )
+            if (passenger.State != PassengerState.InQueue && passenger.State != PassengerState.Seated)
                 WaypointLookup.SetBufferEnabled(passenger.Self, false);
             return;
         }
+
         float3 destination = waypoints[0].Value;
         var direction = destination - passenger.Position;
         var distance = math.lengthsq(direction);
         if (distance > 0.001f)
-            passenger.Position += math.normalize(direction) * (DeltaTime * passenger.Speed);
+        {
+            var nextSuggestedPosition = passenger.Position + math.normalize(direction) * (DeltaTime * passenger.Speed);
+            var distanceToNextPosition = math.distancesq(passenger.Position, nextSuggestedPosition);
+            if (distanceToNextPosition < distance)
+                passenger.Position = nextSuggestedPosition;
+            else
+                passenger.Position = destination;
+        }
         else
             waypoints.RemoveAt(0);
     }
@@ -51,7 +52,7 @@ partial struct PassengerMovementSystem : ISystem
 {
     BufferLookup<Waypoint> m_WaypointLookup;
     ComponentLookup<SpeedComponent> m_SpeedLookup;
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -97,7 +98,7 @@ partial struct PassengerMovementSystem : ISystem
         //         }
         //     }
         // }
-        
+
         m_WaypointLookup.Update(ref state);
         float dt = SystemAPI.Time.DeltaTime;
         var movementJob = new PassengerMovementJob

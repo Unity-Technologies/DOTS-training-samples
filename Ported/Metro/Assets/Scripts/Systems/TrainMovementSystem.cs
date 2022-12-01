@@ -34,7 +34,10 @@ namespace Systems
                         else if (train.DestinationType == RailwayPointType.Platform)
                         {
                             var minimalSpeed = distanceToDestination < 0.1f ? 0f : 0.1f * train.MaxSpeed;
-                            train.Speed = math.max(train.Speed - (1 - distanceToDestination/20f) * DeltaTime * train.MaxSpeed, minimalSpeed);
+                            var desiredSpeed = (distanceToDestination / 20f) * train.MaxSpeed;
+                            var sign = desiredSpeed > train.Speed ? 1f : -1f;
+                            var nextSpeed = train.Speed + sign * 0.05f * train.MaxSpeed;
+                            train.Speed = math.max(nextSpeed, minimalSpeed);
                         }
                     }
 
@@ -90,7 +93,7 @@ namespace Systems
                         var distanceToNextPosition = math.distance(nextSuggestedPosition, train.Position);
                         var distanceToDestination = math.distance(train.Destination, train.Position);
                         if (distanceToNextPosition > distanceToDestination)
-                           SetNextDestinationPoint(ref train);
+                            SetNextDestinationPoint(ref train);
 
                         train.Position = nextSuggestedPosition;
                     }
