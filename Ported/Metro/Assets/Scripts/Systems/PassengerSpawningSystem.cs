@@ -70,7 +70,7 @@ partial struct PassengerSpawningSystem : ISystem
             ecb.SetComponentForLinkedEntityGroup(passenger, colorQueryMask, RandomColor());
             ecb.SetComponentForLinkedEntityGroup(passenger, platformIdQueryMask, new PlatformId{Value = queues[queueIndex].PlatformId});
             ecb.SetComponent(passenger, new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) });
-            //ecb.SetComponentEnabled<Waypoint>(passenger, false);
+            ecb.SetComponentEnabled<Waypoint>(passenger, false);
         }
 
         state.Enabled = false;
