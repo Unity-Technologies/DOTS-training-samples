@@ -14,9 +14,17 @@ class PassengerBaker : Baker<PassengerAuthoring>
 {
     public override void Bake(PassengerAuthoring authoring)
     {
-        AddComponent(new Passenger()
-        {
-            State = PassengerState.Waiting
-        });
+        AddComponent(new Passenger { State = PassengerState.Idle });
+        AddComponent(new PlatformId());
+        var waypoints = AddBuffer<Waypoint>();
     }
 }
+
+
+// TODO - Move this to another file
+[InternalBufferCapacity(4)]
+public struct Waypoint : IBufferElementData, IEnableableComponent
+{
+    public float3 Value;
+}
+

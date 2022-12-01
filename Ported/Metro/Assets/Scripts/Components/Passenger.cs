@@ -5,14 +5,18 @@ using UnityEngine.Apple;
 
 public enum PassengerState
 {
-    Walking,
-    Waiting,
+    Idle,
+    WalkingToPlatform,
+    ChoosingQueue,
+    WalkingToQueue,
     InQueue,
-    OnBoard
+    OnBoarding,
+    OnTrain,
+    OffBoarding
 }
 
 public struct Passenger : IComponentData
 {
     public PassengerState State;
-    public float3 Destination;
+    //public float3 Destination;
 }

@@ -10,7 +10,7 @@ using Unity.Transforms;
 partial struct PassengerSpawningSystem : ISystem
 {
     EntityQuery m_BaseColorQuery;
-    EntityQuery m_Transform;
+    EntityQuery m_PlatformId;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -18,26 +18,26 @@ partial struct PassengerSpawningSystem : ISystem
         state.RequireForUpdate<PassengersConfig>();
         state.RequireForUpdate<PlatformQueue>();
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
+        m_PlatformId = state.GetEntityQuery(ComponentType.ReadOnly<PlatformId>());
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        // throw new System.NotImplementedException();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     { 
         int queueCount = 0;
-        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PlatformQueue>())
+        foreach (var queue in SystemAPI.Query<PlatformQueue>())
             queueCount++;
         
-        var queues = CollectionHelper.CreateNativeArray<float3>(queueCount, Allocator.Temp);
+        var queues = CollectionHelper.CreateNativeArray<PlatformQueueAspect>(queueCount, Allocator.Temp);
         int i = 0;
-        foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PlatformQueue>())
+        foreach (var queueAspect in SystemAPI.Query<PlatformQueueAspect>())
         {
-            queues[i] = transform.WorldPosition;
+            queues[i] = queueAspect;
             i++;
         }
         
@@ -59,21 +59,19 @@ partial struct PassengerSpawningSystem : ISystem
         var passengers = CollectionHelper.CreateNativeArray<Entity>(config.passengerCount, Allocator.Temp);
         ecb.Instantiate(config.passengerPrefab, passengers);
 
-        var queryMask = m_BaseColorQuery.GetEntityQueryMask();
+        var colorQueryMask = m_BaseColorQuery.GetEntityQueryMask();
+        var platformIdQueryMask = m_PlatformId.GetEntityQueryMask();
 
         foreach (var passenger in passengers)
         {
             int queueIndex = random.NextInt(0,  (queueCount == 0)? 0 : queueCount - 1);
-            float3 pos = new float3(random.NextFloat(-1, 1),
-                0,
-                random.NextFloat(-1.0f, 1.0f)) 
-                         + queues[queueIndex];
+            float3 pos = new float3(random.NextFloat(-1, 1), 0, random.NextFloat(-1.0f, 1.0f)) + queues[queueIndex].Position;
             ecb.SetComponent<LocalTransform>(passenger, LocalTransform.FromPosition(pos));
-            ecb.SetComponentForLinkedEntityGroup(passenger, queryMask, RandomColor());
-            var pts = new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) };
-            ecb.SetComponent(passenger, pts);
+            ecb.SetComponentForLinkedEntityGroup(passenger, colorQueryMask, RandomColor());
+            ecb.SetComponentForLinkedEntityGroup(passenger, platformIdQueryMask, new PlatformId{Value = queues[queueIndex].PlatformId});
+            ecb.SetComponent(passenger, new PostTransformScale { Value = float3x3.Scale(0.3f, random.NextFloat(0.4f, 1.1f), 0.3f) });
+            //ecb.SetComponentEnabled<Waypoint>(passenger, false);
         }
-        
 
         state.Enabled = false;
     }
