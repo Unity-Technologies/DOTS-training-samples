@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-struct PlatformInfo : IComponentData
+struct LocationInfo : IComponentData
 {
     public int CurrentStation;
     public int DestinationStation;

@@ -31,7 +31,7 @@ class TrainBaker : Baker<TrainAuthoring>
 
         AddComponent<Waypoint>();
         AddComponent<TrainInfo>();
-        AddComponent<PlatformInfo>();
+        AddComponent<LocationInfo>();
 
     }
 }

@@ -9,6 +9,6 @@ class PassengerBaker : Baker<PassengerAuthoring>
     public override void Bake(PassengerAuthoring authoring)
     {
         AddComponent(new PassengerTag());
-        AddComponent(new PlatformInfo());
+        AddComponent(new LocationInfo());
     }
 }
