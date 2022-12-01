@@ -31,13 +31,10 @@ partial struct AntSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
         if (Input.GetKeyDown(KeyCode.R))
         {
             var arr = antQuery.ToEntityArray(Allocator.Temp);
-            ecb.DestroyEntity(arr);
+            state.EntityManager.DestroyEntity(arr);
         }
         
         var config = SystemAPI.GetSingleton<Config>();
@@ -48,14 +45,13 @@ partial struct AntSpawningSystem : ISystem
         if (antToBeCreated < 1)
             return;
 
-        var ants = CollectionHelper.CreateNativeArray<Entity>(antToBeCreated, Allocator.Temp);
-        ecb.Instantiate(config.AntPrefab, ants);
+        var ants = state.EntityManager.Instantiate(config.AntPrefab, antToBeCreated, Allocator.Temp);
 
         foreach (var ant in ants)
         {
             var randomAngle = 2.0f * math.PI * random.NextFloat();
-            ecb.SetComponent<CurrentDirection>(ant, new CurrentDirection { Angle = randomAngle });
-            ecb.SetComponent<PreviousDirection>(ant, new PreviousDirection { Angle = randomAngle });
+            state.EntityManager.SetComponentData<CurrentDirection>(ant, new CurrentDirection { Angle = randomAngle });
+            state.EntityManager.SetComponentData<PreviousDirection>(ant, new PreviousDirection { Angle = randomAngle });
         }
     }
 }
