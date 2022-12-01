@@ -32,7 +32,7 @@ partial struct PassengerMovementJob : IJobEntity
         float3 destination = waypoints[0].Value;
         var direction = destination - passenger.Position;
         var distance = math.lengthsq(direction);
-        if (distance > 0.001f)
+        if (distance > 0.02f)
         {
             var nextSuggestedPosition = passenger.Position + math.normalize(direction) * (DeltaTime * passenger.Speed);
             var distanceToNextPosition = math.distancesq(passenger.Position, nextSuggestedPosition);
