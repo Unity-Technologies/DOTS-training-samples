@@ -52,6 +52,8 @@ namespace Systems
             {
                 for (int i = 0; i < seats.Passengers.Length; i++)
                 {
+                    var passenger = seats.Passengers[i];
+                    if(passenger == Entity.Null) continue;
                     var seatPosition = carriage.Position + seats.Seats[i];
                     SystemAPI.SetComponent(seats.Passengers[i], LocalTransform.FromPosition(seatPosition));
                 }
