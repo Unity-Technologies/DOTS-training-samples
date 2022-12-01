@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -13,6 +14,7 @@ namespace Systems
     public partial struct TrainSpawnerSystem : ISystem
     {
         EntityQuery _baseColorQuery;
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -26,7 +28,7 @@ namespace Systems
         {
         }
 
-                
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetNextTrainID(ref NativeArray<int> indexes, int metroLineID, int trainAmount, int trainID)
         {
@@ -38,13 +40,13 @@ namespace Systems
             return nextIndexOnLine;
         }
 
-        
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var trainPositions = SystemAPI.GetSingletonRW<TrainPositions>();
             var baseColorQueryMask = _baseColorQuery.GetEntityQueryMask();
-            
+
             var amountOfTrains = 0;
             foreach (var train in SystemAPI.Query<Train>())
             {
@@ -56,11 +58,11 @@ namespace Systems
             {
                 amountOfMetroLines++;
             }
-            
+
             var metroLineColors = new NativeArray<float4>(amountOfMetroLines, Allocator.Temp);
             foreach (var (metroLineId, metroLine) in SystemAPI.Query<MetroLineID, MetroLine>())
             {
-                metroLineColors[metroLineId.ID] = (UnityEngine.Vector4)metroLine.Color;
+                metroLineColors[metroLineId.ID] = (Vector4)metroLine.Color;
             }
 
             var amountOfTrainsOnLine = new NativeArray<int>(amountOfMetroLines, Allocator.Temp);
@@ -68,7 +70,7 @@ namespace Systems
             {
                 amountOfTrainsOnLine[id.ID]++;
             }
-            
+
             trainPositions.ValueRW.StartIndexForMetroLine = new NativeArray<int>(amountOfMetroLines, Allocator.Persistent);
             var counter = 0;
             for (int i = 0; i < amountOfMetroLines; i++)
@@ -85,9 +87,8 @@ namespace Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
             var trainConfig = SystemAPI.GetSingleton<TrainConfig>();
-            foreach (var (train,metroLine, trainIndex, localTransform, entity) in SystemAPI.Query<UniqueTrainID, MetroLineID,TrainIndexOnMetroLine, LocalTransform>().WithEntityAccess())
+            foreach (var (train, metroLine, trainIndex, localTransform, entity) in SystemAPI.Query<UniqueTrainID, MetroLineID, TrainIndexOnMetroLine, LocalTransform>().WithEntityAccess())
             {
-                
                 var uniqueID = trainPositions.ValueRW.StartIndexForMetroLine[metroLine.ID] + trainIndex.IndexOnMetroLine;
                 var nextTrainID = GetNextTrainID(ref trainPositions.ValueRW.StartIndexForMetroLine, metroLine.ID, trainIndex.AmountOfTrainsOnMetroLine, uniqueID);
                 SystemAPI.SetComponent(entity, new UniqueTrainID
@@ -95,7 +96,7 @@ namespace Systems
                     ID = uniqueID,
                     NextTrainID = nextTrainID
                 });
-                
+
                 trainPositions.ValueRW.Trains[train.ID] = entity;
                 trainPositions.ValueRW.TrainsPositions[train.ID] = localTransform.Position;
                 trainPositions.ValueRW.TrainsRotations[train.ID] = localTransform.Rotation;
@@ -114,8 +115,8 @@ namespace Systems
                     };
                     ecb.AddComponent(carriageEntity, carriage);
                     ecb.SetComponent(carriageEntity, LocalTransform.FromPositionRotation(localTransform.Position, localTransform.Rotation));
-                ecb.SetComponentForLinkedEntityGroup(carriageEntity, baseColorQueryMask, new URPMaterialPropertyBaseColor { Value = metroLineColors[metroLine.ID]});
-             }
+                    ecb.SetComponentForLinkedEntityGroup(carriageEntity, baseColorQueryMask, new URPMaterialPropertyBaseColor { Value = metroLineColors[metroLine.ID] });
+                }
             }
 
             state.Enabled = false;

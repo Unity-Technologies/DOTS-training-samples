@@ -145,8 +145,12 @@ namespace Systems
                             var freeSeatPosition = seatPositions[carriageInfo.Item5];
                             ecb.SetComponent(passengerEntity, new PassengerSeatIndex { Index = carriageInfo.Item5 });
                             ecb.SetComponent(passengerEntity, new Passenger { State = PassengerState.OnBoarding });
-                            waypoints.Add(new Waypoint { Value = carriageInfo.Item2 }); //carriage center
-                            waypoints.Add(new Waypoint { Value = carriageInfo.Item2 + math.rotate(carriageInfo.Item4, freeSeatPosition) }); //seat pos
+                            var carriagePosition = carriageInfo.Item2;
+                            var carriageRotation = carriageInfo.Item4;
+                            var doorPosition = carriagePosition + math.rotate(carriageRotation, new float3(1.5f, 0f, 0f));
+                            waypoints.Add(new Waypoint { Value = doorPosition}); // door
+                            waypoints.Add(new Waypoint { Value = carriagePosition });//carriage center
+                            waypoints.Add(new Waypoint { Value = carriagePosition + math.rotate(carriageRotation, freeSeatPosition) }); //seat pos
 
                             carriageInfo.Item5++;
                             carriageInfos[queueId.Value] = carriageInfo;
