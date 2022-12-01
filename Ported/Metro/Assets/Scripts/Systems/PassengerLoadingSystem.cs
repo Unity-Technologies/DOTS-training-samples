@@ -70,8 +70,6 @@ namespace Systems
                         var metroLine = SystemAPI.GetComponent<MetroLine>(train.MetroLine);
                         var platformID = metroLine.Platforms[train.DestinationIndex];
 
-                        Debug.Log($"UNLOADING Train: {uniqueTrainID.ID} PlatformID: {platformID}");
-
                         var random = new Random(4221);
                         for (int i = 0; i < carriageInfos.Length; i++)
                         {
