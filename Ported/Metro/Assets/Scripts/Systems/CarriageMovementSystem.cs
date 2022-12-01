@@ -48,14 +48,12 @@ namespace Systems
 
             carriageJob.ScheduleParallel(state.Dependency).Complete();
 
-            foreach (var (seats, carriage) in SystemAPI.Query<CarriageSeats,LocalTransform>())
+            foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeats,DynamicBuffer<CarriagePassengers>,LocalTransform>())
             {
-                for (int i = 0; i < seats.Passengers.Length; i++)
+                for (int i = 0; i < passengers.Length; i++)
                 {
-                    var passenger = seats.Passengers[i];
-                    if(passenger == Entity.Null) continue;
                     var seatPosition = carriage.Position + seats.Seats[i];
-                    SystemAPI.SetComponent(seats.Passengers[i], LocalTransform.FromPosition(seatPosition));
+                    SystemAPI.SetComponent(passengers[i].Value, LocalTransform.FromPosition(seatPosition));
                 }
             }
         }

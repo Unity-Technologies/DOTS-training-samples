@@ -5,5 +5,10 @@ using Unity.Mathematics;
 public struct CarriageSeats : IComponentData
 {
     public NativeArray<float3> Seats;
-    public NativeArray<Entity> Passengers;
+}
+
+[InternalBufferCapacity(27)]
+public struct CarriagePassengers : IBufferElementData
+{
+    public Entity Value;
 }

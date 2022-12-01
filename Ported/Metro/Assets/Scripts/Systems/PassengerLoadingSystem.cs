@@ -7,7 +7,6 @@ namespace Systems
     [UpdateAfter(typeof(TrainMovementSystem))]
     public partial struct PassengerLoadingSystem : ISystem
     {
-
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -53,13 +52,14 @@ namespace Systems
                     {
                         var metroLine = SystemAPI.GetComponent<MetroLine>(train.MetroLine);
                         var platformID = metroLine.Platforms[train.DestinationIndex];
-                        foreach (var (passenger,platformId,passengerEntity) in SystemAPI.Query<Passenger, PlatformId>().WithEntityAccess())
+                        foreach (var (passenger, platformId, waypoints, passengerEntity) in SystemAPI.Query<Passenger, PlatformId, DynamicBuffer<Waypoint>>().WithEntityAccess())
                         {
                             if (platformId.Value == platformID && passenger.State == PassengerState.InQueue)
                             {
-                                SystemAPI.SetComponent(passengerEntity, new Passenger{State = PassengerState.OnBoarding});
+                                SystemAPI.SetComponent(passengerEntity, new Passenger { State = PassengerState.OnBoarding });
                             }
                         }
+
                         SystemAPI.SetComponent(trainEntity, new TrainStateComponent { State = TrainState.WaitingOnPlatform });
                         break;
                     }
@@ -73,10 +73,11 @@ namespace Systems
                         var platformID = metroLine.Platforms[train.DestinationIndex];
                         foreach (var (platformId, platformEntity) in SystemAPI.Query<PlatformId>().WithAll<Platform>().WithEntityAccess())
                         {
-                            if (platformId.Value != platformID) 
+                            if (platformId.Value != platformID)
                                 continue;
                             SystemAPI.SetComponent(platformEntity, new TrainOnPlatform { Train = Entity.Null });
                         }
+
                         break;
                     }
                 }
