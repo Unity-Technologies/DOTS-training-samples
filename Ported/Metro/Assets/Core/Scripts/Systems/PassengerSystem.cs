@@ -37,7 +37,7 @@ partial struct PassengerSystem : ISystem
     public partial struct PassengerJob : IJobEntity
     {
         [ReadOnly]public DynamicBuffer<TrainPositionsBuffer> trainPositions;
-        public void Execute(TransformAspect transform)
+        public void Execute(TransformAspect transform, LocationInfo locationInfo)
         {
             transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, trainPositions[0].positionZ);
         }

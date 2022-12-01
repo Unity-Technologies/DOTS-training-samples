@@ -60,7 +60,7 @@ partial struct SpawnerSystem : ISystem
                 var hue = random.NextFloat();
                 for (int c = 0; c < config.PersonCount; c++)
                 {
-                    var personSpawn = WorldTransform.FromPosition(2 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + 2 * c);
+                    var personSpawn = WorldTransform.FromPosition(5 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + random.NextFloat(10));
                     SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab, platformID, defaultWaypoint, initTarget, hue);
                 }
             }
@@ -129,7 +129,7 @@ partial struct SpawnerSystem : ISystem
         ecb.AddComponent(person, new DestinationPlatform{ Value = platformID});
         ecb.AddComponent(person, new Agent{ CurrentWaypoint = defaultWaypoint});
         ecb.AddComponent(person, new TargetPosition{ Value = waypointPos});
-        ecb.AddComponent(person, new Speed { Value = 5f });
+        ecb.AddComponent(person, new Speed { Value = 5f+random.NextFloat(3) });
         ecb.AddComponent(person, new WaypointMovementTag());
         //ecb.AddComponent(person, new PassengerTag());
 
