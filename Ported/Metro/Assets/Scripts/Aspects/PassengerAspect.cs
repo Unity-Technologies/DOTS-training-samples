@@ -15,6 +15,8 @@ readonly partial struct PassengerAspect : IAspect
     // parameter, the field will behave as if it was a RefRO and will throw exceptions on write attempts.
     readonly RefRW<Passenger> Passenger;
 
+    readonly RefRO<SpeedComponent> SpeedComponent;
+
     // Properties like this are not mandatory, the Transform field could just have been made public instead.
     // But they improve readability by avoiding chains of "aspect.aspect.aspect.component.value.value".
     public float3 Position
@@ -33,5 +35,10 @@ readonly partial struct PassengerAspect : IAspect
     {
         get => Passenger.ValueRO.State;
         set => Passenger.ValueRW.State = value;
+    }
+
+    public float Speed
+    {
+        get => SpeedComponent.ValueRO.Current;
     }
 }

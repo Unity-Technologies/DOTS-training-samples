@@ -16,7 +16,6 @@ partial struct PassengerMovementJob : IJobEntity
 {
     //public Entity PassengerEntity;
     [NativeDisableParallelForRestriction] public BufferLookup<Waypoint> WaypointLookup;
-    public float Speed;
     public float DeltaTime;
     
     void Execute(ref PassengerAspect passenger)
@@ -25,24 +24,23 @@ partial struct PassengerMovementJob : IJobEntity
             return;
         if (passenger.State == PassengerState.Idle || passenger.State == PassengerState.InQueue)
             return;
-        DynamicBuffer<Waypoint> waypoints;
-        bool success = WaypointLookup.TryGetBuffer(passenger.Self, out waypoints);
-        if ((waypoints.Length == 0)||!success)
+        WaypointLookup.TryGetBuffer(passenger.Self, out var waypoints);
+        if (waypoints.Length == 0)
         {
             WaypointLookup.SetBufferEnabled(passenger.Self, false);
+            if (passenger.State == PassengerState.OffBoarding)
+                passenger.State = PassengerState.Idle;
+            else
+                passenger.State++;
             return;
         }
         float3 destination = waypoints[0].Value;
         var direction = destination - passenger.Position;
         var distance = math.lengthsq(direction);
         if (distance > 0.001f)
-        {
-            passenger.Position += math.normalize(direction) * (DeltaTime * Speed);
-        }
+            passenger.Position += math.normalize(direction) * (DeltaTime * passenger.Speed);
         else
-        {
             waypoints.RemoveAt(0);
-        }
     }
 }
 
@@ -51,11 +49,13 @@ partial struct PassengerMovementJob : IJobEntity
 partial struct PassengerMovementSystem : ISystem
 {
     BufferLookup<Waypoint> m_WaypointLookup;
+    ComponentLookup<SpeedComponent> m_SpeedLookup;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_WaypointLookup = state.GetBufferLookup<Waypoint>();
+        m_SpeedLookup = state.GetComponentLookup<SpeedComponent>();
     }
 
     [BurstCompile]
@@ -102,7 +102,6 @@ partial struct PassengerMovementSystem : ISystem
         var movementJob = new PassengerMovementJob
         {
             WaypointLookup = m_WaypointLookup,
-            Speed = 4,
             DeltaTime = dt
         };
         movementJob.ScheduleParallel();
