@@ -49,7 +49,7 @@ partial struct SpawnerSystem : ISystem
                 LocalTransform spawnLocalToWorld = LocalTransform.FromPosition(9 * i, 0, -Globals.RailSize*0.5f+(Globals.RailSize / (config.NumberOfStations+1)) * (n+1));
                 SpawnPlatform(ref state, ecb, spawnLocalToWorld, config.PlatformPrefab);
 
-                for (int c = 0; c < 10; c++)
+                for (int c = 0; c < config.PersonCount; c++)
                 {
                     LocalTransform personSpawn = LocalTransform.FromPosition(2 + spawnLocalToWorld.Position.x, spawnLocalToWorld.Position.y- 0.1f, spawnLocalToWorld.Position.z - 22 + 2 * c);
                     SpawnPerson(ref state, ecb, personSpawn, config.PersonPrefab);

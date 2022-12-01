@@ -1,8 +1,8 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [BurstCompile]
 partial struct PassengerSystem : ISystem
@@ -24,7 +24,20 @@ partial struct PassengerSystem : ISystem
     {
         var trainPositions = SystemAPI.GetSingletonBuffer<TrainPositionsBuffer>();
 
-        foreach (var (transform, passengerTag) in SystemAPI.Query<TransformAspect, PassengerTag>())
+        PassengerJob passengerJob = new PassengerJob();
+        passengerJob.trainPositions = trainPositions;
+        passengerJob.ScheduleParallel();
+   /*     foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PassengerTag>())
+        {
+            transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, trainPositions[0].positionZ);
+        }*/
+    }
+
+    [BurstCompile][WithAll(typeof(PassengerTag))]
+    public partial struct PassengerJob : IJobEntity
+    {
+        [ReadOnly]public DynamicBuffer<TrainPositionsBuffer> trainPositions;
+        public void Execute(TransformAspect transform)
         {
             transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, trainPositions[0].positionZ);
         }

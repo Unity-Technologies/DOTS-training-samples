@@ -160,9 +160,9 @@ MonoBehaviour:
     type: 3}
   RailsPrefab: {fileID: 4859176959073742380, guid: 57087f743a92c4d4fb62d34aa25e8df0,
     type: 3}
-  PersonCount: 100
-  PlatformCountPerStation: 100
-  NumberOfStations: 5
+  PersonCount: 10
+  PlatformCountPerStation: 10000
+  NumberOfStations: 10
   SafeZoneRadius: 0
 --- !u!4 &2024593195
 Transform:
