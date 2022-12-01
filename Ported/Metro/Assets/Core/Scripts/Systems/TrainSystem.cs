@@ -12,6 +12,7 @@ partial struct TrainSystem : ISystem
     {
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<TrainPositionsBuffer>();
+        state.RequireForUpdate<PlatformTrainStatusBuffer>();
     }
     
     [BurstCompile]
@@ -24,8 +25,9 @@ partial struct TrainSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         var trainPositions = SystemAPI.GetSingletonBuffer<TrainPositionsBuffer>();
+        var platformTrainStatus = SystemAPI.GetSingletonBuffer<PlatformTrainStatusBuffer>();
 
-        foreach (var (transform, speed, waypoint, time, trainInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<WaypointID>, RefRW<IdleTime>, TrainInfo>())
+        foreach (var (transform, speed, waypoint, time, trainInfo, locationInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<WaypointID>, RefRW<IdleTime>, TrainInfo, LocationInfo>())
         {
             if (time.ValueRO.Value > 0)
             {
@@ -39,7 +41,15 @@ partial struct TrainSystem : ISystem
             {
                 time.ValueRW.Value = Globals.TrainWaitTime;
                 waypoint.ValueRW.Value++;
+                platformTrainStatus[locationInfo.CurrentPlatform] = new PlatformTrainStatusBuffer() { TrainID = trainInfo.Id };
+                Debug.Log(locationInfo.CurrentPlatform + " status: " + platformTrainStatus[locationInfo.CurrentPlatform].TrainID);
                 continue;
+            }
+
+            if (platformTrainStatus[locationInfo.CurrentPlatform].TrainID == trainInfo.Id) // if we are moving and platform we are at has us marked, de-mark us
+            {
+                platformTrainStatus[locationInfo.CurrentPlatform] = new PlatformTrainStatusBuffer() { TrainID = -1 };
+                Debug.Log("left: "+locationInfo.CurrentPlatform + " status: " + platformTrainStatus[locationInfo.CurrentPlatform].TrainID);
             }
 
             transform.LocalPosition += new float3(0, 0, speed.Value * Time.deltaTime);

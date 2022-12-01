@@ -34,11 +34,25 @@ partial struct SpawnerSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
+
         var configEntity = SystemAPI.GetSingletonEntity<Config>();
         DynamicBuffer<TrainPositionsBuffer> trainPositions = state.EntityManager.AddBuffer<TrainPositionsBuffer>(configEntity);
-        
-        m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
         trainPositions.Length = config.PlatformCountPerStation;
+
+        configEntity = SystemAPI.GetSingletonEntity<Config>();
+        DynamicBuffer<PlatformTrainStatusBuffer> platformTrainStatus = state.EntityManager.AddBuffer<PlatformTrainStatusBuffer>(configEntity);
+        platformTrainStatus.Length = config.PlatformCountPerStation * config.NumberOfStations;
+
+        // fill with -1 so all is empty to start with
+        for(int i = 0; i < platformTrainStatus.Length; i++)
+            platformTrainStatus[i] = new PlatformTrainStatusBuffer() { TrainID = -1 };
+
+        configEntity = SystemAPI.GetSingletonEntity<Config>();
+        DynamicBuffer<TrainCapacityBuffer> trainCapacity = state.EntityManager.AddBuffer<TrainCapacityBuffer>(configEntity);
+        trainCapacity.Length = config.PlatformCountPerStation;
+
+
+        m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
 
         for (int i = 0; i < config.PlatformCountPerStation; i++)
         {
