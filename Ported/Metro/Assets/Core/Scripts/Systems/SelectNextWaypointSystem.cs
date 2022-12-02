@@ -13,6 +13,7 @@ partial struct SelectNextWaypointSystem : ISystem
 {
     private ComponentLookup<LocalToWorld> m_LocalToWorldTransformFromEntity;
     private ComponentLookup<Waypoint> m_WaypointFromEntity;
+    private ComponentLookup<PathID> mPathIDFromEntity;
     
     private Random random;
 
@@ -23,14 +24,7 @@ partial struct SelectNextWaypointSystem : ISystem
         
         m_LocalToWorldTransformFromEntity = state.GetComponentLookup<LocalToWorld>(true);
         m_WaypointFromEntity = state.GetComponentLookup<Waypoint>(true);
-
-       /* foreach (var path in
-                 SystemAPI.Query<
-                     Path
-                 >())
-        {
-            
-        }*/
+        mPathIDFromEntity = state.GetComponentLookup<PathID>(true);
     }
     
     [BurstCompile]
@@ -41,49 +35,70 @@ partial struct SelectNextWaypointSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        if (!SystemAPI.HasSingleton<Config>()) return;
+            
         m_LocalToWorldTransformFromEntity.Update(ref state);
         m_WaypointFromEntity.Update(ref state);
+        mPathIDFromEntity.Update(ref state);
         
-        //var job = new TraverseTreeJob();
-        //state.Dependency = job.Schedule(state.Dependency);
+        var config = SystemAPI.GetSingleton<Config>();
+        var platformsCount = config.NumberOfStations * config.PlatformCountPerStation;
         
-        foreach (var (transform, agent, target, destination/*, waypointtag*/) in
-                 SystemAPI.Query <
-                     TransformAspect,
-                     RefRW<Agent>,
-                     RefRW<TargetPosition>,
-                     RefRW<DestinationPlatform>
-                     //WaypointMovementTag
-                     > ())
+        var selectJob = new SelectNextWaypointJob
         {
-            var distance = math.distancesq(target.ValueRO.Value, transform.WorldPosition);
+            LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity, 
+            WaypointFromEntity = m_WaypointFromEntity,
+            PathIDFromEntity = mPathIDFromEntity,
+            random = random,
+            PlatformsCount = platformsCount
+        };
+        selectJob.ScheduleParallel();
+        //state.Dependency = job.Schedule(state.Dependency);
+    }
+    
+    [BurstCompile]
+    public partial struct SelectNextWaypointJob : IJobEntity
+    {
+        [ReadOnly] public ComponentLookup<LocalToWorld> LocalToWorldTransformFromEntity;
+        [ReadOnly] public ComponentLookup<Waypoint> WaypointFromEntity;
+        [ReadOnly] public ComponentLookup<PathID> PathIDFromEntity;
+
+        [ReadOnly] public Random random;
+        [ReadOnly] public int PlatformsCount;
+        
+        public void Execute(
+            TransformAspect transform,
+            ref Agent agent,
+            ref TargetPosition target,
+            ref DestinationPlatform destination 
+            )
+        {
+            var distance = math.distancesq(target.Value, transform.WorldPosition);
             
             if (distance <= Utility.kStopDistance)
             {
-                var waypointEntity = agent.ValueRO.CurrentWaypoint;
-                var waypointCom = m_WaypointFromEntity[waypointEntity];
-                var waypointTransf = m_LocalToWorldTransformFromEntity[waypointEntity];
+                var waypointEntity = agent.CurrentWaypoint;
+                var waypointCom = WaypointFromEntity[waypointEntity];
+                var waypointTransf = LocalToWorldTransformFromEntity[waypointEntity];
 
                 var pathEntity = waypointCom.PathEntity;
-                var pathID = SystemAPI.GetComponent<PathID>(pathEntity);
+                var pathID = PathIDFromEntity[pathEntity];
                 
                 // randomly decide on target platform
-                if (SystemAPI.HasSingleton<Config>())
                 {
-                    var config = SystemAPI.GetSingleton<Config>();
-                    destination.ValueRW.Value =
-                        random.NextInt(config.NumberOfStations * config.PlatformCountPerStation);
+                    destination.Value =
+                        random.NextInt(PlatformsCount);
                 }
 
-                if(pathID.Value <= destination.ValueRO.Value && waypointCom.Connection != Entity.Null) 
+                if(pathID.Value <= destination.Value && waypointCom.Connection != Entity.Null) 
                 {
-                    agent.ValueRW.CurrentWaypoint = waypointCom.Connection;
-                    target.ValueRW.Value = waypointTransf.Position;
+                    agent.CurrentWaypoint = waypointCom.Connection;
+                    target.Value = waypointTransf.Position;
                 }
                 else
                 {
-                    agent.ValueRW.CurrentWaypoint = waypointCom.NextWaypointEntity;
-                    target.ValueRW.Value = waypointTransf.Position;
+                    agent.CurrentWaypoint = waypointCom.NextWaypointEntity;
+                    target.Value = waypointTransf.Position;
                 }
             }
         }
