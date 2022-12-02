@@ -24,6 +24,16 @@ namespace Ported.Scripts.Utils
             return MovementDirection.North;
         }
         
+        /*
+         *  public enum MovementDirection
+            {
+                North = 0,
+                East = 1,
+                South = 2,
+                West = 3
+            }
+         */
+        
         public static void DirectionToVector(out float2 output, MovementDirection direction)
         {
             switch (direction)

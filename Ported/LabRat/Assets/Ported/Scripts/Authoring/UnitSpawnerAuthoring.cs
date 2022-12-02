@@ -20,7 +20,7 @@ class UnitSpawnerBaker : Baker<UnitSpawnerAuthoring>
         {
             max = authoring.max,
             frequency = authoring.frequency,
-            counter = authoring.frequency,
+            counter = authoring.frequency - (authoring.frequency / 1000.0f),
             spawnObject = GetEntity(authoring.spawnPrefab),
             spawnPoint = GetEntity(authoring.spawnPoint),
             startDirection = authoring.startDirection,

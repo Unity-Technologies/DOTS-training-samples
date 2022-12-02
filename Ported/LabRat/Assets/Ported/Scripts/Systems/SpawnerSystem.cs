@@ -14,17 +14,23 @@ using Random = Unity.Mathematics.Random;
 // So we have to explicitly opt into Burst compilation with the [BurstCompile] attribute.
 // It has to be added on BOTH the struct AND the OnCreate/OnDestroy/OnUpdate functions to be
 // effective.
-[BurstCompile]
+
+[UpdateAfter(typeof(BoardSetupSystem)), BurstCompile]
 partial struct SpawnerSystem : ISystem
 {
     // A ComponentLookup provides random access to a component (looking up an entity).
     // We'll use it to extract the world space position and orientation of the spawn point (cannon nozzle).
     ComponentLookup<Unity.Transforms.LocalToWorld> m_LocalToWorldTransformFromEntity;
-
+    private TileComponent startingTile;
+    private bool setUp;
+    
     // Every function defined by ISystem has to be implemented even if empty.
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        setUp = false;
+        // ComponentLookup structures have to be initialized once.
+        // The parameter specifies if the lookups will be read only or if they should allow writes.
         m_LocalToWorldTransformFromEntity = state.GetComponentLookup<LocalToWorld>(true);
     }
 
@@ -41,6 +47,46 @@ partial struct SpawnerSystem : ISystem
         //Instead of caching (as an option)
         //SystemAPI.GetComponentLookup<LocalTransform>();
         m_LocalToWorldTransformFromEntity.Update(ref state);
+
+        if (!setUp)
+        {
+            bool foundComponents = false;
+            
+            //Getting the nearest tile
+            int unitSpawnersSetUp = 0;
+            
+            foreach ((var unitSpawner, var spawnerTransform) in SystemAPI.Query<RefRW<UnitSpawnerComponent>, RefRO<LocalTransform>>())
+            {
+                foreach ((var tile, var transform) in SystemAPI.Query<RefRW<TileComponent>, RefRO<LocalTransform>>())
+                {
+                    foundComponents = true;
+                    
+                    float distanceX = (transform.ValueRO.Position.x - spawnerTransform.ValueRO.Position.x);
+                    float distanceZ = (transform.ValueRO.Position.z - spawnerTransform.ValueRO.Position.z);
+                    if (distanceX < 0.0f) { distanceX *= -1.0f; }
+                    if (distanceZ < 0.0f) { distanceZ *= -1.0f; }
+                    
+//                    Debug.LogError($"DistanceX = {distanceX}, DistanceZ = {distanceZ}");
+                
+                    if (distanceX < 1.0f && distanceZ < 1.0f)
+                    {
+                        //Debug.LogError($"Set up unity spawner {unitSpawnersSetUp}");
+                        unitSpawner.ValueRW.startTileReference = tile.ValueRO;
+                        //unitSpawnersSetUp++;
+                        break;
+                    }
+                }
+            }
+            if (foundComponents)
+            {
+                setUp = true;    
+            }
+        }
+
+        if (!setUp)
+        {
+            return;
+        }
         
         //Debug.Log("SpawnerSystem OnUpdate");
         
@@ -66,12 +112,46 @@ partial struct SpawnerSystem : ISystem
                 
                     var random = Unity.Mathematics.Random.CreateFromIndex(numIterations);
                     var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+                    float3 wantedPos = new float3();
+                    int2 wantedIndex = unitSpawner.ValueRO.startTileReference.nextTile;
+
+                    switch (unitSpawner.ValueRO.startDirection)
+                    {
+                        case MovementDirection.East:
+                            wantedIndex = unitSpawner.ValueRO.startTileReference.eastTile;
+                            break;
+                        case MovementDirection.West:
+                            wantedIndex = unitSpawner.ValueRO.startTileReference.westTile;
+                            break;
+                        case MovementDirection.North:
+                            wantedIndex = unitSpawner.ValueRO.startTileReference.northTile;
+                            break;
+                        case MovementDirection.South:
+                            wantedIndex = unitSpawner.ValueRO.startTileReference.southTile;
+                            break;
+                    }
+
+                    int startDir = (int)unitSpawner.ValueRO.startDirection;
+                    
+                    //Debug.LogError($"starting on index = {unitSpawner.ValueRO.startTileReference.gridIndex}, wanted index = {wantedIndex}, unitSpawner.startDirection = {startDir}");   
+                    
+                    foreach ((var tile, var transform) in SystemAPI.Query<RefRO<TileComponent>, RefRO<LocalTransform>>())
+                    {
+                        if (tile.ValueRO.gridIndex.x == wantedIndex.x
+                            && tile.ValueRO.gridIndex.y == wantedIndex.y)
+                        {
+                            wantedPos = transform.ValueRO.Position;
+                            break;
+                        }
+                    }
 
                     var spawnJob = new SpawnUnit
                     {
                         LocalToWorldTransformFromEntity = m_LocalToWorldTransformFromEntity,
                         ECB = ecb,
                         randomSeed = random.NextUInt(0, UInt32.MaxValue),
+                        wantedIndex = wantedIndex,
+                        wantedPosition = wantedPos
                     };
                     array.Add(spawnJob);
                 }
@@ -99,6 +179,9 @@ partial struct SpawnUnit : IJobEntity
     [ReadOnly] public ComponentLookup<Unity.Transforms.LocalToWorld> LocalToWorldTransformFromEntity;
     public EntityCommandBuffer ECB;
     public uint randomSeed;
+
+    public int2 wantedIndex;
+    public float3 wantedPosition;
     
     /*
     bool OnChunkBegin(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
@@ -113,58 +196,20 @@ partial struct SpawnUnit : IJobEntity
     {
         var instance = ECB.Instantiate(unit.spawnObject);
         var spawnLocalToWorld = LocalToWorldTransformFromEntity[unit.spawnPoint].Position;
-        var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld); //Unity.Transforms.WorldTransform.FromMatrix(spawnLocalToWorld.Value);
+        var spawnTransform = LocalTransform.FromPosition(spawnLocalToWorld);
 
         //var random = Unity.Mathematics.Random.CreateFromIndex((uint)instance.Index);
         //Debug.Log($"Getting random seed with with idx={randomSeed}");
         
         var random = Unity.Mathematics.Random.CreateFromIndex((uint)randomSeed);
-        
+
         ECB.SetComponent(instance, spawnTransform);
-
-        ECB.SetComponent(instance, new UnitMovementComponent { speed = random.NextFloat(unit.minSpeed, unit.maxSpeed), direction = unit.startDirection } );
-
-
-        /*
-        var cannonBallTransform = UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
-
-        // We are about to overwrite the transform of the new instance. If we didn't explicitly
-        // copy the scale it would get reset to 1 and we'd have oversized cannon balls.
-        cannonBallTransform.Scale = LocalToWorldTransformFromEntity[turret.CannonBallPrefab].Value.Scale;
-        ECB.SetComponent(instance, new LocalToWorldTransform
+        ECB.SetComponent(instance, new UnitMovementComponent
         {
-            Value = cannonBallTransform
-        });
-        */
-        
-        //Debug.Log("Execute me");
+            speed = random.NextFloat(unit.minSpeed, unit.maxSpeed), 
+            direction = unit.startDirection, 
+            targetTile = wantedIndex, 
+            targetPos = new float2(wantedPosition.x, wantedPosition.z)
+        } );
     }
-    
-    // Note that the TurretAspects parameter is "in", which declares it as read only.
-    // Making it "ref" (read-write) would not make a difference in this case, but you
-    // will encounter situations where potential race conditions trigger the safety system.
-    // So in general, using "in" everywhere possible is a good principle.
-    /*
-    void Execute(in TurretAspect turret)
-    {
-        var instance = ECB.Instantiate(turret.CannonBallPrefab);
-        var spawnLocalToWorld = LocalToWorldTransformFromEntity[turret.CannonBallSpawn];
-        var cannonBallTransform = UniformScaleTransform.FromPosition(spawnLocalToWorld.Value.Position);
-
-        // We are about to overwrite the transform of the new instance. If we didn't explicitly
-        // copy the scale it would get reset to 1 and we'd have oversized cannon balls.
-        cannonBallTransform.Scale = LocalToWorldTransformFromEntity[turret.CannonBallPrefab].Value.Scale;
-        ECB.SetComponent(instance, new LocalToWorldTransform
-        {
-            Value = cannonBallTransform
-        });
-        ECB.SetComponent(instance, new CannonBall
-        {
-            Speed = spawnLocalToWorld.Value.Forward() * 20.0f
-        });
-        
-        // The line below propagates the color from the turret to the cannon ball.
-        ECB.SetComponent(instance, new URPMaterialPropertyBaseColor { Value = turret.Color });
-    }
-    */
 }

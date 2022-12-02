@@ -13,4 +13,5 @@ public struct UnitSpawnerComponent : IComponentData
     public MovementDirection startDirection;
     public float minSpeed;
     public float maxSpeed;
+    public TileComponent startTileReference;
 }

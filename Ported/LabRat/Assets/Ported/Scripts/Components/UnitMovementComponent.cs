@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public enum MovementDirection
 {
@@ -11,4 +12,6 @@ public struct UnitMovementComponent : IComponentData
 {
     public float speed;
     public MovementDirection direction;
+    public float2 targetPos;
+    public int2 targetTile;
 }

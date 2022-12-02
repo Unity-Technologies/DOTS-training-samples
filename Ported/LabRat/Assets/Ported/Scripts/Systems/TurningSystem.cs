@@ -34,6 +34,30 @@ public partial struct TurningSystem : ISystem
         {
          */
 
+        /*
+        foreach ((var movement, var objPosition) in SystemAPI.Query<RefRW<UnitMovementComponent>, RefRO<WorldTransform>>())
+        {
+            //movement.ValueRW.direction = RatLabHelper.NextDirection(movement.ValueRO.direction);
+              
+            
+            foreach ((var wall, var wallPosition) in SystemAPI.Query<RefRO<WallComponent>, RefRO<WorldTransform>>())
+            {
+                float2 unitPos = new float2(objPosition.ValueRO.Position.x, objPosition.ValueRO.Position.z);
+                float2 wallPos = new float2(wallPosition.ValueRO.Position.x, wallPosition.ValueRO.Position.z);
+
+                //Debug.Log($"Checking unitPos {objPosition.ValueRO.Position} versus wallPosition {wallPosition.ValueRO.Position}");
+                
+                //Debug.Log($"[MovementSystem] updated entities={numUpdatedEntities}");
+                
+                
+                if (RatLabHelper.CollidesAABB(unitPos, wallPos, 5.0f, 5.0f))
+                {
+                    movement.ValueRW.direction = RatLabHelper.NextDirection(movement.ValueRO.direction);
+                    break;
+                }
+            }
+        }
+        */
         counter += SystemAPI.Time.DeltaTime;
 
         if (counter > 4.0f)
