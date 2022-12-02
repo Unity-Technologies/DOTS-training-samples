@@ -239,7 +239,7 @@ MonoBehaviour:
     type: 3}
   particlePrefab: {fileID: 8770857147939673906, guid: 20a07487b8f454d4eb5f8fcc561aa5ff,
     type: 3}
-  startBeeCount: 100
+  startBeeCount: 1000
   beesPerResource: 5
   minimumBeeSize: 0.5
   maximumBeeSize: 1.25
@@ -247,7 +247,7 @@ MonoBehaviour:
   fieldRenderer: {fileID: 156210971}
   resourcePrefab: {fileID: 4156149791848588294, guid: b9e6c9a5026db8f43bb7b58f02d5a7bd,
     type: 3}
-  resourceCount: 100
+  resourceCount: 1000
   carryStiffness: 15
   speedStretch: 0.2
   rotationStiffness: 5

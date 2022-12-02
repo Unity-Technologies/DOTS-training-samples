@@ -28,7 +28,7 @@ partial struct ResourceBehaviourSystem : ISystem
         
         foreach (var (transform, resource, entity) in SystemAPI.Query<TransformAspect, RefRW<Resource>>().WithEntityAccess())
         {
-            if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && resource.ValueRO.ownerBee != Entity.Null)
+            if (SystemAPI.IsComponentEnabled<ResourceCarried>(entity) && SystemAPI.Exists(resource.ValueRO.ownerBee) && resource.ValueRO.ownerBee != Entity.Null)
             {
                 var ownerTransform = SystemAPI.GetAspectRO<TransformAspect>(resource.ValueRO.ownerBee);
                 var ownerBeeState = SystemAPI.GetComponent<BeeState>(resource.ValueRO.ownerBee);

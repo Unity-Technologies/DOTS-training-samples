@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -24,12 +25,12 @@ partial struct BeeBehaviourSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var seed = (uint)(state.WorldUnmanaged.Time.ElapsedTime * 1000);
-        var random = Random.CreateFromIndex(seed);
         var config = SystemAPI.GetSingleton<Config>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
         var up = new float3(0f, 1f, 0f);
+        var random = new Random();
 
         var hive0Bees = new DynamicBuffer<TargetBee>();
         var hive1Bees = new DynamicBuffer<TargetBee>();
@@ -51,6 +52,7 @@ partial struct BeeBehaviourSystem : ISystem
         if (hive0Bees.Length == 0 && hive1Bees.Length == 0)
             return;
 
+        var deadBees = new NativeParallelHashSet<Entity>(100, state.WorldUpdateAllocator);
         var behaviourJob = new BeeBehaviourJob
         {
             transformLookup = SystemAPI.GetComponentLookup<WorldTransform>(),
@@ -58,7 +60,6 @@ partial struct BeeBehaviourSystem : ISystem
             beeStateLookup = SystemAPI.GetComponentLookup<BeeState>(),
             beeTargetLookup = SystemAPI.GetComponentLookup<BeeTarget>(),
             resourceCarriedLookup = SystemAPI.GetComponentLookup<ResourceCarried>(),
-            resourceDroppedLookup = SystemAPI.GetComponentLookup<ResourceDropped>(),
             entityStorageInfo = SystemAPI.GetEntityStorageInfoLookup(),
             config = config,
             ecb = ecb.AsParallelWriter(),
@@ -67,9 +68,31 @@ partial struct BeeBehaviourSystem : ISystem
             deltaTime = deltaTime,
             availableResources = availableResources,
             hive0Bees = hive0Bees,
-            hive1Bees = hive1Bees
+            hive1Bees = hive1Bees,
+            deadBees = deadBees.AsParallelWriter()
         };
-        behaviourJob.ScheduleParallel();
+        state.Dependency = behaviourJob.ScheduleParallel(state.Dependency);
+        var destroyBeesJob = new DestroyBeesJob
+        {
+            ecb = ecb,
+            deadBees = deadBees
+        };
+        state.Dependency = destroyBeesJob.Schedule(state.Dependency);
+    }
+}
+
+[BurstCompile]
+public struct DestroyBeesJob : IJob
+{
+    [ReadOnly] public NativeParallelHashSet<Entity> deadBees;
+    public EntityCommandBuffer ecb;
+
+    public void Execute()
+    {
+        foreach (var deadBee in deadBees)
+        {
+            ecb.DestroyEntity(deadBee);
+        }
     }
 }
 
@@ -81,17 +104,17 @@ public partial struct BeeBehaviourJob : IJobEntity
     [NativeDisableContainerSafetyRestriction][ReadOnly] public ComponentLookup<BeeState> beeStateLookup;
     [NativeDisableContainerSafetyRestriction][ReadOnly] public ComponentLookup<BeeTarget> beeTargetLookup;
     [ReadOnly] public ComponentLookup<ResourceCarried> resourceCarriedLookup;
-    [ReadOnly] public ComponentLookup<ResourceDropped> resourceDroppedLookup;
     [ReadOnly] public EntityStorageInfoLookup entityStorageInfo;
 
     public EntityCommandBuffer.ParallelWriter ecb;
     public uint seed;
     public float deltaTime;
     public Config config;
-    [NativeDisableContainerSafetyRestriction][Unity.Collections.ReadOnly] public DynamicBuffer<TargetBee> hive0Bees;
-    [NativeDisableContainerSafetyRestriction][Unity.Collections.ReadOnly] public DynamicBuffer<TargetBee> hive1Bees;
-    [Unity.Collections.ReadOnly] public DynamicBuffer<AvailableResources> availableResources;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] public DynamicBuffer<TargetBee> hive0Bees;
+    [NativeDisableContainerSafetyRestriction][ReadOnly] public DynamicBuffer<TargetBee> hive1Bees;
+    [ReadOnly] public DynamicBuffer<AvailableResources> availableResources;
     public float3 up;
+    public NativeParallelHashSet<Entity>.ParallelWriter deadBees;
 
     private void Execute([ChunkIndexInQuery] int chunkIndex, TransformAspect transform, RefRW<BeeState> bee, Team team, RefRW<BeeTarget> target, Entity entity)
     {
@@ -148,7 +171,7 @@ public partial struct BeeBehaviourJob : IJobEntity
             {
                 
                 if (!target.IsValid || target.ValueRO.target == Entity.Null ||
-                    !entityStorageInfo.Exists(target.ValueRO.target) || !transformLookup.HasComponent(target.ValueRO.target))
+                    !entityStorageInfo.Exists(target.ValueRO.target))
                 {
                     bee.ValueRW.beeState = BeeStateEnumerator.Idle;
                 }
@@ -167,24 +190,30 @@ public partial struct BeeBehaviourJob : IJobEntity
                         velocity += delta * (config.attackForce * deltaTime / math.sqrt(sqrDist));
                         if (sqrDist < config.hitDistance * config.hitDistance)
                         {
-                            if (enemyState.ValueRO.beeState == BeeStateEnumerator.CarryBack)
+                            if (enemyState.ValueRO.beeState != BeeStateEnumerator.Dying)
                             {
-                                var enemyTarget = beeTargetLookup.GetRefRO(target.ValueRO.target);
-                                if (enemyTarget.ValueRO.target != Entity.Null && resourceLookup.HasComponent(enemyTarget.ValueRO.target) && entityStorageInfo.Exists(enemyTarget.ValueRO.target))
+                                if (enemyState.ValueRO.beeState == BeeStateEnumerator.CarryBack)
                                 {
-                                    var resource = resourceLookup.GetRefRO(enemyTarget.ValueRO.target);
-                                    var resourceVal = resource.ValueRO;
-                                    resourceVal.ownerBee = Entity.Null;
-                                    ecb.SetComponent(chunkIndex, enemyTarget.ValueRO.target, resourceVal);
-                                    ecb.SetComponentEnabled<ResourceCarried>(chunkIndex, enemyTarget.ValueRO.target, false);
+                                    var enemyTarget = beeTargetLookup.GetRefRO(target.ValueRO.target);
+                                    if (enemyTarget.ValueRO.target != Entity.Null &&
+                                        resourceLookup.HasComponent(enemyTarget.ValueRO.target) &&
+                                        entityStorageInfo.Exists(enemyTarget.ValueRO.target))
+                                    {
+                                        var resource = resourceLookup.GetRefRO(enemyTarget.ValueRO.target);
+                                        var resourceVal = resource.ValueRO;
+                                        resourceVal.ownerBee = Entity.Null;
+                                        ecb.SetComponent(chunkIndex, enemyTarget.ValueRO.target, resourceVal);
+                                        ecb.SetComponentEnabled<ResourceCarried>(chunkIndex, enemyTarget.ValueRO.target,
+                                            false);
+                                    }
                                 }
-                            }
 
-                            var enemyStateVal = enemyState.ValueRO;
-                            enemyStateVal.beeState = BeeStateEnumerator.Dying;
-                            enemyStateVal.deathTimer = 1f;
-                            enemyStateVal.velocity *= .5f;
-                            ecb.SetComponent(chunkIndex, target.ValueRO.target, enemyStateVal);
+                                var enemyStateVal = enemyState.ValueRO;
+                                enemyStateVal.beeState = BeeStateEnumerator.Dying;
+                                enemyStateVal.deathTimer = 1f;
+                                enemyStateVal.velocity *= .5f;
+                                ecb.SetComponent(chunkIndex, target.ValueRO.target, enemyStateVal);
+                            }
                             target.ValueRW.target = Entity.Null;
                             bee.ValueRW.beeState = BeeStateEnumerator.Idle;
                         }
@@ -261,8 +290,11 @@ public partial struct BeeBehaviourJob : IJobEntity
                     SpawnParticles(chunkIndex, config, ecb, transform.LocalPosition, 5);
                 bee.ValueRW.deathTimer -= deltaTime;
 
-                if(bee.ValueRW.deathTimer < 0f)
-                    ecb.DestroyEntity(chunkIndex, entity);
+                if (bee.ValueRW.deathTimer < 0f)
+                {
+                    deadBees.Add(entity);
+                }
+
                 break;
         }
         
