@@ -33,17 +33,20 @@ partial class CameraSystem : SystemBase
             Target = platforms[Random.NextInt(platforms.Length)];
             distance = 20;
             offset = new float3(10.0f, 20.0f, 0.0f);
+            var cameraTransform = MetroCamera.Instance.transform;
+            var targetTransform = GetComponent<LocalToWorld>(Target);
+            cameraTransform.position = targetTransform.Position - distance * targetTransform.Forward + offset;
+            cameraTransform.LookAt(targetTransform.Position, new float3(0.0f, 1.0f, 0.0f));
         } else if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.T))
         {
             var trains = TrainQuery.ToEntityArray(Allocator.Temp);
             Target = trains[Random.NextInt(trains.Length)];
             distance = 20;
             offset = new float3(0.0f, 5.0f, 0.0f);
+            var cameraTransform = MetroCamera.Instance.transform;
+            var targetTransform = GetComponent<LocalToWorld>(Target);
+            cameraTransform.position = targetTransform.Position - distance * targetTransform.Forward + offset;
+            cameraTransform.LookAt(targetTransform.Position, new float3(0.0f, 1.0f, 0.0f));
         }
-        
-        var cameraTransform = MetroCamera.Instance.transform;
-        var targetTransform = GetComponent<LocalToWorld>(Target);
-        cameraTransform.position = targetTransform.Position - distance * targetTransform.Forward + offset;
-        cameraTransform.LookAt(targetTransform.Position, new float3(0.0f, 1.0f, 0.0f));
     }
 }
