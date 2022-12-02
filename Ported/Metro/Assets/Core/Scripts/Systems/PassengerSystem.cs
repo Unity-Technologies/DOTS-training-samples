@@ -21,7 +21,7 @@ partial struct PassengerSystem : ISystem
     {
     }
 
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var trainPositions = SystemAPI.GetSingletonBuffer<TrainPositionsBuffer>();
@@ -52,8 +52,9 @@ partial struct PassengerSystem : ISystem
         passengerJob.initWaypointTransforms = initWaypointTransforms;
         passengerJob.ecb = ecb.AsParallelWriter();
         var passengerJobHandle = passengerJob.ScheduleParallel(collectPathsHandle);
-       // passengerJobHandle = agentQuery.AddDependency(passengerJobHandle);
+        // passengerJobHandle = agentQuery.AddDependency(passengerJobHandle);
 
+        ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         EmbarkJob embarkJob = new EmbarkJob();
         embarkJob.trainPositions = trainPositions;
         embarkJob.platformTrainStatus = platformTrainStatus;
