@@ -80,7 +80,10 @@ partial struct PassengerSystem : ISystem
                 {
                     ecb.RemoveComponent<PassengerInfo>(sortKey, entity);
                     var trainID = platformTrainStatus[locationInfo.CurrentPlatform].TrainID;
-                    trainCapacity[trainID] = new TrainCapacityBuffer() { Capacity = (trainCapacity[trainID].Capacity + 1) };
+                    unsafe
+                    {
+                        System.Threading.Interlocked.Increment(ref ((int*)trainCapacity.GetUnsafePtr())[trainID]);
+                    }
                     idleTime.Value = Globals.TrainWaitTime * 2;
                     if (locationInfo.CurrentPlatform >= 0)
                     {
@@ -114,9 +117,13 @@ partial struct PassengerSystem : ISystem
 
             if (trainCapacity[trainID].Capacity > 0 && idleTime.Value <= 0)
             {
-                PassengerInfo passengerInfo = new PassengerInfo() { TrainID = trainID, Seat = trainCapacity[trainID].Capacity + 1, EmbarkedPlatform = locationInfo.CurrentPlatform };
+                int capacity = 0;
+                unsafe
+                {
+                    capacity = System.Threading.Interlocked.Add(ref ((int*)trainCapacity.GetUnsafePtr())[trainID], -1);
+                }
+                PassengerInfo passengerInfo = new PassengerInfo() { TrainID = trainID, Seat = capacity, EmbarkedPlatform = locationInfo.CurrentPlatform };
                 transform.LocalPosition = new float3(trainPositions[trainID].position.x, trainPositions[trainID].position.y, trainPositions[trainID].position.z - Globals.TrainHalfLength + passengerInfo.Seat * Globals.TrainSeatSpacing);
-                trainCapacity[trainID] = new TrainCapacityBuffer() { Capacity = (trainCapacity[trainID].Capacity - 1) };
                 ecb.AddComponent(sortKey, entity, passengerInfo);
             }
         }
