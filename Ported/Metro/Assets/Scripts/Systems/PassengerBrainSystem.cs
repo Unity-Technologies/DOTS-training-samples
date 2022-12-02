@@ -180,25 +180,35 @@ partial struct PassengerBrainSystem : ISystem
                     }
 
                     // Get other platforms on the same Station
-                    int otherPlatformsCount = 0;
-                    var otherPlatformsIds = CollectionHelper.CreateNativeArray<int>(20, Allocator.Temp);
-                    var otherPlatforms = CollectionHelper.CreateNativeArray<Platform>(20, Allocator.Temp);
+                    int destPlatformsCount = 0;
+                    var destPlatformsIds = CollectionHelper.CreateNativeArray<int>(20, Allocator.Temp);
+                    var destPlatforms = CollectionHelper.CreateNativeArray<Platform>(20, Allocator.Temp);
                     foreach (var (platformId, stationId, platform) in SystemAPI.Query<PlatformId, StationId, Platform>())
                     {
-                        if (stationId.Value != currentStationId || platformId.Value == currentPlatformId)
+                        if (stationId.Value != currentStationId)// || platformId.Value == currentPlatformId)
                             continue;
-                        otherPlatformsIds[otherPlatformsCount] = platformId.Value;
-                        otherPlatforms[otherPlatformsCount] = platform;
-                        otherPlatformsCount++;
+                        destPlatformsIds[destPlatformsCount] = platformId.Value;
+                        destPlatforms[destPlatformsCount] = platform;
+                        destPlatformsCount++;
                     }
 
                     // Pick a random destination Platform
-                    var randomIndex = _random.NextInt(0, otherPlatformsCount);
-                    var destinationPlatformId = otherPlatformsIds[randomIndex];
-                    var destinationPlatform = otherPlatforms[randomIndex];
+                    var randomIndex = _random.NextInt(0, destPlatformsCount);
+                    var destinationPlatformId = destPlatformsIds[randomIndex];
+                    var destinationPlatform = destPlatforms[randomIndex];
 
                     // Set the destination waypoints
+                    ecb.SetComponent(entity, new Passenger { State = PassengerState.WalkingToPlatform });
                     _waypointsLookup.SetBufferEnabled(entity, true);
+                    var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(entity);
+
+                    // Allow passengers to stay on this platform
+                    if (destinationPlatformId == currentPlatformId)
+                    {
+                        // Walk to around the center of the platform 
+                        platformWaypoints.Add(new Waypoint { Value = _random.NextFloat3(currentPlatform.WalkwayBackLower, currentPlatform.WalkwayFrontLower) });
+                        continue;
+                    }
 
                     // Gets the best path by comparing distances
                     float3 closestLower, closestUpper, otherLower, otherUpper;
@@ -224,7 +234,6 @@ partial struct PassengerBrainSystem : ISystem
                     }
 
                     // Sets the series of waypoints
-                    var platformWaypoints = SystemAPI.GetBuffer<Waypoint>(entity);
                     platformWaypoints.Add(new Waypoint { Value = closestLower });
                     platformWaypoints.Add(new Waypoint { Value = closestUpper });
                     platformWaypoints.Add(new Waypoint { Value = otherUpper });
@@ -232,7 +241,6 @@ partial struct PassengerBrainSystem : ISystem
 
                     // Updates the component values
                     ecb.SetComponent(entity, new PlatformId { Value = destinationPlatformId });
-                    ecb.SetComponent(entity, new Passenger { State = PassengerState.WalkingToPlatform });
                     continue;
 
                 case PassengerState.ChoosingQueue:
