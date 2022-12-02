@@ -30,14 +30,13 @@ partial struct TrainSystem : ISystem
         foreach (var (transform, speed, waypoint, time, trainInfo, locationInfo) in SystemAPI.Query<TransformAspect, Speed, RefRW<WaypointID>, RefRW<IdleTime>, TrainInfo, LocationInfo>())
         {
             trainPositions[trainInfo.Id] = new TrainPositionsBuffer() { position = transform.LocalPosition };
-
             if (time.ValueRO.Value > 0)
             {
                 time.ValueRW.Value -= Time.deltaTime;
                 continue;
             }
 
-            float nextWaypointZ = -Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.Value + 1) - Globals.PlatformSize*0.5f;
+            float nextWaypointZ = Globals.PlatformSize * 0.5f - Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.Value + 1) - Globals.PlatformSize*0.5f;
 
             if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.Value < config.NumberOfStations)
             {

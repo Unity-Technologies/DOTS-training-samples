@@ -143,7 +143,7 @@ public class Commuter : MonoBehaviour
                     _S += ", endPlatform: " + _T.endPlatform.GetFullName();
                     break;
             }
-            Debug.Log(_S);
+           // Debug.Log(_S);
         }
         NextTask();
     }
@@ -239,7 +239,7 @@ public class Commuter : MonoBehaviour
             if (currentTask.startPlatform != null)
             {
                 currentPlatform = currentTask.startPlatform;
-                Debug.Log("Current platform is now: " + currentPlatform.GetFullName());
+              //  Debug.Log("Current platform is now: " + currentPlatform.GetFullName());
             }
 
             if (currentTask.endPlatform != null)

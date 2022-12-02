@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 
@@ -66,7 +65,7 @@ partial struct SpawnerSystem : ISystem
             {
                 var platformID = i * config.NumberOfStations + n;
                 
-                LocalTransform spawnLocalToWorld = LocalTransform.FromPosition(Globals.PlatformSpacing * i, 0, -Globals.RailSize*0.5f+(Globals.RailSize / (config.NumberOfStations+1)) * (n+1));
+                LocalTransform spawnLocalToWorld = LocalTransform.FromPosition(Globals.PlatformSpacing * i, 0, Globals.PlatformSize*0.5f-Globals.RailSize*0.5f+(Globals.RailSize / (config.NumberOfStations+1)) * (n+1));
                 SpawnPlatform(ref state, ecb, spawnLocalToWorld, config.PlatformPrefab);
                 var path = SpawnPath(ref state, ecb, spawnLocalToWorld, config.PathPrefab, platformID);
                 var pathCom = SystemAPI.GetComponent<Path>(path);
@@ -140,7 +139,7 @@ partial struct SpawnerSystem : ISystem
         Entity person = state.EntityManager.Instantiate(prefab);
         ecb.SetComponent(person, spawnLocalToWorld);
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
-        ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());
+        ecb.SetComponent(person, RandomColor());
         
         ecb.AddComponent(person, new DestinationPlatform{ Value = platformID});
         ecb.AddComponent(person, new Agent{ CurrentWaypoint = defaultWaypoint});

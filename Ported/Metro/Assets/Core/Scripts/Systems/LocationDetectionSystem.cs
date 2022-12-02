@@ -34,9 +34,9 @@ partial struct LocationDetectionSystem : ISystem
         public void Execute(in TransformAspect transform, ref LocationInfo locationInfo)
         {
             int stationSpacing = (int)(Globals.RailSize / (config.NumberOfStations + 1));
-            int column = locationInfo.CurrentStation = (int)((Globals.RailSize*0.5f+transform.LocalPosition.z) / stationSpacing);
+            int column = locationInfo.CurrentStation = (int)((Globals.RailSize * 0.5f + transform.LocalPosition.z) / stationSpacing);
             int row = (int)((transform.LocalPosition.x) / Globals.PlatformSpacing);
-            locationInfo.CurrentPlatform = math.clamp((row * config.NumberOfStations) + column, 0, (config.NumberOfStations*config.PlatformCountPerStation-1));
+            locationInfo.CurrentPlatform = math.clamp((row * config.NumberOfStations) + column, 0, (config.NumberOfStations * config.PlatformCountPerStation - 1));
         }
     }
 }
