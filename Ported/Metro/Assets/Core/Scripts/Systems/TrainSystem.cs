@@ -36,7 +36,7 @@ partial struct TrainSystem : ISystem
                 continue;
             }
 
-            float nextWaypointZ = -Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.Value + 1) - Globals.PlatformSize*0.5f;
+            float nextWaypointZ = Globals.PlatformSize * 0.5f - Globals.RailSize * 0.5f + (Globals.RailSize / (config.NumberOfStations + 1)) * (waypoint.ValueRO.Value + 1) - Globals.PlatformSize*0.5f;
 
             if (transform.LocalPosition.z > nextWaypointZ && waypoint.ValueRO.Value < config.NumberOfStations)
             {
