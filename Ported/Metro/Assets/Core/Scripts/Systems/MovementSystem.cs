@@ -15,6 +15,7 @@ partial struct MovementSystem : ISystem
     {
         var builder = new EntityQueryBuilder(Allocator.Temp);
         builder.WithAll<LocalTransform, Speed, TargetPosition, WaypointMovementTag>();
+        builder.WithNone<PassengerInfo>();
         myQuery = state.GetEntityQuery(builder);
     }
     
@@ -57,7 +58,7 @@ partial struct MovementSystem : ISystem
         //}.ScheduleParallel(myQuery, state.Dependency);
     }
     
-    [BurstCompile]
+    [BurstCompile][WithNone(typeof(PassengerInfo))]
     partial struct MovementEntityJob : IJobEntity
     {
         public float DT;
@@ -73,7 +74,7 @@ partial struct MovementSystem : ISystem
         }
     }
     
-    [WithAll(typeof(WaypointMovementTag))]
+    [WithAll(typeof(WaypointMovementTag))][WithNone(typeof(PassengerInfo))]
     [BurstCompile]
     public partial struct MovementChunkJob : IJobChunk
     {

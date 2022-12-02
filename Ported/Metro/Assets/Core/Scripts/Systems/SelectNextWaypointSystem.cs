@@ -1,14 +1,10 @@
 using Unity.Burst;
-using Unity.Burst.Intrinsics;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[BurstCompile]
+[BurstCompile][UpdateAfter(typeof(PassengerSystem))]
 partial struct SelectNextWaypointSystem : ISystem
 {
     private ComponentLookup<LocalToWorld> m_LocalToWorldTransformFromEntity;

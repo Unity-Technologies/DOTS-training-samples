@@ -4,4 +4,5 @@ struct PassengerInfo : IComponentData
 {
     public int TrainID;
     public int Seat;
+    public int EmbarkedPlatform;
 }
