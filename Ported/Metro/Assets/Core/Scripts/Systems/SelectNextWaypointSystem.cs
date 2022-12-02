@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
+using Unity.Collections;
 
 [BurstCompile][UpdateAfter(typeof(PassengerSystem))]
 partial struct SelectNextWaypointSystem : ISystem
