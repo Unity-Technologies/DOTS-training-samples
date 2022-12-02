@@ -13,5 +13,6 @@ class WallBaker : Baker<WallAuthoring>
     public override void Bake(WallAuthoring authoring)
     {
         AddComponent(new Obstacle());
+        AddComponent(new Position());
     }
 }

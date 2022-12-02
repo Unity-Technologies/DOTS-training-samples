@@ -155,6 +155,7 @@ partial struct WorldSpawnerSystem : ISystem
                 var trans = new LocalTransform{_Position = pos, _Scale = 1.0f};
                 ecb.SetComponent(wall , trans);
                 ecb.SetComponent(wall, new Obstacle());
+                ecb.SetComponent(wall, new Position { Value = pos.xz });
                 currentAngle += angleBetweenWalls + angleSkip;
             }
 

@@ -52,6 +52,7 @@ partial struct AntSpawningSystem : ISystem
             var randomAngle = 2.0f * math.PI * random.NextFloat();
             state.EntityManager.SetComponentData<CurrentDirection>(ant, new CurrentDirection { Angle = randomAngle });
             state.EntityManager.SetComponentData<PreviousDirection>(ant, new PreviousDirection { Angle = randomAngle });
+            state.EntityManager.SetComponentData<Position>(ant, new Position { Value = new float2(0.0f, 0.0f) });
         }
     }
 }

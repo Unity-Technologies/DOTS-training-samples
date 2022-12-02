@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
-struct Obstacle : IComponentData
+struct Position : IComponentData
 {
+    public float2 Value;
 }
