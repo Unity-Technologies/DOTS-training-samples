@@ -14,7 +14,7 @@ partial struct WallAvoidanceSystem : ISystem
     
     public void OnCreate(ref SystemState state)
     {
-        wallQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Obstacle>().Build();
+        wallQuery = SystemAPI.QueryBuilder().WithAll<Position, Obstacle>().Build();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -45,7 +45,7 @@ partial struct WallAvoidanceSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var walls = wallQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+        var walls = wallQuery.ToComponentDataArray<Position>(state.WorldUpdateAllocator);
         bool sort = true;
         if (sort)
         {
@@ -57,11 +57,11 @@ partial struct WallAvoidanceSystem : ISystem
         
     }
 
-    struct WallSort : IComparer<LocalTransform>
+    struct WallSort : IComparer<Position>
     {
-        public int Compare(LocalTransform a, LocalTransform b)
+        public int Compare(Position a, Position b)
         {
-            return a.Position.x.CompareTo(b.Position.x);
+            return a.Value.x.CompareTo(b.Value.x);
         }
     }
 
@@ -70,7 +70,7 @@ partial struct WallAvoidanceSystem : ISystem
     partial struct WallAvoidanceJob : IJobEntity
     {
         [ReadOnly]
-        public NativeArray<LocalTransform> wallPositions;
+        public NativeArray<Position> wallPositions;
 
         public bool ArrayIsSorted;
         private bool Intersect(float2 p1, float2 p2, float2 center, float radius, out float distance)
@@ -96,7 +96,7 @@ partial struct WallAvoidanceSystem : ISystem
         }
         
         [BurstCompile]
-        public void Execute(ref WallDirection wallDirection, in CurrentDirection currentDirection, in LocalTransform transformAspect)
+        public void Execute(ref WallDirection wallDirection, in CurrentDirection currentDirection, in Position position)
         {
             if(wallPositions.Length == 0)
                 return;
@@ -107,17 +107,17 @@ partial struct WallAvoidanceSystem : ISystem
             float range = 3.0f;
             int index = wallPositions.Length / 2;
             int prevIndex = wallPositions.Length;
-            float currentX = wallPositions[index].Position.x;
+            float currentX = wallPositions[index].Value.x;
             int leftIndex = 0;
             int rightIndex = wallPositions.Length;
 
             if (ArrayIsSorted)
             {
                 int x = 0;
-                while (!(currentX > transformAspect.Position.x + range &&
-                         currentX < transformAspect.Position.x - range) && x < 6)
+                while (!(currentX > position.Value.x + range &&
+                         currentX < position.Value.x - range) && x < 6)
                 {
-                    if (currentX > transformAspect.Position.x)
+                    if (currentX > position.Value.x)
                     {
                         int prev = prevIndex;
                         prevIndex = index;
@@ -131,24 +131,24 @@ partial struct WallAvoidanceSystem : ISystem
                     }
 
                     ++x;
-                    currentX = wallPositions[index].Position.x;
+                    currentX = wallPositions[index].Value.x;
                 }
 
                 leftIndex = index;
-                while (currentX > transformAspect.Position.x - range && leftIndex != 0)
+                while (currentX > position.Value.x - range && leftIndex != 0)
                 {
                     leftIndex -= 5;
                     leftIndex = math.max(leftIndex, 0);
-                    currentX = wallPositions[leftIndex].Position.x;
+                    currentX = wallPositions[leftIndex].Value.x;
                 }
 
                 rightIndex = index;
-                currentX = wallPositions[index].Position.x;
-                while (currentX < transformAspect.Position.x + range && rightIndex != wallPositions.Length - 1)
+                currentX = wallPositions[index].Value.x;
+                while (currentX < position.Value.x + range && rightIndex != wallPositions.Length - 1)
                 {
                     rightIndex += 5;
                     rightIndex = math.min(rightIndex, wallPositions.Length - 1);
-                    currentX = wallPositions[rightIndex].Position.x;
+                    currentX = wallPositions[rightIndex].Value.x;
                 }
 
                 //Debug.Log(rightIndex - leftIndex + "  " + leftIndex + "  " + index + "  " + rightIndex);
@@ -161,10 +161,10 @@ partial struct WallAvoidanceSystem : ISystem
 
                 for (float checkDir = -0.3f; checkDir <= 0.3f; checkDir += 0.6f)
                 {
-                    float3 antStep = transformAspect.Position + new float3(math.sin(currentDirection.Angle + checkDir),0, math.cos(currentDirection.Angle + checkDir)) * range;
+                    float3 antStep = new float3(position.Value.x, 0, position.Value.y) + new float3(math.sin(currentDirection.Angle + checkDir),0, math.cos(currentDirection.Angle + checkDir)) * range;
                     float distance;
                     
-                    if (Intersect(transformAspect.Position.xz, antStep.xz, wall.Position.xz, 1.0f, out distance))
+                    if (Intersect(position.Value.xy, antStep.xz, wall.Value.xy, 1.0f, out distance))
                     {
                         float dir = -1.0f;
                         if (checkDir < 0)
@@ -186,10 +186,10 @@ partial struct WallAvoidanceSystem : ISystem
                 {
                     wallBounce = 0;
                 }
-                else if (transformAspect.Position.x - wall.Position.x <= 2f || transformAspect.Position.z - wall.Position.z <= 2f)
+                else if (position.Value.x - wall.Value.x <= 2f || position.Value.y - wall.Value.y <= 2f)
                 {
-                    var dx = transformAspect.Position.x - wall.Position.x;
-                    var dy = transformAspect.Position.z - wall.Position.z;
+                    var dx = position.Value.x - wall.Value.x;
+                    var dy = position.Value.y - wall.Value.y;
                     float sqrDist = dx * dx + dy * dy;
                     if(sqrDist < /*ObstacleRadius*/ 1.8f * 1.8f)
                     {
@@ -198,8 +198,8 @@ partial struct WallAvoidanceSystem : ISystem
                         dy /= dist;
 
                         // Determine if teh ant hit from inside (-1) or outside (1) of the wall circle 
-                        float2 wallPos = wall.Position.zx;
-                        float2 antPos = transformAspect.Position.xz;
+                        float2 wallPos = wall.Value.xy;
+                        float2 antPos = position.Value.xy;
                         var wallSqDist = math.lengthsq(wallPos);
                         var antSqDist = math.lengthsq(antPos);
                         wallBounce = wallSqDist > antSqDist ? -1 : 1;
