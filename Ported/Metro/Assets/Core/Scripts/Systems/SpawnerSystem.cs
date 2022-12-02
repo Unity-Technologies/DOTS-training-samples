@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 
@@ -140,7 +139,7 @@ partial struct SpawnerSystem : ISystem
         Entity person = state.EntityManager.Instantiate(prefab);
         ecb.SetComponent(person, spawnLocalToWorld);
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
-        ecb.SetComponentForLinkedEntityGroup(person, queryMask, RandomColor());
+        ecb.SetComponent(person, RandomColor());
         
         ecb.AddComponent(person, new DestinationPlatform{ Value = platformID});
         ecb.AddComponent(person, new Agent{ CurrentWaypoint = defaultWaypoint});

@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce502af074ca6164ca3bc52efb93026f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PersonPrefab: {fileID: 1598512793004306, guid: a58a64a615260e142b79d462a161b433,
+  PersonPrefab: {fileID: 4885050026135113765, guid: 635a3808eecceb547bd9c4ea27666daf,
     type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: d03628e1d0dbfcd4eb56147c30533dd8,
     type: 3}
@@ -162,7 +162,7 @@ MonoBehaviour:
     type: 3}
   PathPrefab: {fileID: 3252976169981810566, guid: 1a600f97c408c480aa479408df4eb7f7,
     type: 3}
-  PersonCount: 100
+  PersonCount: 300
   PlatformCountPerStation: 100
   NumberOfStations: 10
   SafeZoneRadius: 0

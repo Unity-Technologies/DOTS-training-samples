@@ -8,7 +8,6 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct PassengerSystem : ISystem
 {
-    private EntityQuery agentQuery;
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -33,13 +32,8 @@ partial struct PassengerSystem : ISystem
 
         var config = SystemAPI.GetSingleton<Config>();
         var platformsCount = config.PlatformCountPerStation * config.NumberOfStations;
-
-        var builder = new EntityQueryBuilder(Allocator.TempJob);
-        builder.WithAll<Agent>();
-        agentQuery = state.GetEntityQuery(builder);
-
-        NativeArray<Path> paths = new NativeArray<Path>(platformsCount, Allocator.TempJob);
-        NativeArray<float3> initWaypointTransforms = new NativeArray<float3>(platformsCount, Allocator.TempJob);
+        NativeArray<Path> paths = CollectionHelper.CreateNativeArray<Path>(platformsCount, state.WorldUpdateAllocator);
+        NativeArray<float3> initWaypointTransforms = CollectionHelper.CreateNativeArray<float3>(platformsCount, state.WorldUpdateAllocator);
 
         CollectPathsJob collectPathsJob = new CollectPathsJob { paths = paths, initWaypointTransforms = initWaypointTransforms };
         var collectPathsHandle = collectPathsJob.ScheduleParallel(state.Dependency);
@@ -64,23 +58,6 @@ partial struct PassengerSystem : ISystem
         var handle = embarkJob.ScheduleParallel(passengerJobHandle);
 
         state.Dependency = handle;
-        /*
-        var config = SystemAPI.GetSingleton<Config>();
-        
-        var platformsCount = config.PlatformCountPerStation * config.NumberOfStations;
-        NativeArray<Path> paths = new NativeArray<Path>(platformsCount, Allocator.TempJob);
-        NativeArray<float3> initWaypointTransforms = new NativeArray<float3>(platformsCount, Allocator.TempJob);
-        
-        CollectPathsJob collectPathsJob = new CollectPathsJob{ paths = paths, initWaypointTransforms = initWaypointTransforms };
-        var collectHandle = collectPathsJob.ScheduleParallel(state.Dependency);
-        
-        DebarkJob debarkJob = new DebarkJob{ paths = paths, initWaypointTransforms = initWaypointTransforms };
-        var debarkHandle = debarkJob.ScheduleParallel(collectHandle);
-        */
-        /*     foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<PassengerTag>())
-             {
-                 transform.LocalPosition = new float3(transform.LocalPosition.x, transform.LocalPosition.y, trainPositions[0].positionZ);
-             }*/
     }
 
     [BurstCompile]
