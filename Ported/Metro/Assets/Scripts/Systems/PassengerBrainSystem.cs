@@ -119,7 +119,7 @@ partial struct PassengerDecisionJob : IJobEntity
 
 [BurstCompile]
 //[RequireMatchingQueriesForUpdate]
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+//[UpdateInGroup(typeof(LateSimulationSystemGroup))]
 partial struct PassengerBrainSystem : ISystem
 {
     private BufferLookup<Waypoint> _waypointsLookup;
@@ -156,7 +156,7 @@ partial struct PassengerBrainSystem : ISystem
         // };
         // decisionJob.Schedule();
         
-        foreach (var (passenger, passengerPlatformId, passangerTransform, entity) in SystemAPI.Query<Passenger, PlatformId, WorldTransform>().WithEntityAccess())
+        foreach (var (passenger, passengerPlatformId, passangerTransform, entity) in SystemAPI.Query<Passenger, PlatformId, LocalTransform>().WithEntityAccess())
         {
             if (_waypointsLookup.IsBufferEnabled(entity))
                 continue;
