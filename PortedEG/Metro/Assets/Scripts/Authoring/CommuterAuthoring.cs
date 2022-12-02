@@ -16,6 +16,10 @@ class CommuterBaker : Baker<CommuterAuthoring>
 
         AddComponent<CommuterSpeed>();
 
+        AddComponent<CommuterPlatformIDInfo>();
+
+        AddComponent<CommuterStateInfo>();
+
         //var random = Random.CreateFromIndex(3849);
         //float3 speed = new float3(random.NextFloat(0f, 1f), 0f, random.NextFloat(0f, 1f));
         //AddComponent(new CommuterPos { Value = speed });

@@ -3,8 +3,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 using Unity.Burst;
-using Unity.Entities;
-using Unity.Mathematics;
 
 
 [BurstCompile]
@@ -36,6 +34,7 @@ partial struct CommuterMovementJob : IJobEntity
 }
 
 [BurstCompile]
+[UpdateAfter(typeof(CommuterStateUpdateSystem))]
 partial struct CommuterMovementSystem : ISystem
 {
     [BurstCompile]

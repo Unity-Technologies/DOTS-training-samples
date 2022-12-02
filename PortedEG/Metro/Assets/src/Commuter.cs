@@ -41,7 +41,7 @@ public class Commuter : MonoBehaviour
 
     public float satisfaction = 1f;
     public Transform body;
-    private Queue<CommuterTask> route_TaskList;
+    public Queue<CommuterTask> route_TaskList;
     private CommuterTask currentTask;
     public Platform currentPlatform, route_START, route_END;
     public Platform nextPlatform;
@@ -145,7 +145,9 @@ public class Commuter : MonoBehaviour
             }
             Debug.Log(_S);
         }
-        NextTask();
+
+        if (!Metro.INSTANCE._ENABLE_DOTS)
+            NextTask();
     }
 
 

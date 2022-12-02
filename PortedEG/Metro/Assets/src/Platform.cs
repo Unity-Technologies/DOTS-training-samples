@@ -7,7 +7,7 @@ public class Platform : MonoBehaviour
 {
     public int carriageCount, platformIndex;
     public MetroLine parentMetroLine;
-    public List<Walkway> walkways;
+    //public List<Walkway> walkways;
     public Walkway walkway_FRONT_CROSS, walkway_BACK_CROSS;
     public BezierPoint point_platform_START, point_platform_END;
     public Platform oppositePlatform;
@@ -20,6 +20,9 @@ public class Platform : MonoBehaviour
     public int temporary_routeDistance = 0;
     public Platform temporary_accessedViaPlatform;
     public CommuterState temporary_connectionType;
+
+
+    public int globalPlatformIndex;
 
     public void SetupPlatform(MetroLine _parentMetroLine, BezierPoint _start, BezierPoint _end)
     {
@@ -90,21 +93,25 @@ public class Platform : MonoBehaviour
     public int Get_ShortestQueue()
     {
         int shortest = 0;
-        // if all are the same length, go for the second
-        int queueLength = 999;
-        for (int i = 0; i < carriageCount; i++)
+
+        if (!Metro.INSTANCE._ENABLE_DOTS)
         {
-            if (platformQueues[i].Count < queueLength)
+            // if all are the same length, go for the second
+            int queueLength = 999;
+            for (int i = 0; i < carriageCount; i++)
             {
-                queueLength = platformQueues[i].Count;
-                shortest = i;
+                if (platformQueues[i].Count < queueLength)
+                {
+                    queueLength = platformQueues[i].Count;
+                    shortest = i;
+                }
             }
-        }
-        
-        if (queueLength == 0)
-        {
-            // all are zero - do something random maybe?
-            shortest =  Mathf.FloorToInt(Random.Range(0, carriageCount));
+
+            if (queueLength == 0)
+            {
+                // all are zero - do something random maybe?
+                shortest = Mathf.FloorToInt(Random.Range(0, carriageCount));
+            }
         }
 
         return shortest;

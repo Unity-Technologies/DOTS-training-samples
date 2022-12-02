@@ -171,7 +171,7 @@ PrefabInstance:
     - target: {fileID: 114014868198753854, guid: 8ca719e9d16104f78ba3feaa2aea2c96,
         type: 3}
       propertyPath: maxCommuters
-      value: 10
+      value: 1000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

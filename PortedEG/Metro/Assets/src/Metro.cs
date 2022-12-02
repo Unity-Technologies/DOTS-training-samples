@@ -15,6 +15,8 @@ public class Metro : MonoBehaviour
     public const float RAIL_SPACING = 0.5f;
     public static Metro INSTANCE;
 
+    public bool _ENABLE_DOTS = false;
+    public bool IS_COMMUTER_SPAWNED = false;
 
     // PUBLICS
     [Tooltip("prefabs/Carriage")]
@@ -56,7 +58,7 @@ public class Metro : MonoBehaviour
     [HideInInspector] public MetroLine[] metroLines;
 
     [HideInInspector] public List<Commuter> commuters;
-    [HideInInspector] private Platform[] allPlatforms;
+    [HideInInspector] public Platform[] allPlatforms;
 
     public static string GetLine_NAME_FromIndex(int _index)
     {
@@ -106,7 +108,29 @@ public class Metro : MonoBehaviour
     private void Update()
     {
         Update_MetroLines();
-        Update_Commuters();
+
+        if (!_ENABLE_DOTS)
+        { 
+            Update_Commuters();
+        }
+
+        if (_ENABLE_DOTS && IS_COMMUTER_SPAWNED)
+        {
+            for (int i = 0; i < commuters.Count; i++)
+            {
+                Destroy(commuters[i].gameObject);
+            }
+            commuters.Clear();
+
+            for (int i = 0; i < allPlatforms.Length; ++i)
+            {
+                if (!(allPlatforms[i] is null))
+                { 
+                    Destroy(allPlatforms[i].gameObject);
+                    allPlatforms[i] = null;
+                }
+            }
+        }
     }
 
     void SetupMetroLines()
@@ -164,6 +188,8 @@ public class Metro : MonoBehaviour
                     }
                 }
             }
+
+            _PA.globalPlatformIndex = i;
         }
 
         foreach (Platform _P in allPlatforms)
