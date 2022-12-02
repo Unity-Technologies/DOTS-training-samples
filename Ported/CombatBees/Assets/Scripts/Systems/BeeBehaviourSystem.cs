@@ -257,8 +257,8 @@ public partial struct BeeBehaviourJob : IJobEntity
                 break;
             }
             case BeeStateEnumerator.Dying:
-                if(random.NextFloat(0f, 1f) < .05f)
-                    SpawnParticles(chunkIndex, config, ecb, transform.LocalPosition, 1);
+                if(bee.ValueRW.deathTimer >= 1f)
+                    SpawnParticles(chunkIndex, config, ecb, transform.LocalPosition, 5);
                 bee.ValueRW.deathTimer -= deltaTime;
 
                 if(bee.ValueRW.deathTimer < 0f)
