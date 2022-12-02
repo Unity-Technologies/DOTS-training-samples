@@ -27,9 +27,9 @@ public partial struct PheromoneSamplingSystem : ISystem
         int stepCount = config.PheromoneSampleStepCount;
         
     #if false
-        foreach (var (transform, currentDirection, pheromoneDirection) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<CurrentDirection>, RefRW<PheromoneDirection>>().WithAll<Ant>())
+        foreach (var (position, currentDirection, pheromoneDirection) in SystemAPI.Query<RefRO<Position>, RefRO<CurrentDirection>, RefRW<PheromoneDirection>>().WithAll<Ant>())
         {
-            float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, transform.ValueRO.Position.xz);
+            float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(config.PlaySize, position.Value);
             float curAngle = currentDirection.ValueRO.Angle;
 
             #if true
@@ -106,9 +106,9 @@ partial struct PheromoneSamplingJob : IJobEntity
     public int stepCount;
     public float stepSteerAngleRad;
     public float sampleDistance;
-    public void Execute(in LocalTransform localTransform, in CurrentDirection currentDirection, ref PheromoneDirection pheromoneDirection)
+    public void Execute(in Position position, in CurrentDirection currentDirection, ref PheromoneDirection pheromoneDirection)
     {
-        float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, localTransform.Position.xz);
+        float2 mapPos = PheromoneMapUtil.WorldToPheromoneMap(playAreaSize, position.Value);
         float curAngle = currentDirection.Angle;
 
         float angle = 0;
