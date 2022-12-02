@@ -38,11 +38,11 @@ partial struct FoodSystem : ISystem
         public float3 colonyLocation;
         public float3 foodLocation;
 
-        public void Execute(TransformAspect transform, ref HasResource hasResource, ref URPMaterialPropertyBaseColor color)
+        public void Execute(in Position position, ref HasResource hasResource, ref URPMaterialPropertyBaseColor color)
         {
             bool currentlyHasResource = hasResource.Value;
             float3 targetPosition = currentlyHasResource ? colonyLocation : foodLocation;
-            if (math.distance(transform.LocalPosition, targetPosition) < 1.0f) // TODO Hard coded food radius of 1 m
+            if (math.distance(position.Value, targetPosition.xz) < 1.0f) // TODO Hard coded food radius of 1 m
             {
                 hasResource.Value = !currentlyHasResource;
                 hasResource.Trigger = true;
