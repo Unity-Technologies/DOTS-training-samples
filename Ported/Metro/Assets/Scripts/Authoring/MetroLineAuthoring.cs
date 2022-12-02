@@ -29,6 +29,13 @@ class MetroLineBaker : Baker<MetroLineAuthoring>
             pointRotations[i] = pointTransform.rotation;
             pointTypes[i] = point.RailwayPointType;
             stationIds[i] = point.StationId;
+
+            if (i != points.Length - 1)
+                point.NextPoint = points[i + 1];
+            else
+                point.NextPoint = points[i];
+
+            point.LastPoint = points[i];
         }
         
         AddComponent(new MetroLine
