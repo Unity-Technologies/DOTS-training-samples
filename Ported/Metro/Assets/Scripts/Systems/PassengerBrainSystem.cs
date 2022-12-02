@@ -156,6 +156,9 @@ partial struct PassengerBrainSystem : ISystem
         // };
         // decisionJob.Schedule();
         
+        var destPlatformsIds = CollectionHelper.CreateNativeArray<int>(50, Allocator.Temp);
+        var destPlatforms = CollectionHelper.CreateNativeArray<Platform>(50, Allocator.Temp);
+        
         foreach (var (passenger, passengerPlatformId, passangerTransform, entity) in SystemAPI.Query<Passenger, PlatformId, LocalTransform>().WithEntityAccess())
         {
             if (_waypointsLookup.IsBufferEnabled(entity))
@@ -181,8 +184,6 @@ partial struct PassengerBrainSystem : ISystem
 
                     // Get other platforms on the same Station
                     int destPlatformsCount = 0;
-                    var destPlatformsIds = CollectionHelper.CreateNativeArray<int>(50, Allocator.Temp);
-                    var destPlatforms = CollectionHelper.CreateNativeArray<Platform>(50, Allocator.Temp);
                     foreach (var (platformId, stationId, platform) in SystemAPI.Query<PlatformId, StationId, Platform>())
                     {
                         if (stationId.Value != currentStationId)// || platformId.Value == currentPlatformId)
