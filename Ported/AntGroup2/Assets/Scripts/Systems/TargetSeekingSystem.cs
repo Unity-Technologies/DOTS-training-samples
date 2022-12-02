@@ -14,7 +14,7 @@ partial struct TargetSeekingSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-        wallQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Obstacle>().Build();
+        wallQuery = SystemAPI.QueryBuilder().WithAll<Position, Obstacle>().Build();
     }
 
     public void OnDestroy(ref SystemState state)
@@ -38,7 +38,7 @@ partial struct TargetSeekingSystem : ISystem
             colonyPos = colony.WorldPosition;
         }
 
-        var walls = wallQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+        var walls = wallQuery.ToComponentDataArray<Position>(state.WorldUpdateAllocator);
         var job = new TargetSeekingJob { foodPos = foodPos, colonyPos = colonyPos, wallPositions = walls};
         job.ScheduleParallel();
     }
@@ -51,7 +51,7 @@ partial struct TargetSeekingSystem : ISystem
         public float3 colonyPos;
 
         [ReadOnly]
-        public NativeArray<LocalTransform> wallPositions;
+        public NativeArray<Position> wallPositions;
 
         private bool Intersect(float2 p1, float2 p2, float2 center, float radius)
         {
@@ -75,7 +75,7 @@ partial struct TargetSeekingSystem : ISystem
         }
 
         [BurstCompile]
-        public void Execute(ref TargetDirection targetDirection, in CurrentDirection currentDirection, in HasResource hasResource, in LocalTransform transformAspect)
+        public void Execute(ref TargetDirection targetDirection, in CurrentDirection currentDirection, in HasResource hasResource, in Position transformAspect)
         {
             bool lineOfSight = true;
 
@@ -83,7 +83,7 @@ partial struct TargetSeekingSystem : ISystem
 
             foreach (var wall in wallPositions)
             {
-                if (Intersect(transformAspect.Position.xz, targetPos.xz, wall.Position.xz, 1.0f))
+                if (Intersect(transformAspect.Value, targetPos.xz, wall.Value, 1.0f))
                 {
                     lineOfSight = false;
                     // Draw line to the obstacle
@@ -93,7 +93,7 @@ partial struct TargetSeekingSystem : ISystem
             }
             if (lineOfSight)
             {
-                targetDirection.Angle = math.atan2(targetPos.x - transformAspect.Position.x, targetPos.z - transformAspect.Position.z);
+                targetDirection.Angle = math.atan2(targetPos.x - transformAspect.Value.x, targetPos.z - transformAspect.Value.y);
                 targetDirection.Angle = targetDirection.Angle - currentDirection.Angle;
                 if (targetDirection.Angle > math.PI)
                     targetDirection.Angle -= (float)(math.PI * 2.0f);
