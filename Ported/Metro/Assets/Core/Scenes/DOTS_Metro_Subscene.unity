@@ -162,9 +162,9 @@ MonoBehaviour:
     type: 3}
   PathPrefab: {fileID: 3252976169981810566, guid: 1a600f97c408c480aa479408df4eb7f7,
     type: 3}
-  PersonCount: 10
-  PlatformCountPerStation: 1
-  NumberOfStations: 2
+  PersonCount: 100
+  PlatformCountPerStation: 100
+  NumberOfStations: 10
   SafeZoneRadius: 0
   QueueLength: 0
 --- !u!4 &2024593195
