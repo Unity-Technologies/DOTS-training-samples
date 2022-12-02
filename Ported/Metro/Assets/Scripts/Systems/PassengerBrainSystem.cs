@@ -206,7 +206,9 @@ partial struct PassengerBrainSystem : ISystem
                     if (destinationPlatformId == currentPlatformId)
                     {
                         // Walk to around the center of the platform 
-                        platformWaypoints.Add(new Waypoint { Value = _random.NextFloat3(currentPlatform.WalkwayBackLower, currentPlatform.WalkwayFrontLower) });
+                        platformWaypoints.Add(new Waypoint { Value = 
+                            _random.NextFloat3(currentPlatform.WalkwayBackLower, currentPlatform.WalkwayFrontLower) + 
+                            _random.NextFloat3(new float3(-1.5f, 0f, -1.5f), new float3(1.5f, 0f, 1.5f)) });
                         continue;
                     }
 
@@ -263,16 +265,7 @@ partial struct PassengerBrainSystem : ISystem
                     ecb.SetComponent(entity, new Passenger { State = PassengerState.WalkingToQueue });
                     ecb.SetComponent(entity, new PlatformQueueId { Value = queueInfo.Item3.Value});
                     continue;
-
-
-                /*case PassengerState.ReadyToEnterTrain:
-
-                    continue;
-
-                case PassengerState.ReadyToExitTrain:
-
-                    continue;*/
-
+                
                 case PassengerState.WalkingToPlatform:
                 case PassengerState.WalkingToQueue:
                 case PassengerState.InQueue:
