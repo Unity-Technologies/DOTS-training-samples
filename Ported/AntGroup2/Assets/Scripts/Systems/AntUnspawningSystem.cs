@@ -43,9 +43,9 @@ partial struct AntUnspawningSystem : ISystem
         public float halfSize;
         public EntityCommandBuffer.ParallelWriter Ecb;
 
-        public void Execute([ChunkIndexInQuery]int index, TransformAspect transform, Entity entity)
+        public void Execute([ChunkIndexInQuery]int index, in Position position, Entity entity)
         {
-            if (math.abs(transform.WorldPosition.x) > halfSize || math.abs(transform.WorldPosition.z) > halfSize)
+            if (math.abs(position.Value.x) > halfSize || math.abs(position.Value.y) > halfSize)
             {
                 Ecb.DestroyEntity(index, entity);
             }
