@@ -11,8 +11,8 @@ public readonly partial struct ResourceAspect : IAspect
     
     public float3 Position
     {
-        get => Transform.Position;
-        set => Transform.Position = value;
+        get => Transform.WorldPosition;
+        set => Transform.WorldPosition = value;
     }
     
     public float3 velocity

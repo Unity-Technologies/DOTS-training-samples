@@ -30,7 +30,7 @@ partial struct ResourceBehaviourSystem : ISystem
             resource.ValueRW.carriedEnabled = SystemAPI.IsComponentEnabled<ResourceCarried>(entity);
             resource.ValueRW.droppedEnabled = SystemAPI.IsComponentEnabled<ResourceDropped>(entity);
 
-            if (resource.ValueRO.ownerBee != Entity.Null)
+            if (resource.ValueRO.ownerBee != Entity.Null && SystemAPI.Exists(resource.ValueRO.ownerBee))
             {
                 resource.ValueRW.ownerPosition = SystemAPI.GetAspectRO<TransformAspect>(resource.ValueRO.ownerBee).WorldPosition;
                 resource.ValueRW.ownerVelocity = SystemAPI.GetComponent<BeeState>(resource.ValueRO.ownerBee).velocity;

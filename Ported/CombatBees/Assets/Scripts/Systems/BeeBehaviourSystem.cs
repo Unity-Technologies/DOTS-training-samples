@@ -30,7 +30,6 @@ partial struct BeeBehaviourSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var deltaTime = state.WorldUnmanaged.Time.DeltaTime;
         var up = new float3(0f, 1f, 0f);
-        var random = new Random();
 
         var hive0Bees = new DynamicBuffer<TargetBee>();
         var hive1Bees = new DynamicBuffer<TargetBee>();
@@ -52,7 +51,7 @@ partial struct BeeBehaviourSystem : ISystem
         if (hive0Bees.Length == 0 && hive1Bees.Length == 0)
             return;
 
-        var deadBees = new NativeParallelHashSet<Entity>(100, state.WorldUpdateAllocator);
+        var deadBees = new NativeParallelHashSet<Entity>(hive0Bees.Length + hive1Bees.Length, state.WorldUpdateAllocator);
         var behaviourJob = new BeeBehaviourJob
         {
             transformLookup = SystemAPI.GetComponentLookup<WorldTransform>(),
