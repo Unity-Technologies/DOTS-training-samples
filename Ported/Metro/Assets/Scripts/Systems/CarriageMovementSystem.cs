@@ -86,6 +86,26 @@ namespace Systems
     }
     
     [BurstCompile]
+    partial struct PassengerMoveJob : IJobEntity
+    {        
+        public EntityCommandBuffer.ParallelWriter ECB;
+        
+        void Execute([ChunkIndexInQuery] int chunkIndex, ref CarriageMovePassengerAspect carriage)
+        {
+            var passengers = carriage.Passengers;
+            var carriagePosition = carriage.Transform.ValueRO.Position;
+            var carriageRotation = carriage.Transform.ValueRO.Rotation;
+            var seats = carriage.CarriageSeats.ValueRO;
+            for (int i = 0; i < passengers.Length; i++)
+            {
+                var seatPosition = carriagePosition + math.rotate(carriageRotation,seats.Seats[i]);
+                ECB.SetComponent(chunkIndex,passengers[i].Value, LocalTransform.FromPosition(seatPosition));
+            }
+        }
+
+    }
+    
+    [BurstCompile]
     [UpdateAfter(typeof(TrainMovementSystem))]
     public partial struct CarriageMovementSystem : ISystem
     {
@@ -121,18 +141,23 @@ namespace Systems
                 TrainPositions = trainPositions,
                 ECB = ecb.AsParallelWriter()
             };
+            var movePassengers = new PassengerMoveJob
+            {
+                ECB = ecb.AsParallelWriter()
+            };
 
             var carriageHandle = carriageJob.ScheduleParallel(state.Dependency);
-            tempCarriageJob.ScheduleParallel(carriageHandle).Complete();
+            var carriageEdgesJob = tempCarriageJob.ScheduleParallel(carriageHandle);
+            movePassengers.ScheduleParallel(carriageEdgesJob).Complete();
 
-            foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeatsPositions,DynamicBuffer<CarriagePassengers>,LocalTransform>())
+            /*foreach (var (seats, passengers,carriage) in SystemAPI.Query<CarriageSeatsPositions,DynamicBuffer<CarriagePassengers>,LocalTransform>())
             {
                 for (int i = 0; i < passengers.Length; i++)
                 {
                     var seatPosition = carriage.Position + math.rotate(carriage.Rotation,seats.Seats[i]);
                     ecb.SetComponent(passengers[i].Value, LocalTransform.FromPosition(seatPosition));
                 }
-            }
+            }*/
         }
     }
 }
