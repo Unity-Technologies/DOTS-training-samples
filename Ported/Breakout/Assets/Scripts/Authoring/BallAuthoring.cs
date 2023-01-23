@@ -14,7 +14,6 @@ namespace Authoring
 		public override void Bake(BallAuthoring authoring)
 		{
 			AddComponent(new Ball());
-			AddComponent(new URPMaterialPropertyBaseColor());
 		}
 	}
 
