@@ -1,6 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 public class BallAuthoring : MonoBehaviour
 {
@@ -20,5 +21,6 @@ public class BallAuthoring : MonoBehaviour
 
 struct Ball : IComponentData
 {
+    public URPMaterialPropertyBaseColor Color;
 }
 

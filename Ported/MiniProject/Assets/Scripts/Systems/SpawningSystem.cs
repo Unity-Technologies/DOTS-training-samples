@@ -7,6 +7,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Entities.UniversalDelegates;
+using Unity.Rendering;
 
 [BurstCompile]
 public partial struct SpawningSystem : ISystem
@@ -31,13 +32,22 @@ public partial struct SpawningSystem : ISystem
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
-    {   
+    {
+        
+
         //WHY DO WE NEED TO DO THIS
         //ASk Brian
         //Querying for singleton config gives 2 configs.
         if (!onlyOnce) return;
 
         random = Unity.Mathematics.Random.CreateFromIndex(1234);
+        var hue = random.NextFloat();
+        URPMaterialPropertyBaseColor RandomColor()
+        {
+            hue = (hue + 0.618034005f) % 1;
+            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
+        }
 
         var config = SystemAPI.GetSingleton<Config>();
 
@@ -70,12 +80,20 @@ public partial struct SpawningSystem : ISystem
         {
             float3 displacement = random.NextFloat3(new float3(-1, 0, -1) * wallSpread, new float3(1, 0, 1) * wallSpread);
             ecb.SetComponent<LocalTransform>(wall, LocalTransform.FromPosition(displacement));
+
         }
 
         foreach (var ball in balls)
         {
             float3 displacement = random.NextFloat3(new float3(-1, 0, -1) * ballSpread, new float3(1, 0, 1) * ballSpread);
-            ecb.SetComponent<LocalTransform>(ball, LocalTransform.FromPosition(displacement));
+            foreach (var wall in walls)
+            {
+                
+            }
+            
+            
+            ecb.SetComponent<LocalTransform>(ball, LocalTransform.FromPositionRotationScale(displacement, Quaternion.identity, 0.5f));
+            ecb.SetComponent(ball, new URPMaterialPropertyBaseColor { Value = RandomColor().Value });
         }
 
         onlyOnce = false;

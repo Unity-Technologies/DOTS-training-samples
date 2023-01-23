@@ -48,7 +48,8 @@ public partial struct SpeedSystem : ISystem
 
             if (collided)
             {
-                speed.ValueRW.speed *= -speed.ValueRW.bounceFactor;
+                var diffpos = transform.LocalPosition - collidedPos;
+                speed.ValueRW.speed = math.reflect(math.normalize(speed.ValueRW.speed), math.normalize(diffpos)) * speed.ValueRW.bounceFactor * math.length(speed.ValueRW.speed);
             }
 
             transform.LocalPosition += speed.ValueRO.speed * dt * 5;
