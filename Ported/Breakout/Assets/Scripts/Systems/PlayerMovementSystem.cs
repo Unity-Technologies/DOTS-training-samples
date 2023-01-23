@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Systems
 {
@@ -60,7 +59,6 @@ namespace Systems
                         state.EntityManager.SetComponentData(ball, new Ball { Speed = speed });
                     }
                 }
-
             }
         }
     }
