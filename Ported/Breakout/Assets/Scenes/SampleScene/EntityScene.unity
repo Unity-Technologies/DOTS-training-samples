@@ -340,6 +340,8 @@ MonoBehaviour:
   Boundary:
     x: 50
     y: 50
+  PlayerImpactRadius: 5
+  BallSpeedDecay: 0.75
 --- !u!4 &1730376268
 Transform:
   m_ObjectHideFlags: 0

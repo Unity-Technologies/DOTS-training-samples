@@ -31,6 +31,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            var config = SystemAPI.GetSingleton<Config>();
             var direction = new float3();
             direction.x = Input.GetAxis("Horizontal");
             direction.z = Input.GetAxis("Vertical");
@@ -46,14 +47,13 @@ namespace Systems
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-
                 // convert player in to a native array of entities
                 var balls = BallQuery.ToEntityArray(Allocator.Temp);
                 foreach (var ball in balls)
                 {
                     var transform = SystemAPI.GetComponent<LocalToWorld>(ball);
 
-                    if (math.distancesq(transform.Position, playerPostion) < 1.0f)
+                    if (math.distancesq(transform.Position, playerPostion) < config.PlayerImpactRadius)
                     {
                         var speed = math.normalize(transform.Position - playerPostion) * 5.0f;
                         state.EntityManager.SetComponentData(ball, new Ball { Speed = speed });

@@ -16,6 +16,10 @@ namespace Authoring
 
 		public float2 Boundary;
 
+		public float PlayerImpactRadius;
+
+		public float BallSpeedDecay;
+
 		public class ConfigBaker : Baker<ConfigAuthoring>
 		{
 			public override void Bake(ConfigAuthoring authoring)
@@ -26,7 +30,9 @@ namespace Authoring
 					BallPrefab = GetEntity(authoring.BallPrefab),
 					NumObstacles = authoring.NumObstacles,
 					NumBalls = authoring.NumBalls,
-					Boundary = authoring.Boundary
+					Boundary = authoring.Boundary,
+					PlayerImpactRadius = authoring.PlayerImpactRadius,
+					BallSpeedDecay = authoring.BallSpeedDecay
 				});
 				
 			}
@@ -41,5 +47,7 @@ namespace Authoring
 		public int NumObstacles;
 		public int NumBalls;
 		public float2 Boundary;
+		public float PlayerImpactRadius;
+		public float BallSpeedDecay;
 	}
 }
