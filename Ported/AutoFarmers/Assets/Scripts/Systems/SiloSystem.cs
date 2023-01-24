@@ -30,11 +30,7 @@ public partial struct SiloSystem : ISystem
                 //TODO Maybe transition this into LocalTransform
                 state.EntityManager.SetComponentData<WorldTransform>(newFarmer, silo.Transform.WorldTransform);
                 silo.Cash -= silo.FarmerCost;
-                silo.FarmersSpawned+= 1;
-                if (silo.FarmersSpawned >= silo.DronesUnlockLevel)
-                    silo.HireType = HireTypes.HIRE_DRONE;
-                else
-                    silo.HireType = HireTypes.HIRE_FARMER;
+                silo.HireType = HireTypes.HIRE_DRONE;
             }
             if (silo.Cash > silo.DroneCost && silo.HireType == HireTypes.HIRE_DRONE)
             {
@@ -44,7 +40,6 @@ public partial struct SiloSystem : ISystem
                 temp.Position += new Unity.Mathematics.float3(0, 1, 0);
                 state.EntityManager.SetComponentData<WorldTransform>(newDrone, temp);
                 silo.Cash -= silo.DroneCost;
-                silo.DronesSpawned+= 1;
                 silo.HireType = HireTypes.HIRE_FARMER;
             }
         }
