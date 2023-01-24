@@ -193,7 +193,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Cash: 0
-  FarmerCost: 10
-  DroneCost: 40
+  FarmerCost: 100
+  DroneCost: 400
   FarmerSpawn: {fileID: 7930342851475697137}
   DroneSpawn: {fileID: 2391252780380337591}

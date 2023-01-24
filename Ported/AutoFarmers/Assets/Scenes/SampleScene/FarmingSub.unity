@@ -2658,7 +2658,8 @@ MonoBehaviour:
     type: 3}
   SiloCount: 50
   GroundSizeXY: 500
-  FarmerPrefab: {fileID: 0}
+  FarmerPrefab: {fileID: 2737776033792888, guid: 8c0f2218edb674a44a50b5e61e3bd7af,
+    type: 3}
   DronePrefab: {fileID: 0}
 --- !u!1001 &1268831121
 PrefabInstance:
