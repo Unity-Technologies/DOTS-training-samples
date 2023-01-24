@@ -476,7 +476,7 @@ PrefabInstance:
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
@@ -2030,7 +2030,7 @@ PrefabInstance:
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
@@ -2109,7 +2109,7 @@ PrefabInstance:
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
@@ -2292,6 +2292,9 @@ MonoBehaviour:
     type: 3}
   SiloCount: 50
   GroundSizeXY: 500
+  FarmerPrefab: {fileID: 2737776033792888, guid: 8c0f2218edb674a44a50b5e61e3bd7af,
+    type: 3}
+  DronePrefab: {fileID: 0}
 --- !u!1001 &1268831121
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3353,7 +3356,7 @@ PrefabInstance:
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7283308604293724521, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
