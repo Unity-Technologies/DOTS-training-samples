@@ -14,7 +14,7 @@ partial struct FarmerMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        
+
     }
 
     [BurstCompile]
@@ -26,20 +26,20 @@ partial struct FarmerMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach(var (transform, farmer) in SystemAPI.Query<TransformAspect, RefRO<Farmer>>().WithAll<Farmer>())
+        foreach(var farmer in SystemAPI.Query<FarmerAspect>())
         {
-            float3 diff = farmer.ValueRO.moveTarget - transform.LocalPosition;
+            float3 diff = farmer.MoveTarget - farmer.Transform.WorldPosition;
             float diffMag = math.length(diff);
-            float moveAmount = farmer.ValueRO.moveSpeed * SystemAPI.Time.DeltaTime;
+            float moveAmount = farmer.MoveSpeed * SystemAPI.Time.DeltaTime;
             float moveMin = math.min(moveAmount, diffMag);
             float3 moveDirection = math.normalize(diff) * moveMin;
             if(diffMag > 0.1f)
             {
-                transform.LocalPosition += moveDirection;
+                farmer.Transform.WorldPosition += moveDirection;
             }
             else
             {
-                transform.LocalPosition = farmer.ValueRO.moveTarget;
+                farmer.Transform.WorldPosition = farmer.MoveTarget;
             }
         }
     }
