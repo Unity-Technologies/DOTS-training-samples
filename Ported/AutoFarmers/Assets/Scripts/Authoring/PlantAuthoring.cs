@@ -6,14 +6,19 @@ class PlantAuthoring : UnityEngine.MonoBehaviour
     {
         public override void Bake(PlantAuthoring authoring)
         {
-            AddComponent<Plant>();
+            AddComponent(new Plant
+            {
+                timeToGrow = 5
+            });
         }
     }
 }
 
 struct Plant : IComponentData
 {
-    float timePlanted; //to track the growth
-    bool isReadyToPick; //true once fully grown
-    bool pickedAndHeld; //true once picked by a farmer
+    public float timeToGrow;
+    public float timePlanted; //to track the growth
+    public bool isReadyToPick; //true once fully grown
+    public bool pickedAndHeld; //true once picked by a farmer
 }
+
