@@ -5,8 +5,7 @@ class SiloAuthoring : UnityEngine.MonoBehaviour
     public int Cash;
     public int FarmerCost;
     public int DroneCost;
-    public UnityEngine.Transform FarmerSpawn;
-    public UnityEngine.Transform DroneSpawn;
+    public byte HireType;
 
     class SiloBaker : Baker<SiloAuthoring>
     {
@@ -17,9 +16,8 @@ class SiloAuthoring : UnityEngine.MonoBehaviour
                 Cash = authoring.Cash,
                 FarmerCost = authoring.FarmerCost,
                 DroneCost = authoring.DroneCost,
-                FarmerSpawn = GetEntity(authoring.FarmerSpawn),
-                DroneSpawn = GetEntity(authoring.DroneSpawn)
-            }) ;
+                HireType = HireTypes.HIRE_FARMER
+            });
         }
     }
 }
@@ -29,6 +27,11 @@ struct Silo : IComponentData
     public int Cash;
     public int FarmerCost;
     public int DroneCost;
-    public Entity FarmerSpawn;
-    public Entity DroneSpawn;
+    public byte HireType;
+}
+
+public static class HireTypes
+{
+    public const byte HIRE_FARMER = 0;
+    public const byte HIRE_DRONE = 1;
 }
