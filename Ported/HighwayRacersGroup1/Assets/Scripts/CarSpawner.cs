@@ -23,6 +23,7 @@ public class CarSpawner : MonoBehaviour
             carControl.Add(car);
             Vector2 dir = Random.insideUnitCircle;
             car.SegmentID = 0;
+            car.lane = 3;
             carTransforms[i] = go.transform;
             
         }
@@ -39,17 +40,23 @@ public class CarSpawner : MonoBehaviour
         foreach (Car car in carControl)
         {
 
-            float moveSpeed = 50 * Time.deltaTime;
+            float moveSpeed = 100 * Time.deltaTime;
+            float carLane = 4 + (2.45f * car.lane);
 
-            Vector3 currentPosition = highwaySpawner.HighwaySegments[car.SegmentID].position;
-            Vector3 targetPosition = (car.SegmentID + 1 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 1].position : highwaySpawner.HighwaySegments[0].position;
-            Vector3 futurePosition = (car.SegmentID + 2 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 2].position : highwaySpawner.HighwaySegments[2 - (highwaySpawner.HighwaySegments.Count - car.SegmentID)].position;
+            Transform currentSegment = highwaySpawner.HighwaySegments[car.SegmentID];
+            Vector3 currentPosition = currentSegment.position + (currentSegment.right * -carLane);
 
+            Transform targetSegment = (car.SegmentID + 1 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 1] : highwaySpawner.HighwaySegments[0];
+            Vector3 targetPosition = targetSegment.position + (targetSegment.right * -carLane);
+
+            Transform futureSegment = (car.SegmentID + 2 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 2] : highwaySpawner.HighwaySegments[2 - (highwaySpawner.HighwaySegments.Count - car.SegmentID)];
+            Vector3 futurePosition = futureSegment.position + (futureSegment.right * -carLane);
+
+            //Calculate rotation
             float currentDistance = Vector3.Magnitude(car.transform.position - targetPosition);
             float calculatePrecentage = 1 - Mathf.Clamp01((currentDistance - 0.25f) / (car.SegmentDistance -0.25f));
             Vector3 currentDirection = targetPosition - currentPosition;
             Vector3 targetDirection = futurePosition - targetPosition;
-
             Vector3 directionLerp = Vector3.Lerp(currentDirection, targetDirection, calculatePrecentage).normalized * moveSpeed;
             Quaternion carRotation = Quaternion.LookRotation(directionLerp);
 
