@@ -252,8 +252,8 @@ MonoBehaviour:
     type: 3}
   BallPrefab: {fileID: 6961782907633129916, guid: 9c68aa5f89afc3348ab3e71a91249e77,
     type: 3}
-  ObstacleCount: 10
-  BallCount: 1000
+  ObstacleCount: 500
+  BallCount: 10000
   ImpactVelocity: 5
 --- !u!4 &1557898969
 Transform:
@@ -347,7 +347,7 @@ Transform:
   m_GameObject: {fileID: 2001338479}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 6.1, y: 6.1, z: 6.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
