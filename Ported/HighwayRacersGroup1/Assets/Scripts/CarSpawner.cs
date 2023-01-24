@@ -23,7 +23,7 @@ public class CarSpawner : MonoBehaviour
             carControl.Add(car);
             Vector2 dir = Random.insideUnitCircle;
             car.SegmentID = 0;
-            car.lane = 3;
+            car.lane = i;
             carTransforms[i] = go.transform;
             
         }
