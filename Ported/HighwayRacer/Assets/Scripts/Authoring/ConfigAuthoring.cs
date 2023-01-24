@@ -8,6 +8,8 @@ namespace Authoring
 		public GameObject CurvedTrackPrefab;
 
 		public GameObject StraightTrackPrefab;
+
+        public GameObject CarPrefab;
 		
 		public int NumCars;
 
@@ -21,6 +23,7 @@ namespace Authoring
 				{
 					CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
 					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
+                    CarPrefab = GetEntity(authoring.CarPrefab),
 					NumCars = authoring.NumCars,
 					NumLanes = authoring.NumLanes
 				});
@@ -32,6 +35,7 @@ namespace Authoring
 	{
 		public Entity CurvedTrackPrefab;
 		public Entity StraightTrackPrefab;
+        public Entity CarPrefab;
 		public int NumCars;
 		public int NumLanes;
 	}
