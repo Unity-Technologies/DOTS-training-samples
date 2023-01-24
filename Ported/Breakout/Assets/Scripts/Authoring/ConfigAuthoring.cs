@@ -16,6 +16,8 @@ namespace Authoring
 
 		public float2 Boundary;
 
+		public float PlayerSpeed = 5;
+
 		public float PlayerImpactRadius;
 
 		public float BallSpeedDecay;
@@ -32,7 +34,8 @@ namespace Authoring
 					NumBalls = authoring.NumBalls,
 					Boundary = authoring.Boundary,
 					PlayerImpactRadius = authoring.PlayerImpactRadius,
-					BallSpeedDecay = authoring.BallSpeedDecay
+					BallSpeedDecay = authoring.BallSpeedDecay,
+					PlayerSpeed = authoring.PlayerSpeed
 				});
 				
 			}
@@ -47,6 +50,7 @@ namespace Authoring
 		public int NumObstacles;
 		public int NumBalls;
 		public float2 Boundary;
+		public float PlayerSpeed;
 		public float PlayerImpactRadius;
 		public float BallSpeedDecay;
 	}
