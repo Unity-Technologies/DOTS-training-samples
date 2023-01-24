@@ -13,6 +13,12 @@ readonly partial struct FarmerAspect : IAspect
 
     public readonly RefRW<Farmer> Farmer;
 
+    public byte FarmerState
+    {
+        get { return Farmer.ValueRW.farmerState; }
+        set { Farmer.ValueRW.farmerState = value; }
+    }
+
     public float3 MoveTarget
     {
         get => Farmer.ValueRW.moveTarget;
