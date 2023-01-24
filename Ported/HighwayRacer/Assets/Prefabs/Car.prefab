@@ -206,6 +206,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4731464488694636}
+  - component: {fileID: 7540779541217105350}
   m_Layer: 0
   m_Name: Car
   m_TagString: Untagged
@@ -231,3 +232,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7540779541217105350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999935204370666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b92a440fa07da3046ab8c9097e50cb51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Distance: 0
+  Length: 0
+  Speed: 0
+  Acceleration: 0
+  TrackLength: 0
+  LaneNumber: 0
+  LaneChangeClearance: 0
+  Color:
+    x: 0
+    y: 0
+    z: 0
+    w: 0
+  SegmentNumber: 0

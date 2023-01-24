@@ -9,12 +9,11 @@ namespace Authoring
 
 		public GameObject StraightTrackPrefab;
 
+        public GameObject CarPrefab;
+		
 		public int NumCars;
 
 		public int NumLanes;
-
-        public float TrackLength;
-        public float SegmentLength;
 
 		public class ConfigBaker : Baker<ConfigAuthoring>
 		{
@@ -24,10 +23,9 @@ namespace Authoring
 				{
 					CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
 					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
+                    CarPrefab = GetEntity(authoring.CarPrefab),
 					NumCars = authoring.NumCars,
-					NumLanes = authoring.NumLanes,
-                    TrackLength = authoring.TrackLength,
-                    SegmentLength = authoring.SegmentLength
+					NumLanes = authoring.NumLanes
 				});
 			}
 		}
@@ -37,9 +35,8 @@ namespace Authoring
 	{
 		public Entity CurvedTrackPrefab;
 		public Entity StraightTrackPrefab;
+        public Entity CarPrefab;
 		public int NumCars;
 		public int NumLanes;
-        public float TrackLength;
-        public float SegmentLength;
 	}
 }
