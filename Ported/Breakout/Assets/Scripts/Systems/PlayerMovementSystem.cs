@@ -13,14 +13,10 @@ namespace Systems
     [BurstCompile]
     public partial struct PlayerMovementSystem : ISystem
     {
-        private EntityQuery BallQuery;
-
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
 			state.RequireForUpdate<Config>();
-            BallQuery = SystemAPI.QueryBuilder().WithAll<Ball>().Build();
-            state.RequireForUpdate(BallQuery);
         }
 
         [BurstCompile]
