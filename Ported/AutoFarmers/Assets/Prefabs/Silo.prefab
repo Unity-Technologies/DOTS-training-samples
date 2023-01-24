@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7283308604293724523}
   - component: {fileID: 7130436493220528797}
   m_Layer: 0
-  m_Name: Receptical
+  m_Name: Silo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
