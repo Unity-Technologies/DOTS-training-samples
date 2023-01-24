@@ -10,8 +10,6 @@ readonly partial struct SiloAspect : IAspect
     public readonly RefRW<Silo> m_silo;
     public readonly TransformAspect Transform;
 
-    public Entity FarmerSpawn => m_silo.ValueRO.FarmerSpawn;
-    public Entity DroneSpawn => m_silo.ValueRO.DroneSpawn;
 
     public int Cash
     {
@@ -23,5 +21,15 @@ readonly partial struct SiloAspect : IAspect
         get => m_silo.ValueRW.FarmerCost;
         set => m_silo.ValueRW.FarmerCost = value;
     }
+    public int DroneCost
+    {
+        get => m_silo.ValueRW.DroneCost;
+        set => m_silo.ValueRW.DroneCost = value;
+    }
 
+    public byte HireType
+    {
+        get => m_silo.ValueRW.HireType;
+        set => m_silo.ValueRW.HireType= value;
+    }
 }
