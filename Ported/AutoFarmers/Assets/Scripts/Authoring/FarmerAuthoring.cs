@@ -10,7 +10,7 @@ class FarmerAuthoring : UnityEngine.MonoBehaviour
             AddComponent(new Farmer()
             {
                 moveSpeed = 5.0f,
-                moveTarget = new float3(15,0,0)
+                moveTarget = new float3(50, 0, 50)
             });
         }
     }
