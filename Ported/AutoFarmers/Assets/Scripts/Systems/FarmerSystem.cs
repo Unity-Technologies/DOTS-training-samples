@@ -51,7 +51,8 @@ partial struct FarmerSystem : ISystem
                 float3 diff2 = farmer.Transform.WorldPosition - closestRock.Transform.WorldPosition;
                 farmer.MoveTarget = closestRock.Transform.WorldPosition + moveOffset * math.normalize(diff2);
 
-                if (math.lengthsq(diff2) <= (moveOffset * moveOffset))
+                float moveOffsetExtra = moveOffset + 0.5f;
+                if (math.lengthsq(diff2) <= (moveOffsetExtra * moveOffsetExtra))
                 {
                     //Let's hurt the rock.
                     closestRock.Health -= 1;
