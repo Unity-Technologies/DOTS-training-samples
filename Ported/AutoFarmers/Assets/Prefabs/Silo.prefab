@@ -130,4 +130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Cash: 0
   FarmerCost: 100
+  FarmersSpawned: 0
   DroneCost: 200
+  DroneUnlockLevel: 5
+  HireType: 0

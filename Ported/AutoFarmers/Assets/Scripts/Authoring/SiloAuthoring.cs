@@ -4,7 +4,9 @@ class SiloAuthoring : UnityEngine.MonoBehaviour
 {
     public int Cash;
     public int FarmerCost;
+    public int FarmersSpawned;
     public int DroneCost;
+    public int DroneUnlockLevel;
     public byte HireType;
 
     class SiloBaker : Baker<SiloAuthoring>
@@ -13,10 +15,13 @@ class SiloAuthoring : UnityEngine.MonoBehaviour
         {
             AddComponent(new Silo
             {
-                Cash = authoring.Cash,
+                Cash = 0,
                 FarmerCost = authoring.FarmerCost,
                 DroneCost = authoring.DroneCost,
-                HireType = HireTypes.HIRE_FARMER
+                HireType = HireTypes.HIRE_FARMER,
+                FarmersSpawned = 0,
+                DronesSpawned = 0,
+                DroneUnlockLevel = authoring.DroneUnlockLevel
             });
         }
     }
@@ -26,7 +31,10 @@ struct Silo : IComponentData
 {
     public int Cash;
     public int FarmerCost;
+    public int FarmersSpawned;
     public int DroneCost;
+    public int DronesSpawned;
+    public int DroneUnlockLevel;
     public byte HireType;
 }
 

@@ -3705,6 +3705,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 696984148}
     m_Modifications:
+    - target: {fileID: 7130436493220528797, guid: 7e4867c9213d4054e87a68a94cd0fe55,
+        type: 3}
+      propertyPath: DroneUnlockLevel
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 7283308604293724516, guid: 7e4867c9213d4054e87a68a94cd0fe55,
         type: 3}
       propertyPath: m_Name
