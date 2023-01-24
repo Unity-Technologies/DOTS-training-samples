@@ -3,8 +3,9 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public UnityEngine.GameObject RockPrefab;
     public int RockCount;
-    public UnityEngine.GameObject RecepticalPrefab;
-    public int RecepticalCount;
+    public UnityEngine.GameObject SiloPrefab;
+    public int SiloCount;
+    public int GroundSizeXY;
 
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -15,8 +16,9 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
             {
                 RockPrefab = GetEntity(authoring.RockPrefab),
                 RockCount = authoring.RockCount,
-                RecepticalPrefab = GetEntity(authoring.RecepticalPrefab),
-                RecepticalCount = authoring.RecepticalCount
+                SiloPrefab = GetEntity(authoring.SiloPrefab),
+                SiloCount = authoring.SiloCount,
+                GroundSizeXY = authoring.GroundSizeXY
             });
         }
     }
@@ -26,7 +28,7 @@ struct Config : IComponentData
 {
     public Entity RockPrefab;
     public int RockCount;
-    public Entity RecepticalPrefab;
-    public int RecepticalCount;
-
+    public Entity SiloPrefab;
+    public int SiloCount;
+    public int GroundSizeXY;
 }
