@@ -5,6 +5,10 @@ namespace Authoring
 {
 	public class ConfigAuthoring : MonoBehaviour
 	{
+		public GameObject CurvedTrackPrefab;
+
+		public GameObject StraightTrackPrefab;
+		
 		public int NumCars;
 
 		public int NumLanes;
@@ -15,6 +19,8 @@ namespace Authoring
 			{
 				AddComponent(new Config
 				{
+					CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
+					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
 					NumCars = authoring.NumCars,
 					NumLanes = authoring.NumLanes
 				});
@@ -24,6 +30,8 @@ namespace Authoring
 
 	public struct Config : IComponentData
 	{
+		public Entity CurvedTrackPrefab;
+		public Entity StraightTrackPrefab;
 		public int NumCars;
 		public int NumLanes;
 	}

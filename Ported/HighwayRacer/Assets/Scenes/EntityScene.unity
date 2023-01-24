@@ -152,6 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d86b6cd7552a4ca684aec9286817be9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurvedTrackPrefab: {fileID: 1194374486969068, guid: 8c21c0c39d0b2bd42ba1faffb9a8825b,
+    type: 3}
+  StraightTrackPrefab: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
+    type: 3}
   NumCars: 50
   NumLanes: 4
 --- !u!4 &1816297709
