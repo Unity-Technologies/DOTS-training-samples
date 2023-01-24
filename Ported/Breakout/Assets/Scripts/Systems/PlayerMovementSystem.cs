@@ -1,3 +1,4 @@
+using Aspects;
 using Authoring;
 using Unity.Burst;
 using Unity.Collections;
@@ -47,16 +48,11 @@ namespace Systems
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                // convert player in to a native array of entities
-                var balls = BallQuery.ToEntityArray(Allocator.Temp);
-                foreach (var ball in balls)
+                foreach (var ball in SystemAPI.Query<BallAspect>())
                 {
-                    var transform = SystemAPI.GetComponent<LocalToWorld>(ball);
-
-                    if (math.distancesq(transform.Position, playerPostion) < config.PlayerImpactRadius)
+                    if (math.distancesq(ball.Position, playerPostion) < config.PlayerImpactRadius)
                     {
-                        var speed = math.normalize(transform.Position - playerPostion) * 5.0f;
-                        state.EntityManager.SetComponentData(ball, new Ball { Speed = speed });
+                        ball.Speed = math.normalize(ball.Position - playerPostion) * 5.0f;
                     }
                 }
             }
