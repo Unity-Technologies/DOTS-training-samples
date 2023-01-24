@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3108604133415578128}
   - component: {fileID: 3108604133415578129}
   - component: {fileID: 4435359229335087284}
-  - component: {fileID: -2375275606145707698}
   m_Layer: 0
   m_Name: Plot
   m_TagString: Untagged
@@ -97,20 +96,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5194f4d213fb05841897be9bfbb6d483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-2375275606145707698
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3108604133415578131}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
