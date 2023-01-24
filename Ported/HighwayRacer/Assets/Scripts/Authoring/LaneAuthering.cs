@@ -19,12 +19,12 @@ namespace Authoring
                     TrackLength = authoring.TrackLength,
                     LaneNumber = authoring.LaneNumber,
                     SegmentNumber = authoring.SegmentNumber,
-            });
+                });
+            }
         }
     }
-}
 
-public struct Lane : IComponentData
+    public struct Lane : IComponentData
     {
         public float TrackLength;
         public int LaneNumber;
