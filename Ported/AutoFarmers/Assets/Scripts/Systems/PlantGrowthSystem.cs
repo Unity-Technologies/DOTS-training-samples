@@ -27,10 +27,10 @@ partial struct PlantGrowthSystem : ISystem
 
         foreach (var (transform, plant) in SystemAPI.Query<TransformAspect, RefRW<Plant>>().WithAll<Plant>())
         {
-            //if (plant.ValueRW.isReadyToPick || plant.ValueRW.pickedAndHeld)
-            //{
-            //    continue;
-            //}
+            if (plant.ValueRW.isReadyToPick || plant.ValueRW.pickedAndHeld)
+            {
+                continue;
+            }
 
             //plant is not fully grown
 
@@ -38,6 +38,11 @@ partial struct PlantGrowthSystem : ISystem
             float scale = timeSincePlanted / plant.ValueRW.timeToGrow;
             scale = math.clamp(scale, 0, 1);
             transform.WorldScale = scale;
+
+            if(scale == 1) //plant is now grown
+            {
+                plant.ValueRW.isReadyToPick = true;
+            }
         }
 
 
