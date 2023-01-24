@@ -2,6 +2,7 @@ using Aspects;
 using Authoring;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Burst;
 
 public partial struct BallMovement : ISystem
 {
@@ -20,8 +21,20 @@ public partial struct BallMovement : ISystem
 		var config = SystemAPI.GetSingleton<Config>();
 		foreach (var ball in SystemAPI.Query<BallAspect>())
 		{
+
+            // Check collision with obstacles
+            foreach (var obstacle in SystemAPI.Query<ObstacleAspect>())
+            {
+                var threshold = ball.Radius + obstacle.Radius;
+                threshold *= threshold;
+                if (math.distancesq(ball.Position, obstacle.Position) < threshold)
+                {
+                    ball.Speed  = math.reflect(ball.Speed, math.normalize(obstacle.Position - ball.Position) ) * 0.8f;
+                }
+            }
+
 			var speedLength = math.length(ball.Speed);
-			if (speedLength > 0f)
+            if (speedLength > 0f)
 			{
 				// Update ball position based on speed value
 				ball.Position += ball.Speed * SystemAPI.Time.DeltaTime;

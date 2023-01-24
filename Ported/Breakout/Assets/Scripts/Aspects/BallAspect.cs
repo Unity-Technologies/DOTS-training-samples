@@ -31,5 +31,11 @@ namespace Aspects
 			get => Ball.ValueRO.Speed;
 			set => Ball.ValueRW.Speed = value;
 		}
+
+        public float Radius
+        {
+            get => Transform.LocalScale * 0.5f;
+			set => Transform.LocalScale = value * 2.0f;
+        }
 	}
 }
