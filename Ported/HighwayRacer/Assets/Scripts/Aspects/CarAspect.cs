@@ -2,6 +2,7 @@ using Authoring;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Aspects
 {
@@ -10,6 +11,8 @@ namespace Aspects
         public readonly Entity Self;
 
         readonly RefRW<Car> Car;
+
+        readonly TransformAspect Transform;
 
         public float Distance
         {
@@ -21,6 +24,25 @@ namespace Aspects
         {
             get => Car.ValueRO.LaneNumber;
             set => Car.ValueRW.LaneNumber = value;
+        }
+
+        public float3 Position
+        {
+            get => Transform.LocalPosition;
+            set => Transform.LocalPosition = value;
+        }
+
+        public quaternion Rotation
+        {
+            get => Transform.LocalRotation;
+            set => Transform.LocalRotation = value;
+
+        }
+
+        public float Speed
+        {
+            get => Car.ValueRO.Speed;
+            set => Car.ValueRW.Speed = value;
         }
 
     }

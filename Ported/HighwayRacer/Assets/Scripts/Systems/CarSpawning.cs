@@ -46,12 +46,12 @@ namespace Systems
                 var car = state.EntityManager.Instantiate(config.CarPrefab);
                 state.EntityManager.SetComponentData(car, new Car()
                 {
-                    Distance = random.NextFloat(1.0f),
+                    Distance = random.NextFloat(99.0f),
                     Length = 1.0f,
                     Speed = 0.1f,
                     Acceleration = 0.0f,
                     TrackLength = 1.0f,
-                    LaneNumber = random.NextInt(3),
+                    LaneNumber = random.NextInt(4),
                     LaneChangeClearance = 1.5f,
                     Color = float4.zero,
                     SegmentNumber = 0
