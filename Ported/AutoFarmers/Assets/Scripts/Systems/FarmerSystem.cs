@@ -43,6 +43,44 @@ partial struct FarmerSystem : ISystem
         //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
     }
 
+    //Searches for a specific type within a set range
+    [BurstCompile]
+    public int2 SearchGridForEmpty(int2 farmerGridPosition, int searchRange, WorldGrid worldGrid)
+    {
+        int2 closestPosition = farmerGridPosition;
+        for (int x = 0; x < searchRange / 2; x++)
+        {
+            bool foundClosest = false;
+            for (int y = 0; y < searchRange / 2; y++)
+            {
+                int2 right = farmerGridPosition + new int2(x, y);
+                int2 left = farmerGridPosition + new int2(-x, y);
+
+                int rightType = worldGrid.GetTypeAt(right.x, right.y);
+                int leftType = worldGrid.GetTypeAt(left.x, left.y);
+
+                if (rightType == 0)
+                {
+                    closestPosition = right;
+                    foundClosest = true;
+                    break;
+                }
+
+                if (leftType == 0)
+                {
+                    closestPosition = left;
+                    foundClosest = true;
+                    break;
+                }
+            }
+            if (foundClosest)
+                return closestPosition;
+            else
+                return 0;
+        }
+        return 0;
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -310,6 +348,7 @@ partial struct FarmerSystem : ISystem
                     // if none work, expand radius
                     // once found, create plot
                     // check each spot around the plot just created to be able to expand and restart the search
+
                     ChooseNewTask(farmer);
                     #endregion
                     break;
