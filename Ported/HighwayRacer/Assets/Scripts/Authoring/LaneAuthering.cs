@@ -26,5 +26,6 @@ namespace Authoring
         public int LaneNumber;
         public int SegmentNumber;
         public float LaneLength;
+        public float LaneRadius;
     }
 }

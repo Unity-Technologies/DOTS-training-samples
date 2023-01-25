@@ -43,12 +43,23 @@ namespace Systems
                 public int SegmentNumber;
                 */
 
+
+                // Each lane has different length.
+
+                var laneNumber = random.NextInt(config.NumLanes);
+                var lane0Radius = Config.CurveRadius - Config.LaneOffset * (config.NumLanes - 1) * 0.5f;
+                var currentLaneRadius = lane0Radius + laneNumber * Config.LaneOffset;
+
                 var car = state.EntityManager.Instantiate(config.CarPrefab);
+
+                var laneTotalLength = 60.0f * config.TrackSize + 2.0f * math.PI * currentLaneRadius;
+                var distance = random.NextFloat(laneTotalLength);
+
                 state.EntityManager.SetComponentData(car, new Car()
                 {
                     Distance = random.NextFloat(99.0f),
                     Length = 1.0f,
-                    Speed = 0.1f,
+                    Speed = 30f,
                     Acceleration = 0.0f,
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),

@@ -28,22 +28,28 @@ namespace System
             for (var laneNumber = 0; laneNumber < config.NumLanes; laneNumber++)
             {
                 var lane = state.EntityManager.Instantiate(config.LanePrefab);
+                var laneRadius = GetLaneRadius(laneNumber, config.NumLanes, Config.LaneOffset, Config.CurveRadius);
+                var laneLength = GetLaneLength(laneNumber, config.TrackSize);
                 state.EntityManager.SetComponentData(lane, new Lane()
                 {
 
                     LaneNumber = laneNumber,
                     SegmentNumber = 0,
-                    LaneLength = GetLaneLength(laneNumber, config.NumLanes, Config.LaneOffset, Config.CurveRadius, config.TrackSize)
+                    LaneLength = laneLength,
+                    LaneRadius = laneRadius
                 });
             }
             state.Enabled = false;
         }
 
-        private static float GetLaneLength(int laneNumber, int numLanes, float laneOffset, float curveRadius, float trackScale)
+        private static float GetLaneRadius(int laneNumber, int numLanes, float laneOffset, float curveRadius)
         {
             var lane0Radius = curveRadius - laneOffset * (numLanes - 1) * 0.5f;
-            var currentLaneRadius =  lane0Radius + laneNumber * laneOffset;
-            return Config.SegmentLength * trackScale + 2.0f * math.PI * currentLaneRadius;
+            return  lane0Radius + laneNumber * laneOffset;
+        }
+        private static float GetLaneLength(float laneRadius, float trackScale)
+        {
+            return 4 * Config.SegmentLength * trackScale + 2.0f * math.PI * laneRadius;
         }
 
     }
