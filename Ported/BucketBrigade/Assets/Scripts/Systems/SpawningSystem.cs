@@ -3,12 +3,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 
 [BurstCompile]
 partial struct SpawningSystem : ISystem
 {
     EntityQuery m_BaseColorQuery;
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -27,24 +28,29 @@ partial struct SpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var queryMask = m_BaseColorQuery.GetEntityQueryMask();
-        
+
         var config = SystemAPI.GetSingleton<Config>();
 
         // This system will only run once, so the random seed can be hard-coded.
         // Using an arbitrary constant seed makes the behavior deterministic.
         var random = Random.CreateFromIndex(1234);
         var hue = random.NextFloat();
-        
+
         // create grid based off gridSize
         var temperatures = new GridTemperatures();
         temperatures.Init(config.gridSize);
 
+        for (int i = 0; i < config.gridSize; i++)
+        {
+            for (int j = 0; j < config.gridSize; j++)
+            {
+                temperatures.Set(i, j, 0);
+            }
+        }
+
         // create grid entity to pass grid info into 
         var gridEntity = state.EntityManager.CreateEntity();
         state.EntityManager.AddComponentData(gridEntity, temperatures);
-        
-        state.Enabled = false;
-        return;
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -52,6 +58,26 @@ partial struct SpawningSystem : ISystem
         // create flame cells
         var flameCells = CollectionHelper.CreateNativeArray<Entity>(config.gridSize * config.gridSize, Allocator.Temp);
         state.EntityManager.Instantiate(config.flameCellPrefab, flameCells);
+
+        int row = 0;
+        int column = 0; 
+        foreach (var (cellInfo, transform) in SystemAPI.Query<RefRW<CellInfo>, TransformAspect>())
+        {
+            cellInfo.ValueRW.indexX = row;
+            cellInfo.ValueRW.indexY = column;
+            transform.LocalPosition = new float3(row, 0, column);
+            row++;
+            if (row >= config.gridSize)
+            {
+                column++;
+                row = 0;
+
+                if (column >= config.gridSize)
+                {
+                    break;
+                }
+            }
+        }
 
         // set default fire temperature to all flamecells
         foreach (var flameCell in flameCells)
@@ -61,6 +87,9 @@ partial struct SpawningSystem : ISystem
                 queryMask, 
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.defaultTemperatureColour });
         }
+
+        state.Enabled = false;
+        return;
 
         // create water cells
         var waterCells = CollectionHelper.CreateNativeArray<Entity>(config.waterCellCount, Allocator.Temp);
