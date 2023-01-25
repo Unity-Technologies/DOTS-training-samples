@@ -18,6 +18,7 @@ namespace Authoring
 
 		public int NumLanes;
 		public float FollowClearance;
+		public float LaneChangeClearance;
 
         [Range(0f, 10f)]
         public float TrackSize = 1;
@@ -40,7 +41,8 @@ namespace Authoring
                     TrackSize = authoring.TrackSize,
                     SpeedRange = authoring.SpeedRange,
                     AccelerationRange = authoring.AccelerationRange,
-                    FollowClearance = authoring.FollowClearance
+                    FollowClearance = authoring.FollowClearance,
+                    LaneChangeClearance = authoring.LaneChangeClearance
                 });
 			}
 		}
@@ -58,6 +60,7 @@ namespace Authoring
         public float2 SpeedRange;
         public float2 AccelerationRange;
         public float FollowClearance;
+        public float LaneChangeClearance;
 
         // Some constants
         public const float CurveRadius = 31.46f;
