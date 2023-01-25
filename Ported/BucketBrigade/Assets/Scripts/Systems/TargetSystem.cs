@@ -2,7 +2,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 
 [BurstCompile]
 partial struct TargetSystem : ISystem
@@ -14,7 +13,7 @@ partial struct TargetSystem : ISystem
     EntityQuery m_WaterCellQuery;
     
     
-    [BurstCompile]
+    //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_PositionLookup = state.GetComponentLookup<Position>();
