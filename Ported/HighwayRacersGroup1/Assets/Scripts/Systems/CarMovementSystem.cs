@@ -72,7 +72,7 @@ partial struct CarMovementJob : IJobEntity
         var currentDistance = math.distance(transform.Position, targetPosition);
 
         //Calculate rotation
-        var calculatePrecentage = 1 - math.clamp((currentDistance - 0.25f) / (carData.SegmentDistance - 0.25f), 0 , 1);
+        var calculatePrecentage = 1 - math.clamp((currentDistance - 1f) / (carData.SegmentDistance - 1f), 0 , 1);
         float3 currentDirection = targetPosition - currentPosition;
         float3 targetDirection = futurePosition - targetPosition;
         float3 directionLerp = math.normalize(new float3(math.lerp(currentDirection.x, targetDirection.x, calculatePrecentage), 0, math.lerp(currentDirection.z, targetDirection.z, calculatePrecentage))) * carSpeed;
@@ -83,7 +83,7 @@ partial struct CarMovementJob : IJobEntity
 
         transform.Rotation = carRotation;
 
-        if (currentDistance <= 0.25f)
+        if (currentDistance <= 1f)
         {
             carData.SegmentID = carData.SegmentID < Segments.Length - 1 ? carData.SegmentID + 1 : 0;
             carData.SegmentDistance = math.distance(transform.Position, futurePosition);
