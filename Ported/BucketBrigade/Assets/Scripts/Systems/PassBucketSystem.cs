@@ -31,6 +31,9 @@ partial struct PassBucketSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        m_PositionLookup.Update(ref state);
+        m_CarriedBucketLookup.Update(ref state);
+        
         // todo define update frequency
         foreach (var worker in m_WorkerDroppingQuery.ToEntityArray(Allocator.Temp))
         {

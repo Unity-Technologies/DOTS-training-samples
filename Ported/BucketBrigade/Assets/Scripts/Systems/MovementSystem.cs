@@ -26,7 +26,8 @@ partial struct MovementSystem : ISystem
 
         var moveWorkerJob = new MoveWorkerJob()
         {
-            HasReachedDestinationTagLookup = m_HasReachedDestinationTagLookup
+            HasReachedDestinationTagLookup = m_HasReachedDestinationTagLookup,
+            deltaTime = SystemAPI.Time.DeltaTime
         };
         moveWorkerJob.Schedule();
     }
@@ -37,12 +38,13 @@ partial struct MovementSystem : ISystem
 partial struct MoveWorkerJob : IJobEntity
 {
     public ComponentLookup<HasReachedDestinationTag> HasReachedDestinationTagLookup;
+    public float deltaTime;
 
     void Execute(in Entity entity, ref TransformAspect transform, ref Position position, in MoveInfo moveInfo)
     {
         var direction = moveInfo.destinationPosition - position.position;
         var distanceToDestination = math.length(direction);
-        var distanceToTravel = SystemAPI.Time.DeltaTime * moveInfo.speed;
+        var distanceToTravel = deltaTime * moveInfo.speed;
         if (distanceToTravel > distanceToDestination)
         {
             position.position = moveInfo.destinationPosition;
