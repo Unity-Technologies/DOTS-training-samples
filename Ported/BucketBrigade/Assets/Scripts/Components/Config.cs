@@ -21,8 +21,10 @@ public struct Config : IComponentData
     public int bucketPassersPerTeam;
     public int bucketFetchersPerTeam;
     public int omniWorkersCount;
+    // fire
     public int gridSize;
     public float heatTransferRate;
+    public float baseHeatIncreaseRate;
     public int waterCellCount;
     public int bucketCount;
 }

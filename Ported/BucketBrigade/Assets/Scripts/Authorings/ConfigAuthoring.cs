@@ -22,6 +22,7 @@ public class ConfigAuthoring : MonoBehaviour
     public int bucketFetchersPerTeam;
     public int omniWorkersCount;
     public int gridSize = 100;
+    public float baseHeatIncreaseRate;
     public float heatTransferRate;
     // todo add fire respawn rate
     public int waterCellCount;
@@ -52,6 +53,7 @@ public class ConfigAuthoring : MonoBehaviour
                 bucketFetchersPerTeam = authoring.bucketFetchersPerTeam,
                 omniWorkersCount = authoring.omniWorkersCount,
                 gridSize = authoring.gridSize,
+                baseHeatIncreaseRate = authoring.baseHeatIncreaseRate,
                 heatTransferRate = authoring.heatTransferRate,
                 waterCellCount = authoring.waterCellCount,
                 bucketCount = authoring.bucketCount
