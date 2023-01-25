@@ -11,16 +11,26 @@ using UnityEngine;
 [BurstCompile]
 partial struct FarmerSystem : ISystem
 {
+    Unity.Mathematics.Random random;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
 
+        random = new Unity.Mathematics.Random(1234);
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
 
+    }
+
+    [BurstCompile]
+    public void ChooseNewTask(FarmerAspect farmer)
+    {
+        //Cooldown?
+        farmer.FarmerState = (byte)random.NextInt(0,FarmerStates.FARMER_TOTAL_STATES);
     }
 
     [BurstCompile]
@@ -45,6 +55,9 @@ partial struct FarmerSystem : ISystem
             float closestSqrMag = math.INFINITY;
             switch (farmer.FarmerState)
             {
+                case FarmerStates.FARMER_STATE_IDLE:
+                    ChooseNewTask(farmer);
+                    break;
 
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
                     #region Rock Destruction
@@ -85,7 +98,7 @@ partial struct FarmerSystem : ISystem
 
                     if (foundRocks == 0)
                     {
-                        farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
+                        ChooseNewTask(farmer);
                         break;
                     }
 
@@ -98,6 +111,10 @@ partial struct FarmerSystem : ISystem
                         {
                             //Let's hurt the rock.
                             closestRock.Health -= 1;
+                            if(closestRock.Health <= 0)
+                            {
+                                ChooseNewTask(farmer);
+                            }
                         }
                     }
 
@@ -129,7 +146,7 @@ partial struct FarmerSystem : ISystem
 
                     if (foundPlants == 0)
                     {
-                        farmer.FarmerState = FarmerStates.FARMER_STATE_ROCKDESTROY;
+                        ChooseNewTask(farmer);
                         break;
                     }
 
@@ -187,7 +204,7 @@ partial struct FarmerSystem : ISystem
                             //How do I get children of an entity?
                             ecb.DestroyEntity(farmer.HeldEntity);
                             farmer.DetachEntity();
-                            farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
+                            ChooseNewTask(farmer);
                         }
                     }
 
@@ -195,6 +212,7 @@ partial struct FarmerSystem : ISystem
                     break;
                 case FarmerStates.FARMER_STATE_CREATEPLOT:
                     #region Creating a Plot
+                    ChooseNewTask(farmer);
                     bool foundTile = false;
                     // grab tile of current farmer
 
@@ -237,7 +255,7 @@ partial struct FarmerSystem : ISystem
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
                             //TODO: closestPlant.PlantSeed();
-                            farmer.FarmerState = FarmerStates.FARMER_STATE_PLANTCROP;
+                            ChooseNewTask(farmer);
                         }
                     }
                     #endregion
