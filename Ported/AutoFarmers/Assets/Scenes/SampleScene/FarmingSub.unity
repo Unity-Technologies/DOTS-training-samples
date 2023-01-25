@@ -4198,6 +4198,8 @@ MonoBehaviour:
     type: 3}
   DronePrefab: {fileID: 8539802394716221269, guid: 0bff8799c217ac642ae3c42521030940,
     type: 3}
+  PlantPrefab: {fileID: 2970016545233477349, guid: 0d2f4a286ec364e9dac41b6c63842a4b,
+    type: 3}
 --- !u!1001 &1268831121
 PrefabInstance:
   m_ObjectHideFlags: 0
