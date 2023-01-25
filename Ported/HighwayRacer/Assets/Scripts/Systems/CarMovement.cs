@@ -40,6 +40,7 @@ public partial struct CarMovement : ISystem
 
         foreach (var car in SystemAPI.Query<CarAspect>())
         {
+            var lane = lanes[car.LaneNumber];
             // if (car.Distance > 100.0)
             // {
             //     car.Distance = 0.0f;
@@ -114,14 +115,10 @@ public partial struct CarMovement : ISystem
 
             float xPos = -3.0f + 2.0f * car.LaneNumber;
 
-            //car.Position = new float3(xPos, 0.0f, car.Distance);
             car.Distance += car.Speed * SystemAPI.Time.DeltaTime;
 
-            // TODO: QGU - Fix car transformation
-            //float4x4 carTransform = GetWorldTransformation(car.Distance, lane.LaneLength, lane.LaneRadius, 60.0f);
-            //state.EntityManager.SetComponentData(car.Self, LocalTransform.FromMatrix(carTransform));
-
-            car.Position = new float3(xPos, 0.0f, car.Distance);
+            float4x4 carTransform = GetWorldTransformation(car.Distance, lane.LaneLength, lane.LaneRadius, Config.SegmentLength * config.TrackSize);
+            state.EntityManager.SetComponentData(car.Self, LocalTransform.FromMatrix(carTransform));
         }
     }
 
@@ -147,13 +144,14 @@ public partial struct CarMovement : ISystem
         else
         {
             float distOnCurve = distanceInCombinedSegment - straightLength;
-            float angle = distOnCurve * 2.0f * math.PI / laneRadius;
-            var translation = new float3(-straightLength * 0.5f - laneRadius * math.cos(angle), 0.0f,
-                straightLength * 0.5f + laneRadius * math.sin(angle));
+            float angle = distOnCurve / (laneRadius);
 
-            //var translation = new float3(-straightLength * 0.5f, 0.0f, straightLength * 0.5f);
-            translation = math.rotate(rotation, translation);
-            return float4x4.TRS(translation, rotation, new float3(1f, 1f, 1f));
+            float4x4 transformation = float4x4.identity;
+            transformation = math.mul(float4x4.Translate(new float3(-laneRadius, 0.0f, 0.0f)), transformation);
+            transformation = math.mul(float4x4.RotateY(angle), transformation);
+            transformation = math.mul(float4x4.Translate(new float3(-straightLength * 0.5f, 0.0f, straightLength * 0.5f)), transformation);
+            transformation = math.mul(float4x4.RotateY(math.PI * 0.5f * combinedSegmentIndex), transformation);
+            return transformation;
         }
     }
 

@@ -21,7 +21,6 @@ namespace System
 
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<Config>();
@@ -29,7 +28,7 @@ namespace System
             {
                 var lane = state.EntityManager.Instantiate(config.LanePrefab);
                 var laneRadius = GetLaneRadius(laneNumber, config.NumLanes, Config.LaneOffset, Config.CurveRadius);
-                var laneLength = GetLaneLength(laneNumber, config.TrackSize);
+                var laneLength = GetLaneLength(laneRadius, config.TrackSize);
                 state.EntityManager.SetComponentData(lane, new Lane()
                 {
 
