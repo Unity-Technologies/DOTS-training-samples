@@ -15,7 +15,7 @@ partial struct SpawningSystem : ISystem
     {
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<Config>();
-        
+
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
     }
 
@@ -40,27 +40,21 @@ partial struct SpawningSystem : ISystem
         var temperatures = new GridTemperatures();
         temperatures.Init(config.gridSize);
 
-        for (int i = 0; i < config.gridSize; i++)
-        {
-            for (int j = 0; j < config.gridSize; j++)
-            {
-                temperatures.Set(i, j, 0);
-            }
-        }
+        temperatures.Set(2, 2, 1f); // sam: "random" seed, just to test
 
-        // create grid entity to pass grid info into 
+        // create grid entity to pass grid info into
         var gridEntity = state.EntityManager.CreateEntity();
         state.EntityManager.AddComponentData(gridEntity, temperatures);
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
+
         // create flame cells
         var flameCells = CollectionHelper.CreateNativeArray<Entity>(config.gridSize * config.gridSize, Allocator.Temp);
         state.EntityManager.Instantiate(config.flameCellPrefab, flameCells);
 
         int row = 0;
-        int column = 0; 
+        int column = 0;
         foreach (var (cellInfo, transform) in SystemAPI.Query<RefRW<CellInfo>, TransformAspect>())
         {
             cellInfo.ValueRW.indexX = row;
@@ -83,8 +77,8 @@ partial struct SpawningSystem : ISystem
         foreach (var flameCell in flameCells)
         {
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
-            ecb.SetComponentForLinkedEntityGroup(flameCell, 
-                queryMask, 
+            ecb.SetComponentForLinkedEntityGroup(flameCell,
+                queryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.defaultTemperatureColour });
         }
 
@@ -94,30 +88,30 @@ partial struct SpawningSystem : ISystem
         // create water cells
         var waterCells = CollectionHelper.CreateNativeArray<Entity>(config.waterCellCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.waterCellPrefab, waterCells);
-        
+
         // create omniworkers
         var omniworkers = CollectionHelper.CreateNativeArray<Entity>(config.omniWorkersCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.omniWorkerPrefab, omniworkers);
-        
+
         // create teams
         var teams = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams, Allocator.Temp);
 
         var bucketPassers = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams * config.bucketPassersPerTeam, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketPasserPrefab, bucketPassers);
-        
+
         var bucketFetchers = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams * config.bucketFetchersPerTeam, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketFetcherPrefab, bucketFetchers);
-        
+
         // create buckets
         var buckets = CollectionHelper.CreateNativeArray<Entity>(config.bucketCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketPrefab, buckets);
-        
+
         // set empty bucket colour
         foreach (var bucket in buckets)
         {
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
-            ecb.SetComponentForLinkedEntityGroup(bucket, 
-                queryMask, 
+            ecb.SetComponentForLinkedEntityGroup(bucket,
+                queryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.emptyBucketColour });
         }
 
