@@ -10,7 +10,6 @@ public class CarAuthoring : MonoBehaviour
         public override void Bake(CarAuthoring authoring)
         {
             AddComponent<CarData>();
-            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }
