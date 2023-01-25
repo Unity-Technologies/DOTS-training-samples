@@ -16,8 +16,8 @@ partial struct FarmerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-
         random = new Unity.Mathematics.Random(1234);
+        state.RequireForUpdate<WorldGrid>();
     }
 
     [BurstCompile]
@@ -42,6 +42,8 @@ partial struct FarmerSystem : ISystem
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
 
         foreach (var farmer in SystemAPI.Query<FarmerAspect>())
         {
