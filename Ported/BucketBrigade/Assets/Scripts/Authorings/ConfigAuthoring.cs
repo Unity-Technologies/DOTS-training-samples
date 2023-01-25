@@ -13,7 +13,7 @@ public class ConfigAuthoring : MonoBehaviour
     public Color defaultTemperatureColour;
     public Color lowTemperatureColour;
     public Color highTemperatureColour;
-    
+
     public Color emptyBucketColour;
     public Color fullBucketColour;
 
@@ -21,8 +21,7 @@ public class ConfigAuthoring : MonoBehaviour
     public int bucketPassersPerTeam;
     public int bucketFetchersPerTeam;
     public int omniWorkersCount;
-    public int gridSize = 1000;
-    public int fireCellCount;
+    public int gridSize = 100;
     public float heatTransferRate;
     // todo add fire respawn rate
     public int waterCellCount;
@@ -40,20 +39,19 @@ public class ConfigAuthoring : MonoBehaviour
                 bucketPrefab = GetEntity(authoring.bucketPrefab),
                 flameCellPrefab = GetEntity(authoring.flameCellPrefab),
                 waterCellPrefab = GetEntity(authoring.waterCellPrefab),
-                
+
                 defaultTemperatureColour = authoring.defaultTemperatureColour,
                 lowTemperatureColour = authoring.lowTemperatureColour,
                 highTemperatureColour = authoring.highTemperatureColour,
-                
+
                 emptyBucketColour = authoring.emptyBucketColour,
                 fullBucketColour = authoring.fullBucketColour,
-                
+
                 numberOfTeams = authoring.numberOfTeams,
                 bucketPassersPerTeam = authoring.bucketPassersPerTeam,
                 bucketFetchersPerTeam = authoring.bucketFetchersPerTeam,
                 omniWorkersCount = authoring.omniWorkersCount,
                 gridSize = authoring.gridSize,
-                fireCellCount = authoring.fireCellCount,
                 heatTransferRate = authoring.heatTransferRate,
                 waterCellCount = authoring.waterCellCount,
                 bucketCount = authoring.bucketCount
