@@ -165,6 +165,14 @@ partial struct FarmerSystem : ISystem
                             farmer.AttachEntity(closestPlant.Self);
                             //closestPlant.BeingTargeted = true;
                             closestPlant.PickedAndHeld = true;
+
+                            if (closestPlant.HasPlot)
+                            {
+                                var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(closestPlant.Plot);
+                                UnityEngine.Debug.Log("Harvesting a plant with a plot");
+                                //plotAspect.Harvest();
+                            }
+
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
                         }
                     }

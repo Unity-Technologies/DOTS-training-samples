@@ -14,24 +14,29 @@ readonly partial struct PlotAspect : IAspect
 
     public readonly RefRW<Plot> Plot;
 
-    public void Till(int tillAmount)
+    public void PlantSeed()
     {
-        Plot.ValueRW.TillStatus += tillAmount;
+        Plot.ValueRW.HasSeed = true;
     }
 
-    public bool IsTilled()
+    public void GrowSeed(Entity plant)
     {
-        return Plot.ValueRW.TillStatus >= MAX_TILL;
-    }
-
-    public void StartPlant(Entity plant)
-    {
-        Plot.ValueRW.Plant = plant;
+        Plot.ValueRW.HasPlant = true;
     }
 
     public void Harvest()
     {
         Plot.ValueRW.HasPlant = false;
-        Plot.ValueRW.TillStatus = 0;
+        Plot.ValueRW.HasSeed = false;
+    }
+
+    public bool HasSeed()
+    {
+        return Plot.ValueRW.HasSeed;
+    }
+
+    public bool HasPlant()
+    {
+        return Plot.ValueRW.HasPlant;
     }
 }
