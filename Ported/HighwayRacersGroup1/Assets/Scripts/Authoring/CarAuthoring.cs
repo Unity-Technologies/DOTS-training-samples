@@ -18,5 +18,6 @@ public class CarAuthoring : MonoBehaviour
 struct CarData : IComponentData
 {
     public int SegmentID;
+    public float SegmentDistance;
     public int Lane;
 }

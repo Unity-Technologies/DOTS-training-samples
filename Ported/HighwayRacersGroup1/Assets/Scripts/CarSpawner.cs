@@ -37,7 +37,7 @@ public class CarSpawner : MonoBehaviour
     {
         foreach (Car car in carControl)
         {
-            float moveSpeed = 10f * Time.deltaTime;
+            float moveSpeed = 50f * Time.deltaTime;
             float carLane = 4 + (2.45f * car.lane);
 
             Transform currentSegment = highwaySpawner.HighwaySegments[car.SegmentID];

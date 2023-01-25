@@ -49,22 +49,44 @@ partial struct CarMovementJob : IJobEntity
     public float DeltaTime;
 
     private void Execute(Entity entity, ref CarData carData, ref LocalTransform transform)
-    {
+    {        
+        float carSpeed = 50 * DeltaTime;
         float carLane = 4f + (2.45f * carData.Lane);
 
-        var targetSegmentIndex = carData.SegmentID + 1 < Segments.Length ? carData.SegmentID + 1 : 0;
+        var currentSegmentIndex = carData.SegmentID;
+        var currentSegmentPosition = Segments[currentSegmentIndex];
+        var currentSegmentRight = SegmentDirections[currentSegmentIndex].Right;
+        var currentPosition = currentSegmentPosition.Position + (currentSegmentRight * -carLane); ;
 
+
+        var targetSegmentIndex = carData.SegmentID + 1 < Segments.Length ? carData.SegmentID + 1 : 0;
         var targetSegmentPosition = Segments[targetSegmentIndex];
         var targetSegmentRight = SegmentDirections[targetSegmentIndex].Right;
-        var targetPosition = targetSegmentPosition.Position + (targetSegmentRight * -carLane);;
+        var targetPosition = targetSegmentPosition.Position + (targetSegmentRight * -carLane);
+
+        var futureSegmentIndex = carData.SegmentID + 2 < Segments.Length ? carData.SegmentID + 2 : 2 - (Segments.Length - carData.SegmentID);
+        var futureSegmentPosition = Segments[futureSegmentIndex];
+        var futureSegmentRight = SegmentDirections[futureSegmentIndex].Right;
+        var futurePosition = futureSegmentPosition.Position + (futureSegmentRight * -carLane);
 
         var currentDistance = math.distance(transform.Position, targetPosition);
-        
-        transform.Position = MoveTowards(transform.Position, targetPosition, 10f * DeltaTime);
-        
-        if (currentDistance <= 0.025f)
+
+        //Calculate rotation
+        var calculatePrecentage = 1 - math.clamp((currentDistance - 0.25f) / (carData.SegmentDistance - 0.25f), 0 , 1);
+        float3 currentDirection = targetPosition - currentPosition;
+        float3 targetDirection = futurePosition - targetPosition;
+        float3 directionLerp = math.normalize(new float3(math.lerp(currentDirection.x, targetDirection.x, calculatePrecentage), 0, math.lerp(currentDirection.z, targetDirection.z, calculatePrecentage))) * carSpeed;
+        float3 directionUp = new float3(0, 1, 0);
+        quaternion carRotation = quaternion.LookRotation(directionLerp, directionUp);
+
+        transform.Position = MoveTowards(transform.Position, targetPosition, carSpeed);
+
+        transform.Rotation = carRotation;
+
+        if (currentDistance <= 0.25f)
         {
             carData.SegmentID = carData.SegmentID < Segments.Length - 1 ? carData.SegmentID + 1 : 0;
+            carData.SegmentDistance = math.distance(transform.Position, futurePosition);
         }
     }
     
