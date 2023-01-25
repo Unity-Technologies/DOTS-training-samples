@@ -166,8 +166,8 @@ MonoBehaviour:
   LaneChangeClearance: 10
   TrackSize: 1
   SpeedRange:
-    x: 0.025
-    y: 0.075
+    x: 10
+    y: 30
   AccelerationRange:
     x: 0.0025
     y: 0.0075
