@@ -13,13 +13,17 @@ namespace Authoring
         public GameObject CarPrefab;
 
         public GameObject LanePrefab;
-		
+
 		public int NumCars;
 
 		public int NumLanes;
+		public float FollowClearance;
 
         [Range(0f, 10f)]
         public float TrackSize = 1;
+
+        public float2 SpeedRange;
+        public float2 AccelerationRange;
 
 		public class ConfigBaker : Baker<ConfigAuthoring>
 		{
@@ -33,7 +37,10 @@ namespace Authoring
                     LanePrefab = GetEntity(authoring.LanePrefab),
 					NumCars = authoring.NumCars,
 					NumLanes = authoring.NumLanes,
-                    TrackSize = authoring.TrackSize
+                    TrackSize = authoring.TrackSize,
+                    SpeedRange = authoring.SpeedRange,
+                    AccelerationRange = authoring.AccelerationRange,
+                    FollowClearance = authoring.FollowClearance
                 });
 			}
 		}
@@ -48,6 +55,9 @@ namespace Authoring
 		public int NumCars;
 		public int NumLanes;
         public float TrackSize;
+        public float2 SpeedRange;
+        public float2 AccelerationRange;
+        public float FollowClearance;
 
         // Some constants
         public const float CurveRadius = 31.46f;
