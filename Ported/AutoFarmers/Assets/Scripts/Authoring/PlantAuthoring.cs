@@ -8,7 +8,8 @@ class PlantAuthoring : UnityEngine.MonoBehaviour
         {
             AddComponent(new Plant
             {
-                timeToGrow = 5
+                timeToGrow = 5,
+                hasPlot = false
             });
         }
     }
@@ -21,6 +22,8 @@ struct Plant : IComponentData
     public bool isReadyToPick; //true once fully grown
     public bool pickedAndHeld; //true once picked by a farmer
     public bool beingTargeted;
+    public bool hasPlot;
+    public Entity plot; // the plot the plant is growing on
 }
 
 struct PlantFinishedGrowing : IComponentData

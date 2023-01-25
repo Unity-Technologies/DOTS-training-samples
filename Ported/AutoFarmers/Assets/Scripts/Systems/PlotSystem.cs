@@ -6,17 +6,20 @@ using Unity.Rendering;
 using Unity.Mathematics;
 using System;
 using Random = Unity.Mathematics.Random;
+using Unity.Collections;
 
 [BurstCompile]
 public partial struct PlotSystem : ISystem
 {
     float totalTime;
     Random random;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         totalTime = 0;
         random = Random.CreateFromIndex(1234);
+        state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
@@ -30,35 +33,24 @@ public partial struct PlotSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        totalTime += SystemAPI.Time.DeltaTime;
-
-        //Debug tiller
-        if (totalTime > 1)
-        {
-            foreach( var plot in SystemAPI.Query<PlotAspect>() )
-            {
-                plot.Till(random.NextInt(5, 15));
-            }
-            totalTime = 0;
-        }
         
-        //Update the material once the plot is completely tilled
-        //TODO have different materials to indicate progress
         foreach( var plot in SystemAPI.Query<PlotAspect>() )
         {
-            if (plot.IsTilled())
+            if ( plot.HasSeed() && !plot.HasPlant() )
             {
-                ecb.SetComponent(plot.Self, TillColor());
+                //UnityEngine.Debug.Log("Seed is growing..");
+                var plant = state.EntityManager.Instantiate(config.PlantPrefab);
+                var plantTransform = LocalTransform.FromPosition(plot.Transform.WorldPosition);
+                state.EntityManager.SetComponentData<LocalTransform>(plant, plantTransform);
+
+                var plantAspect = state.EntityManager.GetAspect<PlantAspect>(plant);
+                plantAspect.Plot = plot.Self;
+                plantAspect.HasPlot = true;
+
+                plot.GrowSeed(plant);
             }
         }
 
-    }
-
-    URPMaterialPropertyBaseColor TillColor()
-    {
-        var color = new UnityEngine.Color(94.0f, 49.0f, 0.0f);
-        return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4) color };
     }
 
 }

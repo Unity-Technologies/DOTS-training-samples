@@ -36,5 +36,9 @@ public static class FarmerStates
     public const byte FARMER_STATE_ROCKDESTROY = 1;
     public const byte FARMER_STATE_CREATEPLOT = 2;
     public const byte FARMER_STATE_HARVEST = 3;
-    public const byte FARMER_STATE_PLACEINSILO = 4;
+    public const byte FARMER_STATE_PLANTCROP = 4;
+
+    public const byte FARMER_STATE_PLACEINSILO = 5; //placing in silo can only happen after harvest so it's separated out 
+
+    public const byte FARMER_TOTAL_STATES = 4; //increment this if you add a state
 }

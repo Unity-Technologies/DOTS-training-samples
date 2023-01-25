@@ -11,16 +11,27 @@ using UnityEngine;
 [BurstCompile]
 partial struct FarmerSystem : ISystem
 {
+    Unity.Mathematics.Random random;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
 
+        random = new Unity.Mathematics.Random(1234);
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
 
+    }
+
+    [BurstCompile]
+    public void ChooseNewTask(FarmerAspect farmer)
+    {
+        //Cooldown?
+        farmer.FarmerState = (byte)random.NextInt(0,FarmerStates.FARMER_TOTAL_STATES+1);
+        //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
     }
 
     [BurstCompile]
@@ -45,6 +56,9 @@ partial struct FarmerSystem : ISystem
             float closestSqrMag = math.INFINITY;
             switch (farmer.FarmerState)
             {
+                case FarmerStates.FARMER_STATE_IDLE:
+                    ChooseNewTask(farmer);
+                    break;
 
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
                     #region Rock Destruction
@@ -58,7 +72,6 @@ partial struct FarmerSystem : ISystem
 
                     RockAspect closestRock = new RockAspect();
                     bool foundRock = false;
-                    int foundRocks = 0;
 
                     foreach (var rock in SystemAPI.Query<RockAspect>())
                     {
@@ -71,7 +84,6 @@ partial struct FarmerSystem : ISystem
                             closestSqrMag = sqrMag;
                             foundRock = true;
                         }
-                        foundRocks++;
                     }
 
                     //TODO: How the hell do we tell if there are plants needing to be cleaned up?
@@ -83,12 +95,6 @@ partial struct FarmerSystem : ISystem
                     //    farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
                     //}
 
-                    if(foundRocks == 0)
-                    {
-                        farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
-                        break;
-                    }
-
                     if (foundRock)
                     {
                         float3 rockDiff = farmer.Transform.WorldPosition - closestRock.Transform.WorldPosition;
@@ -98,9 +104,15 @@ partial struct FarmerSystem : ISystem
                         {
                             //Let's hurt the rock.
                             closestRock.Health -= 1;
+                            if(closestRock.Health <= 0)
+                            {
+                                ChooseNewTask(farmer);
+                            }
                         }
                     }
-                    
+                    else
+                        ChooseNewTask(farmer);
+
 
                     #endregion
                     break;
@@ -110,8 +122,6 @@ partial struct FarmerSystem : ISystem
                     closestSqrMag = math.INFINITY;
                     PlantAspect closestPlant = new PlantAspect();
                     bool foundPlant = false;
-
-                    int foundPlants = 0;
                     foreach (var plant in SystemAPI.Query<PlantAspect>().WithAll<PlantFinishedGrowing>())
                     {
                         if (plant.PickedAndHeld /*|| plant.BeingTargeted*/) continue;
@@ -124,13 +134,6 @@ partial struct FarmerSystem : ISystem
                             closestSqrMag = sqrMag;
                             foundPlant = true;
                         }
-                        foundPlants++;
-                    }
-
-                    if(foundPlants == 0)
-                    {
-                        farmer.FarmerState = FarmerStates.FARMER_STATE_ROCKDESTROY;
-                        break;
                     }
 
                     if (foundPlant)
@@ -148,10 +151,21 @@ partial struct FarmerSystem : ISystem
                             farmer.AttachEntity(closestPlant.Self);
                             //closestPlant.BeingTargeted = true;
                             closestPlant.PickedAndHeld = true;
+
+                            if (closestPlant.HasPlot)
+                            {
+                                var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(closestPlant.Plot);
+                                UnityEngine.Debug.Log("Harvesting a plant with a plot");
+                                //TODO:why does the below line cause infinite plants?
+                                plotAspect.Harvest();
+                            }
+
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
                         }
                     }
-                    
+                    else
+                        ChooseNewTask(farmer);
+
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_PLACEINSILO:
@@ -162,7 +176,7 @@ partial struct FarmerSystem : ISystem
 
                     foreach (var silo in SystemAPI.Query<SiloAspect>())
                     {
-                        //Let's find closest rock
+                        //Let's find closest silo
                         float3 diff = silo.Transform.WorldPosition - farmer.Transform.WorldPosition;
                         float sqrMag = math.lengthsq(diff);
                         if (sqrMag < closestSqrMag)
@@ -187,12 +201,67 @@ partial struct FarmerSystem : ISystem
                             //How do I get children of an entity?
                             ecb.DestroyEntity(farmer.HeldEntity);
                             farmer.DetachEntity();
-                            farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
+                            ChooseNewTask(farmer);
+                        }
+                    }
+                    else
+                        ChooseNewTask(farmer);
+                    #endregion
+                    break;
+                case FarmerStates.FARMER_STATE_CREATEPLOT:
+                    #region Creating a Plot
+                    
+                    bool foundTile = false;
+                    // grab tile of current farmer
+
+                    //TODO: Check for nearest open tile in grid that doesn't have a rock or silo next to it
+                    // foreach tile in gid
+                    // start with farmers current tile
+                    // search in radius surrounding him for open tile
+                    // if tile is open, search around it for rock or silo
+                    // break if found
+                    // if none work, expand radius
+                    // once found, create plot
+                    // check each spot around the plot just created to be able to expand and restart the search
+                    ChooseNewTask(farmer);
+                    #endregion
+                    break;
+                case FarmerStates.FARMER_STATE_PLANTCROP:
+                    #region Plant a Crop in a Plot
+                    closestSqrMag = math.INFINITY;
+                    PlotAspect closestPlot = new PlotAspect();
+                    bool foundPlot = false;
+                    //UnityEngine.Debug.Log("Farmer plant crop");
+                    
+                    foreach (var plot in SystemAPI.Query<PlotAspect>())
+                    {
+                        //Let's find closest plot
+                        float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                        float sqrMag = math.lengthsq(diff);
+                        if (sqrMag < closestSqrMag)
+                        {
+                            closestPlot = plot;
+                            closestSqrMag = sqrMag;
+                            foundPlot = true;
                         }
                     }
 
+                    if (foundPlot)
+                    {
+                        float3 plotDiff = farmer.Transform.WorldPosition - closestPlot.Transform.WorldPosition;
+                        farmer.MoveTarget = closestPlot.Transform.WorldPosition + moveOffset * math.normalize(plotDiff);
+
+                        if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
+                        {
+                            closestPlot.PlantSeed();
+                            ChooseNewTask(farmer);
+                        }
+                    }
+                    else
+                        ChooseNewTask(farmer);
                     #endregion
                     break;
+
             }
         }
     }

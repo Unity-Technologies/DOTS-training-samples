@@ -7,15 +7,13 @@ class PlotAuthoring : UnityEngine.MonoBehaviour
     {
         public override void Bake(PlotAuthoring authoring)
         {
-            AddComponent(new Plot { TillStatus = 0, HasPlant = false, HasSeed = false });
+            AddComponent(new Plot { HasPlant = false, HasSeed = false });
         }
     }
 }
 
 struct Plot : IComponentData
 {
-    public int TillStatus;
     public bool HasPlant;
     public bool HasSeed;
-    public Entity Plant;
 }

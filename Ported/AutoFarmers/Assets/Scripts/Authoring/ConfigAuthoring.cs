@@ -8,6 +8,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public UnityEngine.GameObject FarmerPrefab;
     public UnityEngine.GameObject DronePrefab;
     public float SafeZoneRadius = 10.0f;
+    public UnityEngine.GameObject PlantPrefab;
 
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -22,7 +23,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
                 SiloCount = authoring.SiloCount,
                 FarmerPrefab = GetEntity(authoring.FarmerPrefab),
                 DronePrefab = GetEntity(authoring.DronePrefab),
-                safeZoneRadius = authoring.SafeZoneRadius
+                safeZoneRadius = authoring.SafeZoneRadius,
+                PlantPrefab = GetEntity(authoring.PlantPrefab)
             });
         }
     }
@@ -37,4 +39,5 @@ struct Config : IComponentData
     public Entity FarmerPrefab;
     public Entity DronePrefab;
     public float safeZoneRadius;
+    public Entity PlantPrefab;
 }

@@ -13,6 +13,17 @@ readonly partial struct PlantAspect : IAspect
 
     public readonly RefRW<Plant> Plant;
 
+    public Entity Plot
+    {
+        get => Plant.ValueRW.plot;
+        set => Plant.ValueRW.plot = value;
+    }
+    public bool HasPlot
+    {
+        get => Plant.ValueRW.hasPlot;
+        set => Plant.ValueRW.hasPlot = value;
+    }
+        
     public bool ReadyToPick
     {
         get => Plant.ValueRW.isReadyToPick;
