@@ -55,15 +55,21 @@ partial struct SpawnerSystem : ISystem
         for (var i = 0; i < cars.Length; ++i)
         {
             var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
+
+            var carSpeed = (UnityEngine.Random.value + 0.2f) * 50;
+
             var car = new CarData
             {
-                SegmentID = segmentID, Lane = UnityEngine.Random.Range(0, 4),
-                Speed = UnityEngine.Random.value * 50f,
+                SegmentID = segmentID,
+                Lane = UnityEngine.Random.Range(0, 4),
+                DefaultSpeed = carSpeed,
+                Speed = carSpeed,
                 DistanceToCarInFront = 5f
             };
             ecb.SetComponent(cars[i], car);
-            var position = segmentPositions[segmentID];
-            // todo: add offset between segments
+
+            float carLane = 4f + (2.45f * car.Lane);
+            var position = segmentPositions[segmentID] + (segmentDirections[segmentID] * -carLane);
             ecb.SetComponent(cars[i], LocalTransform.FromPosition(position));
             
             // Set a random color to each car entity
