@@ -22,11 +22,10 @@ namespace Systems
 		{
 			var config = SystemAPI.GetSingleton<Config>();
 
-            const float segmentLength = 60.0f;
+            float segmentLength = 60.0f * config.TrackSize;
             const float curveRadius = 31.46f;
             var baseStraightTranslation = new float3(-segmentLength * 0.5f - curveRadius, 0.0f, 0.0f);
             var baseCurveTranslation = new float3(-segmentLength * 0.5f - curveRadius, 0.0f, segmentLength * 0.5f);
-
 
             const int numSegments = 4;
             for(var segIdx = 0; segIdx < numSegments; segIdx++)
@@ -50,7 +49,10 @@ namespace Systems
                         _Rotation = rotation,
                         _Scale = 1
                     });
-
+                    state.EntityManager.AddComponentData(track, new PostTransformScale
+                    {
+                        Value = float3x3.Scale(1, 1, config.TrackSize)
+                    });
                 }
 
                 // Curves

@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Authoring
@@ -15,6 +16,9 @@ namespace Authoring
 
 		public int NumLanes;
 
+        [Range(0f, 10f)]
+        public float TrackSize = 1;
+
 		public class ConfigBaker : Baker<ConfigAuthoring>
 		{
 			public override void Bake(ConfigAuthoring authoring)
@@ -25,8 +29,9 @@ namespace Authoring
 					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
                     CarPrefab = GetEntity(authoring.CarPrefab),
 					NumCars = authoring.NumCars,
-					NumLanes = authoring.NumLanes
-				});
+					NumLanes = authoring.NumLanes,
+                    TrackSize = authoring.TrackSize
+                });
 			}
 		}
 	}
@@ -38,5 +43,6 @@ namespace Authoring
         public Entity CarPrefab;
 		public int NumCars;
 		public int NumLanes;
-	}
+        public float TrackSize;
+    }
 }
