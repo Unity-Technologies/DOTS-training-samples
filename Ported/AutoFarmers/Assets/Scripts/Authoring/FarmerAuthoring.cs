@@ -37,4 +37,5 @@ public static class FarmerStates
     public const byte FARMER_STATE_CREATEPLOT = 2;
     public const byte FARMER_STATE_HARVEST = 3;
     public const byte FARMER_STATE_PLACEINSILO = 4;
+    public const byte FARMER_STATE_PLANTCROP = 5;
 }

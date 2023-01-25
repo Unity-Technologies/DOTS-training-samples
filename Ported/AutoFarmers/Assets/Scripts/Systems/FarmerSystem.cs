@@ -83,7 +83,7 @@ partial struct FarmerSystem : ISystem
                     //    farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
                     //}
 
-                    if(foundRocks == 0)
+                    if (foundRocks == 0)
                     {
                         farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
                         break;
@@ -100,7 +100,7 @@ partial struct FarmerSystem : ISystem
                             closestRock.Health -= 1;
                         }
                     }
-                    
+
 
                     #endregion
                     break;
@@ -127,7 +127,7 @@ partial struct FarmerSystem : ISystem
                         foundPlants++;
                     }
 
-                    if(foundPlants == 0)
+                    if (foundPlants == 0)
                     {
                         farmer.FarmerState = FarmerStates.FARMER_STATE_ROCKDESTROY;
                         break;
@@ -151,7 +151,7 @@ partial struct FarmerSystem : ISystem
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
                         }
                     }
-                    
+
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_PLACEINSILO:
@@ -162,7 +162,7 @@ partial struct FarmerSystem : ISystem
 
                     foreach (var silo in SystemAPI.Query<SiloAspect>())
                     {
-                        //Let's find closest rock
+                        //Let's find closest silo
                         float3 diff = silo.Transform.WorldPosition - farmer.Transform.WorldPosition;
                         float sqrMag = math.lengthsq(diff);
                         if (sqrMag < closestSqrMag)
@@ -193,6 +193,56 @@ partial struct FarmerSystem : ISystem
 
                     #endregion
                     break;
+                case FarmerStates.FARMER_STATE_CREATEPLOT:
+                    #region Creating a Plot
+                    bool foundTile = false;
+                    // grab tile of current farmer
+
+                    //TODO: Check for nearest open tile in grid that doesn't have a rock or silo next to it
+                    // foreach tile in gid
+                    // start with farmers current tile
+                    // search in radius surrounding him for open tile
+                    // if tile is open, search around it for rock or silo
+                    // break if found
+                    // if none work, expand radius
+                    // once found, create plot
+                    // check each spot around the plot just created to be able to expand and restart the search
+
+                    #endregion
+                    break;
+                case FarmerStates.FARMER_STATE_PLANTCROP:
+                    #region Plant a Crop in a Plot
+                    closestSqrMag = math.INFINITY;
+                    PlotAspect closestPlot = new PlotAspect();
+                    bool foundPlot = false;
+
+                    foreach (var plot in SystemAPI.Query<PlotAspect>())
+                    {
+                        //Let's find closest plot
+                        float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                        float sqrMag = math.lengthsq(diff);
+                        if (sqrMag < closestSqrMag)
+                        {
+                            closestPlot = plot;
+                            closestSqrMag = sqrMag;
+                            foundPlot = true;
+                        }
+                    }
+
+                    if (foundPlot)
+                    {
+                        float3 plotDiff = farmer.Transform.WorldPosition - closestPlot.Transform.WorldPosition;
+                        farmer.MoveTarget = closestPlot.Transform.WorldPosition + moveOffset * math.normalize(plotDiff);
+
+                        if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
+                        {
+                            //TODO: closestPlant.PlantSeed();
+                            farmer.FarmerState = FarmerStates.FARMER_STATE_PLANTCROP;
+                        }
+                    }
+                    #endregion
+                    break;
+
             }
         }
     }
