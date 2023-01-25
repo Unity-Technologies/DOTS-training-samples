@@ -6,9 +6,6 @@ namespace Authoring
 
     public class LaneAuthoring : UnityEngine.MonoBehaviour
     {
-        public float TrackLength = 1;
-        public int LaneNumber;
-        public int SegmentNumber;
 
         public class LaneBaker : Baker<LaneAuthoring>
         {
@@ -16,9 +13,9 @@ namespace Authoring
             {
                 AddComponent(new Lane()
                 {
-                    TrackLength = authoring.TrackLength,
-                    LaneNumber = authoring.LaneNumber,
-                    SegmentNumber = authoring.SegmentNumber,
+                    LaneNumber = 0,
+                    SegmentNumber = 0,
+                    LaneLength = 0.0f
                 });
             }
         }
@@ -26,8 +23,8 @@ namespace Authoring
 
     public struct Lane : IComponentData
     {
-        public float TrackLength;
         public int LaneNumber;
         public int SegmentNumber;
+        public float LaneLength;
     }
 }

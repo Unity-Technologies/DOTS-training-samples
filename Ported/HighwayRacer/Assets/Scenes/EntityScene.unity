@@ -157,8 +157,11 @@ MonoBehaviour:
   StraightTrackPrefab: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
     type: 3}
   CarPrefab: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b, type: 3}
+  LanePrefab: {fileID: 8641352834841830310, guid: eb8074aec7060004abc2b4b1c77b8805,
+    type: 3}
   NumCars: 50
   NumLanes: 4
+  TrackSize: 1
 --- !u!4 &1816297709
 Transform:
   m_ObjectHideFlags: 0
