@@ -46,7 +46,7 @@ public partial struct WorldGenerationSystem : ISystem
         float maxNoiseVal = -math.INFINITY;
         float minNoiseVal = math.INFINITY;
 
-        float2 siloNoiseThreshold = new float2(-0.2f, -0.3f);
+        float2 siloNoiseThreshold = new float2(-0.6f, -0.605f);
 
         for(int x = 0;x< width; x++)
         {
@@ -68,21 +68,21 @@ public partial struct WorldGenerationSystem : ISystem
                     worldGrid.SetTypeAt(x, y,Rock.type);
                     //Create it
                     Entity rock = state.EntityManager.Instantiate(config.RockPrefab);
-                    RockAspect rAspect = state.EntityManager.GetAspect<RockAspect>(rock);
+                    RockAspect rAspect = SystemAPI.GetAspectRW<RockAspect>(rock);
                     rAspect.Health = (int)remappedNoise;
                     rAspect.Transform.LocalPosition = gridWorldPos;
                     worldGrid.SetEntityAt(x,y,rock);
                 }
 
-                if(noiseVal < siloNoiseThreshold.x && noiseVal > siloNoiseThreshold.y)
+                if (noiseVal < siloNoiseThreshold.x && noiseVal > siloNoiseThreshold.y)
                 {
                     worldGrid.SetTypeAt(x, y, Silo.type);
                     //Create it
-                    Entity rock = state.EntityManager.Instantiate(config.RockPrefab);
-                    RockAspect rAspect = state.EntityManager.GetAspect<RockAspect>(rock);
-                    rAspect.Health = (int)remappedNoise;
+                    Entity silo = state.EntityManager.Instantiate(config.SiloPrefab);
+                    SiloAspect rAspect = SystemAPI.GetAspectRW<SiloAspect>(silo);
+                    //rAspect.Health = (int)remappedNoise;
                     rAspect.Transform.LocalPosition = gridWorldPos;
-                    worldGrid.SetEntityAt(x, y, rock);
+                    worldGrid.SetEntityAt(x, y, silo);
                 }
 
                 //if(noiseVal)

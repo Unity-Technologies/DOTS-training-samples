@@ -334,12 +334,12 @@ PrefabInstance:
     - target: {fileID: 5449633937709405341, guid: f1e38ca12610a78429381a00e9c20de5,
         type: 3}
       propertyPath: GridSizeX
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5449633937709405341, guid: f1e38ca12610a78429381a00e9c20de5,
         type: 3}
       propertyPath: GridSizeY
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5449633937709405342, guid: f1e38ca12610a78429381a00e9c20de5,
         type: 3}
