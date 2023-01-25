@@ -19,8 +19,8 @@ partial struct PassBucketSystem : ISystem
         m_CarriedBucketLookup = state.GetComponentLookup<CarriedBucket>();
         // todo replace managed arrays in queries to allow burst compile
         m_WorkerDroppingQuery = state.GetEntityQuery(ComponentType.ReadOnly<ShouldPassTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());
-        m_WorkerPickingUpQuery = state.GetEntityQuery(ComponentType.Exclude<ShouldPassTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());;
-        m_AvailableBucketQuery = state.GetEntityQuery(ComponentType.Exclude<PickedUpTag>(), ComponentType.ReadOnly<Position>());;
+        m_WorkerPickingUpQuery = state.GetEntityQuery(ComponentType.Exclude<ShouldPassTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());
+        m_AvailableBucketQuery = state.GetEntityQuery(ComponentType.Exclude<PickedUpTag>(), ComponentType.ReadOnly<Position>());
     }
 
     [BurstCompile]
@@ -31,6 +31,7 @@ partial struct PassBucketSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // todo define update frequency
         foreach (var worker in m_WorkerDroppingQuery.ToEntityArray(Allocator.Temp))
         {
             state.EntityManager.SetComponentEnabled<ShouldPassTag>(worker, false);
