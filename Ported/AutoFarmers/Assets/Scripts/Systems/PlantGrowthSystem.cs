@@ -29,7 +29,7 @@ partial struct PlantGrowthSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        foreach (var plant in SystemAPI.Query<PlantAspect>())
+        foreach (var plant in SystemAPI.Query<PlantAspect>().WithNone<PlantFinishedGrowing>())
         {
             //UnityEngine.Debug.Log("PREgrowing a plant " + plant.ReadyToPick + " and " + plant.PickedAndHeld);
             if (plant.ReadyToPick || plant.PickedAndHeld)

@@ -64,29 +64,43 @@ public partial struct SpawningSystem : ISystem
         //TODO: Jobify the creation of the map
         //TODO: Profile to see if instantiation is jobified.
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        //var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
 
         //Need to access the native array instead of Query after you create stuff
         //Ask brian
         var balls = CollectionHelper.CreateNativeArray<Entity>(config.BallCount, Allocator.Temp);
-        ecb.Instantiate(config.BallPrefab, balls);
+        state.EntityManager.Instantiate(config.BallPrefab, balls);
 
+        
+
+        state.EntityManager.AddComponent<LocalTransform>(SystemAPI.QueryBuilder().WithAll<Ball>());
         
         //Need to access the native array instead of Query after you create stuff
         //Ask brian
         var walls = CollectionHelper.CreateNativeArray<Entity>(config.ObstacleCount, Allocator.Temp);
-        ecb.Instantiate(config.ObstaclePrefab, walls);
+        state.EntityManager.Instantiate(config.ObstaclePrefab, walls);
+
+        ecb.Playback(state.EntityManager);
+
+
+        //state.EntityManager.Instantiate()
+        
 
         NativeArray<float3> wallPositions = new NativeArray<float3>(config.ObstacleCount, Allocator.Temp);
+        
 
         int i = 0;
         foreach (var wall in walls)
         {
             float3 displacement = random.NextFloat3(new float3(-1, 0, -1) * wallSpread, new float3(1, 0, 1) * wallSpread);
             ecb.SetComponent<LocalTransform>(wall, LocalTransform.FromPosition(displacement));
+            
             wallPositions[i] = displacement;
             i++;
         }
+
+        
 
         foreach (var ball in balls)
         {
@@ -119,6 +133,7 @@ public partial struct SpawningSystem : ISystem
             
         }
 
+        ecb.Dispose();
         onlyOnce = false;
     }
 }

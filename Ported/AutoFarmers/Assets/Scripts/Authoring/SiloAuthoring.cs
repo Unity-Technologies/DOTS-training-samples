@@ -30,6 +30,7 @@ class SiloAuthoring : UnityEngine.MonoBehaviour
 
 struct Silo : IComponentData
 {
+    public const int type = 2;
     public int Cash;
     public int FarmerCost;
     public int FarmersSpawned;

@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
@@ -12,12 +14,19 @@ using UnityEngine;
 partial struct FarmerSystem : ISystem
 {
     Unity.Mathematics.Random random;
+    EntityQuery _rockQuery;
+    EntityTypeHandle _entityTypeHandle;
+    ComponentTypeHandle<LocalTransform> _localTransformTypeHandle;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         random = new Unity.Mathematics.Random(1234);
         state.RequireForUpdate<WorldGrid>();
+        _rockQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform,Rock>().Build();
+        _entityTypeHandle = SystemAPI.GetEntityTypeHandle();
+        _localTransformTypeHandle = SystemAPI.GetComponentTypeHandle<LocalTransform>();
+
     }
 
     [BurstCompile]
@@ -40,10 +49,27 @@ partial struct FarmerSystem : ISystem
         float moveOffset = 1.5f;
         float moveOffsetExtra = moveOffset + 0.5f;
 
+        //have to update every frame to use handles
+        _entityTypeHandle.Update(ref state);
+        _localTransformTypeHandle.Update(ref state);
+
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
+
+        //var = SystemAPI.Query<FarmerAspect>();
+        int searchRange = 50;
+
+
+        //var BrainJob = new FarmerBrainJob
+        //{
+
+        //};
+        //BrainJob.ScheduleParallel();
+
+        var rockChunks = _rockQuery.ToArchetypeChunkArray(state.WorldUpdateAllocator);
+
 
         foreach (var farmer in SystemAPI.Query<FarmerAspect>())
         {
@@ -55,6 +81,10 @@ partial struct FarmerSystem : ISystem
                 ecb.SetComponent<LocalTransform>(farmer.HeldEntity, new LocalTransform() { Position = attachPos, Scale= 1.0f });
             }
 
+            int2 farmerGridPosition = worldGrid.WorldToGrid(farmer.Transform.LocalTransform.Position);
+            int2 startPosition = farmerGridPosition - searchRange / 2;
+            int2 endPosition = farmerGridPosition + searchRange / 2;
+
             float closestSqrMag = math.INFINITY;
             switch (farmer.FarmerState)
             {
@@ -65,37 +95,91 @@ partial struct FarmerSystem : ISystem
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
                     #region Rock Destruction
 
-                    #region Trying to avoid redundant code...
-                    //RockAspect closestRock = GetClosest<RockAspect>(SystemAPI.Query<RockAspect,TransformAspect>(), farmer);
-
-                    //float3 rockDiff = farmer.Transform.WorldPosition - closestRock.Transform.WorldPosition;
-                    //farmer.MoveTarget = closestRock.Transform.WorldPosition + moveOffset * math.normalize(rockDiff);
-                    #endregion
-
                     RockAspect closestRock = new RockAspect();
+
                     bool foundRock = false;
 
-                    foreach (var rock in SystemAPI.Query<RockAspect>())
-                    {
-                        //Let's find closest rock
-                        float3 diff = rock.Transform.WorldPosition - farmer.Transform.WorldPosition;
-                        float sqrMag = math.lengthsq(diff);
-                        if (sqrMag < closestSqrMag)
-                        {
-                            closestRock = rock;
-                            closestSqrMag = sqrMag;
-                            foundRock = true;
-                        }
-                    }
+                    #region Trying to avoid redundant code (Working)
+                    Entity closestRockEntity = GetClosest(rockChunks, ref _entityTypeHandle, ref _localTransformTypeHandle, farmer);
+                    closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
+                    foundRock = (closestRockEntity != Entity.Null);
+                    #endregion
 
-                    //TODO: How the hell do we tell if there are plants needing to be cleaned up?
-                    //We should probably have a FarmerManager system that goes through all farmers and sets their
-                    //states depending on the state of the world.  That way we can more intelligently issue commands based on what needs to be done.
-
-                    //if(SystemAPI.Query<PlantAspect>().WithAll<PlantFinishedGrowing>().Count() > 0)
+                    #region Using Jobs + Grid (Not done)
+                    //int2 closestPosition = farmerGridPosition;
+                    //var findClosestJob = new ClosestIndexFinderJob
                     //{
-                    //    farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
+                    //    worldGrid = worldGrid,
+                    //    //This allocator allows us to not have to dispose, it waits 2 frames and then disposes
+                    //    closestPosition = new NativeReference<int2>(state.WorldUpdateAllocator),
+                    //    startingPosition = farmerGridPosition
+
+
+                    //};
+
+
+                    //var jobHandle = findClosestJob.Schedule();
+                    //jobHandle.Complete();
+                    //closestPosition = findClosestJob.closestPosition.Value;
+                    //we would have to do this without state.WorldUpdateAllocator
+                    //findClosestJob.closestPosition.Dispose();
+                    #endregion
+
+                    #region Grid Search (Not done)
+
+                    //int2 closestPosition = farmerGridPosition;
+                    //for (int x = 0; x < searchRange/2; x++)
+                    //{
+                    //    bool foundClosest = false;
+                    //    for (int y = 0; y < searchRange/2; y++)
+                    //    {
+                    //        int2 right = farmerGridPosition + new int2(x, y);
+                    //        int2 left = farmerGridPosition + new int2(-x, y);
+
+                    //        int rightType = worldGrid.GetTypeAt(right.x,right.y);
+                    //        int leftType = worldGrid.GetTypeAt(left.x, left.y);
+
+                    //        if(rightType == Rock.type)
+                    //        {
+                    //            closestPosition = right;
+                    //            foundClosest = true;
+                    //            break;
+                    //        }
+                    //        if (leftType == Rock.type)
+                    //        {
+                    //            closestPosition = left;
+                    //            foundClosest = true;
+                    //            break;
+                    //        }
+                    //    }
+                    //    if (foundClosest) break;
                     //}
+
+                    //var closestRockEntity = worldGrid.GetEntityAt(closestPosition.x, closestPosition.y);
+
+                    //closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
+                    //foundRock = true;
+
+                    #endregion
+
+                    #region Basic Search (Working)
+
+                    //foreach (var rock in SystemAPI.Query<RockAspect>())
+                    //{
+                    //    //Let's find closest rock
+                    //    float3 diff = rock.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                    //    float sqrMag = math.lengthsq(diff);
+                    //    if (sqrMag < closestSqrMag)
+                    //    {
+                    //        closestRock = rock;
+                    //        closestSqrMag = sqrMag;
+                    //        foundRock = true;
+                    //    }
+                    //}
+
+                    #endregion
+
+                    #region Acting Upon a Found Rock
 
                     if (foundRock)
                     {
@@ -114,7 +198,7 @@ partial struct FarmerSystem : ISystem
                     }
                     else
                         ChooseNewTask(farmer);
-
+                    #endregion
 
                     #endregion
                     break;
@@ -160,6 +244,7 @@ partial struct FarmerSystem : ISystem
                                 UnityEngine.Debug.Log("Harvesting a plant with a plot");
                                 //TODO:why does the below line cause infinite plants?
                                 plotAspect.Harvest();
+                                closestPlant.HasPlot = false;
                             }
 
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
@@ -237,6 +322,7 @@ partial struct FarmerSystem : ISystem
                     
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
                     {
+                        if (plot.HasSeed()) continue;
                         //Let's find closest plot
                         float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
                         float sqrMag = math.lengthsq(diff);
@@ -268,25 +354,80 @@ partial struct FarmerSystem : ISystem
         }
     }
 
-    //public T GetClosest<T>(QueryEnumerable<T,TransformAspect> query, FarmerAspect farmer) where T : new()
-    //{
-    //    float closestSqrMag = math.INFINITY;
-    //    T closestObj = new T();
-    //    TransformAspect closestTransform = new TransformAspect();
+    public Entity GetClosest(NativeArray<ArchetypeChunk> chunks,ref EntityTypeHandle eth, ref ComponentTypeHandle<LocalTransform> transform, FarmerAspect farmer)
+    {
+        float closestSqrMag = math.INFINITY;
+        Entity closestEntity = Entity.Null;
 
+        foreach(var chunk in chunks)
+        {
+            var entities = chunk.GetNativeArray(eth);
+            var transforms = chunk.GetNativeArray(ref transform);
 
-    //    foreach (var (obj,transform) in query)
-    //    {
-    //        //Let's find closest rock
-    //        float3 diff = transform.WorldPosition - closestTransform.WorldPosition;
-    //        float sqrMag = math.lengthsq(diff);
-    //        if (sqrMag < closestSqrMag)
-    //        {
-    //            closestTransform = transform;
-    //            closestObj = obj;
-    //            closestSqrMag = sqrMag;
-    //        }
-    //    }
-    //    return closestObj;
-    //}
+            int i = 0;
+
+            foreach (var trans in transforms)
+            {
+                //Let's find closest rock
+                float3 diff = farmer.Transform.LocalPosition - trans.Position;
+                float sqrMag = math.lengthsq(diff);
+
+                if (sqrMag < closestSqrMag)
+                {
+                    closestEntity = entities[i];
+                    closestSqrMag = sqrMag;
+                }
+                i++;
+            }
+        }
+
+        return closestEntity;
+    }
+}
+
+partial struct FarmerBrainJob : IJobEntity
+{
+    public void Execute(FarmerAspect fa)
+    {
+
+    }
+}
+
+partial struct ClosestIndexFinderJob : IJob
+{
+    public int2 startingPosition;
+    public int typeIndex;
+    public int searchRange;
+    public WorldGrid worldGrid;
+    public NativeReference<int2> closestPosition;
+
+    public void Execute()
+    {
+        for (int x = 0; x < searchRange / 2; x++)
+        {
+            bool foundClosest = false;
+            for (int y = 0; y < searchRange / 2; y++)
+            {
+                int2 right = startingPosition + new int2(x, y);
+                int2 left = startingPosition + new int2(-x, y);
+
+                int rightType = worldGrid.GetTypeAt(right.x, right.y);
+                int leftType = worldGrid.GetTypeAt(left.x, left.y);
+
+                if (rightType == Rock.type)
+                {
+                    closestPosition.Value = right;
+                    foundClosest = true;
+                    break;
+                }
+                if (leftType == Rock.type)
+                {
+                    closestPosition.Value = left;
+                    foundClosest = true;
+                    break;
+                }
+            }
+            if (foundClosest) break;
+        }
+    }
 }

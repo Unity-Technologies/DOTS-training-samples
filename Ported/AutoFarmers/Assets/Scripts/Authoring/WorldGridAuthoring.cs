@@ -15,11 +15,13 @@ class WorldGridAuthoring : UnityEngine.MonoBehaviour
         {
             AddComponent(new WorldGrid
             {
-                typeGrid = new NativeArray<byte>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Temp),
-                entityGrid = new NativeArray<Entity>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Temp),
+                typeGrid = new NativeArray<byte>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
+                entityGrid = new NativeArray<Entity>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
                 gridSize = new int2(authoring.GridSizeX, authoring.GridSizeY),
                 offset = new float3(authoring.GridSizeX / 2.0f, 0, authoring.GridSizeY / 2.0f)
             });
+
+            //AddBuffer<Grid>();
         }
     }
 }
@@ -27,6 +29,13 @@ class WorldGridAuthoring : UnityEngine.MonoBehaviour
 struct WorldGridType : IComponentData
 {
     public byte type;
+}
+
+//TODO: Use this instead of having native collections directly in the struct.
+struct GridCell : IBufferElementData
+{
+    public byte type;
+    public Entity entity;
 }
 
 struct WorldGrid : IComponentData
@@ -44,13 +53,12 @@ struct WorldGrid : IComponentData
 
     public float3 GridToWorld(int x, int y)
     {
-        
         return new float3(x, 0, y) - offset;
     }
 
     public int2 WorldToGrid(float3 pos)
     {
-        return new int2((int)math.round(pos.x), (int)math.round(pos.z));
+        return new int2((int)math.round(pos.x - offset.x), (int)math.round(pos.z-offset.z));
     }
 
     public int Get2Dto1DIndex(int x, int y)
@@ -65,7 +73,12 @@ struct WorldGrid : IComponentData
 
     public void SetEntityAt(int x, int y, Entity e)
     {
-        entityGrid[Get2Dto1DIndex(x,y)] = e;
+        entityGrid[Get2Dto1DIndex(x, y)] = e;
+    }
+
+    public Entity GetEntityAt(int x, int y)
+    {
+        return entityGrid[Get2Dto1DIndex(x, y)];
     }
 
     public void SetTypeAt(int x, int y, byte type)

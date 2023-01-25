@@ -27,7 +27,7 @@ public partial struct WorldGenerationSystem : ISystem
     public void OnDestroy(ref SystemState state)
     {
     }
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
@@ -35,8 +35,8 @@ public partial struct WorldGenerationSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        worldGrid.typeGrid = new NativeArray<byte>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Temp);
-        worldGrid.entityGrid = new NativeArray<Entity>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Temp);
+        //worldGrid.typeGrid = new NativeArray<byte>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
+        //worldGrid.entityGrid = new NativeArray<Entity>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
 
         int width = worldGrid.gridSize.x;
         int height = worldGrid.gridSize.y;
@@ -45,6 +45,8 @@ public partial struct WorldGenerationSystem : ISystem
 
         float maxNoiseVal = -math.INFINITY;
         float minNoiseVal = math.INFINITY;
+
+        float2 siloNoiseThreshold = new float2(-0.2f, -0.3f);
 
         for(int x = 0;x< width; x++)
         {
@@ -71,6 +73,19 @@ public partial struct WorldGenerationSystem : ISystem
                     rAspect.Transform.LocalPosition = gridWorldPos;
                     worldGrid.SetEntityAt(x,y,rock);
                 }
+
+                if(noiseVal < siloNoiseThreshold.x && noiseVal > siloNoiseThreshold.y)
+                {
+                    worldGrid.SetTypeAt(x, y, Silo.type);
+                    //Create it
+                    Entity rock = state.EntityManager.Instantiate(config.RockPrefab);
+                    RockAspect rAspect = state.EntityManager.GetAspect<RockAspect>(rock);
+                    rAspect.Health = (int)remappedNoise;
+                    rAspect.Transform.LocalPosition = gridWorldPos;
+                    worldGrid.SetEntityAt(x, y, rock);
+                }
+
+                //if(noiseVal)
             }
         }
 
