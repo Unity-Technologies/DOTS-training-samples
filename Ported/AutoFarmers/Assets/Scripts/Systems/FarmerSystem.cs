@@ -160,6 +160,7 @@ partial struct FarmerSystem : ISystem
                                 UnityEngine.Debug.Log("Harvesting a plant with a plot");
                                 //TODO:why does the below line cause infinite plants?
                                 plotAspect.Harvest();
+                                closestPlant.HasPlot = false;
                             }
 
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
@@ -237,6 +238,9 @@ partial struct FarmerSystem : ISystem
                     
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
                     {
+                        if (plot.HasSeed())
+                            continue;
+
                         //Let's find closest plot
                         float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
                         float sqrMag = math.lengthsq(diff);

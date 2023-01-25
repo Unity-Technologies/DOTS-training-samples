@@ -2,15 +2,21 @@ using Unity.Entities;
 
 class PlantAuthoring : UnityEngine.MonoBehaviour
 {
+    public float TimeToGrow;
     class PlantBaker : Baker<PlantAuthoring>
     {
+    
         public override void Bake(PlantAuthoring authoring)
         {
             AddComponent(new Plant
             {
-                timeToGrow = 5,
-                hasPlot = false
-            });
+                timeToGrow = authoring.TimeToGrow,
+                hasPlot = false,
+                timePlanted = 0,
+                pickedAndHeld = false,
+                isReadyToPick = false,
+                beingTargeted = false
+        });
         }
     }
 }

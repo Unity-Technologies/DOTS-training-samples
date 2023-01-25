@@ -39,7 +39,7 @@ partial struct PlantGrowthSystem : ISystem
 
             //plant is not fully grown
 
-            timeSincePlanted = elapsedTime - plant.Plant.ValueRW.timePlanted;
+            timeSincePlanted = elapsedTime - plant.TimePlanted;
             float scale = timeSincePlanted / plant.Plant.ValueRW.timeToGrow;
             scale = math.clamp(scale, 0, 1);
             plant.Transform.LocalScale = scale;
