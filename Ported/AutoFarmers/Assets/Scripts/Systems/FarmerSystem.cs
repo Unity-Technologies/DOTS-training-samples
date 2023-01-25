@@ -322,7 +322,9 @@ partial struct FarmerSystem : ISystem
                     
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
                     {
-                        if (plot.HasSeed()) continue;
+                        if (plot.HasSeed())
+                            continue;
+
                         //Let's find closest plot
                         float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
                         float sqrMag = math.lengthsq(diff);

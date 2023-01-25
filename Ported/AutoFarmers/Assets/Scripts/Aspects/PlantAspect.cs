@@ -41,4 +41,17 @@ readonly partial struct PlantAspect : IAspect
         get => Plant.ValueRW.beingTargeted;
         set => Plant.ValueRW.beingTargeted = value;
     }
+
+    public float TimePlanted
+    {
+        get => Plant.ValueRW.timePlanted;
+        set => Plant.ValueRW.timePlanted = value;
+    }
+
+    public void AssignPlot(Entity plot, float plantTime)
+    {
+        Plot = plot;
+        HasPlot = true;
+        TimePlanted = plantTime;
+    }
 }

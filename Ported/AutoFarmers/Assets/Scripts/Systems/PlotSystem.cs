@@ -25,7 +25,7 @@ public partial struct PlotSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-    }
+    } 
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -43,10 +43,9 @@ public partial struct PlotSystem : ISystem
                 var plantTransform = LocalTransform.FromPosition(plot.Transform.WorldPosition);
                 state.EntityManager.SetComponentData<LocalTransform>(plant, plantTransform);
 
-                var plantAspect = state.EntityManager.GetAspect<PlantAspect>(plant);
-                plantAspect.Plot = plot.Self;
-                plantAspect.HasPlot = true;
-
+                var plantAspect = SystemAPI.GetAspectRW<PlantAspect>(plant);
+                //var plantAspect = state.EntityManager.GetAspect<PlantAspect>(plant);
+                plantAspect.AssignPlot(plot.Self, (float)SystemAPI.Time.ElapsedTime);
                 plot.GrowSeed(plant);
             }
         }
