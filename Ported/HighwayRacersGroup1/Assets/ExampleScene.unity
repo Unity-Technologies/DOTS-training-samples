@@ -818,7 +818,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cb2d29e0c30b804a904f58ef56b79ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  carPrefab: {fileID: 5664999974697511538, guid: 6c7b614622428ab4fa735b14db1f4f5b, type: 3}
+  carPrefab: {fileID: 2626030905667713557, guid: fc39d57ee8a1d8d4cbfecaaf84c408ad, type: 3}
   numCars: 8
   carControl: []
   highwaySpawner: {fileID: 78390361}

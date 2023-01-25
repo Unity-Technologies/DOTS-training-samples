@@ -8,12 +8,9 @@ using Random = Unity.Mathematics.Random;
 
 partial struct SpawnerSystem : ISystem
 {
-    private EntityQuery m_BaseColorQuery;
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-
-        m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
     }
     
     public void OnDestroy(ref SystemState state)
@@ -44,14 +41,6 @@ partial struct SpawnerSystem : ISystem
         var cars = CollectionHelper.CreateNativeArray<Entity>(config.CarCount, Allocator.Temp);
         ecb.Instantiate(config.CarPrefab, cars);
         
-        URPMaterialPropertyBaseColor RandomColor()
-        {
-            hue = (hue + 0.618034005f) % 1;
-            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
-            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
-        }
-        
-        var queryMask = m_BaseColorQuery.GetEntityQueryMask();
         for (var i = 0; i < cars.Length; ++i)
         {
             var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
@@ -72,8 +61,9 @@ partial struct SpawnerSystem : ISystem
             var position = segmentPositions[segmentID] + (segmentDirections[segmentID] * -carLane);
             ecb.SetComponent(cars[i], LocalTransform.FromPosition(position));
             
-            // Set a random color to each car entity
-            ecb.SetComponentForLinkedEntityGroup(cars[i], queryMask, RandomColor());
+            hue = (hue + 0.618034005f) % 1;
+            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+            ecb.SetComponent(cars[i], new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color });
         }
 
         state.Enabled = false;
