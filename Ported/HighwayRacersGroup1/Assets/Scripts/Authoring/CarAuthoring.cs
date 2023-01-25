@@ -21,6 +21,7 @@ struct CarData : IComponentData
     public int SegmentID;
     public float SegmentDistance;
     public int Lane;
+    public int TargetLane;
     public float Speed;
     public float DefaultSpeed;
     public float OvertakeSpeed;

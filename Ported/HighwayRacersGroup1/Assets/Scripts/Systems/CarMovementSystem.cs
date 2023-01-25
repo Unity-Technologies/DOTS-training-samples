@@ -32,7 +32,7 @@ partial struct CarMovementSystem : ISystem
         // todo: find nearest neighbors
         var allCarData = cars.ToComponentDataArray<CarData>(Allocator.TempJob);
         var allCarTransforms = cars.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-
+        
         var findNearest = new FindNearestNeighborsJob()
         {
             AllCars = allCarData,
@@ -66,16 +66,13 @@ partial struct FindNearestNeighborsJob : IJobEntity
     {
 
         float currentDistance = float.MaxValue;
-        float currentSpeed = carData.Speed;
+        float currentSpeed = carData.Speed;        
 
         var car = carData;
 
         for (int j = 0; j < AllCars.Length; ++j)
         {
             var carToCheck = AllCars[j];
-
-            if (transform.Position.x == CarTransforms[j].Position.x)
-                continue;
 
             if (car.Lane != carToCheck.Lane)
                 continue;
@@ -88,20 +85,20 @@ partial struct FindNearestNeighborsJob : IJobEntity
             if (carToCheckSegment < car.SegmentID)
                 continue;
 
-            if (carToCheck.LerpDistance < car.LerpDistance)
-                continue;
-
             var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
 
-            if (distanceCheck < currentDistance)
+            if (distanceCheck < 5)
             {
-                currentDistance = distanceCheck;
-                currentSpeed = carToCheck.Speed;
+                carData.Speed = carToCheck.Speed;
+                carData.TargetLane = carData.Lane < 3 ? carData.TargetLane = carData.Lane + 1 : 3; 
+                break;
+                //currentDistance = distanceCheck;
+                //currentSpeed = carToCheck.Speed;
             }
         }
 
-        carData.DistanceToCarInFront = currentDistance;
-        carData.CarInFrontSpeed = currentSpeed;
+        //carData.DistanceToCarInFront = currentDistance;
+        //carData.CarInFrontSpeed = currentSpeed;
 
     }
 }
@@ -117,6 +114,15 @@ partial struct CarMovementJob : IJobEntity
 
     private void Execute(Entity entity, ref CarData carData, ref LocalTransform transform)
     {
+        // Update speed.
+        if (carData.Lane != carData.TargetLane)
+        {
+            carData.Lane = carData.TargetLane;
+            carData.Speed = carData.DefaultSpeed;
+        }
+
+        float carSpeed = carData.Speed * DeltaTime;
+
         float carLane = 4f + (2.45f * carData.Lane);
 
         var currentSegmentIndex = carData.SegmentID;
@@ -138,13 +144,7 @@ partial struct CarMovementJob : IJobEntity
 
         var currentDistance = math.distance(transform.Position, targetPosition);
         
-        // Update speed.
-        if (carData.DistanceToCarInFront <= 4f)
-        {
-            carData.Speed = carData.CarInFrontSpeed;
-        }
 
-        float carSpeed = carData.Speed * DeltaTime;
 
         //Calculate rotation
         var calculatePrecentage = 1 - math.clamp((currentDistance - 1f) / (carData.SegmentDistance - 1f), 0, 1);

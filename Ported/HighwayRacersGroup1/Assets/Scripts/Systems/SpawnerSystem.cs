@@ -46,11 +46,13 @@ partial struct SpawnerSystem : ISystem
             var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
 
             var carSpeed = (UnityEngine.Random.value + 0.2f) * 50;
+            var laneID = UnityEngine.Random.Range(0, 4);
 
             var car = new CarData
             {
                 SegmentID = segmentID,
-                Lane = UnityEngine.Random.Range(0, 4),
+                Lane = laneID,
+                TargetLane = laneID,
                 DefaultSpeed = carSpeed,
                 Speed = carSpeed,
                 DistanceToCarInFront = 5f
