@@ -161,7 +161,14 @@ MonoBehaviour:
     type: 3}
   NumCars: 50
   NumLanes: 4
+  FollowClearance: 3
   TrackSize: 1
+  SpeedRange:
+    x: 0.025
+    y: 0.075
+  AccelerationRange:
+    x: 0.0025
+    y: 0.0075
 --- !u!4 &1816297709
 Transform:
   m_ObjectHideFlags: 0

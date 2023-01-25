@@ -10,7 +10,7 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        readonly RefRW<Car> Car;
+        public readonly RefRW<Car> Car;
 
         readonly TransformAspect Transform;
 
@@ -45,5 +45,9 @@ namespace Aspects
             set => Car.ValueRW.Speed = value;
         }
 
+        public float Length { get => Car.ValueRO.Length; }
+        public float MaxSpeed { get => Car.ValueRO.MaxSpeed; }
+        public float Acceleration { get => Car.ValueRO.Acceleration; }
+        public int Index { get => Car.ValueRO.Index; }
     }
 }
