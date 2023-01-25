@@ -11,6 +11,8 @@ namespace Authoring
 		public GameObject StraightTrackPrefab;
 
         public GameObject CarPrefab;
+
+        public GameObject LanePrefab;
 		
 		public int NumCars;
 
@@ -28,6 +30,7 @@ namespace Authoring
 					CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
 					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
                     CarPrefab = GetEntity(authoring.CarPrefab),
+                    LanePrefab = GetEntity(authoring.LanePrefab),
 					NumCars = authoring.NumCars,
 					NumLanes = authoring.NumLanes,
                     TrackSize = authoring.TrackSize
@@ -41,8 +44,14 @@ namespace Authoring
 		public Entity CurvedTrackPrefab;
 		public Entity StraightTrackPrefab;
         public Entity CarPrefab;
+        public Entity LanePrefab;
 		public int NumCars;
 		public int NumLanes;
         public float TrackSize;
+
+        // Some constants
+        public const float CurveRadius = 31.46f;
+        public const float LaneOffset = 1.9f;
+        public const float SegmentLength = 60.0f;
     }
 }
