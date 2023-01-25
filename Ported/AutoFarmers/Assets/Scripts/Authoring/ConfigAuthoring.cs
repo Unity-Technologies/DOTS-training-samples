@@ -8,6 +8,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
     public int GroundSizeXY;
     public UnityEngine.GameObject FarmerPrefab;
     public UnityEngine.GameObject DronePrefab;
+    public UnityEngine.GameObject PlantPrefab;
 
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -22,7 +23,9 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
                 SiloCount = authoring.SiloCount,
                 GroundSizeXY = authoring.GroundSizeXY,
                 FarmerPrefab = GetEntity(authoring.FarmerPrefab),
-                DronePrefab = GetEntity(authoring.DronePrefab)
+                DronePrefab = GetEntity(authoring.DronePrefab),
+                PlantPrefab = GetEntity(authoring.PlantPrefab)
+
             });
         }
     }
@@ -37,4 +40,5 @@ struct Config : IComponentData
     public int GroundSizeXY;
     public Entity FarmerPrefab;
     public Entity DronePrefab;
+    public Entity PlantPrefab;
 }
