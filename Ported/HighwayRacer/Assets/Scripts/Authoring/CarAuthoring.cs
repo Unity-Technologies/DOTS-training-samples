@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 
 public class CarAuthoring : UnityEngine.MonoBehaviour
 {
@@ -10,7 +11,6 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
     public float TrackLength;
     public int LaneNumber;
     public float LaneChangeClearance;
-    public float4 Color;
     public int SegmentNumber;
 
     class CarBaker : Baker<CarAuthoring>
@@ -26,10 +26,8 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
                 TrackLength = authoring.TrackLength,
                 LaneNumber = authoring.LaneNumber,
                 LaneChangeClearance = authoring.LaneChangeClearance,
-                Color = authoring.Color,
                 SegmentNumber = authoring.SegmentNumber
             });
-
         }
     }
 }
@@ -43,6 +41,5 @@ struct Car : IComponentData
     public float TrackLength;
     public int LaneNumber;
     public float LaneChangeClearance;
-    public float4 Color;
     public int SegmentNumber;
 }

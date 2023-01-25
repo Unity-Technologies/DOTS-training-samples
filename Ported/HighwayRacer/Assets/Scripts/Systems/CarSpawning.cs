@@ -53,7 +53,6 @@ namespace Systems
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),
                     LaneChangeClearance = 1.5f,
-                    Color = float4.zero,
                     SegmentNumber = 0
                 });
 
