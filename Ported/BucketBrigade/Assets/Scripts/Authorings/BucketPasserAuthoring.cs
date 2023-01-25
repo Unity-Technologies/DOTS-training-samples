@@ -13,6 +13,7 @@ public class BucketPasserAuthoring : MonoBehaviour
             AddComponent<TeamInfo>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
+            AddComponent<MoveInfo>();
         }
     }
 }

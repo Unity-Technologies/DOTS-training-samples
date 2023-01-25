@@ -10,6 +10,7 @@ public class OmniWorkerAuthoring : MonoBehaviour
             AddComponent<Position>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
+            AddComponent<MoveInfo>();
         }
     }
 }
