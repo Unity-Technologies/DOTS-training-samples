@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
+using System.Diagnostics;
 
 [BurstCompile]
 public partial struct RockSystem : ISystem
@@ -9,6 +10,7 @@ public partial struct RockSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
         totalTime = 0;
     }
 
@@ -29,18 +31,16 @@ public partial struct RockSystem : ISystem
         var maxHealth = RockAuthoring.MAX_ROCK_HEALTH;
 
 
-        foreach( var (tranform, rock) in SystemAPI.Query<TransformAspect, Rock>().WithAll<Rock>() )
+        foreach( var rock in SystemAPI.Query<RockAspect>() )
         {
-            tranform.LocalScale = ( rock.RockHealth / (float)maxHealth );
-            //Read the rock health
-            //Adjust the scale from 1 to 0 based on the health
+            rock.Transform.LocalScale = ( rock.Health / (float)maxHealth );
         }
 
         if ( totalTime > 0.5)
         {
-            foreach( var (rock, children, entity) in SystemAPI.Query<RefRW<Rock>, DynamicBuffer<Child>>().WithEntityAccess())
+            foreach( var (rock, children, entity) in SystemAPI.Query<RockAspect, DynamicBuffer<Child>>().WithEntityAccess())
             {
-                if (rock.ValueRW.RockHealth <= 0)
+                if (rock.Health <= 0)
                 {
                     ecb.DestroyEntity(entity);
                     ecb.DestroyEntity(children[0].Value);
