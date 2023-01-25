@@ -4,6 +4,6 @@ using UnityEngine;
 
 public struct Target : IComponentData
 {
-    public float3 flameCellPosition;
-    public float3 waterCellPosition;
+    public float2 flameCellPosition;
+    public float2 waterCellPosition;
 }
