@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CarSpawner : MonoBehaviour
 {
-
     public static Transform[] carTransforms;
     public GameObject carPrefab;
     public int numCars;
@@ -25,7 +24,6 @@ public class CarSpawner : MonoBehaviour
             car.SegmentID = 0;
             car.lane = i;
             carTransforms[i] = go.transform;
-            
         }
     }
 
@@ -39,37 +37,39 @@ public class CarSpawner : MonoBehaviour
     {
         foreach (Car car in carControl)
         {
-
-            float moveSpeed = 100 * Time.deltaTime;
+            float moveSpeed = 10f * Time.deltaTime;
             float carLane = 4 + (2.45f * car.lane);
 
             Transform currentSegment = highwaySpawner.HighwaySegments[car.SegmentID];
             Vector3 currentPosition = currentSegment.position + (currentSegment.right * -carLane);
 
-            Transform targetSegment = (car.SegmentID + 1 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 1] : highwaySpawner.HighwaySegments[0];
+            Transform targetSegment = (car.SegmentID + 1 < highwaySpawner.HighwaySegments.Count)
+                ? highwaySpawner.HighwaySegments[car.SegmentID + 1]
+                : highwaySpawner.HighwaySegments[0];
             Vector3 targetPosition = targetSegment.position + (targetSegment.right * -carLane);
 
-            Transform futureSegment = (car.SegmentID + 2 < highwaySpawner.HighwaySegments.Count) ? highwaySpawner.HighwaySegments[car.SegmentID + 2] : highwaySpawner.HighwaySegments[2 - (highwaySpawner.HighwaySegments.Count - car.SegmentID)];
+            Transform futureSegment = (car.SegmentID + 2 < highwaySpawner.HighwaySegments.Count)
+                ? highwaySpawner.HighwaySegments[car.SegmentID + 2]
+                : highwaySpawner.HighwaySegments[2 - (highwaySpawner.HighwaySegments.Count - car.SegmentID)];
             Vector3 futurePosition = futureSegment.position + (futureSegment.right * -carLane);
 
             //Calculate rotation
             float currentDistance = Vector3.Magnitude(car.transform.position - targetPosition);
-            float calculatePrecentage = 1 - Mathf.Clamp01((currentDistance - 0.25f) / (car.SegmentDistance -0.25f));
+            float calculatePrecentage = 1 - Mathf.Clamp01((currentDistance - 0.25f) / (car.SegmentDistance - 0.25f));
             Vector3 currentDirection = targetPosition - currentPosition;
             Vector3 targetDirection = futurePosition - targetPosition;
-            Vector3 directionLerp = Vector3.Lerp(currentDirection, targetDirection, calculatePrecentage).normalized * moveSpeed;
+            Vector3 directionLerp = Vector3.Lerp(currentDirection, targetDirection, calculatePrecentage).normalized *
+                                    moveSpeed;
             Quaternion carRotation = Quaternion.LookRotation(directionLerp);
 
             car.transform.position = Vector3.MoveTowards(car.transform.position, targetPosition, moveSpeed);
             car.transform.localEulerAngles = new Vector3(0, carRotation.eulerAngles.y, 0);
 
-            if(currentDistance <= 0.25f)
+            if (currentDistance <= 0.25f)
             {
                 car.SegmentID = (car.SegmentID < highwaySpawner.HighwaySegments.Count - 1) ? car.SegmentID += 1 : 0;
                 car.SegmentDistance = Vector3.Magnitude(car.transform.position - futurePosition);
             }
         }
     }
-
-
 }

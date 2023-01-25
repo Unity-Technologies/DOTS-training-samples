@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class HighwaySpawner : MonoBehaviour
 {
-
     public Transform CornerPrefab;
     public Transform StraightPrefab;
 
@@ -22,7 +24,6 @@ public class HighwaySpawner : MonoBehaviour
 
     public void generateHighway()
     {
-
         if(HighwayPieces.Count > 0)
         {
             for (int i = 0; i < HighwayPieces.Count; i++)
@@ -45,7 +46,10 @@ public class HighwaySpawner : MonoBehaviour
                 go.position = (spawnPoint != null) ? spawnPoint.position : Vector3.zero;
                 go.transform.localEulerAngles = (spawnPoint != null) ? new Vector3(0, 90 * i, 0) : Vector3.zero;
                 spawnPoint = go.GetChild(1);
-                HighwayPieces.Add(go);                
+                HighwayPieces.Add(go);
+                
+                // Create segment entity.
+                
                 HighwaySegments.Add(go.GetChild(1));
                 go.GetChild(1).name = segmentCounter.ToString();
                 segmentCounter++;
@@ -66,7 +70,18 @@ public class HighwaySpawner : MonoBehaviour
                 Destroy(go.GetChild(0).gameObject);
             }
         }
+
+        SegmentPositions = new NativeArray<float3>(HighwaySegments.Count, Allocator.Persistent);
+        SegmentRightDirections = new NativeArray<float3>(HighwaySegments.Count, Allocator.Persistent);
+        for(var i = 0; i < HighwaySegments.Count; i++)
+        {
+            SegmentPositions[i] = HighwaySegments[i].position;
+            SegmentRightDirections[i] = HighwaySegments[i].right;
+        }
     }
+
+    public static NativeArray<float3> SegmentPositions;
+    public static NativeArray<float3> SegmentRightDirections;
 
     // Update is called once per frame
     void Update()
@@ -77,3 +92,8 @@ public class HighwaySpawner : MonoBehaviour
         }
     }
 }
+
+// public struct TestArray
+// {
+//     public static readonly NativeArray<float3>
+// }

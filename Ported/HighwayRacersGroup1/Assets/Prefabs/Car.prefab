@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7185106190121610016}
   - component: {fileID: -5838740579292801733}
+  - component: {fileID: 3850388835208958647}
   m_Layer: 0
   m_Name: Car
   m_TagString: Untagged
@@ -32,7 +33,7 @@ Transform:
   - {fileID: 2820115676266520107}
   - {fileID: 1786577721446602688}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-5838740579292801733
 MonoBehaviour:
@@ -47,6 +48,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SegmentID: 0
+  SegmentDistance: 0
+  lane: 0
+--- !u!114 &3850388835208958647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2626030905667713557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ea34b561c304b64ca049bca6fa68a2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3159859408282186471
 GameObject:
   m_ObjectHideFlags: 0
