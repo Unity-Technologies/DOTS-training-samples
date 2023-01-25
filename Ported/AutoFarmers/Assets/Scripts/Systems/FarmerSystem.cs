@@ -30,7 +30,8 @@ partial struct FarmerSystem : ISystem
     public void ChooseNewTask(FarmerAspect farmer)
     {
         //Cooldown?
-        farmer.FarmerState = (byte)random.NextInt(0,FarmerStates.FARMER_TOTAL_STATES);
+        farmer.FarmerState = (byte)random.NextInt(0,FarmerStates.FARMER_TOTAL_STATES+1);
+        //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
     }
 
     [BurstCompile]
@@ -71,7 +72,6 @@ partial struct FarmerSystem : ISystem
 
                     RockAspect closestRock = new RockAspect();
                     bool foundRock = false;
-                    int foundRocks = 0;
 
                     foreach (var rock in SystemAPI.Query<RockAspect>())
                     {
@@ -84,7 +84,6 @@ partial struct FarmerSystem : ISystem
                             closestSqrMag = sqrMag;
                             foundRock = true;
                         }
-                        foundRocks++;
                     }
 
                     //TODO: How the hell do we tell if there are plants needing to be cleaned up?
@@ -95,12 +94,6 @@ partial struct FarmerSystem : ISystem
                     //{
                     //    farmer.FarmerState = FarmerStates.FARMER_STATE_HARVEST;
                     //}
-
-                    if (foundRocks == 0)
-                    {
-                        ChooseNewTask(farmer);
-                        break;
-                    }
 
                     if (foundRock)
                     {
@@ -117,6 +110,8 @@ partial struct FarmerSystem : ISystem
                             }
                         }
                     }
+                    else
+                        ChooseNewTask(farmer);
 
 
                     #endregion
@@ -127,8 +122,6 @@ partial struct FarmerSystem : ISystem
                     closestSqrMag = math.INFINITY;
                     PlantAspect closestPlant = new PlantAspect();
                     bool foundPlant = false;
-
-                    int foundPlants = 0;
                     foreach (var plant in SystemAPI.Query<PlantAspect>().WithAll<PlantFinishedGrowing>())
                     {
                         if (plant.PickedAndHeld /*|| plant.BeingTargeted*/) continue;
@@ -141,13 +134,6 @@ partial struct FarmerSystem : ISystem
                             closestSqrMag = sqrMag;
                             foundPlant = true;
                         }
-                        foundPlants++;
-                    }
-
-                    if (foundPlants == 0)
-                    {
-                        ChooseNewTask(farmer);
-                        break;
                     }
 
                     if (foundPlant)
@@ -177,6 +163,8 @@ partial struct FarmerSystem : ISystem
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
                         }
                     }
+                    else
+                        ChooseNewTask(farmer);
 
                     #endregion
                     break;
@@ -216,12 +204,13 @@ partial struct FarmerSystem : ISystem
                             ChooseNewTask(farmer);
                         }
                     }
-
+                    else
+                        ChooseNewTask(farmer);
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_CREATEPLOT:
                     #region Creating a Plot
-                    ChooseNewTask(farmer);
+                    
                     bool foundTile = false;
                     // grab tile of current farmer
 
@@ -234,7 +223,7 @@ partial struct FarmerSystem : ISystem
                     // if none work, expand radius
                     // once found, create plot
                     // check each spot around the plot just created to be able to expand and restart the search
-
+                    ChooseNewTask(farmer);
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_PLANTCROP:
@@ -242,7 +231,8 @@ partial struct FarmerSystem : ISystem
                     closestSqrMag = math.INFINITY;
                     PlotAspect closestPlot = new PlotAspect();
                     bool foundPlot = false;
-
+                    //UnityEngine.Debug.Log("Farmer plant crop");
+                    
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
                     {
                         //Let's find closest plot
@@ -263,10 +253,12 @@ partial struct FarmerSystem : ISystem
 
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
-                            //TODO: closestPlant.PlantSeed();
+                            closestPlot.PlantSeed();
                             ChooseNewTask(farmer);
                         }
                     }
+                    else
+                        ChooseNewTask(farmer);
                     #endregion
                     break;
 

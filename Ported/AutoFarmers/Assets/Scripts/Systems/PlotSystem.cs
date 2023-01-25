@@ -33,20 +33,12 @@ public partial struct PlotSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        foreach( var plot in SystemAPI.Query<PlotAspect>() )
-        {
-            if (! plot.HasSeed() )
-            {
-                UnityEngine.Debug.Log("Seeding a plot..");
-                plot.PlantSeed();
-            }
-        }
         
         foreach( var plot in SystemAPI.Query<PlotAspect>() )
         {
             if ( plot.HasSeed() && !plot.HasPlant() )
             {
+                //UnityEngine.Debug.Log("Seed is growing..");
                 var plant = state.EntityManager.Instantiate(config.PlantPrefab);
                 var plantTransform = LocalTransform.FromPosition(plot.Transform.WorldPosition);
                 state.EntityManager.SetComponentData<LocalTransform>(plant, plantTransform);
