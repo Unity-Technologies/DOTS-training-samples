@@ -25,26 +25,31 @@ partial struct PlantGrowthSystem : ISystem
         float elapsedTime = (float)SystemAPI.Time.ElapsedTime;
         float timeSincePlanted;
 
-        foreach (var (transform, plant) in SystemAPI.Query<TransformAspect, RefRW<Plant>>().WithAll<Plant>())
+        //UnityEngine.Debug.Log("Trying to grow a plant");
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        foreach (var plant in SystemAPI.Query<PlantAspect>())
         {
-            if (plant.ValueRW.isReadyToPick || plant.ValueRW.pickedAndHeld)
+            //UnityEngine.Debug.Log("PREgrowing a plant " + plant.ReadyToPick + " and " + plant.PickedAndHeld);
+            if (plant.ReadyToPick || plant.PickedAndHeld)
             {
                 continue;
             }
 
             //plant is not fully grown
 
-            timeSincePlanted = elapsedTime - plant.ValueRW.timePlanted;
-            float scale = timeSincePlanted / plant.ValueRW.timeToGrow;
+            timeSincePlanted = elapsedTime - plant.Plant.ValueRW.timePlanted;
+            float scale = timeSincePlanted / plant.Plant.ValueRW.timeToGrow;
             scale = math.clamp(scale, 0, 1);
-            transform.WorldScale = scale;
+            plant.Transform.LocalScale = scale;
 
-            if(scale == 1) //plant is now grown
+            if(scale >= 1) //plant is now grown
             {
-                plant.ValueRW.isReadyToPick = true;
+                //state.EntityManager.AddComponent<PlantFinishedGrowing>(plant.Self);
+                ecb.AddComponent<PlantFinishedGrowing>(plant.Self);
+                plant.ReadyToPick = true;
             }
         }
-
-
     }
 }

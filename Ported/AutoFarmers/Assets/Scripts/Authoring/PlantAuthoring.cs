@@ -20,5 +20,11 @@ struct Plant : IComponentData
     public float timePlanted; //to track the growth
     public bool isReadyToPick; //true once fully grown
     public bool pickedAndHeld; //true once picked by a farmer
+    public bool beingTargeted;
+}
+
+struct PlantFinishedGrowing : IComponentData
+{
+
 }
 

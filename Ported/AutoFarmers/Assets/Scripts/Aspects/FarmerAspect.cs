@@ -30,4 +30,46 @@ readonly partial struct FarmerAspect : IAspect
         get => Farmer.ValueRW.moveSpeed;
         set => Farmer.ValueRW.moveSpeed = value;
     }
+
+    public Entity HeldEntity
+    {
+        get => Farmer.ValueRW.heldEntity;
+    }
+
+    public bool HoldingEntity
+    {
+        get => Farmer.ValueRW.holdingEntity;
+    }
+
+    public bool HasTarget
+    {
+        get => Farmer.ValueRW.holdingEntity;
+    }
+
+    public Entity CurrentTarget
+    {
+        get => Farmer.ValueRW.currentlyTargeted;
+    }
+
+    public void AttachEntity(Entity e)
+    {
+        Farmer.ValueRW.heldEntity = e;
+        Farmer.ValueRW.holdingEntity = true;
+    }
+
+    public void DetachEntity()
+    {
+        Farmer.ValueRW.holdingEntity = false;
+    }
+
+    public void TargetEntity(Entity e)
+    {
+        Farmer.ValueRW.currentlyTargeted = e;
+        Farmer.ValueRW.hasTarget = true;
+    }
+
+    public void ReleaseTarget()
+    {
+        Farmer.ValueRW.hasTarget = false;
+    }
 }

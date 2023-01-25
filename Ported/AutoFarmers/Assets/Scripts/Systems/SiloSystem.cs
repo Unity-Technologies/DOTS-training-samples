@@ -23,7 +23,7 @@ public partial struct SiloSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         foreach (var silo in SystemAPI.Query<SiloAspect>())
         {
-            silo.Cash += 1;
+            //silo.Cash += 1;
             if (silo.Cash > silo.FarmerCost && silo.HireType == HireTypes.HIRE_FARMER)
             {
                 Entity newFarmer = state.EntityManager.Instantiate(config.FarmerPrefab);

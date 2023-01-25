@@ -33,6 +33,7 @@ partial struct FarmerMovementSystem : ISystem
             float moveAmount = farmer.MoveSpeed * SystemAPI.Time.DeltaTime;
             float moveMin = math.min(moveAmount, diffMag);
             float3 moveDirection = math.normalize(diff) * moveMin;
+            moveDirection.y = 0;
             if(diffMag > 0.1f)
             {
                 farmer.Transform.WorldPosition += moveDirection;
