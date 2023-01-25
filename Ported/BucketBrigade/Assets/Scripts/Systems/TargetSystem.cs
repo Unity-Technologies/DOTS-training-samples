@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [BurstCompile]
 partial struct TargetSystem : ISystem
@@ -32,34 +33,36 @@ partial struct TargetSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        m_PositionLookup.Update(ref state);
+        m_TargetLookup.Update(ref state);
         foreach (var worker in m_OmniWorkerQuery.ToEntityArray(Allocator.Temp))
         {
+            var workerPosition = m_PositionLookup.GetRefRO(worker).ValueRO.position;
             var minDist = math.INFINITY;
-            var flameTarget = Entity.Null;
-            var waterTarget = Entity.Null;
-            foreach (var flameCell in m_FlameCellQuery.ToEntityArray(Allocator.Temp))
+            var flameTarget = workerPosition;
+            var waterTarget = workerPosition;
+            foreach (var flameCellPosition in m_FlameCellQuery.ToComponentDataArray<Position>(Allocator.Temp))
             {
-                var dist = math.distance(m_PositionLookup.GetRefRO(worker).ValueRO.position, m_PositionLookup.GetRefRO(flameCell).ValueRO.position);
+                var dist = math.distance(workerPosition, flameCellPosition.position);
                 if (dist < minDist)
                 {
                     minDist = dist;
-                    flameTarget = flameCell;
+                    flameTarget = flameCellPosition.position;
                 }
             }
             minDist = math.INFINITY;
-            foreach (var waterCell in m_WaterCellQuery.ToEntityArray(Allocator.Temp))
+            foreach (var waterCellPosition in m_WaterCellQuery.ToComponentDataArray<Position>(Allocator.Temp))
             {
-                var dist = math.distance(m_PositionLookup.GetRefRO(worker).ValueRO.position, m_PositionLookup.GetRefRO(waterCell).ValueRO.position);
+                var dist = math.distance(workerPosition, waterCellPosition.position);
                 if (dist < minDist)
                 {
                     minDist = dist;
-                    waterTarget = waterCell;
+                    waterTarget = waterCellPosition.position;
                 }
             }
 
-            var target = m_TargetLookup.GetRefRW(worker, false).ValueRW;
-            target.waterCellPosition = m_PositionLookup.GetRefRO(waterTarget).ValueRO.position;
-            target.flameCellPosition = m_PositionLookup.GetRefRO(flameTarget).ValueRO.position;
+            m_TargetLookup.GetRefRW(worker, false).ValueRW.waterCellPosition = waterTarget;
+            m_TargetLookup.GetRefRW(worker, false).ValueRW.flameCellPosition = flameTarget;
         }
     }
 }
