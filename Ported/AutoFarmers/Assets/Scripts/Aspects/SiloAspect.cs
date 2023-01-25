@@ -21,10 +21,26 @@ readonly partial struct SiloAspect : IAspect
         get => m_silo.ValueRW.FarmerCost;
         set => m_silo.ValueRW.FarmerCost = value;
     }
+    public int FarmersSpawned
+    {
+        get => m_silo.ValueRW.FarmersSpawned;
+        set => m_silo.ValueRW.FarmersSpawned = value;
+    }
     public int DroneCost
     {
         get => m_silo.ValueRW.DroneCost;
         set => m_silo.ValueRW.DroneCost = value;
+    }
+    public int DronesSpawned
+    {
+        get => m_silo.ValueRW.DronesSpawned;
+        set => m_silo.ValueRW.DronesSpawned = value;
+    }
+
+    public int DronesUnlockLevel
+    {
+        get => m_silo.ValueRW.DroneUnlockLevel;
+        set => m_silo.ValueRW.DroneUnlockLevel = value;
     }
 
     public byte HireType
