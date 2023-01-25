@@ -9,7 +9,7 @@ public class BucketPasserAuthoring : MonoBehaviour
         {
             // todo add role
             AddComponent<Position>();
-            AddComponent<IndexInLine>();
+            AddComponent<LineInfo>();
             AddComponent<TeamInfo>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
