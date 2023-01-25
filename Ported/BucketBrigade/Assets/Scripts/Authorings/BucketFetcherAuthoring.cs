@@ -12,6 +12,7 @@ public class BucketFetcherAuthoring : MonoBehaviour
             AddComponent<TeamInfo>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
+            AddComponent<MoveInfo>();
         }
     }
 }
