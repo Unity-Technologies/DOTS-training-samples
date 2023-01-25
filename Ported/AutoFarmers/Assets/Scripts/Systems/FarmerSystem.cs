@@ -170,7 +170,8 @@ partial struct FarmerSystem : ISystem
                             {
                                 var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(closestPlant.Plot);
                                 UnityEngine.Debug.Log("Harvesting a plant with a plot");
-                                //plotAspect.Harvest();
+                                //TODO:why does the below line cause infinite plants?
+                                plotAspect.Harvest();
                             }
 
                             farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
