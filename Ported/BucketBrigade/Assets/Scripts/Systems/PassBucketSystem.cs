@@ -12,11 +12,12 @@ partial struct PassBucketSystem : ISystem
     EntityQuery m_WorkerPickingUpQuery;
     EntityQuery m_AvailableBucketQuery;
 
-    [BurstCompile]
+    //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_PositionLookup = state.GetComponentLookup<Position>();
         m_CarriedBucketLookup = state.GetComponentLookup<CarriedBucket>();
+        // todo replace managed arrays in queries to allow burst compile
         m_WorkerDroppingQuery = state.GetEntityQuery(ComponentType.ReadOnly<ShouldPassTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());
         m_WorkerPickingUpQuery = state.GetEntityQuery(ComponentType.Exclude<ShouldPassTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());;
         m_AvailableBucketQuery = state.GetEntityQuery(ComponentType.Exclude<PickedUpTag>(), ComponentType.ReadOnly<Position>());;
