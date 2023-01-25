@@ -59,13 +59,16 @@ namespace Systems
                 {
                     Distance = random.NextFloat(99.0f),
                     Length = 1.0f,
-                    Speed = 30f,
-                    Acceleration = 0.0f,
+                    // Speed = 0.0f,
+                    Speed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                    MaxSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                    Acceleration = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),
                     LaneChangeClearance = 1.5f,
                     Color = float4.zero,
-                    SegmentNumber = 0
+                    SegmentNumber = 0,
+                    Index = i
                 });
 
             }

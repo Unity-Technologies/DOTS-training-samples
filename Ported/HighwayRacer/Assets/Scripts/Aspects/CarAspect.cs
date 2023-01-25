@@ -1,8 +1,6 @@
-using Authoring;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Aspects
 {
@@ -10,7 +8,7 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        readonly RefRW<Car> Car;
+        public readonly RefRW<Car> Car;
 
         readonly TransformAspect Transform;
 
@@ -36,7 +34,6 @@ namespace Aspects
         {
             get => Transform.LocalRotation;
             set => Transform.LocalRotation = value;
-
         }
 
         public float Speed
@@ -45,5 +42,13 @@ namespace Aspects
             set => Car.ValueRW.Speed = value;
         }
 
+        public float Acceleration
+        {
+            get => Car.ValueRO.Acceleration;
+            set => Car.ValueRW.Acceleration = value;
+        }
+        public float Length { get => Car.ValueRO.Length; }
+        public float MaxSpeed { get => Car.ValueRO.MaxSpeed; }
+        public int Index { get => Car.ValueRO.Index; }
     }
 }
