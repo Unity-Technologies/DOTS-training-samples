@@ -55,7 +55,7 @@ partial struct SpawnerSystem : ISystem
                 TargetLane = laneID,
                 DefaultSpeed = carSpeed,
                 Speed = carSpeed,
-                DistanceToCarInFront = 5f
+                inFrontCarIndex = -1
             };
             ecb.SetComponent(cars[i], car);
 
