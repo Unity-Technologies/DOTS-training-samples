@@ -805,7 +805,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &909301564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   carPrefab: {fileID: 2626030905667713557, guid: fc39d57ee8a1d8d4cbfecaaf84c408ad, type: 3}
-  numCars: 4
+  numCars: 8
   carControl: []
   highwaySpawner: {fileID: 78390361}
 --- !u!4 &909301565

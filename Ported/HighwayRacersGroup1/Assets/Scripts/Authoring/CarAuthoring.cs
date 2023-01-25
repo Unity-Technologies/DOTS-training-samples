@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
 
@@ -20,4 +21,9 @@ struct CarData : IComponentData
     public int SegmentID;
     public float SegmentDistance;
     public int Lane;
+    public float Speed;
+    public float OvertakeSpeed;
+    
+    public float DistanceToCarInFront;
+    public float CarInFrontSpeed;
 }

@@ -1,8 +1,9 @@
+using System;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 
 partial struct SpawnerSystem : ISystem
@@ -43,7 +44,12 @@ partial struct SpawnerSystem : ISystem
         for (var i = 0; i < cars.Length; ++i)
         {
             var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
-            var car = new CarData { SegmentID = segmentID, Lane = UnityEngine.Random.Range(0, 4) };
+            var car = new CarData
+            {
+                SegmentID = segmentID, Lane = UnityEngine.Random.Range(0, 4),
+                Speed = UnityEngine.Random.value * 50f,
+                DistanceToCarInFront = 5f
+            };
             ecb.SetComponent(cars[i], car);
             var position = segmentPositions[segmentID];
             // todo: add offset between segments
