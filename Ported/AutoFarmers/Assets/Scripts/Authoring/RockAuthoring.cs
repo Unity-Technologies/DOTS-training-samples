@@ -15,4 +15,5 @@ class RockAuthoring : UnityEngine.MonoBehaviour
 struct Rock : IComponentData
 {
     public int RockHealth;
+    public const int type = 1;
 }
