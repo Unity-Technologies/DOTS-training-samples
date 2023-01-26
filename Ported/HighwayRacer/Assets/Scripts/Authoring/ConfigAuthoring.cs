@@ -26,6 +26,7 @@ namespace Authoring
 
         public float2 SpeedRange;
         public float2 AccelerationRange;
+        public float MaxSpeedIncreaseWhilePassing;
 
         public class ConfigBaker : Baker<ConfigAuthoring>
         {
@@ -44,7 +45,8 @@ namespace Authoring
                     AccelerationRange = authoring.AccelerationRange,
                     FollowClearance = authoring.FollowClearance,
                     LaneChangeClearance = authoring.LaneChangeClearance,
-                    LaneChangeTime = authoring.LaneChangeTime
+                    LaneChangeTime = authoring.LaneChangeTime,
+                    MaxSpeedIncreaseWhilePassing = authoring.MaxSpeedIncreaseWhilePassing
                 });
             }
         }
@@ -64,6 +66,7 @@ namespace Authoring
         public float FollowClearance;
         public float LaneChangeClearance;
         public float LaneChangeTime;
+        public float MaxSpeedIncreaseWhilePassing;
 
         // Some constants
         public const float CurveRadius = 31.46f;

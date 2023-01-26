@@ -60,7 +60,13 @@ namespace Aspects
             set => Car.ValueRW.Acceleration = value;
         }
         public float Length { get => Car.ValueRO.Length; }
-        public float MaxSpeed { get => Car.ValueRO.MaxSpeed; }
+        public float DesiredSpeed { get => Car.ValueRO.DesiredSpeed; }
         public int Index { get => Car.ValueRO.Index; }
+
+        public bool IsPassing
+        {
+            get => Car.ValueRO.IsPassing;
+            set => Car.ValueRW.IsPassing = value;
+        }
     }
 }

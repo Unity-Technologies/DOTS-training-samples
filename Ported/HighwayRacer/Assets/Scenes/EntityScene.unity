@@ -168,10 +168,11 @@ MonoBehaviour:
   TrackSize: 1
   SpeedRange:
     x: 10
-    y: 30
+    y: 45
   AccelerationRange:
     x: 0.0025
     y: 0.0075
+  MaxSpeedIncreaseWhilePassing: 1.25
 --- !u!4 &1816297709
 Transform:
   m_ObjectHideFlags: 0

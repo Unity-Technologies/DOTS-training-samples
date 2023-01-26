@@ -57,17 +57,16 @@ namespace Systems
 
                 state.EntityManager.SetComponentData(car, new Car()
                 {
-                    Distance = random.NextFloat(99.0f),
+                    Distance = random.NextFloat(distance),
                     Length = 1.0f,
-                    // Speed = 0.0f,
                     Speed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
-                    MaxSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
-                    Acceleration = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                    DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                    Acceleration = random.NextFloat(config.AccelerationRange.x, config.AccelerationRange.y),
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),
                     NewLaneNumber = -1,
                     LaneChangeProgress = -1.0f,
-                    LaneChangeClearance = 1.5f,
+                    LaneChangeClearance = config.LaneChangeClearance,
                     Color = float4.zero,
                     SegmentNumber = 0,
                     Index = i

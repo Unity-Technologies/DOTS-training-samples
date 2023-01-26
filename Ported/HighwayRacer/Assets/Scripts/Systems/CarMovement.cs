@@ -76,11 +76,16 @@ public partial struct CarMovement : ISystem
                 }
             }
 
+            // If we're passing, our allowable speed changes from the cars desired speed to the percentage increase allowable while passing
+            // var targetSpeed = car.IsPassing ? car.DesiredSpeed * config.MaxSpeedIncreaseWhilePassing : car.DesiredSpeed;
+            var targetSpeed = car.DesiredSpeed;
+
             float laneRadius = 0.0f;
             float laneLength = 0.0f;
             // if (car.LaneChangeProgress >= 0.0f)
             if (car.NewLaneNumber >= 0)
             {
+                targetSpeed = neighbor.Speed;
                 //just worry about the transition
                 car.LaneChangeProgress += SystemAPI.Time.DeltaTime;
 
@@ -99,6 +104,7 @@ public partial struct CarMovement : ISystem
                     var lane = lanes[car.LaneNumber];
                     laneRadius = lane.LaneRadius;
                     laneLength = lane.LaneLength;
+                    car.IsPassing = false;
                 }
                 else
                 {
@@ -113,38 +119,44 @@ public partial struct CarMovement : ISystem
             }
             else
             {
-                //if they are within range
-                if (neighborDelta < (config.FollowClearance + (car.Length + neighbor.Length) / 2))
+                // Give priority to merging back into the right lane
+                if (rightLaneOK)
                 {
-                    //if they are slower than us, decelerate until we match their speed
+                    car.LaneNumber--;
+                    car.NewLaneNumber = car.LaneNumber - 1;
+                    car.LaneChangeProgress = 0.0f;
+                    car.IsPassing = false;
+                }
+                else if (neighborDelta < (config.FollowClearance + (car.Length + neighbor.Length) / 2))
+                {
+                    // Otherwise if we're being blocked by a car in our lane, attempt to change left and pass
                     if (leftLaneOK)
                     {
                         // car.LaneNumber++;
                         car.NewLaneNumber = car.LaneNumber + 1;
                         car.LaneChangeProgress = 0.0f;
+                        car.IsPassing = true;
                     }
-                    else if (rightLaneOK)
-                    {
-                        // car.LaneNumber--;
-                        car.NewLaneNumber = car.LaneNumber - 1;
-                        car.LaneChangeProgress = 0.0f;
-                    }
-                    else
-                    {
-                        //slow down
-                        car.Speed = math.max(0.0f, car.Speed - car.Acceleration);
-                    }
+                    // We can't pass, match our target speed to our neighbour
+                    targetSpeed = neighbor.Speed;
                 }
-                else
-                {
-                    //speed up
-                    car.Speed = math.min(car.MaxSpeed, car.Speed + car.Acceleration);
-                }
+
 
                 var lane = lanes[car.LaneNumber];
                 laneRadius = lane.LaneRadius;
                 laneLength = lane.LaneLength;
             }
+
+            // If we're currently going less than our target, increase speed based on our acceleration and if we're going faster, decelerate
+            // if (car.Speed < targetSpeed)
+            // {
+            //     car.Speed = math.min(targetSpeed, car.Speed + car.Acceleration);
+            // }
+            // else
+            // {
+            //     car.Speed = math.max(targetSpeed, car.Speed - car.Acceleration);
+            // }
+            car.Speed = targetSpeed;
 
             car.Distance += car.Speed * SystemAPI.Time.DeltaTime;
             if (car.Distance >= laneLength)
