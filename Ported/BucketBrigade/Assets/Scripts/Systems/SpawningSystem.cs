@@ -154,7 +154,7 @@ partial struct SpawningSystem : ISystem
         }
 */
         // initialize buckets with max contain
-        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, PickedUpTag>())
+        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, BucketTag>())
         {
             waterAmount.ValueRW.currentContain = 0;
             waterAmount.ValueRW.maxContain = config.maxBucketAmount;
