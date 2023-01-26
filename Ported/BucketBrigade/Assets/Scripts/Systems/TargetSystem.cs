@@ -13,8 +13,8 @@ partial struct TargetSystem : ISystem
     EntityQuery m_OmniWorkerQuery;
     EntityQuery m_FlameCellQuery;
     EntityQuery m_WaterCellQuery;
-    
-    
+
+
     //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -42,28 +42,42 @@ partial struct TargetSystem : ISystem
             var minDist = math.INFINITY;
             var flameTarget = workerPosition;
             var waterTarget = workerPosition;
-            foreach (var flameCellPosition in m_FlameCellQuery.ToComponentDataArray<Position>(Allocator.Temp))
+            Entity fireTargetEntity = new();
+            int2 flameTargetIndex = new();
+            foreach (var flameEntity in m_FlameCellQuery.ToEntityArray(Allocator.Temp))
             {
+                var flameCellPosition = SystemAPI.GetComponent<Position>(flameEntity);
                 var dist = math.distance(workerPosition, flameCellPosition.position);
                 if (dist < minDist)
                 {
                     minDist = dist;
                     flameTarget = flameCellPosition.position;
+                    var cellInfo = SystemAPI.GetComponent<CellInfo>(flameEntity);
+                    fireTargetEntity = flameEntity;
+                    flameTargetIndex = new int2(cellInfo.indexX,cellInfo.indexY);
                 }
             }
+            m_TargetLookup.GetRefRW(worker, false).ValueRW.fireTargetEntity = fireTargetEntity;
+
             minDist = math.INFINITY;
-            foreach (var waterCellPosition in m_WaterCellQuery.ToComponentDataArray<Position>(Allocator.Temp))
+            Entity waterTargetEntity = new();
+            foreach (var waterEntity in m_WaterCellQuery.ToEntityArray(Allocator.Temp))
             {
+                var waterCellPosition = SystemAPI.GetComponent<Position>(waterEntity);
                 var dist = math.distance(workerPosition, waterCellPosition.position);
                 if (dist < minDist)
                 {
                     minDist = dist;
                     waterTarget = waterCellPosition.position;
+                    waterTargetEntity = waterEntity;
                 }
             }
+            m_TargetLookup.GetRefRW(worker, false).ValueRW.waterTargetEntity = waterTargetEntity;
+
 
             m_TargetLookup.GetRefRW(worker, false).ValueRW.waterCellPosition = waterTarget;
             m_TargetLookup.GetRefRW(worker, false).ValueRW.flameCellPosition = flameTarget;
+            m_TargetLookup.GetRefRW(worker, false).ValueRW.targetIndex = flameTargetIndex;
         }
     }
 }
