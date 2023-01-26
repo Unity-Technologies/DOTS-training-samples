@@ -15,7 +15,8 @@ public class OmniWorkerAuthoring : MonoBehaviour
             AddComponent<HasReachedDestinationTag>();
             AddComponent<CarriesBucketTag>();
             SetComponentEnabled<CarriesBucketTag>(GetEntity(), false);
-            AddComponent(new OmniWorkerAIState() { omniWorkerState = OmniWorkerState.FetchingBucket});
+            AddComponent(new OmniWorkerAIState() { omniWorkerState = OmniWorkerState.Idle});
+            AddComponent<BucketTargetPosition>();
         }
     }
 }

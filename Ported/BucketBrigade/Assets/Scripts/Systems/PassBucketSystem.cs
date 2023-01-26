@@ -38,7 +38,6 @@ partial struct PassBucketSystem : ISystem
         foreach (var worker in m_WorkerDroppingQuery.ToEntityArray(Allocator.Temp))
         {
             state.EntityManager.SetComponentEnabled<CarriesBucketTag>(worker, false);
-            state.EntityManager.SetComponentEnabled<HasReachedDestinationTag>(worker, false);
             var carriedBucket = m_CarriedBucketLookup.GetRefRW(worker, false).ValueRW;
             state.EntityManager.SetComponentEnabled<PickedUpTag>(carriedBucket.bucket, false);
             carriedBucket.bucket = Entity.Null;
@@ -51,7 +50,6 @@ partial struct PassBucketSystem : ISystem
                 if (math.distance(m_PositionLookup.GetRefRO(worker).ValueRO.position, m_PositionLookup.GetRefRO(bucket).ValueRO.position) < 1)
                 {
                     state.EntityManager.SetComponentEnabled<CarriesBucketTag>(worker, true);
-                    state.EntityManager.SetComponentEnabled<HasReachedDestinationTag>(worker, false);
                     state.EntityManager.SetComponentEnabled<PickedUpTag>(bucket, true);
                     m_CarriedBucketLookup.GetRefRW(worker, false).ValueRW.bucket = bucket;
                 }

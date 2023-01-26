@@ -7,6 +7,7 @@ public struct OmniWorkerAIState : IComponentData
 
 public enum OmniWorkerState
 {
+    Idle,
     FetchingBucket,
     FillingBucket,
     EmptyingBucket

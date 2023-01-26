@@ -2,8 +2,10 @@ using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using UnityEngine;
 
 [UpdateAfter(typeof(TargetSystem))]
+[UpdateAfter(typeof(BucketTargetingSystem))]
 [UpdateBefore(typeof(MovementSystem))]
 [BurstCompile]
 partial struct OmniWorkerAiSystem : ISystem
@@ -39,10 +41,16 @@ partial struct OmniWorkerAiSystem : ISystem
 partial struct OmniWorkerAIJob : IJobEntity
 {
     public ComponentLookup<HasReachedDestinationTag> HasReachedDestinationTagLookup;
-    void Execute(in Entity entity, in Target target, ref OmniWorkerAIState state, ref MoveInfo moveInfo)
+    void Execute(in Entity entity, in Target target, in BucketTargetPosition bucketTargetPosition, ref OmniWorkerAIState state, ref MoveInfo moveInfo)
     {
+        Debug.Log($"{state.omniWorkerState}");
         switch (state.omniWorkerState)
         {
+            case OmniWorkerState.Idle:
+                moveInfo.destinationPosition = bucketTargetPosition.position;
+                state.omniWorkerState = OmniWorkerState.FetchingBucket;
+                HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
+                break;
             case OmniWorkerState.FetchingBucket:
                 moveInfo.destinationPosition = target.waterCellPosition;
                 state.omniWorkerState = OmniWorkerState.FillingBucket;

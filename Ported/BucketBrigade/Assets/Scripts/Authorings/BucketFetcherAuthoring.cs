@@ -13,6 +13,7 @@ public class BucketFetcherAuthoring : MonoBehaviour
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
             AddComponent<MoveInfo>();
+            AddComponent<BucketTargetPosition>();
         }
     }
 }
