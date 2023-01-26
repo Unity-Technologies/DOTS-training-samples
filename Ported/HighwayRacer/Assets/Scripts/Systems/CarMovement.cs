@@ -56,6 +56,8 @@ public partial struct CarMovement : ISystem
                 int leftLane = car.LaneNumber + 1;
                 int rightLane = car.LaneNumber - 1;
 
+                //need to compute the game in terms of the other lane's distance
+
                 if ((other.LaneNumber == leftLane || other.NewLaneNumber == leftLane) && other.Distance > min && other.Distance < max)
                 {
                     leftLaneOK = false;
