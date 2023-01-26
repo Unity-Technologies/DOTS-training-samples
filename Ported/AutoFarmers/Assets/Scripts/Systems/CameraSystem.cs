@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 // This system should run after the transform system has been updated, otherwise the camera
@@ -11,15 +12,18 @@ using Unity.Transforms;
 partial struct CameraSystem : ISystem
 {
     Entity Target;
-    Random Random;
+    Unity.Mathematics.Random Random;
     EntityQuery FarmerQuery;
+
+    float2 viewAngles;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
-    {
-        Random = Random.CreateFromIndex(1234);
+    { 
+        Random = Unity.Mathematics.Random.CreateFromIndex(1234);
         FarmerQuery = SystemAPI.QueryBuilder().WithAll<Farmer>().Build();
         state.RequireForUpdate(FarmerQuery);
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     [BurstCompile]
@@ -36,9 +40,25 @@ partial struct CameraSystem : ISystem
             Target = farmers[Random.NextInt(farmers.Length)];
         }
 
+        ////handle mouse movement
+        //mouseInputDelta.x = Input.mousePosition.x - mouseInputLastFrame.x;
+        //mouseInputDelta.y = Input.mousePosition.y - mouseInputLastFrame.y;
+
+        //mouseInputLastFrame = (Vector2)Input.mousePosition;
+
         var cameraTransform = CameraSingleton.Instance.transform;
         var farmerTransform = SystemAPI.GetComponent<LocalToWorld>(Target);
-        cameraTransform.position = farmerTransform.Position - 10.0f * farmerTransform.Forward + new float3(0.0f, 5.0f, 0.0f);
-        cameraTransform.LookAt(farmerTransform.Position, new float3(0.0f, 1.0f, 0.0f));
+        //cameraTransform.position = farmerTransform.Position - 10.0f * farmerTransform.Forward + new float3(0.0f, 5.0f, 0.0f);
+        //cameraTransform.RotateAround(farmerTransform.Position, Vector3.up * mouseInputDelta.x + Vector3.right * mouseInputDelta.y, (mouseInputDelta.x + mouseInputDelta.y));
+        //cameraTransform.LookAt(farmerTransform.Position, new float3(0.0f, 1.0f, 0.0f));
+
+        viewAngles.x += Input.GetAxis("Mouse X") * 4000 / Screen.height;
+        viewAngles.y -= Input.GetAxis("Mouse Y") * 4000 / Screen.height;
+        viewAngles.y = Mathf.Clamp(viewAngles.y, 7f, 80f);
+        viewAngles.x -= Mathf.Floor(viewAngles.x / 360f) * 360f;
+        cameraTransform.rotation = Quaternion.Euler(viewAngles.y, viewAngles.x, 0f);
+        cameraTransform.position = farmerTransform.Position - (float3)cameraTransform.forward * 10;
+
+
     }
 }
