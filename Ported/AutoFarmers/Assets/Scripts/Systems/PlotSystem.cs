@@ -39,7 +39,21 @@ public partial struct PlotSystem : ISystem
             if ( plot.HasSeed() && !plot.HasPlant() )
             {
                 //UnityEngine.Debug.Log("Seed is growing..");
+
+                //randomize color of plant
+                var hue = random.NextFloat();
+
+                URPMaterialPropertyBaseColor RandomColor()
+                {
+                    hue = (hue + 0.618034005f) % 1;
+                    var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+                    return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
+                }
+
                 var plant = state.EntityManager.Instantiate(config.PlantPrefab);
+                state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(plant, RandomColor());
+
+
                 var plantTransform = LocalTransform.FromPosition(plot.Transform.WorldPosition);
                 state.EntityManager.SetComponentData<LocalTransform>(plant, plantTransform);
 
