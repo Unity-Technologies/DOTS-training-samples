@@ -32,18 +32,21 @@ partial struct CarMovementSystem : ISystem
         // todo: find nearest neighbors
         var allCarData = cars.ToComponentDataArray<CarData>(Allocator.TempJob);
         var allCarTransforms = cars.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-        
+
+        var segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        var segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.TempJob);
+
         var findNearest = new FindNearestNeighborsJob()
         {
             AllCars = allCarData,
-            CarTransforms = allCarTransforms
+            CarTransforms = allCarTransforms,
+            Segments = segmentPositions
         };
 
         state.Dependency = findNearest.Schedule(state.Dependency);
         state.Dependency.Complete();
 
-        var segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-        var segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.TempJob);
+        
         var carMovementJob = new CarMovementJob
         {
             Segments = segmentPositions,
@@ -62,9 +65,12 @@ partial struct FindNearestNeighborsJob : IJobEntity
 
     [Unity.Collections.ReadOnly] public NativeArray<LocalTransform> CarTransforms;
 
+    [Unity.Collections.ReadOnly] public NativeArray<LocalTransform> Segments;
+
     private void Execute(Entity entity, ref CarData carData, ref LocalTransform transform)
     {
         int proposedLane = -1;
+        int alternativeLane = -1;
 
         var car = carData;
 
@@ -72,7 +78,8 @@ partial struct FindNearestNeighborsJob : IJobEntity
         {
             if (AllCars[car.inFrontCarIndex].Speed == car.Speed)
             {
-                proposedLane = carData.Lane < 3 ? carData.Lane + 1 : -1;
+                proposedLane = carData.Lane < 3 ? carData.Lane + 1 : 2;
+                alternativeLane = carData.Lane > 0 ? carData.Lane - 1 : -1;
             } else
             {
                 carData.inFrontCarIndex = -1;
@@ -90,7 +97,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
                 if (car.Speed <= carToCheck.Speed)
                     continue;
 
-                var carToCheckSegment = car.SegmentID == 55 ? carToCheck.SegmentID == 0 ? 56 : carToCheck.SegmentID : carToCheck.SegmentID;
+                var carToCheckSegment = car.SegmentID == Segments.Length-1 ? carToCheck.SegmentID == 0 ? Segments.Length : carToCheck.SegmentID : carToCheck.SegmentID;
 
                 if (carToCheckSegment < car.SegmentID)
                     continue;
@@ -102,6 +109,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
                     carData.inFrontCarIndex = j;
                     carData.Speed = carToCheck.Speed;
                     proposedLane = carData.Lane < 3 ? carData.Lane + 1 : carData.Lane > 0 ? carData.Lane - 1 : -1;
+                    alternativeLane = -1;
                     break;
                 }
             }
@@ -112,6 +120,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
             if(car.inFrontCarIndex == -1)
             {
                 proposedLane = carData.Lane > 0 ? carData.Lane - 1 : -1;
+                alternativeLane = -1;
 
                 if (proposedLane == -1)
                     return;
@@ -132,7 +141,6 @@ partial struct FindNearestNeighborsJob : IJobEntity
             if (carToCheck.Lane == proposedLane)
             {
                 var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
-
                 //Overtake distance 
                 if (distanceCheck < 10)
                 {
@@ -142,8 +150,38 @@ partial struct FindNearestNeighborsJob : IJobEntity
             }            
         }
 
-        if (carsInRange > 0)
+        if (carsInRange > 0 && alternativeLane > -1)
+        {
+            for (int j = 0; j < AllCars.Length; ++j)
+            {
+                var carToCheck = AllCars[j];
+
+                if (carToCheck.Lane == alternativeLane)
+                {
+                    var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
+
+                    //Overtake distance 
+                    if (distanceCheck < 10)
+                    {
+                        carsInRange = 2;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (carsInRange > 1)
             return;
+
+        if(carsInRange == 1)
+        {
+            if(alternativeLane > -1)
+            {
+                carData.TargetLane = alternativeLane;
+                carData.inFrontCarIndex = -1;
+            }            
+            return;
+        }
 
         carData.TargetLane = proposedLane;
         carData.inFrontCarIndex = -1;
