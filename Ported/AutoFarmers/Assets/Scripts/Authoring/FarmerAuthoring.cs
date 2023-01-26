@@ -12,7 +12,8 @@ class FarmerAuthoring : UnityEngine.MonoBehaviour
                 moveSpeed = 10.0f,
                 moveTarget = new float3(0, 0, 0),
                 farmerState = FarmerStates.FARMER_STATE_HARVEST,
-                backpackOffset = new float3(0, 2, 0)
+                backpackOffset = new float3(0, 2, 0),
+                stateChangeCooldown = 3.0f
             });
         }
     }
@@ -28,6 +29,8 @@ struct Farmer : IComponentData
     public Entity heldEntity;
     public bool hasTarget;
     public Entity currentlyTargeted;
+    public float lastStateChangeTime;
+    public float stateChangeCooldown;
 }
 
 public static class FarmerStates

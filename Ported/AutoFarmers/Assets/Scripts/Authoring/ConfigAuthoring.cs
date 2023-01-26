@@ -1,14 +1,17 @@
 using Unity.Entities;
+using UnityEngine;
+
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
-    public UnityEngine.GameObject RockPrefab;
+    public GameObject RockPrefab;
     public int RockCount;
-    public UnityEngine.GameObject SiloPrefab;
+    public GameObject SiloPrefab;
     public int SiloCount;
-    public UnityEngine.GameObject FarmerPrefab;
-    public UnityEngine.GameObject DronePrefab;
+    public GameObject FarmerPrefab;
+    public GameObject DronePrefab;
     public float SafeZoneRadius = 10.0f;
-    public UnityEngine.GameObject PlantPrefab;
+    public GameObject PlantPrefab;
+    public GameObject PlotPrefab;
 
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -24,7 +27,8 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
                 FarmerPrefab = GetEntity(authoring.FarmerPrefab),
                 DronePrefab = GetEntity(authoring.DronePrefab),
                 safeZoneRadius = authoring.SafeZoneRadius,
-                PlantPrefab = GetEntity(authoring.PlantPrefab)
+                PlantPrefab = GetEntity(authoring.PlantPrefab),
+                PlotPrefab = GetEntity(authoring.PlotPrefab)
             });
         }
     }
@@ -40,4 +44,5 @@ struct Config : IComponentData
     public Entity DronePrefab;
     public float safeZoneRadius;
     public Entity PlantPrefab;
+    public Entity PlotPrefab;
 }

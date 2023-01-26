@@ -25,6 +25,7 @@ partial struct FarmerSystem : ISystem
     {
         random = new Unity.Mathematics.Random(1234);
         state.RequireForUpdate<WorldGrid>();
+        state.RequireForUpdate<Config>();
         _rockQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform,Rock>().Build();
         _entityTypeHandle = SystemAPI.GetEntityTypeHandle();
         _localTransformTypeHandle = SystemAPI.GetComponentTypeHandle<LocalTransform>();
@@ -38,14 +39,65 @@ partial struct FarmerSystem : ISystem
     }
 
     [BurstCompile]
-    public void ChooseNewTask(FarmerAspect farmer)
+    public void ChooseNewTask(FarmerAspect farmer, ref SystemState state)
     {
         //Cooldown?
-        farmer.FarmerState = (byte)random.NextInt(0,FarmerStates.FARMER_TOTAL_STATES+1);
+        if((SystemAPI.Time.ElapsedTime - farmer.LastStateChangeTime) > farmer.StateChangeCooldown)
+        {
+            farmer.LastStateChangeTime = (float)SystemAPI.Time.ElapsedTime;
+            farmer.StateChangeCooldown = random.NextFloat(0.5f, 1.0f);
+            farmer.FarmerState = (byte)random.NextInt(0, FarmerStates.FARMER_TOTAL_STATES + 1);
+        }
+
+        
         //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
     }
 
     //Searches for a specific type within a set range
+    #region Search Grid BASIC
+    [BurstCompile]
+    public int2 SearchGridForType(int type, int2 farmerGridPosition, int searchRange, WorldGrid worldGrid)
+    {
+        int2 closestPosition = farmerGridPosition;
+
+        int width = worldGrid.gridSize.x;
+        int height = worldGrid.gridSize.y;
+        int halfRange = searchRange / 2;
+        float closestRange = Mathf.Infinity;
+        bool foundClosest = false;
+
+        for (int x = -halfRange; x < halfRange; x++)
+        {
+            for (int y = -halfRange; y < halfRange; y++)
+            {
+                int2 offset = new int2(x, y);
+                int2 positionCheck = farmerGridPosition + offset;
+                
+                if (positionCheck.x < 0) continue;
+                if (positionCheck.y < 0) continue;
+                if (positionCheck.x > width-1) continue;
+                if (positionCheck.y > height-1) continue;
+
+                if (worldGrid.GetTypeAt(positionCheck) == type)
+                {
+                    float length = math.lengthsq(offset);
+                    if (length < closestRange)
+                    {
+                        closestPosition = positionCheck;
+                        closestRange = length;
+                        foundClosest = true;
+                    }
+                }
+            }
+        }
+
+        if (foundClosest)
+            return closestPosition;
+        else
+            return -1;
+    }
+    #endregion
+
     #region Search Grid OLD
     //[BurstCompile]
     //public int2 SearchGridForType(int type, int2 farmerGridPosition, int searchRange, WorldGrid worldGrid)
@@ -102,48 +154,52 @@ partial struct FarmerSystem : ISystem
     //    return -1;
     //}
     #endregion
-    [BurstCompile]
-    public int2 SearchGridForType(int type, int2 start, int searchRange, WorldGrid worldGrid)
-    {
-        int[] dx = { 1, 0, -1, 0 };
-        int[] dy = { 0, 1, 0, -1 };
-        int x = start.x, y = start.y, d = 0;
-        int m = worldGrid.gridSize.x, n = worldGrid.gridSize.y;
-        int[,] visited = new int[m, n];
-        for (int i = 0; i < m; i++)
-        {
-            for (int j = 0; j < n; j++)
-            {
-                visited[i, j] = 0;
-            }
-        }
-        while (true)
-        {
-            var point = new int2(x, y);
-            if (worldGrid.GetTypeAt(new int2(x, y)) == type)
-            {
-                return point;
-            }
-            visited[x, y] = 1;
-            int a = x + dx[d], b = y + dy[d];
-            if (a >= 0 && a < m && b >= 0 && b < n && visited[a, b] == 0)
-            {
-                x = a;
-                y = b;
-            }
-            else
-            {
-                d = (d + 1) % 4;
-                x += dx[d];
-                y += dy[d];
-            }
 
-            if (visited.Cast<int>().Sum() == m * n || (Math.Abs(x - start.x) > searchRange) || (Math.Abs(y - start.y) > searchRange))
-            {
-                return new int2(-1, -1);
-            }
-        }
-    }
+    #region Spiral Search
+    //[BurstCompile]
+    //public int2 SearchGridForType(int type, int2 start, int searchRange, WorldGrid worldGrid)
+    //{
+    //    int[] dx = { 1, 0, -1, 0 };
+    //    int[] dy = { 0, 1, 0, -1 };
+    //    int x = start.x, y = start.y, d = 0;
+    //    int m = worldGrid.gridSize.x, n = worldGrid.gridSize.y;
+    //    int[,] visited = new int[m, n];
+    //    for (int i = 0; i < m; i++)
+    //    {
+    //        for (int j = 0; j < n; j++)
+    //        {
+    //            visited[i, j] = 0;
+    //        }
+    //    }
+
+    //    while (true)
+    //    {
+    //        var point = new int2(x, y);
+    //        if (worldGrid.GetTypeAt(new int2(x, y)) == type)
+    //        {
+    //            return point;
+    //        }
+    //        visited[x, y] = 1;
+    //        int a = x + dx[d], b = y + dy[d];
+    //        if (a >= 0 && a < m && b >= 0 && b < n && visited[a, b] == 0)
+    //        {
+    //            x = a;
+    //            y = b;
+    //        }
+    //        else
+    //        {
+    //            d = (d + 1) % 4;
+    //            x += dx[d];
+    //            y += dy[d];
+    //        }
+
+    //        if (visited.Cast<int>().Sum() == m * n || (Math.Abs(x - start.x) > searchRange) || (Math.Abs(y - start.y) > searchRange))
+    //        {
+    //            return new int2(-1, -1);
+    //        }
+    //    }
+    //}
+    #endregion
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -159,6 +215,7 @@ partial struct FarmerSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
+        var config = SystemAPI.GetSingleton<Config>();
 
         //var = SystemAPI.Query<FarmerAspect>();
         int searchRange = 50;
@@ -187,28 +244,21 @@ partial struct FarmerSystem : ISystem
             int2 startPosition = farmerGridPosition - searchRange / 2;
             int2 endPosition = farmerGridPosition + searchRange / 2;
 
+
+
             float closestSqrMag = math.INFINITY;
             switch (farmer.FarmerState)
             {
                 case FarmerStates.FARMER_STATE_IDLE:
-                    ChooseNewTask(farmer);
+                    ChooseNewTask(farmer,ref state);
                     break;
 
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
                     #region Rock Destruction
 
-                    UnityEngine.Debug.Log("Looking for rocks");
-
                     RockAspect closestRock = new RockAspect();
 
                     bool foundRock = false;
-
-                    #region Trying to avoid redundant code (Working)
-                    //Entity closestRockEntity = GetClosest(rockChunks, ref _entityTypeHandle, ref _localTransformTypeHandle, farmer);
-                    //closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
-                    //foundRock = (closestRockEntity != Entity.Null);
-                    #endregion
-
                     #region Using Jobs + Grid (Not done)
                     //int2 closestPosition = farmerGridPosition;
                     //var findClosestJob = new ClosestIndexFinderJob
@@ -266,6 +316,12 @@ partial struct FarmerSystem : ISystem
 
                     #endregion
 
+                    #region Trying to avoid redundant code (Working)
+                    //Entity closestRockEntity = GetClosest(rockChunks, ref _entityTypeHandle, ref _localTransformTypeHandle, farmer);
+                    //closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
+                    //foundRock = (closestRockEntity != Entity.Null);
+                    #endregion
+
                     #region Basic Search (Working)
 
                     //foreach (var rock in SystemAPI.Query<RockAspect>())
@@ -283,27 +339,22 @@ partial struct FarmerSystem : ISystem
 
                     #endregion
 
-                    #region Grid Search (Function)
-                    UnityEngine.Debug.Log("Starting Grid Search");
+                    #region Grid Search (USING THIS!)
 
                     int2 rockLoc = SearchGridForType(Rock.type, farmerGridPosition, searchRange, worldGrid);
                     if (rockLoc.x == -1 && rockLoc.y == -1)
                     {
                         //No Rocks Found
-                        UnityEngine.Debug.Log("No Rocks FOund");
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
                         break;
                     }
                     Entity rockEntity = worldGrid.GetEntityAt(rockLoc.x, rockLoc.y);
                     if (rockEntity == Entity.Null)
                     {
                         //Something wrong with the grid to world conversion
-                        UnityEngine.Debug.Log("Wtf");
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
                         break;
                     }
-
-                    UnityEngine.Debug.Log("Found closest Rock???");
                     foundRock = true;
                     closestRock = SystemAPI.GetAspectRW<RockAspect>(rockEntity);
                     #endregion
@@ -321,12 +372,12 @@ partial struct FarmerSystem : ISystem
                             closestRock.Health -= 1;
                             if(closestRock.Health <= 0)
                             {
-                                ChooseNewTask(farmer);
+                                ChooseNewTask(farmer,ref state);
                             }
                         }
                     }
                     else
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
                     #endregion
 
                     #endregion
@@ -370,7 +421,6 @@ partial struct FarmerSystem : ISystem
                             if (closestPlant.HasPlot)
                             {
                                 var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(closestPlant.Plot);
-                                UnityEngine.Debug.Log("Harvesting a plant with a plot");
                                 //TODO:why does the below line cause infinite plants?
                                 plotAspect.Harvest();
                                 closestPlant.HasPlot = false;
@@ -380,7 +430,7 @@ partial struct FarmerSystem : ISystem
                         }
                     }
                     else
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
 
                     #endregion
                     break;
@@ -417,17 +467,49 @@ partial struct FarmerSystem : ISystem
                             //How do I get children of an entity?
                             ecb.DestroyEntity(farmer.HeldEntity);
                             farmer.DetachEntity();
-                            ChooseNewTask(farmer);
+                            ChooseNewTask(farmer,ref state);
                         }
                     }
                     else
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_CREATEPLOT:
                     #region Creating a Plot
                     
                     bool foundTile = false;
+                    #region Grid Search (USING THIS!)
+
+                    int2 emptyGridPos = SearchGridForType(0, farmerGridPosition, searchRange, worldGrid);
+                    if (emptyGridPos.x == -1 && emptyGridPos.y == -1)
+                    {
+                        //Can't find any empty lots
+                        ChooseNewTask(farmer,ref state);
+                        break;
+                    }
+                    foundTile = true;
+                    #endregion
+
+                    if (foundTile)
+                    {
+                        float3 emptyPos = worldGrid.GridToWorld(emptyGridPos);
+                        //Let's move to it
+                        farmer.MoveTarget = emptyPos;
+                        Debug.DrawLine(emptyPos, (Vector3)emptyPos + Vector3.up * 5, Color.red);
+
+                        float3 diff = farmer.Transform.LocalPosition - emptyPos;
+                        if(math.lengthsq(diff) < 1.0f)
+                        {
+                            Entity plot = ecb.Instantiate(config.PlotPrefab);
+                            var newLocal = new LocalTransform { Position = emptyPos, Scale = 1.0f };
+
+                            ecb.SetComponent<LocalTransform>(config.PlotPrefab, newLocal);
+                            worldGrid.SetTypeAt(emptyGridPos, Plot.type);
+                            worldGrid.SetEntityAt(emptyGridPos, plot);
+                            ChooseNewTask(farmer, ref state);
+                        }
+                    }
+
                     // grab tile of current farmer
 
                     //TODO: Check for nearest open tile in grid that doesn't have a rock or silo next to it
@@ -440,7 +522,7 @@ partial struct FarmerSystem : ISystem
                     // once found, create plot
                     // check each spot around the plot just created to be able to expand and restart the search
 
-                    ChooseNewTask(farmer);
+                    //
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_PLANTCROP:
@@ -448,6 +530,7 @@ partial struct FarmerSystem : ISystem
                     closestSqrMag = math.INFINITY;
                     PlotAspect closestPlot = new PlotAspect();
                     bool foundPlot = false;
+
                     //UnityEngine.Debug.Log("Farmer plant crop");
                     
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
@@ -474,11 +557,11 @@ partial struct FarmerSystem : ISystem
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
                             closestPlot.PlantSeed();
-                            ChooseNewTask(farmer);
+                            ChooseNewTask(farmer,ref state);
                         }
                     }
                     else
-                        ChooseNewTask(farmer);
+                        ChooseNewTask(farmer,ref state);
                     #endregion
                     break;
 

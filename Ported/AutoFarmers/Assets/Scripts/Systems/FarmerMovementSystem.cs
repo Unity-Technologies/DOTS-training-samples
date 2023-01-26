@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 [BurstCompile]
 partial struct FarmerMovementSystem : ISystem
@@ -29,12 +30,13 @@ partial struct FarmerMovementSystem : ISystem
         foreach(var farmer in SystemAPI.Query<FarmerAspect>())
         {
             float3 diff = farmer.MoveTarget - farmer.Transform.WorldPosition;
+            diff.y = 0;
             float diffMag = math.length(diff);
             float moveAmount = farmer.MoveSpeed * SystemAPI.Time.DeltaTime;
-            float moveMin = math.min(moveAmount, diffMag);
-            float3 moveDirection = math.normalize(diff) * moveMin;
+            //float moveMin = math.min(moveAmount, diffMag);
+            float3 moveDirection = math.normalize(diff) * moveAmount;
             moveDirection.y = 0;
-            if(diffMag > 0.1f)
+            if(diffMag > 0.2f)
             {
                 farmer.Transform.WorldPosition += moveDirection;
             }

@@ -14,6 +14,7 @@ class PlotAuthoring : UnityEngine.MonoBehaviour
 
 struct Plot : IComponentData
 {
+    public const int type = 3;
     public bool HasPlant;
     public bool HasSeed;
 }

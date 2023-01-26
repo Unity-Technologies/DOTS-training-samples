@@ -48,6 +48,12 @@ readonly partial struct PlantAspect : IAspect
         set => Plant.ValueRW.timePlanted = value;
     }
 
+    public float TimeToGrow
+    {
+        get => Plant.ValueRW.timeToGrow;
+        set => Plant.ValueRW.timeToGrow = value;
+    }
+
     public void AssignPlot(Entity plot, float plantTime)
     {
         Plot = plot;

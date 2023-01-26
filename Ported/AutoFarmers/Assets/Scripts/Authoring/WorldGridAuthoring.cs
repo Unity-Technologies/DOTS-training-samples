@@ -58,6 +58,11 @@ struct WorldGrid : IComponentData
         return new float3(x, 0, y) - offset;
     }
 
+    public float3 GridToWorld(int2 pos)
+    {
+        return GridToWorld(pos.x,pos.y);    
+    }
+
     public int2 WorldToGrid(float3 pos)
     {
         return new int2((int)math.round(pos.x+offset.x), (int)math.round(pos.z+offset.z));

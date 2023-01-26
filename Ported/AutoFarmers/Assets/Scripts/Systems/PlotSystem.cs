@@ -44,6 +44,7 @@ public partial struct PlotSystem : ISystem
                 state.EntityManager.SetComponentData<LocalTransform>(plant, plantTransform);
 
                 var plantAspect = SystemAPI.GetAspectRW<PlantAspect>(plant);
+                plantAspect.TimeToGrow = random.NextFloat(5.0f, 10.0f);
                 //var plantAspect = state.EntityManager.GetAspect<PlantAspect>(plant);
                 plantAspect.AssignPlot(plot.Self, (float)SystemAPI.Time.ElapsedTime);
                 plot.GrowSeed(plant);

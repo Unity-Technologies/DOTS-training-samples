@@ -51,6 +51,18 @@ readonly partial struct FarmerAspect : IAspect
         get => Farmer.ValueRW.currentlyTargeted;
     }
 
+    public float LastStateChangeTime
+    {
+        get => Farmer.ValueRW.lastStateChangeTime;
+        set => Farmer.ValueRW.lastStateChangeTime = value;
+    }
+
+    public float StateChangeCooldown
+    {
+        get => Farmer.ValueRW.stateChangeCooldown;
+        set => Farmer.ValueRW.stateChangeCooldown = value;
+    }
+
     public void AttachEntity(Entity e)
     {
         Farmer.ValueRW.heldEntity = e;
