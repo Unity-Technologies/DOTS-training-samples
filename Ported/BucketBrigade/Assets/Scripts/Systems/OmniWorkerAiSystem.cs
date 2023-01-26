@@ -3,6 +3,11 @@ using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
+public struct OmniWorkerAiSystemData : IComponentData
+{
+    public double NextUpdateTime;
+}
+
 [UpdateAfter(typeof(TargetSystem))]
 [UpdateAfter(typeof(BucketTargetingSystem))]
 [UpdateBefore(typeof(MovementSystem))]
@@ -12,11 +17,15 @@ partial struct OmniWorkerAiSystem : ISystem
     ComponentLookup<HasReachedDestinationTag> m_HasReachedDestinationTagLookup;
     ComponentLookup<WaterAmount> m_WaterAmountLookup;
     
+    const double k_TimeBetweenUpdates = 1;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_HasReachedDestinationTagLookup = state.GetComponentLookup<HasReachedDestinationTag>();
         m_WaterAmountLookup = state.GetComponentLookup<WaterAmount>();
+        state.EntityManager.AddComponent<OmniWorkerAiSystemData>(state.SystemHandle);
+
     }
 
     [BurstCompile]
@@ -27,6 +36,10 @@ partial struct OmniWorkerAiSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var currentTime = SystemAPI.Time.ElapsedTime;
+        if (currentTime < SystemAPI.GetComponent<OmniWorkerAiSystemData>(state.SystemHandle).NextUpdateTime) return;
+        SystemAPI.SetComponent(state.SystemHandle, new OmniWorkerAiSystemData() { NextUpdateTime = currentTime + k_TimeBetweenUpdates});
+        
         m_HasReachedDestinationTagLookup.Update(ref state);
         m_WaterAmountLookup.Update(ref state);
 

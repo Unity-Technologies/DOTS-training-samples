@@ -4,6 +4,11 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+public struct TargetSystemData : IComponentData
+{
+    public double NextUpdateTime;
+}
+
 [UpdateAfter(typeof(FireSimSystem))]
 [BurstCompile]
 partial struct TargetSystem : ISystem
@@ -13,6 +18,8 @@ partial struct TargetSystem : ISystem
     EntityQuery m_OmniWorkerQuery;
     EntityQuery m_FlameCellQuery;
     EntityQuery m_WaterCellQuery;
+    
+    const double k_TimeBetweenUpdates = 5;
     
     
     //[BurstCompile]
@@ -24,6 +31,7 @@ partial struct TargetSystem : ISystem
         m_OmniWorkerQuery = state.GetEntityQuery(ComponentType.Exclude<TeamInfo>(), ComponentType.ReadWrite<Target>(), ComponentType.ReadOnly<Position>());
         m_FlameCellQuery = state.GetEntityQuery(ComponentType.ReadOnly<OnFireTag>(), ComponentType.ReadOnly<Position>());
         m_WaterCellQuery = state.GetEntityQuery(ComponentType.Exclude<BucketTag>(), ComponentType.ReadOnly<WaterAmount>(), ComponentType.ReadOnly<Position>());
+        state.EntityManager.AddComponent<TargetSystemData>(state.SystemHandle);
     }
 
     [BurstCompile]
@@ -34,6 +42,10 @@ partial struct TargetSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var currentTime = SystemAPI.Time.ElapsedTime;
+        if (currentTime < SystemAPI.GetComponent<TargetSystemData>(state.SystemHandle).NextUpdateTime) return;
+        SystemAPI.SetComponent(state.SystemHandle, new TargetSystemData() { NextUpdateTime = currentTime + k_TimeBetweenUpdates});
+        
         m_PositionLookup.Update(ref state);
         m_TargetLookup.Update(ref state);
         foreach (var worker in m_OmniWorkerQuery.ToEntityArray(Allocator.Temp))

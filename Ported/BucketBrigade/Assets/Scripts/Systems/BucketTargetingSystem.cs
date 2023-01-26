@@ -56,6 +56,8 @@ partial struct BucketTargetingSystem : ISystem
                 state.EntityManager.SetComponentEnabled<TargetedTag>(bucketTarget, true);
             }
         }
+
+        state.Enabled = false;
     }
     
 }
