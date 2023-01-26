@@ -26,6 +26,7 @@ public class ConfigAuthoring : MonoBehaviour
     public int bucketPassersPerTeam;
     public int bucketFetchersPerTeam;
     public int omniWorkersCount;
+    public float workerSpeed;
     public int gridSize = 100;
     public float baseHeatIncreaseRate;
     public float heatTransferRate;
@@ -64,6 +65,7 @@ public class ConfigAuthoring : MonoBehaviour
                 bucketPassersPerTeam = authoring.bucketPassersPerTeam,
                 bucketFetchersPerTeam = authoring.bucketFetchersPerTeam,
                 omniWorkersCount = authoring.omniWorkersCount,
+                workerSpeed = authoring.workerSpeed,
                 gridSize = authoring.gridSize,
                 baseHeatIncreaseRate = authoring.baseHeatIncreaseRate,
                 heatTransferRate = authoring.heatTransferRate,
