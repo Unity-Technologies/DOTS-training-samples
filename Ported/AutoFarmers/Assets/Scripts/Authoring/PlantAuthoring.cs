@@ -16,13 +16,14 @@ class PlantAuthoring : UnityEngine.MonoBehaviour
                 pickedAndHeld = false,
                 isReadyToPick = false,
                 beingTargeted = false
-        });
+            }) ;
         }
     }
 }
 
 struct Plant : IComponentData
 {
+    public const int type = 4;
     public float timeToGrow;
     public float timePlanted; //to track the growth
     public bool isReadyToPick; //true once fully grown
@@ -34,6 +35,6 @@ struct Plant : IComponentData
 
 struct PlantFinishedGrowing : IComponentData
 {
-
+    public const int type = 5;
 }
 
