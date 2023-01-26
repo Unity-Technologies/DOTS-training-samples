@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class OmniWorkerAuthoring : MonoBehaviour
@@ -11,6 +12,7 @@ public class OmniWorkerAuthoring : MonoBehaviour
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
             AddComponent<MoveInfo>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }
