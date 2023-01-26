@@ -56,12 +56,12 @@ public partial struct CarMovement : ISystem
                 int leftLane = car.LaneNumber + 1;
                 int rightLane = car.LaneNumber - 1;
 
-                if (other.LaneNumber == leftLane && other.Distance > min && other.Distance < max)
+                if ((other.LaneNumber == leftLane || other.NewLaneNumber == leftLane) && other.Distance > min && other.Distance < max)
                 {
                     leftLaneOK = false;
                 }
 
-                if (other.LaneNumber == rightLane && other.Distance > min && other.Distance < max)
+                if ((other.LaneNumber == rightLane || other.NewLaneNumber == rightLane) && other.Distance > min && other.Distance < max)
                 {
                     rightLaneOK = false;
                 }
