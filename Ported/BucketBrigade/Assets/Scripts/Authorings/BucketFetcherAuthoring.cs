@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class BucketFetcherAuthoring : MonoBehaviour
@@ -14,6 +15,7 @@ public class BucketFetcherAuthoring : MonoBehaviour
             AddComponent<CarriedBucket>();
             AddComponent<MoveInfo>();
             AddComponent<BucketTargetPosition>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }

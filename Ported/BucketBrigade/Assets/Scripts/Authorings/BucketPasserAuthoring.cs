@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class BucketPasserAuthoring : MonoBehaviour
@@ -14,6 +15,7 @@ public class BucketPasserAuthoring : MonoBehaviour
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
             AddComponent<MoveInfo>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }

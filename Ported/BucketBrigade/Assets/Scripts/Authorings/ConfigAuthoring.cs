@@ -9,13 +9,18 @@ public class ConfigAuthoring : MonoBehaviour
     public GameObject bucketPrefab;
     public GameObject flameCellPrefab;
     public GameObject waterCellPrefab;
+    
+    public Color bucketFetcherColour;
+    public Color bucketPasserColour;
+    public Color omniworkerColour;
+    public Color emptyBucketColour;
+    public Color fullBucketColour;
 
     public Color defaultTemperatureColour;
     public Color lowTemperatureColour;
     public Color highTemperatureColour;
-
-    public Color emptyBucketColour;
-    public Color fullBucketColour;
+    
+    public Color waterCellColour;
 
     public int numberOfTeams;
     public int bucketPassersPerTeam;
@@ -26,7 +31,9 @@ public class ConfigAuthoring : MonoBehaviour
     public float heatTransferRate;
     // todo add fire respawn rate
     public int waterCellCount;
+    public byte maxWaterCellWaterAmount;
     public int bucketCount;
+    public byte maxBucketAmount;
 
     class Baker : Baker<ConfigAuthoring>
     {
@@ -40,13 +47,18 @@ public class ConfigAuthoring : MonoBehaviour
                 bucketPrefab = GetEntity(authoring.bucketPrefab),
                 flameCellPrefab = GetEntity(authoring.flameCellPrefab),
                 waterCellPrefab = GetEntity(authoring.waterCellPrefab),
-
+                
+                bucketFetcherColour = authoring.bucketFetcherColour,
+                bucketPasserColour = authoring.bucketPasserColour,
+                omniworkerColour = authoring.omniworkerColour,
+                emptyBucketColour = authoring.emptyBucketColour,
+                fullBucketColour = authoring.fullBucketColour,
+                
                 defaultTemperatureColour = authoring.defaultTemperatureColour,
                 lowTemperatureColour = authoring.lowTemperatureColour,
                 highTemperatureColour = authoring.highTemperatureColour,
 
-                emptyBucketColour = authoring.emptyBucketColour,
-                fullBucketColour = authoring.fullBucketColour,
+                waterCellColour = authoring.waterCellColour,
 
                 numberOfTeams = authoring.numberOfTeams,
                 bucketPassersPerTeam = authoring.bucketPassersPerTeam,
@@ -56,7 +68,9 @@ public class ConfigAuthoring : MonoBehaviour
                 baseHeatIncreaseRate = authoring.baseHeatIncreaseRate,
                 heatTransferRate = authoring.heatTransferRate,
                 waterCellCount = authoring.waterCellCount,
-                bucketCount = authoring.bucketCount
+                maxWaterCellWaterAmount = authoring.maxWaterCellWaterAmount,
+                bucketCount = authoring.bucketCount,
+                maxBucketAmount = authoring.maxBucketAmount
             });
         }
     }

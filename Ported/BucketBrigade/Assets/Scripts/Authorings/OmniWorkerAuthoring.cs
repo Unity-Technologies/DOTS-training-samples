@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -17,6 +18,7 @@ public class OmniWorkerAuthoring : MonoBehaviour
             SetComponentEnabled<CarriesBucketTag>(GetEntity(), false);
             AddComponent(new OmniWorkerAIState() { omniWorkerState = OmniWorkerState.Idle});
             AddComponent<BucketTargetPosition>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }
