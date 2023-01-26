@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+[UpdateAfter(typeof(FireSimSystem))]
 [BurstCompile]
 partial struct TargetSystem : ISystem
 {
@@ -22,7 +23,7 @@ partial struct TargetSystem : ISystem
         // todo replace managed arrays in queries to allow burst compile
         m_OmniWorkerQuery = state.GetEntityQuery(ComponentType.Exclude<TeamInfo>(), ComponentType.ReadWrite<Target>(), ComponentType.ReadOnly<Position>());
         m_FlameCellQuery = state.GetEntityQuery(ComponentType.ReadOnly<OnFireTag>(), ComponentType.ReadOnly<Position>());
-        m_WaterCellQuery = state.GetEntityQuery(ComponentType.ReadOnly<WaterAmount>(), ComponentType.ReadOnly<Position>());
+        m_WaterCellQuery = state.GetEntityQuery(ComponentType.Exclude<BucketTag>(), ComponentType.ReadOnly<WaterAmount>(), ComponentType.ReadOnly<Position>());
     }
 
     [BurstCompile]

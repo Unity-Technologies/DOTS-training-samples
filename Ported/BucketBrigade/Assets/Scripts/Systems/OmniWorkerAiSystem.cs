@@ -1,17 +1,19 @@
 using System;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 
+[UpdateAfter(typeof(TargetSystem))]
+[UpdateBefore(typeof(MovementSystem))]
 [BurstCompile]
 partial struct OmniWorkerAiSystem : ISystem
 {
-    EntityQuery m_OmniWorkerQuery;
+    ComponentLookup<HasReachedDestinationTag> m_HasReachedDestinationTagLookup;
     
-    //[BurstCompile]
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // todo replace managed arrays in queries to allow burst compile
-        m_OmniWorkerQuery = state.GetEntityQuery(ComponentType.ReadOnly<Target>(), ComponentType.ReadWrite<OmniWorkerAIState>(), ComponentType.ReadWrite<MoveInfo>());
+        m_HasReachedDestinationTagLookup = state.GetComponentLookup<HasReachedDestinationTag>();
     }
 
     [BurstCompile]
@@ -22,7 +24,13 @@ partial struct OmniWorkerAiSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        
+        m_HasReachedDestinationTagLookup.Update(ref state);
+
+        var omniWorkerJob = new OmniWorkerAIJob()
+        {
+            HasReachedDestinationTagLookup = m_HasReachedDestinationTagLookup,
+        };
+        omniWorkerJob.Schedule();
     }
 }
 
@@ -30,17 +38,26 @@ partial struct OmniWorkerAiSystem : ISystem
 [BurstCompile]
 partial struct OmniWorkerAIJob : IJobEntity
 {
-    void Execute(in Target target, ref OmniWorkerAIState state, ref MoveInfo moveInfo)
+    public ComponentLookup<HasReachedDestinationTag> HasReachedDestinationTagLookup;
+    void Execute(in Entity entity, in Target target, ref OmniWorkerAIState state, ref MoveInfo moveInfo)
     {
         switch (state.omniWorkerState)
         {
             case OmniWorkerState.FetchingBucket:
+                moveInfo.destinationPosition = target.waterCellPosition;
+                state.omniWorkerState = OmniWorkerState.FillingBucket;
+                HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
                 break;
             case OmniWorkerState.FillingBucket:
+                moveInfo.destinationPosition = target.flameCellPosition;
+                state.omniWorkerState = OmniWorkerState.EmptyingBucket;
+                HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
                 break;
             case OmniWorkerState.EmptyingBucket:
+                moveInfo.destinationPosition = target.waterCellPosition;
+                state.omniWorkerState = OmniWorkerState.FillingBucket;
+                HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
                 break;
-            default:
         }
     }
 }
