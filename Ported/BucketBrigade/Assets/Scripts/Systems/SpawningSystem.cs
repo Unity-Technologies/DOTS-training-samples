@@ -70,13 +70,20 @@ partial struct SpawningSystem : ISystem
         // set Omniworker colour
         foreach (var omniworker in omniworkers)
         {
+            state.EntityManager.SetComponentData(omniworker, 
+                new MoveInfo()
+                {
+                    destinationPosition = new float2(0,0),
+                    speed = config.workerSpeed
+                });
+            
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
             ecb.SetComponentForLinkedEntityGroup(omniworker,
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.omniworkerColour });
         }
 
-        // create teams
+        /*// create teams
         var teams = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams, Allocator.Temp);
         state.EntityManager.Instantiate(state.EntityManager.CreateEntity(), teams);
 
@@ -145,9 +152,9 @@ partial struct SpawningSystem : ISystem
                 }
             }
         }
-
+*/
         // initialize buckets with max contain
-        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, PickedUpTag>())
+        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, BucketTag>())
         {
             waterAmount.ValueRW.currentContain = 0;
             waterAmount.ValueRW.maxContain = config.maxBucketAmount;

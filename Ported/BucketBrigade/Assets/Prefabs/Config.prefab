@@ -63,10 +63,11 @@ MonoBehaviour:
   bucketPassersPerTeam: 10
   bucketFetchersPerTeam: 10
   omniWorkersCount: 50
+  workerSpeed: 5
   gridSize: 100
   baseHeatIncreaseRate: 0.02
   heatTransferRate: 0.1
-  waterCellCount: 5
+  waterCellCount: 50
   maxWaterCellWaterAmount: 10
-  bucketCount: 10
+  bucketCount: 50
   maxBucketAmount: 10

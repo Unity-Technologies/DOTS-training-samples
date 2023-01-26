@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Rendering;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class OmniWorkerAuthoring : MonoBehaviour
@@ -12,7 +11,7 @@ public class OmniWorkerAuthoring : MonoBehaviour
             AddComponent<Position>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
-            AddComponent<MoveInfo>(new MoveInfo() { destinationPosition = new float2(0,0), speed = 1});
+            AddComponent<MoveInfo>();
             AddComponent<HasReachedDestinationTag>();
             AddComponent<CarriesBucketTag>();
             SetComponentEnabled<CarriesBucketTag>(GetEntity(), false);

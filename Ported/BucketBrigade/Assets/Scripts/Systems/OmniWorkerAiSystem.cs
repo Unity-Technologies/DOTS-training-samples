@@ -55,26 +55,44 @@ partial struct OmniWorkerAIJob : IJobEntity
                 HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
                 break;
             case OmniWorkerState.FetchingBucket:
-                moveInfo.destinationPosition = target.waterCellPosition;
-                state.omniWorkerState = OmniWorkerState.FillingBucket;
-                HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
-                break;
-            case OmniWorkerState.FillingBucket:
-                var waterAmount = WaterAmountLookup.GetRefRO(carriedBucket.bucket).ValueRO;
-                if (waterAmount.currentContain == waterAmount.maxContain)
-                {
-                    moveInfo.destinationPosition = target.flameCellPosition;
-                    state.omniWorkerState = OmniWorkerState.EmptyingBucket;
-                    HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
-                }
-                break;
-            case OmniWorkerState.EmptyingBucket:
-                waterAmount = WaterAmountLookup.GetRefRO(carriedBucket.bucket).ValueRO;
-                if (waterAmount.currentContain == 0)
+                if (carriedBucket.bucket != Entity.Null)
                 {
                     moveInfo.destinationPosition = target.waterCellPosition;
                     state.omniWorkerState = OmniWorkerState.FillingBucket;
                     HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
+                }
+                break;
+            case OmniWorkerState.FillingBucket:
+                if (carriedBucket.bucket != Entity.Null)
+                {
+                    var waterAmount = WaterAmountLookup.GetRefRO(carriedBucket.bucket).ValueRO;
+                    if (waterAmount.currentContain == waterAmount.maxContain)
+                    {
+                        moveInfo.destinationPosition = target.flameCellPosition;
+                        state.omniWorkerState = OmniWorkerState.EmptyingBucket;
+                        HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
+                    }
+                }
+                else
+                {
+                    Debug.Log($"{entity}");
+                }
+
+                break;
+            case OmniWorkerState.EmptyingBucket:
+                if (carriedBucket.bucket != Entity.Null)
+                {
+                    var waterAmount = WaterAmountLookup.GetRefRO(carriedBucket.bucket).ValueRO;
+                    if (waterAmount.currentContain == 0)
+                    {
+                        moveInfo.destinationPosition = target.waterCellPosition;
+                        state.omniWorkerState = OmniWorkerState.FillingBucket;
+                        HasReachedDestinationTagLookup.SetComponentEnabled(entity, false);
+                    }
+                }
+                else
+                {
+                    Debug.Log($"{entity}");
                 }
                 break;
         }
