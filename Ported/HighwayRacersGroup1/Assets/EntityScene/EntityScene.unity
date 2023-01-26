@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CarCount: 500
   SegmentPrefab: {fileID: 3361530728258033438, guid: 333b5e42359863b4db2cc614f940c4eb, type: 3}
-  CarPrefab: {fileID: 2626030905667713557, guid: fc39d57ee8a1d8d4cbfecaaf84c408ad, type: 3}
+  CarPrefab: {fileID: 6695525438693057714, guid: 0793e5af1bad06c4291b63290240b3c1, type: 3}
 --- !u!4 &2019821777
 Transform:
   m_ObjectHideFlags: 0
