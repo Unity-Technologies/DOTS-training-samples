@@ -10,7 +10,7 @@ partial struct PlantGrowthSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-
+        state.RequireForUpdate<WorldGrid>();
     }
 
     [BurstCompile]
@@ -28,6 +28,7 @@ partial struct PlantGrowthSystem : ISystem
         //UnityEngine.Debug.Log("Trying to grow a plant");
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
 
         foreach (var plant in SystemAPI.Query<PlantAspect>().WithNone<PlantFinishedGrowing>())
         {
@@ -49,6 +50,10 @@ partial struct PlantGrowthSystem : ISystem
                 //state.EntityManager.AddComponent<PlantFinishedGrowing>(plant.Self);
                 ecb.AddComponent<PlantFinishedGrowing>(plant.Self);
                 plant.ReadyToPick = true;
+                var plotAspect = SystemAPI.GetAspectRO<PlotAspect>(plant.Plot);
+                worldGrid.SetTypeAt(plotAspect.PlotLocInWorld, PlantFinishedGrowing.type);
+                worldGrid.SetEntityAt(plotAspect.PlotLocInWorld, plant.Self);
+
             }
         }
     }
