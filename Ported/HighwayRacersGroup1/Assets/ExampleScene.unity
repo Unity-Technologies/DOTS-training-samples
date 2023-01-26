@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CornerPrefab: {fileID: 271049375937590116, guid: 3cb6a8b08696d1d4bb702816030f64f5, type: 3}
   StraightPrefab: {fileID: 8108023121139304503, guid: 235377e139a73c942a3c2f6f6d010556, type: 3}
-  HighwaySize: 5
+  HighwaySize: 50
   HighwayPieces: []
   HighwaySegments: []
 --- !u!4 &78390362
@@ -482,7 +482,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 484295818}
   m_LocalRotation: {x: 0.42261827, y: 0, z: 0, w: 0.9063079}
-  m_LocalPosition: {x: 50, y: 90, z: -75}
+  m_LocalPosition: {x: 80, y: 160, z: -100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -11,7 +11,7 @@ public class HighwaySpawner : MonoBehaviour
     public Transform CornerPrefab;
     public Transform StraightPrefab;
 
-    [Range(5, 50)]
+    [Range(5, 500)]
     public int HighwaySize;
 
     public List<Transform> HighwayPieces;

@@ -40,16 +40,28 @@ partial struct SpawnerSystem : ISystem
 
         var cars = CollectionHelper.CreateNativeArray<Entity>(config.CarCount, Allocator.Temp);
         ecb.Instantiate(config.CarPrefab, cars);
-        
+
+        var laneIndex = 0;
+        var segmentIndex = segmentPositions.Length;
+
+
         for (var i = 0; i < cars.Length; ++i)
         {
-            var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
+            //var segmentID = UnityEngine.Random.Range(0, segmentPositions.Length - 1);
 
-            var maxSpeed = 30f;
-            var minSpeed = 10f;
+            if (i >= segmentIndex)
+            {
+                segmentIndex += segmentPositions.Length;
+                laneIndex++;
+            }
+                
+            var segmentID = i % segmentPositions.Length;
+
+            var maxSpeed = 50f;
+            var minSpeed = 5f;
 
             var carSpeed = (UnityEngine.Random.value + (minSpeed / maxSpeed)) * maxSpeed;
-            var laneID = UnityEngine.Random.Range(0, 4);
+            var laneID = laneIndex;
 
             var car = new CarData
             {
