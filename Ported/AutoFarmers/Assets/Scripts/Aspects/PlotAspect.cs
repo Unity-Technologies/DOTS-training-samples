@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 readonly partial struct PlotAspect : IAspect
 {
@@ -14,19 +15,36 @@ readonly partial struct PlotAspect : IAspect
 
     public readonly RefRW<Plot> Plot;
 
-    public void PlantSeed()
+    public Entity Plant
+    {
+        get => Plot.ValueRW.Plant;
+        set => Plot.ValueRW.Plant = value;
+    }
+
+    public int2 PlotLocInWorld
+    {
+        get => Plot.ValueRW.PlotLocInWorld;
+        set => Plot.ValueRW.PlotLocInWorld = value;
+    }
+
+
+    public void PlantSeed(int2 location)
     {
         Plot.ValueRW.HasSeed = true;
+        PlotLocInWorld = location;
     }
+
 
     public void GrowSeed(Entity plant)
     {
         Plot.ValueRW.HasPlant = true;
+        Plant = plant;
     }
 
     public void Harvest()
     {
         Plot.ValueRW.HasPlant = false;
+        Plant = Entity.Null;
         Plot.ValueRW.HasSeed = false;
     }
 

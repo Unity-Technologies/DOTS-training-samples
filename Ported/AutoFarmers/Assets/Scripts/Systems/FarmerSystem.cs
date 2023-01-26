@@ -53,6 +53,16 @@ partial struct FarmerSystem : ISystem
         //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
     }
 
+    [BurstCompile]
+    public void ChooseSpecificTask(FarmerAspect farmer, byte task, ref SystemState state)
+    {
+        //Cooldown?
+            farmer.LastStateChangeTime = (float)SystemAPI.Time.ElapsedTime;
+            farmer.StateChangeCooldown = random.NextFloat(0.5f, 1.0f);
+            farmer.FarmerState = task;
+        //UnityEngine.Debug.Log("Farmer state: " + farmer.FarmerState);
+    }
+
     //Searches for a specific type within a set range
     #region Search Grid BASIC
     [BurstCompile]
@@ -388,19 +398,41 @@ partial struct FarmerSystem : ISystem
                     closestSqrMag = math.INFINITY;
                     PlantAspect closestPlant = new PlantAspect();
                     bool foundPlant = false;
-                    foreach (var plant in SystemAPI.Query<PlantAspect>().WithAll<PlantFinishedGrowing>())
+
+                    #region Query search
+                    //foreach (var plant in SystemAPI.Query<PlantAspect>().WithAll<PlantFinishedGrowing>())
+                    //{
+                    //    if (plant.PickedAndHeld /*|| plant.BeingTargeted*/) continue;
+                    //    //Let's find closest plant
+                    //    float3 diff = plant.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                    //    float sqrMag = math.lengthsq(diff);
+                    //    if (sqrMag < closestSqrMag)
+                    //    {
+                    //        closestPlant = plant;
+                    //        closestSqrMag = sqrMag;
+                    //        foundPlant = true;
+                    //    }
+                    //}
+                    #endregion
+
+                    #region Grid Search
+                    int2 plantLoc = SearchGridForType(PlantFinishedGrowing.type, farmerGridPosition, searchRange, worldGrid);
+                    if (plantLoc.x == -1 && plantLoc.y == -1)
                     {
-                        if (plant.PickedAndHeld /*|| plant.BeingTargeted*/) continue;
-                        //Let's find closest plant
-                        float3 diff = plant.Transform.WorldPosition - farmer.Transform.WorldPosition;
-                        float sqrMag = math.lengthsq(diff);
-                        if (sqrMag < closestSqrMag)
-                        {
-                            closestPlant = plant;
-                            closestSqrMag = sqrMag;
-                            foundPlant = true;
-                        }
+                        //No plants Found
+                        ChooseNewTask(farmer, ref state);
+                        break;
                     }
+                    Entity plantEntity = worldGrid.GetEntityAt(plantLoc.x, plantLoc.y);
+                    if (plantEntity == Entity.Null)
+                    {
+                        //If here, something wrong with the grid to world conversion
+                        ChooseNewTask(farmer, ref state);
+                        break;
+                    }
+                    foundPlant = true;
+                    closestPlant = SystemAPI.GetAspectRW<PlantAspect>(plantEntity);
+                    #endregion
 
                     if (foundPlant)
                     {
@@ -421,12 +453,13 @@ partial struct FarmerSystem : ISystem
                             if (closestPlant.HasPlot)
                             {
                                 var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(closestPlant.Plot);
-                                //TODO:why does the below line cause infinite plants?
                                 plotAspect.Harvest();
                                 closestPlant.HasPlot = false;
+                                worldGrid.SetTypeAt(plantLoc, Plot.type);
+                                worldGrid.SetEntityAt(plantLoc, closestPlant.Plot);
                             }
 
-                            farmer.FarmerState = FarmerStates.FARMER_STATE_PLACEINSILO;
+                            ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_PLACEINSILO, ref state);
                         }
                     }
                     else
@@ -440,18 +473,39 @@ partial struct FarmerSystem : ISystem
                     SiloAspect closestSilo = new SiloAspect();
                     bool foundSilo = false;
 
-                    foreach (var silo in SystemAPI.Query<SiloAspect>())
+                    #region Query search
+                    //foreach (var silo in SystemAPI.Query<SiloAspect>())
+                    //{
+                    //    //Let's find closest silo
+                    //    float3 diff = silo.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                    //    float sqrMag = math.lengthsq(diff);
+                    //    if (sqrMag < closestSqrMag)
+                    //    {
+                    //        closestSilo = silo;
+                    //        closestSqrMag = sqrMag;
+                    //        foundSilo = true;
+                    //    }
+                    //}
+                    #endregion
+
+                    #region Grid search
+                    int2 siloLoc = SearchGridForType(Silo.type, farmerGridPosition, searchRange, worldGrid);
+                    if (siloLoc.x == -1 && siloLoc.y == -1)
                     {
-                        //Let's find closest silo
-                        float3 diff = silo.Transform.WorldPosition - farmer.Transform.WorldPosition;
-                        float sqrMag = math.lengthsq(diff);
-                        if (sqrMag < closestSqrMag)
-                        {
-                            closestSilo = silo;
-                            closestSqrMag = sqrMag;
-                            foundSilo = true;
-                        }
+                        //No plants Found
+                        ChooseNewTask(farmer, ref state);
+                        break;
                     }
+                    Entity siloEntity = worldGrid.GetEntityAt(siloLoc.x, siloLoc.y);
+                    if (siloEntity == Entity.Null)
+                    {
+                        //If here, something wrong with the grid to world conversion
+                        ChooseNewTask(farmer, ref state);
+                        break;
+                    }
+                    foundSilo = true;
+                    closestSilo = SystemAPI.GetAspectRW<SiloAspect>(siloEntity);
+                    #endregion
 
                     if (foundSilo)
                     {
@@ -462,12 +516,9 @@ partial struct FarmerSystem : ISystem
                         {
                             //Let's pickup the plant
                             closestSilo.Cash += 25;
-                            //TODO: Deleting doesn't seem to work.. Can't tell if it's the same issue as RockSystem?
-                            //Need to destroy all children as well maybe?
-                            //How do I get children of an entity?
                             ecb.DestroyEntity(farmer.HeldEntity);
                             farmer.DetachEntity();
-                            ChooseNewTask(farmer,ref state);
+                            ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                         }
                     }
                     else
@@ -480,6 +531,7 @@ partial struct FarmerSystem : ISystem
                     bool foundTile = false;
                     #region Grid Search (USING THIS!)
 
+                    // type of 0 is empty
                     int2 emptyGridPos = SearchGridForType(0, farmerGridPosition, searchRange, worldGrid);
                     if (emptyGridPos.x == -1 && emptyGridPos.y == -1)
                     {
@@ -506,33 +558,21 @@ partial struct FarmerSystem : ISystem
                             ecb.SetComponent<LocalTransform>(config.PlotPrefab, newLocal);
                             worldGrid.SetTypeAt(emptyGridPos, Plot.type);
                             worldGrid.SetEntityAt(emptyGridPos, plot);
+                            
                             ChooseNewTask(farmer, ref state);
                         }
                     }
-
-                    // grab tile of current farmer
-
-                    //TODO: Check for nearest open tile in grid that doesn't have a rock or silo next to it
-                    // foreach tile in gid
-                    // start with farmers current tile
-                    // search in radius surrounding him for open tile
-                    // if tile is open, search around it for rock or silo
-                    // break if found
-                    // if none work, expand radius
-                    // once found, create plot
-                    // check each spot around the plot just created to be able to expand and restart the search
-
-                    //
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_PLANTCROP:
                     #region Plant a Crop in a Plot
                     closestSqrMag = math.INFINITY;
                     PlotAspect closestPlot = new PlotAspect();
-                    bool foundPlot = false;
+                    bool foundEmptyPlot = false;
 
                     //UnityEngine.Debug.Log("Farmer plant crop");
-                    
+
+                    #region Query
                     foreach (var plot in SystemAPI.Query<PlotAspect>())
                     {
                         if (plot.HasSeed())
@@ -545,18 +585,44 @@ partial struct FarmerSystem : ISystem
                         {
                             closestPlot = plot;
                             closestSqrMag = sqrMag;
-                            foundPlot = true;
+                            foundEmptyPlot = true;
                         }
                     }
+                    #endregion Query
 
-                    if (foundPlot)
+                    #region Grid search
+                    //int2 plotLoc = SearchGridForType(Plot.type, farmerGridPosition, searchRange, worldGrid);
+                    //if (plotLoc.x == -1 && plotLoc.y == -1)
+                    //{
+                    //    //No plots Found
+                    //    ChooseNewTask(farmer, ref state);
+                    //    break;
+                    //}
+                    //Entity plotEntity = worldGrid.GetEntityAt(plotLoc.x, plotLoc.y);
+                    //if (plotEntity == Entity.Null)
+                    //{
+                    //    //If here, something wrong with the grid to world conversion
+                    //    ChooseNewTask(farmer, ref state);
+                    //    break;
+                    //}
+                    //foundEmptyPlot = true;
+                    //closestPlot = SystemAPI.GetAspectRW<PlotAspect>(plotEntity);
+                    #endregion
+
+                    if (foundEmptyPlot)
                     {
                         float3 plotDiff = farmer.Transform.WorldPosition - closestPlot.Transform.WorldPosition;
                         farmer.MoveTarget = closestPlot.Transform.WorldPosition + moveOffset * math.normalize(plotDiff);
 
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
-                            closestPlot.PlantSeed();
+                            //TODO: Replace with Grid search
+                            closestPlot.PlantSeed(int2.zero);
+                            # region Grid search
+                            //closestPlot.PlantSeed(plotLoc);
+                            //worldGrid.SetTypeAt(plotLoc, Plant.type);
+                            //worldGrid.SetEntityAt(plotLoc, closestPlot.Plant);
+                            #endregion
                             ChooseNewTask(farmer,ref state);
                         }
                     }
