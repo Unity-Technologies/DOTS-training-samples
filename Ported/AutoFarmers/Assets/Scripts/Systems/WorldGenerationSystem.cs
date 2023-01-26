@@ -34,6 +34,7 @@ public partial struct WorldGenerationSystem : ISystem
         var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
 
         //worldGrid.typeGrid = new NativeArray<byte>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
         //worldGrid.entityGrid = new NativeArray<Entity>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
@@ -47,6 +48,18 @@ public partial struct WorldGenerationSystem : ISystem
         float minNoiseVal = math.INFINITY;
 
         float2 siloNoiseThreshold = new float2(-0.6f, -0.605f);
+
+        //Let's make the chunks first
+        DynamicBuffer<ChunkCell> chunkBuffer = state.EntityManager.GetBuffer<ChunkCell>(worldGrid.entity);
+
+        chunkBuffer.Length = (width * height) / ChunkCell.size;
+
+
+
+        //foreach(var cell in chunkBuffer)
+        //{
+        //    cell.typeCount = new NativeArray<int>();
+        //}
 
         for(int x = 0;x< width; x++)
         {
