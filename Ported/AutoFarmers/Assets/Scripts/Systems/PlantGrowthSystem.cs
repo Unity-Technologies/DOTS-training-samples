@@ -50,7 +50,7 @@ partial struct PlantGrowthSystem : ISystem
                 //state.EntityManager.AddComponent<PlantFinishedGrowing>(plant.Self);
                 ecb.AddComponent<PlantFinishedGrowing>(plant.Self);
                 plant.ReadyToPick = true;
-                var plotAspect = SystemAPI.GetAspectRO<PlotAspect>(plant.Plot);
+                var plotAspect = SystemAPI.GetAspectRW<PlotAspect>(plant.Plot);
                 worldGrid.SetTypeAt(plotAspect.PlotLocInWorld, PlantFinishedGrowing.type);
                 worldGrid.SetEntityAt(plotAspect.PlotLocInWorld, plant.Self);
 
