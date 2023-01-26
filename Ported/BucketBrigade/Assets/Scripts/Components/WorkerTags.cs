@@ -13,7 +13,7 @@ public struct FetcherTag : IComponentData
 {
 }
 
-public struct ShouldPassTag : IComponentData, IEnableableComponent
+public struct CarriesBucketTag : IComponentData, IEnableableComponent
 {
 }
 

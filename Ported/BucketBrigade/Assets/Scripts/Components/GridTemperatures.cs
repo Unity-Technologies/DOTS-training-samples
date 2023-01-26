@@ -6,6 +6,7 @@ using UnityEngine;
 public struct GridTemperatures : IComponentData
 {
     public double NextGridUpdateTime;
+    public double LastGridUpdateTime;
     NativeArray<float> temperatures;
     int sqrSize;
     bool isInit;

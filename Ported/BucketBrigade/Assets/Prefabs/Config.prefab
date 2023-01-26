@@ -50,23 +50,23 @@ MonoBehaviour:
   bucketPrefab: {fileID: 6077702539446225029, guid: d1d2c867eb2a99d41b1c81d3bf887588, type: 3}
   flameCellPrefab: {fileID: 6077702539446225029, guid: 7546f719ea29a39489a004b5238120ce, type: 3}
   waterCellPrefab: {fileID: 6077702539446225029, guid: aca920756f131644785ec55ba26e5ebf, type: 3}
-  bucketFetcherColour: {r: 1, g: 0.5398787, b: 0, a: 0}
-  bucketPasserColour: {r: 1, g: 0, b: 0.45847416, a: 0}
+  bucketFetcherColour: {r: 1, g: 0.7359283, b: 0, a: 0}
+  bucketPasserColour: {r: 1, g: 0.025157154, b: 0.8194157, a: 0}
   omniworkerColour: {r: 0, g: 0, b: 0, a: 0}
-  emptyBucketColour: {r: 0, g: 1, b: 0.85451293, a: 0}
-  fullBucketColour: {r: 0.1372549, g: 0.5359058, b: 1, a: 0}
+  emptyBucketColour: {r: 0, g: 1, b: 0.84011483, a: 0}
+  fullBucketColour: {r: 0.06289297, g: 0.58376515, b: 1, a: 0}
   defaultTemperatureColour: {r: 0.26816344, g: 1, b: 0, a: 0}
   lowTemperatureColour: {r: 0.9022776, g: 1, b: 0.08962262, a: 0}
   highTemperatureColour: {r: 1, g: 0.01978819, b: 0, a: 0}
-  waterCellColour: {r: 0, g: 0.0035910606, b: 1, a: 0}
-  numberOfTeams: 5
-  bucketPassersPerTeam: 5
-  bucketFetchersPerTeam: 5
-  omniWorkersCount: 5
+  waterCellColour: {r: 0, g: 0, b: 1, a: 0}
+  numberOfTeams: 10
+  bucketPassersPerTeam: 10
+  bucketFetchersPerTeam: 10
+  omniWorkersCount: 50
   gridSize: 100
-  baseHeatIncreaseRate: 0.001
-  heatTransferRate: 1
-  waterCellCount: 100
-  maxWaterCellWaterAmount: 0
-  bucketCount: 5
-  maxBucketAmount: 0
+  baseHeatIncreaseRate: 0.02
+  heatTransferRate: 0.1
+  waterCellCount: 5
+  maxWaterCellWaterAmount: 10
+  bucketCount: 10
+  maxBucketAmount: 10
