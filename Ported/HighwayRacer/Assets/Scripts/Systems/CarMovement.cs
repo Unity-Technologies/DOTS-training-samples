@@ -201,4 +201,46 @@ public partial struct CarMovement : ISystem
             return transformation;
         }
     }
+
+    // Get distance of two cars on the track
+    private static float GetDistance(in float3 currentCarPosition, in float3 otherCarPosition)
+    {
+        return math.length(currentCarPosition - otherCarPosition);
+    }
+
+    private static float GetDistanceOnLaneChange(int currentLane, float currentDistance, int laneChangeTo, in NativeArray<Lane> lanes, float straightLength, float laneOffset)
+    {
+        if (laneChangeTo < 0 || laneChangeTo >= lanes.Length)
+        {
+            return -1.0f;
+        }
+
+        int laneDiff = laneChangeTo - currentLane;
+        ;
+        // we should only allow one lane change
+        if (math.abs(laneDiff) != 1)
+        {
+            return -1.0f;
+        }
+
+        var currentLaneLength = lanes[currentLane].LaneLength;
+        float combinedSegmentLength = currentLaneLength * 0.25f;
+        int combinedSegmentIndex = (int)math.floor(currentDistance / combinedSegmentLength);
+        float distanceInCombinedSegment = currentDistance - combinedSegmentLength * combinedSegmentIndex;
+
+        float baseOffset = laneDiff * laneOffset * 0.5f * math.PI * combinedSegmentIndex;
+        bool isOnStraight = (distanceInCombinedSegment <= straightLength);
+
+        if (isOnStraight)
+        {
+            return currentDistance + baseOffset;
+        }
+        else
+        {
+            float distOnCurve = distanceInCombinedSegment - straightLength;
+            float angle = distOnCurve / (lanes[currentLane].LaneRadius);
+            return lanes[laneChangeTo].LaneLength * 0.25f * combinedSegmentIndex + straightLength + angle * lanes[laneChangeTo].LaneRadius;
+
+        }
+    }
 }
