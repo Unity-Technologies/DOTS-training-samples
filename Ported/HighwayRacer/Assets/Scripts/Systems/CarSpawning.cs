@@ -10,16 +10,16 @@ namespace Systems
     public partial struct CarSpawning : ISystem
     {
         [BurstCompile]
-		public void OnCreate(ref SystemState state)
-		{
-			state.RequireForUpdate<Config>();
-		}
+        public void OnCreate(ref SystemState state)
+        {
+            state.RequireForUpdate<Config>();
+        }
 
         [BurstCompile]
-		public void OnDestroy(ref SystemState state)
-		{
+        public void OnDestroy(ref SystemState state)
+        {
 
-		}
+        }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
@@ -65,6 +65,8 @@ namespace Systems
                     Acceleration = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),
+                    NewLaneNumber = -1,
+                    LaneChangeProgress = -1.0f,
                     LaneChangeClearance = 1.5f,
                     Color = float4.zero,
                     SegmentNumber = 0,

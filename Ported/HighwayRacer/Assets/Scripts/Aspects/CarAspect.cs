@@ -24,6 +24,18 @@ namespace Aspects
             set => Car.ValueRW.LaneNumber = value;
         }
 
+        public int NewLaneNumber
+        {
+            get => Car.ValueRO.NewLaneNumber;
+            set => Car.ValueRW.NewLaneNumber = value;
+        }
+
+        public float LaneChangeProgress
+        {
+            get => Car.ValueRO.LaneChangeProgress;
+            set => Car.ValueRW.LaneChangeProgress = value;
+        }
+
         public float3 Position
         {
             get => Transform.LocalPosition;

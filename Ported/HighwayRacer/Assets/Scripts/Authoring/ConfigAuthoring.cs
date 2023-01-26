@@ -4,21 +4,22 @@ using UnityEngine;
 
 namespace Authoring
 {
-	public class ConfigAuthoring : MonoBehaviour
-	{
-		public GameObject CurvedTrackPrefab;
+    public class ConfigAuthoring : MonoBehaviour
+    {
+        public GameObject CurvedTrackPrefab;
 
-		public GameObject StraightTrackPrefab;
+        public GameObject StraightTrackPrefab;
 
         public GameObject CarPrefab;
 
         public GameObject LanePrefab;
 
-		public int NumCars;
+        public int NumCars;
 
-		public int NumLanes;
-		public float FollowClearance;
-		public float LaneChangeClearance;
+        public int NumLanes;
+        public float FollowClearance;
+        public float LaneChangeClearance;
+        public float LaneChangeTime;
 
         [Range(0f, 10f)]
         public float TrackSize = 1;
@@ -26,41 +27,43 @@ namespace Authoring
         public float2 SpeedRange;
         public float2 AccelerationRange;
 
-		public class ConfigBaker : Baker<ConfigAuthoring>
-		{
-			public override void Bake(ConfigAuthoring authoring)
-			{
-				AddComponent(new Config
-				{
-					CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
-					StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
+        public class ConfigBaker : Baker<ConfigAuthoring>
+        {
+            public override void Bake(ConfigAuthoring authoring)
+            {
+                AddComponent(new Config
+                {
+                    CurvedTrackPrefab = GetEntity(authoring.CurvedTrackPrefab),
+                    StraightTrackPrefab = GetEntity(authoring.StraightTrackPrefab),
                     CarPrefab = GetEntity(authoring.CarPrefab),
                     LanePrefab = GetEntity(authoring.LanePrefab),
-					NumCars = authoring.NumCars,
-					NumLanes = authoring.NumLanes,
+                    NumCars = authoring.NumCars,
+                    NumLanes = authoring.NumLanes,
                     TrackSize = authoring.TrackSize,
                     SpeedRange = authoring.SpeedRange,
                     AccelerationRange = authoring.AccelerationRange,
                     FollowClearance = authoring.FollowClearance,
-                    LaneChangeClearance = authoring.LaneChangeClearance
+                    LaneChangeClearance = authoring.LaneChangeClearance,
+                    LaneChangeTime = authoring.LaneChangeTime
                 });
-			}
-		}
-	}
+            }
+        }
+    }
 
-	public struct Config : IComponentData
-	{
-		public Entity CurvedTrackPrefab;
-		public Entity StraightTrackPrefab;
+    public struct Config : IComponentData
+    {
+        public Entity CurvedTrackPrefab;
+        public Entity StraightTrackPrefab;
         public Entity CarPrefab;
         public Entity LanePrefab;
-		public int NumCars;
-		public int NumLanes;
+        public int NumCars;
+        public int NumLanes;
         public float TrackSize;
         public float2 SpeedRange;
         public float2 AccelerationRange;
         public float FollowClearance;
         public float LaneChangeClearance;
+        public float LaneChangeTime;
 
         // Some constants
         public const float CurveRadius = 31.46f;

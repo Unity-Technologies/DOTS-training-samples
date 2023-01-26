@@ -27,6 +27,8 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
                 Acceleration = authoring.Acceleration,
                 TrackLength = authoring.TrackLength,
                 LaneNumber = authoring.LaneNumber,
+                NewLaneNumber = -1,
+                LaneChangeProgress = -1.0f,
                 LaneChangeClearance = authoring.LaneChangeClearance,
                 Color = authoring.Color,
                 SegmentNumber = authoring.SegmentNumber
@@ -45,6 +47,8 @@ struct Car : IComponentData
     public float Acceleration;
     public float TrackLength;
     public int LaneNumber;
+    public int NewLaneNumber;
+    public float LaneChangeProgress;
     public float LaneChangeClearance;
     public float4 Color;
     public int SegmentNumber;

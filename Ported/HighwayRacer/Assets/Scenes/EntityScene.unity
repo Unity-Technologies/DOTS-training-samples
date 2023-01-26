@@ -164,6 +164,7 @@ MonoBehaviour:
   NumLanes: 4
   FollowClearance: 3
   LaneChangeClearance: 10
+  LaneChangeTime: 0.25
   TrackSize: 1
   SpeedRange:
     x: 10

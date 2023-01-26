@@ -48,7 +48,7 @@ public partial struct CarMovement : ISystem
 
             foreach (var other in allCars)
             {
-                if(other.Index == car.Index) { continue; }
+                if (other.Index == car.Index) { continue; }
 
                 float min = car.Distance - config.LaneChangeClearance;
                 float max = car.Distance + config.LaneChangeClearance;
@@ -56,58 +56,103 @@ public partial struct CarMovement : ISystem
                 int leftLane = car.LaneNumber + 1;
                 int rightLane = car.LaneNumber - 1;
 
-                if(other.LaneNumber == leftLane && other.Distance > min && other.Distance < max)
+                if (other.LaneNumber == leftLane && other.Distance > min && other.Distance < max)
                 {
                     leftLaneOK = false;
                 }
 
-                if(other.LaneNumber == rightLane && other.Distance > min && other.Distance < max)
+                if (other.LaneNumber == rightLane && other.Distance > min && other.Distance < max)
                 {
                     rightLaneOK = false;
                 }
 
-                if(other.LaneNumber != car.LaneNumber) { continue; }
+                if (other.LaneNumber != car.LaneNumber) { continue; }
 
                 float delta = other.Distance - car.Distance;
-                if(delta >= 0.0f && delta < neighborDelta)
+                if (delta >= 0.0f && delta < neighborDelta)
                 {
                     neighbor = other;
                     neighborDelta = delta;
                 }
             }
 
-            //if they are within range
-            if(neighborDelta < (config.FollowClearance + (car.Length + neighbor.Length) / 2))
+            float laneRadius = 0.0f;
+            float laneLength = 0.0f;
+            // if (car.LaneChangeProgress >= 0.0f)
+            if (car.NewLaneNumber >= 0)
             {
-                //if they are slower than us, decelerate until we match their speed
-                if(leftLaneOK)
+                //just worry about the transition
+                car.LaneChangeProgress += SystemAPI.Time.DeltaTime;
+
+                if (car.LaneChangeProgress > config.LaneChangeTime)
                 {
-                    car.LaneNumber++;
-                }
-                else if(rightLaneOK)
-                {
-                    car.LaneNumber--;
+                    //finish it up
+                    //keep our distance the same, relative to the new lane we are in
+                    float percent = car.Distance / lanes[car.LaneNumber].LaneLength;
+                    car.Distance = percent * lanes[car.NewLaneNumber].LaneLength;
+
+                    car.LaneNumber = car.NewLaneNumber;
+                    car.NewLaneNumber = -1;
+                    car.LaneChangeProgress = -1.0f;
+
+
+                    var lane = lanes[car.LaneNumber];
+                    laneRadius = lane.LaneRadius;
+                    laneLength = lane.LaneLength;
                 }
                 else
                 {
-                    //slow down
-                    car.Speed = math.max(0.0f, car.Speed - car.Acceleration);
+                    //do some percentage between
+                    float percent = car.LaneChangeProgress / config.LaneChangeTime;
+                    var oldLane = lanes[car.LaneNumber];
+                    var newLane = lanes[car.NewLaneNumber];
+                    laneRadius = math.lerp(oldLane.LaneRadius, newLane.LaneRadius, percent);
+                    // laneLength = math.lerp(oldLane.LaneLength, newLane.LaneLength, percent);
+                    laneLength = oldLane.LaneLength;//keeps us changing lane parallel, without speeding up due to length change
                 }
             }
             else
             {
-                //speed up
-                car.Speed = math.min(car.MaxSpeed, car.Speed + car.Acceleration);
+                //if they are within range
+                if (neighborDelta < (config.FollowClearance + (car.Length + neighbor.Length) / 2))
+                {
+                    //if they are slower than us, decelerate until we match their speed
+                    if (leftLaneOK)
+                    {
+                        // car.LaneNumber++;
+                        car.NewLaneNumber = car.LaneNumber + 1;
+                        car.LaneChangeProgress = 0.0f;
+                    }
+                    else if (rightLaneOK)
+                    {
+                        // car.LaneNumber--;
+                        car.NewLaneNumber = car.LaneNumber - 1;
+                        car.LaneChangeProgress = 0.0f;
+                    }
+                    else
+                    {
+                        //slow down
+                        car.Speed = math.max(0.0f, car.Speed - car.Acceleration);
+                    }
+                }
+                else
+                {
+                    //speed up
+                    car.Speed = math.min(car.MaxSpeed, car.Speed + car.Acceleration);
+                }
+
+                var lane = lanes[car.LaneNumber];
+                laneRadius = lane.LaneRadius;
+                laneLength = lane.LaneLength;
             }
 
-            var lane = lanes[car.LaneNumber];
             car.Distance += car.Speed * SystemAPI.Time.DeltaTime;
-            if (car.Distance >= lane.LaneLength)
+            if (car.Distance >= laneLength)
             {
-                car.Distance -= lane.LaneLength;
+                car.Distance -= laneLength;
             }
 
-            float4x4 carTransform = GetWorldTransformation(car.Distance, lane.LaneLength, lane.LaneRadius, Config.SegmentLength * config.TrackSize);
+            float4x4 carTransform = GetWorldTransformation(car.Distance, laneLength, laneRadius, Config.SegmentLength * config.TrackSize);
             state.EntityManager.SetComponentData(car.Self, LocalTransform.FromMatrix(carTransform));
         }
     }
