@@ -27,9 +27,17 @@ struct CarData : IComponentData
     public float OvertakeSpeed;
     public float LerpDistance;
     public int inFrontCarIndex;
-
+    public int leftNearestCarIndex;
+    public int rightNearestCarIndex;
+    
     public float DistanceToCarInFront;
+    public float DistanceToCarLeft;
+    public float DistanceToCarRight;
+    
     public float CarInFrontSpeed;
+    public float SafeDistanceInFront;
+    public float SafeDistanceOnSide;
+    
     public float4 Color;
     public Entity CarPrefab;
 }
