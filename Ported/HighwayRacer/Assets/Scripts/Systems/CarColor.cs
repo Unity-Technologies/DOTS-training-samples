@@ -19,6 +19,7 @@ public partial struct CarColor : ISystem
 
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach (var carAspect in SystemAPI.Query<CarAspect>())

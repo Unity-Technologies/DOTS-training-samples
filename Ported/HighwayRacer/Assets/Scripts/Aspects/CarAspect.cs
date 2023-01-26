@@ -4,7 +4,7 @@ using Unity.Transforms;
 
 namespace Aspects
 {
-    readonly partial struct CarAspect : IAspect
+    public readonly partial struct CarAspect : IAspect
     {
         public readonly Entity Self;
 

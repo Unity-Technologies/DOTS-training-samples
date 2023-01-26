@@ -7,7 +7,6 @@ using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
-    [BurstCompile]
     public partial struct CarSpawning : ISystem
     {
         [BurstCompile]
@@ -22,8 +21,6 @@ namespace Systems
 
         }
 
-
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<Config>();

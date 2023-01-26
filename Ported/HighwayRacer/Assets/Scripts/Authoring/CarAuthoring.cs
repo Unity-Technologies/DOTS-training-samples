@@ -40,7 +40,7 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
     }
 }
 
-struct Car : IComponentData
+public struct Car : IComponentData
 {
     public float Distance;
     public float Length;
