@@ -62,10 +62,6 @@ partial struct SpawnerSystem : ISystem
             float carLane = 4f + (2.45f * car.Lane);
             var position = segmentPositions[segmentID] + (segmentDirections[segmentID] * -carLane);
             ecb.SetComponent(cars[i], LocalTransform.FromPosition(position));
-            
-            hue = (hue + 0.618034005f) % 1;
-            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
-            ecb.SetComponent(cars[i], new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color });
         }
 
         state.Enabled = false;
