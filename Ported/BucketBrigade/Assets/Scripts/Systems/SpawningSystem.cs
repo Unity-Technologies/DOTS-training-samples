@@ -40,7 +40,17 @@ partial struct SpawningSystem : ISystem
         var temperatures = new GridTemperatures();
         temperatures.Init(config.gridSize);
 
-        temperatures.Set(2, 2, 1f); // sam: "random" seed, just to test
+        // random fire seeding
+        var seedInitialValue = 0.05f;
+        var percentAlreadyOnFire = 0.01f;
+        var totalSeedsCount = math.max(percentAlreadyOnFire * config.gridSize * config.gridSize, 1);
+        for (int i = 0; i < totalSeedsCount; i++)
+        {
+            var seedX = random.NextInt(0, config.gridSize - 1);
+            var seedY = random.NextInt(0, config.gridSize - 1);
+            temperatures.Set(seedX, seedY, seedInitialValue);
+        }
+
 
         // create grid entity to pass grid info into
         var gridEntity = state.EntityManager.CreateEntity();
