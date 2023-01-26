@@ -83,6 +83,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
             } else
             {
                 carData.inFrontCarIndex = -1;
+                carData.Speed = carData.DefaultSpeed;
             }
                
         } else
