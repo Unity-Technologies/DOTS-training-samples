@@ -72,7 +72,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
         {
             if (AllCars[car.inFrontCarIndex].Speed == car.Speed)
             {
-                proposedLane = carData.Lane < 3 ? carData.TargetLane = carData.Lane + 1 : 2;
+                proposedLane = carData.Lane < 3 ? carData.Lane + 1 : -1;
             } else
             {
                 carData.inFrontCarIndex = -1;
@@ -101,7 +101,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
                 {
                     carData.inFrontCarIndex = j;
                     carData.Speed = carToCheck.Speed;
-                    proposedLane = carData.Lane < 3 ? carData.Lane + 1 : 2;
+                    proposedLane = carData.Lane < 3 ? carData.Lane + 1 : carData.Lane > 0 ? carData.Lane - 1 : -1;
                     break;
                 }
             }
@@ -131,10 +131,10 @@ partial struct FindNearestNeighborsJob : IJobEntity
 
             if (carToCheck.Lane == proposedLane)
             {
-                var distanceCheck = math.distancesq(transform.Position, CarTransforms[j].Position);
+                var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
 
                 //Overtake distance 
-                if (distanceCheck < 50)
+                if (distanceCheck < 10)
                 {
                     carsInRange = 1;
                     break;
