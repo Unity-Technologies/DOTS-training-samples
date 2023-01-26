@@ -41,6 +41,7 @@ partial struct FarmerMovementSystem : ISystem
             if(diffMag > 0.2f)
             {
                 farmer.Transform.WorldPosition += moveDirection;
+                farmer.Transform.LookAt(farmer.MoveTarget);
             }
             else
             {

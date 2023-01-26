@@ -550,7 +550,6 @@ partial struct FarmerSystem : ISystem
                         float3 emptyPos = worldGrid.GridToWorld(emptyGridPos);
                         //Let's move to it
                         farmer.MoveTarget = emptyPos;
-                        Debug.DrawLine(emptyPos, (Vector3)emptyPos + Vector3.up * 5, Color.red);
 
                         float3 diff = farmer.Transform.LocalPosition - emptyPos;
                         if(math.lengthsq(diff) < 1.0f)

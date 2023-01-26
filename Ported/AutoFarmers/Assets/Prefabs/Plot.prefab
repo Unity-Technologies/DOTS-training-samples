@@ -97,6 +97,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5194f4d213fb05841897be9bfbb6d483, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlotLocInWorld:
+    x: 0
+    y: 0
 --- !u!114 &-2375275606145707698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
-    y: 0
-    z: 0
-    w: 0
+    x: 1
+    y: 1
+    z: 1
+    w: 1
