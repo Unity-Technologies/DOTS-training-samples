@@ -22,8 +22,6 @@ partial struct FireVisualizationSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        Debug.Log("fire vis system update :')");
-
         var config = SystemAPI.GetSingleton<Config>();
         var defaultTempColor = config.defaultTemperatureColour;
         var lowTempColor = config.lowTemperatureColour;
@@ -40,14 +38,20 @@ partial struct FireVisualizationSystem : ISystem
             var flameCell = flameCellAspect.Self;
             var displayHeight = flameCellAspect.DisplayHeight.ValueRO.height;
             var lerpedColor = Color.Lerp(lowTempColor, highTempColor, displayHeight);
-            
-            
-            if (displayHeight > 0)
+
+            if (displayHeight > 0.05f) 
             {
                 state.EntityManager.SetComponentData(flameCell, new URPMaterialPropertyBaseColor(){Value = (UnityEngine.Vector4)lerpedColor});
-            }
 
-            var location = state.EntityManager.GetAspect<TransformAspect>(flameCell).LocalPosition;
+                var scale = new float3(1, displayHeight*10, 1);
+
+                var postTransformScale = new PostTransformScale() {Value = float3x3.Scale(scale)};
+
+                SystemAPI.SetComponent(flameCell, postTransformScale);
+            }
+            
+
+
             
             
 

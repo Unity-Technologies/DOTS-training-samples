@@ -215,6 +215,8 @@ partial struct SpawningSystem : ISystem
         // set default fire temperature to all flamecells
         foreach (var flameCell in flameCells)
         {
+            //state.EntityManager.AddComponent<PostTransformScale>(flameCell);
+            state.EntityManager.AddComponentData(flameCell, new PostTransformScale() {Value = float3x3.Scale(1, 1, 1)});
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
             ecb.SetComponentForLinkedEntityGroup(flameCell,
                 colourQueryMask,

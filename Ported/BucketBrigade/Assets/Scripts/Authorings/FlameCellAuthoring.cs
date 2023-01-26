@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 public class FlameCellAuthoring : MonoBehaviour
@@ -13,6 +14,7 @@ public class FlameCellAuthoring : MonoBehaviour
             AddComponent<OnFireTag>();
             AddComponent<CellInfo>();
             AddComponent<URPMaterialPropertyBaseColor>();
+            AddComponent<PostTransformScale>();
         }
     }
 }
