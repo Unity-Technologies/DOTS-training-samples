@@ -18,7 +18,8 @@ class WorldGridAuthoring : UnityEngine.MonoBehaviour
                 typeGrid = new NativeArray<byte>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
                 entityGrid = new NativeArray<Entity>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
                 gridSize = new int2(authoring.GridSizeX, authoring.GridSizeY),
-                offset = new float3(authoring.GridSizeX / 2.0f, 0, authoring.GridSizeY / 2.0f)
+                offset = new float3(authoring.GridSizeX / 2.0f, 0, authoring.GridSizeY / 2.0f),
+                arraySize = authoring.GridSizeX * authoring.GridSizeY
             });
 
             //AddBuffer<Grid>();
@@ -45,6 +46,7 @@ struct WorldGrid : IComponentData
     //Then use this to access the entity itself
     public NativeArray<Entity> entityGrid;
     public int2 gridSize;
+    public int arraySize;
     public float3 offset;
 
     //public bool needsRegeneration;
@@ -58,12 +60,14 @@ struct WorldGrid : IComponentData
 
     public int2 WorldToGrid(float3 pos)
     {
-        return new int2((int)math.round(pos.x - offset.x), (int)math.round(pos.z-offset.z));
+        return new int2((int)math.round(pos.x+offset.x), (int)math.round(pos.z+offset.z));
     }
 
     public int Get2Dto1DIndex(int x, int y)
     {
-        return x + gridSize.x * y;
+        int index = x + gridSize.x * y;
+        if (index < 0 || index > arraySize - 1) return 0;
+        return index;
     }
 
     public int GetTypeAt(int x, int y)
@@ -71,14 +75,29 @@ struct WorldGrid : IComponentData
         return typeGrid[Get2Dto1DIndex(x,y)];
     }
 
+    public int GetTypeAt(int2 point)
+    {
+        return GetTypeAt(point.x, point.y);
+    }
+
     public void SetEntityAt(int x, int y, Entity e)
     {
         entityGrid[Get2Dto1DIndex(x, y)] = e;
     }
 
+    public void SetEntityAt(int2 point, Entity e)
+    {
+        SetEntityAt(point.x, point.y, e);
+    }
+
     public Entity GetEntityAt(int x, int y)
     {
         return entityGrid[Get2Dto1DIndex(x, y)];
+    }
+
+    public Entity GetEntityAt(int2 point)
+    {
+        return GetEntityAt(point.x, point.y);
     }
 
     public void SetTypeAt(int x, int y, byte type)
@@ -103,5 +122,10 @@ struct WorldGrid : IComponentData
 
         //needsRegeneration = true;
         typeGrid[Get2Dto1DIndex(x, y)] = type;
+    }
+
+    public void SetTypeAt(int2 point, byte type)
+    {
+        SetTypeAt(point.x, point.y, type);
     }
 }

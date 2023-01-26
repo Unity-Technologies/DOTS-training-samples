@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 [BurstCompile]
 partial struct FarmerSystem : ISystem
@@ -44,41 +46,103 @@ partial struct FarmerSystem : ISystem
     }
 
     //Searches for a specific type within a set range
+    #region Search Grid OLD
+    //[BurstCompile]
+    //public int2 SearchGridForType(int type, int2 farmerGridPosition, int searchRange, WorldGrid worldGrid)
+    //{
+    //    int2 closestPosition = farmerGridPosition;
+    //    for (int x = 0; x < searchRange / 2; x++)
+    //    {
+    //        bool foundClosest = false;
+    //        for (int y = 0; y < searchRange/2; y++)
+    //        {
+    //            int2 right = farmerGridPosition + new int2(x, 0);
+    //            int2 left = farmerGridPosition + new int2(-x, 0);
+    //            int2 up = farmerGridPosition + new int2(0, y);
+    //            int2 down = farmerGridPosition + new int2(0, -y);
+
+    //            int rightType = worldGrid.GetTypeAt(right);
+    //            int leftType = worldGrid.GetTypeAt(left);
+    //            int upType = worldGrid.GetTypeAt(up);
+    //            int downType = worldGrid.GetTypeAt(down);
+
+    //            if (rightType == type)
+    //            {
+    //                closestPosition = right;
+    //                foundClosest = true;
+    //                break;
+    //            }
+
+    //            if (leftType == type)
+    //            {
+    //                closestPosition = left;
+    //                foundClosest = true;
+    //                break;
+    //            }
+
+    //            if (upType == type)
+    //            {
+    //                closestPosition = up;
+    //                foundClosest = true;
+    //                break;
+    //            }
+
+    //            if (downType == type)
+    //            {
+    //                closestPosition = down;
+    //                foundClosest = true;
+    //                break;
+    //            }
+    //        }
+    //        if (foundClosest)
+    //            return closestPosition;
+    //        else
+    //            return -1;
+    //    }
+    //    return -1;
+    //}
+    #endregion
     [BurstCompile]
-    public int2 SearchGridForEmpty(int2 farmerGridPosition, int searchRange, WorldGrid worldGrid)
+    public int2 SearchGridForType(int type, int2 start, int searchRange, WorldGrid worldGrid)
     {
-        int2 closestPosition = farmerGridPosition;
-        for (int x = 0; x < searchRange / 2; x++)
+        int[] dx = { 1, 0, -1, 0 };
+        int[] dy = { 0, 1, 0, -1 };
+        int x = start.x, y = start.y, d = 0;
+        int m = worldGrid.gridSize.x, n = worldGrid.gridSize.y;
+        int[,] visited = new int[m, n];
+        for (int i = 0; i < m; i++)
         {
-            bool foundClosest = false;
-            for (int y = 0; y < searchRange / 2; y++)
+            for (int j = 0; j < n; j++)
             {
-                int2 right = farmerGridPosition + new int2(x, y);
-                int2 left = farmerGridPosition + new int2(-x, y);
-
-                int rightType = worldGrid.GetTypeAt(right.x, right.y);
-                int leftType = worldGrid.GetTypeAt(left.x, left.y);
-
-                if (rightType == 0)
-                {
-                    closestPosition = right;
-                    foundClosest = true;
-                    break;
-                }
-
-                if (leftType == 0)
-                {
-                    closestPosition = left;
-                    foundClosest = true;
-                    break;
-                }
+                visited[i, j] = 0;
             }
-            if (foundClosest)
-                return closestPosition;
-            else
-                return 0;
         }
-        return 0;
+        while (true)
+        {
+            var point = new int2(x, y);
+            if (worldGrid.GetTypeAt(new int2(x, y)) == type)
+            {
+                return point;
+            }
+            visited[x, y] = 1;
+            int a = x + dx[d], b = y + dy[d];
+            if (a >= 0 && a < m && b >= 0 && b < n && visited[a, b] == 0)
+            {
+                x = a;
+                y = b;
+            }
+            else
+            {
+                d = (d + 1) % 4;
+                x += dx[d];
+                y += dy[d];
+            }
+
+            if (visited.Cast<int>().Sum() == m * n || (Math.Abs(x - start.x) > searchRange) || (Math.Abs(y - start.y) > searchRange))
+            {
+                return new int2(-1, -1);
+            }
+        }
     }
 
     [BurstCompile]
@@ -133,14 +197,16 @@ partial struct FarmerSystem : ISystem
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
                     #region Rock Destruction
 
+                    UnityEngine.Debug.Log("Looking for rocks");
+
                     RockAspect closestRock = new RockAspect();
 
                     bool foundRock = false;
 
                     #region Trying to avoid redundant code (Working)
-                    Entity closestRockEntity = GetClosest(rockChunks, ref _entityTypeHandle, ref _localTransformTypeHandle, farmer);
-                    closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
-                    foundRock = (closestRockEntity != Entity.Null);
+                    //Entity closestRockEntity = GetClosest(rockChunks, ref _entityTypeHandle, ref _localTransformTypeHandle, farmer);
+                    //closestRock = state.EntityManager.GetAspect<RockAspect>(closestRockEntity);
+                    //foundRock = (closestRockEntity != Entity.Null);
                     #endregion
 
                     #region Using Jobs + Grid (Not done)
@@ -215,6 +281,31 @@ partial struct FarmerSystem : ISystem
                     //    }
                     //}
 
+                    #endregion
+
+                    #region Grid Search (Function)
+                    UnityEngine.Debug.Log("Starting Grid Search");
+
+                    int2 rockLoc = SearchGridForType(Rock.type, farmerGridPosition, searchRange, worldGrid);
+                    if (rockLoc.x == -1 && rockLoc.y == -1)
+                    {
+                        //No Rocks Found
+                        UnityEngine.Debug.Log("No Rocks FOund");
+                        ChooseNewTask(farmer);
+                        break;
+                    }
+                    Entity rockEntity = worldGrid.GetEntityAt(rockLoc.x, rockLoc.y);
+                    if (rockEntity == Entity.Null)
+                    {
+                        //Something wrong with the grid to world conversion
+                        UnityEngine.Debug.Log("Wtf");
+                        ChooseNewTask(farmer);
+                        break;
+                    }
+
+                    UnityEngine.Debug.Log("Found closest Rock???");
+                    foundRock = true;
+                    closestRock = SystemAPI.GetAspectRW<RockAspect>(rockEntity);
                     #endregion
 
                     #region Acting Upon a Found Rock

@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
 using System.Diagnostics;
+using Unity.Mathematics;
 
 [BurstCompile]
 public partial struct RockSystem : ISystem
@@ -11,6 +12,7 @@ public partial struct RockSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        state.RequireForUpdate<WorldGrid>();
         totalTime = 0;
     }
 
@@ -23,6 +25,7 @@ public partial struct RockSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+        var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -42,6 +45,9 @@ public partial struct RockSystem : ISystem
             {
                 if (rock.Health <= 0)
                 {
+                    int2 gridPoint = worldGrid.WorldToGrid(rock.Transform.LocalPosition);
+                    worldGrid.SetTypeAt(gridPoint.x,gridPoint.y,0);
+
                     ecb.DestroyEntity(entity);
                     ecb.DestroyEntity(children[0].Value);
                 }
