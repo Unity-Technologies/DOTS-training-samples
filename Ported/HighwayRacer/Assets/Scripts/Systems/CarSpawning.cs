@@ -2,6 +2,7 @@ using Authoring;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
+using Unity.Collections;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
@@ -21,49 +22,60 @@ namespace Systems
 
         }
 
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<Config>();
             var random = new Random(1234);
 
+
+            int totalSlots = 0;
+            NativeArray<NativeArray<float>> slots = new NativeArray<NativeArray<float>>(config.NumLanes, Allocator.Temp);
+            NativeArray<int> slotIndex = new NativeArray<int>(config.NumLanes, Allocator.Temp);
+            for (int i = 0; i < config.NumLanes; i++)
+            {
+                // Each lane has different length.
+                var laneRadius = LaneSpawning.GetLaneRadius(i, config.NumLanes, Config.LaneOffset, Config.CurveRadius);
+                var laneLength = LaneSpawning.GetLaneLength(laneRadius, config.TrackSize);
+
+                float slotSize = config.LaneChangeClearance;
+                int slotCount = (int)math.floor(laneLength / slotSize);
+                NativeArray<float> current = new NativeArray<float>(slotCount, Allocator.Temp);
+                for (int j = 0; j < slotCount; j++)
+                {
+                    current[j] = j * slotSize;
+                }
+
+                int n = current.Length;
+                while (n > 1)
+                {
+                    int k = random.NextInt(n--);
+                    float temp = current[n];
+                    current[n] = current[k];
+                    current[k] = temp;
+                }
+
+                slots[i] = current;
+
+                totalSlots += slotCount;
+                slotIndex[i] = 0;
+            }
             for (int i = 0; i < config.NumCars; i++)
             {
-                // TODO: Avoid overlapping
-                // TODO: Get actual distance in the track, and assign segment id accordingly
-                /*
-                public float Distance;
-                public float Length;
-                public float Speed;
-                public float Acceleration;
-                public float TrackLength;
-                public int LaneNumber;
-                public float LaneChangeClearance;
-                public float4 Color;
-                public int SegmentNumber;
-                */
-
-
-                // Each lane has different length.
-
-                var laneNumber = random.NextInt(config.NumLanes);
-                var lane0Radius = Config.CurveRadius - Config.LaneOffset * (config.NumLanes - 1) * 0.5f;
-                var currentLaneRadius = lane0Radius + laneNumber * Config.LaneOffset;
-
                 var car = state.EntityManager.Instantiate(config.CarPrefab);
 
-                var laneTotalLength = 60.0f * config.TrackSize + 2.0f * math.PI * currentLaneRadius;
-                var distance = random.NextFloat(laneTotalLength);
-
+                var laneNumber = random.NextInt(config.NumLanes);
+                int index = slotIndex[laneNumber]++;
                 state.EntityManager.SetComponentData(car, new Car()
                 {
-                    Distance = random.NextFloat(distance),
+                    Distance = slots[laneNumber][index],
                     Length = 1.0f,
                     Speed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                     DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                     Acceleration = random.NextFloat(config.AccelerationRange.x, config.AccelerationRange.y),
                     TrackLength = 1.0f,
-                    LaneNumber = random.NextInt(4),
+                    LaneNumber = laneNumber,
                     NewLaneNumber = -1,
                     LaneChangeProgress = -1.0f,
                     LaneChangeClearance = config.LaneChangeClearance,
@@ -71,7 +83,6 @@ namespace Systems
                     SegmentNumber = 0,
                     Index = i
                 });
-
             }
 
             state.Enabled = false;
