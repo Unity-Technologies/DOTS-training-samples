@@ -621,8 +621,8 @@ partial struct FarmerSystem : ISystem
                             closestPlot.PlantSeed(plotLoc);
                             worldGrid.SetTypeAt(plotLoc, Plant.type);
                             worldGrid.SetEntityAt(plotLoc, closestPlot.Plant);
-                            ChooseNewTask(farmer,ref state);
                         }
+                        ChooseNewTask(farmer,ref state);
                     }
                     else
                         ChooseNewTask(farmer,ref state);
