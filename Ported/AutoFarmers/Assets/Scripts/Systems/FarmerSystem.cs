@@ -555,7 +555,7 @@ partial struct FarmerSystem : ISystem
                         float3 diff = farmer.Transform.LocalPosition - emptyPos;
                         if(math.lengthsq(diff) < 1.0f)
                         {
-                            Entity plot = ecb.Instantiate(config.PlotPrefab);
+                            Entity plot = state.EntityManager.Instantiate(config.PlotPrefab);
                             var newLocal = new LocalTransform { Position = emptyPos, Scale = 1.0f };
 
                             ecb.SetComponent<LocalTransform>(config.PlotPrefab, newLocal);
@@ -576,40 +576,41 @@ partial struct FarmerSystem : ISystem
                     //UnityEngine.Debug.Log("Farmer plant crop");
 
                     #region Query
-                    foreach (var plot in SystemAPI.Query<PlotAspect>())
-                    {
-                        if (plot.HasSeed())
-                            continue;
+                    //foreach (var plot in SystemAPI.Query<PlotAspect>())
+                    //{
+                    //    if (plot.HasSeed())
+                    //        continue;
 
-                        //Let's find closest plot
-                        float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
-                        float sqrMag = math.lengthsq(diff);
-                        if (sqrMag < closestSqrMag)
-                        {
-                            closestPlot = plot;
-                            closestSqrMag = sqrMag;
-                            foundEmptyPlot = true;
-                        }
-                    }
+                    //    //Let's find closest plot
+                    //    float3 diff = plot.Transform.WorldPosition - farmer.Transform.WorldPosition;
+                    //    float sqrMag = math.lengthsq(diff);
+                    //    if (sqrMag < closestSqrMag)
+                    //    {
+                    //        closestPlot = plot;
+                    //        closestSqrMag = sqrMag;
+                    //        foundEmptyPlot = true;
+                    //    }
+                    //}
                     #endregion Query
 
                     #region Grid search
-                    //int2 plotLoc = SearchGridForType(Plot.type, farmerGridPosition, searchRange, worldGrid);
-                    //if (plotLoc.x == -1 && plotLoc.y == -1)
-                    //{
-                    //    //No plots Found
-                    //    ChooseNewTask(farmer, ref state);
-                    //    break;
-                    //}
-                    //Entity plotEntity = worldGrid.GetEntityAt(plotLoc.x, plotLoc.y);
-                    //if (plotEntity == Entity.Null)
-                    //{
-                    //    //If here, something wrong with the grid to world conversion
-                    //    ChooseNewTask(farmer, ref state);
-                    //    break;
-                    //}
-                    //foundEmptyPlot = true;
-                    //closestPlot = SystemAPI.GetAspectRW<PlotAspect>(plotEntity);
+                    int2 plotLoc = SearchGridForType(Plot.type, farmerGridPosition, searchRange, worldGrid);
+                    if (plotLoc.x == -1 && plotLoc.y == -1)
+                    {
+                        //No plots Found
+                        ChooseNewTask(farmer, ref state);
+                        break;
+                    }
+                    Entity plotEntity = worldGrid.GetEntityAt(plotLoc.x, plotLoc.y);
+                    if (plotEntity == Entity.Null)
+                    {
+                        //If here, something wrong with the grid to world conversion
+                        ChooseNewTask(farmer, ref state);
+                        break;
+                    }
+                    UnityEngine.Debug.Log("Entity" + plotEntity);
+                    foundEmptyPlot = true;
+                    closestPlot = SystemAPI.GetAspectRW<PlotAspect>(plotEntity);
                     #endregion
 
                     if (foundEmptyPlot)
@@ -619,13 +620,9 @@ partial struct FarmerSystem : ISystem
 
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
-                            //TODO: Replace with Grid search
-                            closestPlot.PlantSeed(int2.zero);
-                            # region Grid search
-                            //closestPlot.PlantSeed(plotLoc);
-                            //worldGrid.SetTypeAt(plotLoc, Plant.type);
-                            //worldGrid.SetEntityAt(plotLoc, closestPlot.Plant);
-                            #endregion
+                            closestPlot.PlantSeed(plotLoc);
+                            worldGrid.SetTypeAt(plotLoc, Plant.type);
+                            worldGrid.SetEntityAt(plotLoc, closestPlot.Plant);
                             ChooseNewTask(farmer,ref state);
                         }
                     }
