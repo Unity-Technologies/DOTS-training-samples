@@ -40,7 +40,6 @@ partial struct BucketTargetingSystem : ISystem
             var bucketTarget = Entity.Null;
             foreach (var bucket in m_BucketQuery.ToEntityArray(Allocator.Temp))
             {
-                Debug.Log($"{bucket}");
                 var bucketPosition = m_PositionLookup.GetRefRO(bucket).ValueRO;
                 var dist = math.distance(workerPosition, bucketPosition.position);
                 if (dist < minDist)

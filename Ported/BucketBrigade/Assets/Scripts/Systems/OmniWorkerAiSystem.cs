@@ -43,7 +43,6 @@ partial struct OmniWorkerAIJob : IJobEntity
     public ComponentLookup<HasReachedDestinationTag> HasReachedDestinationTagLookup;
     void Execute(in Entity entity, in Target target, in BucketTargetPosition bucketTargetPosition, ref OmniWorkerAIState state, ref MoveInfo moveInfo)
     {
-        Debug.Log($"{state.omniWorkerState}");
         switch (state.omniWorkerState)
         {
             case OmniWorkerState.Idle:
