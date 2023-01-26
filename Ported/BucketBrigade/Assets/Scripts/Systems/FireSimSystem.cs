@@ -35,7 +35,7 @@ partial struct FireSimSystem : ISystem
         Debug.Log(output);
     }
 
-    public const float OnFireTemp = 0.2f;
+    public const float k_OnFireTemp = 0.2f;
     public const float k_MaxHeat = 1.0f;
 
     [BurstCompile]
@@ -67,7 +67,7 @@ partial struct FireSimSystem : ISystem
                         {
                             if (i >= config.gridSize || j >= config.gridSize || i < 0 || j < 0) return 0f;
                             var neighbourTemp = gridTemperatures.Get(i, j);
-                            if (neighbourTemp == 0 && currentTemp > OnFireTemp)
+                            if (neighbourTemp == 0 && currentTemp > k_OnFireTemp)
                             {
                                 gridTemperatures.Set(i, j, 0.05f);
                                 return 0f;
@@ -105,12 +105,14 @@ partial struct FireSimSystem : ISystem
             var temp = gridTemperatures.Get(fireCell.CellInfo.ValueRO.indexX, fireCell.CellInfo.ValueRO.indexY);
             fireCell.DisplayHeight.ValueRW.height = temp;
 
+            var isOnFire = state.EntityManager.HasComponent<OnFireTag>(fireCell.Self);
+
             // Update OnFire tag
-            if (temp >= OnFireTemp)
+            if (temp >= k_OnFireTemp && !isOnFire)
             {
                 ecb.AddComponent<OnFireTag>(fireCell.Self);
             }
-            else
+            else if (temp < k_OnFireTemp && isOnFire)
             {
                 ecb.RemoveComponent<OnFireTag>(fireCell.Self);
             }
