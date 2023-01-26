@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+[UpdateAfter(typeof(BucketTargetingSystem))]
 [BurstCompile]
 partial struct PassBucketSystem : ISystem
 {
