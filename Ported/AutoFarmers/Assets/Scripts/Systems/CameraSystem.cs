@@ -16,6 +16,7 @@ partial struct CameraSystem : ISystem
     EntityQuery FarmerQuery;
 
     float2 viewAngles;
+    float distanceLastFrame;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -24,6 +25,7 @@ partial struct CameraSystem : ISystem
         FarmerQuery = SystemAPI.QueryBuilder().WithAll<Farmer>().Build();
         state.RequireForUpdate(FarmerQuery);
         Cursor.lockState = CursorLockMode.Locked;
+        distanceLastFrame = 10;
     }
 
     [BurstCompile]
@@ -57,8 +59,12 @@ partial struct CameraSystem : ISystem
         viewAngles.y = Mathf.Clamp(viewAngles.y, 7f, 80f);
         viewAngles.x -= Mathf.Floor(viewAngles.x / 360f) * 360f;
         cameraTransform.rotation = Quaternion.Euler(viewAngles.y, viewAngles.x, 0f);
-        cameraTransform.position = farmerTransform.Position - (float3)cameraTransform.forward * 10;
 
+        distanceLastFrame -= Input.mouseScrollDelta.y * 2;
+        if (distanceLastFrame <= 3)
+            distanceLastFrame = 3;
+        cameraTransform.position = farmerTransform.Position - (float3)cameraTransform.forward * distanceLastFrame;
+        
 
     }
 }
