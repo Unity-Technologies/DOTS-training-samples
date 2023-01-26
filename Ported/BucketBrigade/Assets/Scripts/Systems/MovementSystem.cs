@@ -31,7 +31,7 @@ partial struct MovementSystem : ISystem
             HasReachedDestinationTagLookup = m_HasReachedDestinationTagLookup,
             deltaTime = SystemAPI.Time.DeltaTime
         };
-        moveWorkerJob.Schedule();
+        state.Dependency = moveWorkerJob.Schedule(state.Dependency);
     }
 }
 
