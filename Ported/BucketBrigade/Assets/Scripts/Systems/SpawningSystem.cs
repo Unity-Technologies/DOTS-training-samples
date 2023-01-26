@@ -76,7 +76,7 @@ partial struct SpawningSystem : ISystem
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.omniworkerColour });
         }
 
-        // create teams
+        /*// create teams
         var teams = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams, Allocator.Temp);
         state.EntityManager.Instantiate(state.EntityManager.CreateEntity(), teams);
 
@@ -145,7 +145,7 @@ partial struct SpawningSystem : ISystem
                 }
             }
         }
-
+*/
         // initialize buckets with max contain
         foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, PickedUpTag>())
         {

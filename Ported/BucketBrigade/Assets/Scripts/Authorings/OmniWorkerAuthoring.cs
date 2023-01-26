@@ -12,7 +12,7 @@ public class OmniWorkerAuthoring : MonoBehaviour
             AddComponent<Position>();
             AddComponent<Target>();
             AddComponent<CarriedBucket>();
-            AddComponent<MoveInfo>(new MoveInfo() { destinationPosition = new float2(0,0), speed = 1});
+            AddComponent<MoveInfo>(new MoveInfo() { destinationPosition = new float2(0,0), speed = 5});
             AddComponent<HasReachedDestinationTag>();
             AddComponent<CarriesBucketTag>();
             SetComponentEnabled<CarriesBucketTag>(GetEntity(), false);
