@@ -76,7 +76,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
 
         if(car.inFrontCarIndex > -1)
         {
-            if (AllCars[car.inFrontCarIndex].Speed == car.Speed)
+            if (Math.Abs(AllCars[car.inFrontCarIndex].Speed - car.Speed) < 1f)
             {
                 proposedLane = carData.Lane < 3 ? carData.Lane + 1 : 2;
                 alternativeLane = carData.Lane > 0 ? carData.Lane - 1 : -1;

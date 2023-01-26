@@ -29,14 +29,20 @@ namespace Systems
 
             foreach (var car in SystemAPI.Query<CarAspect>())
             {
-                state.EntityManager.SetComponentData(car.CarEntity, CreateColorBySpeed(car.Speed));
+                state.EntityManager.SetComponentData(car.CarEntity, CreateColorBySpeed(car.Speed, car.DefaultSpeed));
             }
         }
 
-        private URPMaterialPropertyBaseColor CreateColorBySpeed(float speed)
+        private URPMaterialPropertyBaseColor CreateColorBySpeed(float speed, float defaultSpeed)
         {
-            var hue = ((int)(speed/10) * 0.2f) % 1f;
-            var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+            const float diffTolerance = 2f;
+            var color = UnityEngine.Color.HSVToRGB(0.5f, 1.0f, 1.0f);
+            var speedDiff = speed - defaultSpeed;
+            if (Math.Abs(speedDiff) > diffTolerance)
+            {
+                color = speedDiff > 0 ? UnityEngine.Color.HSVToRGB(0.25f, 1.0f, 1.0f) : UnityEngine.Color.HSVToRGB(0f, 1.0f, 1.0f);
+            }
+            
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
     }
