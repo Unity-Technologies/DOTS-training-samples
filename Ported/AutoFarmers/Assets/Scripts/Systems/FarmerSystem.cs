@@ -374,7 +374,7 @@ partial struct FarmerSystem : ISystem
                     if (foundRock)
                     {
                         float3 rockDiff = farmer.Transform.WorldPosition - closestRock.Transform.WorldPosition;
-                        farmer.MoveTarget = closestRock.Transform.WorldPosition + moveOffset * math.normalize(rockDiff);
+                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestRock.Transform.LocalPosition,moveOffset);
 
                         if (math.lengthsq(rockDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
@@ -437,7 +437,9 @@ partial struct FarmerSystem : ISystem
                     if (foundPlant)
                     {
                         float3 plantDiff = farmer.Transform.WorldPosition - closestPlant.Transform.WorldPosition;
-                        farmer.MoveTarget = closestPlant.Transform.WorldPosition + moveOffset * math.normalize(plantDiff);
+
+                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestPlant.Transform.LocalPosition, moveOffset);
+
                         closestPlant.BeingTargeted = true;
 
                         //TODO: Control all this in a Manager script.. including targeting and detargeting of stuff.
@@ -510,7 +512,8 @@ partial struct FarmerSystem : ISystem
                     if (foundSilo)
                     {
                         float3 siloDiff = farmer.Transform.WorldPosition - closestSilo.Transform.WorldPosition;
-                        farmer.MoveTarget = closestSilo.Transform.WorldPosition + moveOffset * math.normalize(siloDiff);
+
+                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestSilo.Transform.LocalPosition, moveOffset);
 
                         if (math.lengthsq(siloDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
@@ -612,7 +615,7 @@ partial struct FarmerSystem : ISystem
                     if (foundEmptyPlot)
                     {
                         float3 plotDiff = farmer.Transform.WorldPosition - closestPlot.Transform.WorldPosition;
-                        farmer.MoveTarget = closestPlot.Transform.WorldPosition + moveOffset * math.normalize(plotDiff);
+                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestPlot.Transform.LocalPosition, moveOffset);
 
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
@@ -664,7 +667,23 @@ partial struct FarmerSystem : ISystem
 
         return closestEntity;
     }
+
+    float3 MoveTowards(float3 from, float3 to, float moveOffset)
+    {
+        float3 diff = to - from;
+        float3 point = from;
+
+        if(math.lengthsq(diff) > 0.1f)
+        {
+            point = to + math.normalize(-diff) * moveOffset;
+        }
+
+        return point;
+    }
 }
+
+
+
 
 partial struct FarmerBrainJob : IJobEntity
 {

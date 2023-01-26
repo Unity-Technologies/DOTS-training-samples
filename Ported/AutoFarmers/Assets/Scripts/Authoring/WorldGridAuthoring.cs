@@ -19,9 +19,11 @@ class WorldGridAuthoring : UnityEngine.MonoBehaviour
                 entityGrid = new NativeArray<Entity>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
                 gridSize = new int2(authoring.GridSizeX, authoring.GridSizeY),
                 offset = new float3(authoring.GridSizeX / 2.0f, 0, authoring.GridSizeY / 2.0f),
-                arraySize = authoring.GridSizeX * authoring.GridSizeY
+                arraySize = authoring.GridSizeX * authoring.GridSizeY,
+                entity = GetEntity(authoring.gameObject)
             });
 
+            AddBuffer<ChunkCell>();
             //AddBuffer<Grid>();
         }
     }
@@ -39,6 +41,15 @@ struct GridCell : IBufferElementData
     public Entity entity;
 }
 
+struct ChunkCell : IBufferElementData
+{
+    public const int maxTypes = 10;
+    public const int size = 20;
+    //Need to initialize this to the total amount of types
+    //Increment when a new type is added, decrement if it is replaced
+    public NativeArray<int> typeCount;
+}
+
 struct WorldGrid : IComponentData
 {
     //Use the type grid to figure out if there's any entities in the first place
@@ -48,6 +59,7 @@ struct WorldGrid : IComponentData
     public int2 gridSize;
     public int arraySize;
     public float3 offset;
+    public Entity entity;
 
     //public bool needsRegeneration;
     //public int2 regenStartPos;

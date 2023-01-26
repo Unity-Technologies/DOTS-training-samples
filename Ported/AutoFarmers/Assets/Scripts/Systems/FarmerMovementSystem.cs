@@ -29,7 +29,9 @@ partial struct FarmerMovementSystem : ISystem
     {
         foreach(var farmer in SystemAPI.Query<FarmerAspect>())
         {
+            
             float3 diff = farmer.MoveTarget - farmer.Transform.WorldPosition;
+
             diff.y = 0;
             float diffMag = math.length(diff);
             float moveAmount = farmer.MoveSpeed * SystemAPI.Time.DeltaTime;
