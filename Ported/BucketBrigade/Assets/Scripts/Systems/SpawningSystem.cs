@@ -153,12 +153,6 @@ partial struct SpawningSystem : ISystem
             }
         }
 */
-        // initialize buckets with max contain
-        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, BucketTag>())
-        {
-            waterAmount.ValueRW.currentContain = 0;
-            waterAmount.ValueRW.maxContain = config.maxBucketAmount;
-        }
 
         // set random position to workers
         foreach (var (transform, position) in SystemAPI.Query<TransformAspect, RefRW<Position>>())
@@ -205,6 +199,13 @@ partial struct SpawningSystem : ISystem
             ecb.SetComponentForLinkedEntityGroup(bucket,
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.fullBucketColour });
+        }
+        
+        // initialize buckets with max contain
+        foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, BucketTag>())
+        {
+            waterAmount.ValueRW.currentContain = 0;
+            waterAmount.ValueRW.maxContain = config.maxBucketAmount;
         }
         
         // set random position to buckets
