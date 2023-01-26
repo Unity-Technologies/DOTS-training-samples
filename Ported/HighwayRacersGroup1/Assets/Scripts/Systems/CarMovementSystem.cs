@@ -74,6 +74,8 @@ partial struct FindNearestNeighborsJob : IJobEntity
 
         var car = carData;
 
+        int carAheadIndex = -1;
+
         if(car.inFrontCarIndex > -1)
         {
             if (Math.Abs(AllCars[car.inFrontCarIndex].Speed - car.Speed) < 1f)
@@ -83,6 +85,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
             } else
             {
                 carData.inFrontCarIndex = -1;
+                carData.Speed = carData.DefaultSpeed;                
             }
                
         } else
@@ -104,12 +107,17 @@ partial struct FindNearestNeighborsJob : IJobEntity
 
                 var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
 
-                if (distanceCheck < 5)
+                if (distanceCheck < 10)
                 {
-                    carData.inFrontCarIndex = j;
-                    carData.Speed = carToCheck.Speed;
                     proposedLane = carData.Lane < 3 ? carData.Lane + 1 : carData.Lane > 0 ? carData.Lane - 1 : -1;
                     alternativeLane = -1;
+                    carAheadIndex = j;
+                }
+
+                if (distanceCheck < 5)
+                {                            
+                    carData.Speed = carToCheck.Speed;
+                    carData.inFrontCarIndex = j;
                     break;
                 }
             }
@@ -119,6 +127,7 @@ partial struct FindNearestNeighborsJob : IJobEntity
         {
             if(car.inFrontCarIndex == -1)
             {
+                //Going back to the slow lane
                 proposedLane = carData.Lane > 0 ? carData.Lane - 1 : -1;
                 alternativeLane = -1;
 
@@ -173,16 +182,30 @@ partial struct FindNearestNeighborsJob : IJobEntity
         if (carsInRange > 1)
             return;
 
+        var overtakeSpeed = 0f;
+        var speedCheck = 10f;
+
+        if (carData.inFrontCarIndex > -1)
+        {
+            overtakeSpeed = 20f * (1 - (math.clamp(car.Speed - AllCars[carData.inFrontCarIndex].Speed, 0, speedCheck) / speedCheck));
+        } else if (carAheadIndex > -1)
+        {
+            overtakeSpeed = 20f * (1 - (math.clamp(car.Speed - AllCars[carAheadIndex].Speed, 0, speedCheck) / speedCheck));
+        }
+        
+
         if(carsInRange == 1)
         {
             if(alternativeLane > -1)
             {
+                carData.Speed = carData.DefaultSpeed + overtakeSpeed;
                 carData.TargetLane = alternativeLane;
                 carData.inFrontCarIndex = -1;
             }            
             return;
         }
 
+        carData.Speed = carData.DefaultSpeed + overtakeSpeed;
         carData.TargetLane = proposedLane;
         carData.inFrontCarIndex = -1;
 
@@ -204,7 +227,7 @@ partial struct CarMovementJob : IJobEntity
         if (carData.Lane != carData.TargetLane)
         {
             carData.Lane = carData.TargetLane;
-            carData.Speed = carData.DefaultSpeed;
+            //carData.Speed = carData.DefaultSpeed;
         }
 
         float carSpeed = carData.Speed * DeltaTime;

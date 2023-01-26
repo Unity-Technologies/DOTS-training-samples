@@ -8,6 +8,10 @@ using Random = Unity.Mathematics.Random;
 
 partial struct SpawnerSystem : ISystem
 {
+
+    public const float minSpeed = 5;
+    public const float maxSpeed = 50;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -57,8 +61,8 @@ partial struct SpawnerSystem : ISystem
                 
             var segmentID = i % segmentPositions.Length;
 
-            var maxSpeed = 50f;
-            var minSpeed = 5f;
+            //var maxSpeed = 50f;
+            //var minSpeed = 5f;
 
             var carSpeed = (UnityEngine.Random.value + (minSpeed / maxSpeed)) * maxSpeed;
             var laneID = laneIndex;
