@@ -608,7 +608,6 @@ partial struct FarmerSystem : ISystem
                         ChooseNewTask(farmer, ref state);
                         break;
                     }
-                    UnityEngine.Debug.Log("Entity" + plotEntity);
                     foundEmptyPlot = true;
                     closestPlot = SystemAPI.GetAspectRW<PlotAspect>(plotEntity);
                     #endregion
