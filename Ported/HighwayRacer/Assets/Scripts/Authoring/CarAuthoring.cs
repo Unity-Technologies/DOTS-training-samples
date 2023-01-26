@@ -6,13 +6,14 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
     public float Distance;
     public float Length;
     public float Speed;
-    public float MaxSpeed;
+    public float DesiredSpeed;
     public float Acceleration;
     public float TrackLength;
     public int LaneNumber;
     public float LaneChangeClearance;
     public float4 Color;
     public int SegmentNumber;
+    public bool IsPassing;
 
     class CarBaker : Baker<CarAuthoring>
     {
@@ -23,13 +24,14 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
                 Distance = authoring.Distance,
                 Length = authoring.Length,
                 Speed = authoring.Speed,
-                MaxSpeed = authoring.MaxSpeed,
+                DesiredSpeed = authoring.DesiredSpeed,
                 Acceleration = authoring.Acceleration,
                 TrackLength = authoring.TrackLength,
                 LaneNumber = authoring.LaneNumber,
                 LaneChangeClearance = authoring.LaneChangeClearance,
                 Color = authoring.Color,
-                SegmentNumber = authoring.SegmentNumber
+                SegmentNumber = authoring.SegmentNumber,
+                IsPassing = authoring.IsPassing
             });
 
         }
@@ -41,7 +43,7 @@ struct Car : IComponentData
     public float Distance;
     public float Length;
     public float Speed;
-    public float MaxSpeed;
+    public float DesiredSpeed;
     public float Acceleration;
     public float TrackLength;
     public int LaneNumber;
@@ -49,4 +51,5 @@ struct Car : IComponentData
     public float4 Color;
     public int SegmentNumber;
     public int Index;
+    public bool IsPassing;
 }

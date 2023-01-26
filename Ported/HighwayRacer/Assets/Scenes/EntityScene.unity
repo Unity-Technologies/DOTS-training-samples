@@ -171,6 +171,7 @@ MonoBehaviour:
   AccelerationRange:
     x: 0.02
     y: 0.1
+  MaxSpeedIncreaseWhilePassing: 1.25
 --- !u!4 &1816297709
 Transform:
   m_ObjectHideFlags: 0

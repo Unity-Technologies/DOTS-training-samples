@@ -60,7 +60,7 @@ namespace Systems
                     Distance = random.NextFloat(distance),
                     Length = 1.0f,
                     Speed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
-                    MaxSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                    DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                     Acceleration = random.NextFloat(config.AccelerationRange.x, config.AccelerationRange.y),
                     TrackLength = 1.0f,
                     LaneNumber = random.NextInt(4),
