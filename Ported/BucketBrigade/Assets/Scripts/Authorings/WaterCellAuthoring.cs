@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class WaterCellAuthoring : MonoBehaviour
@@ -9,6 +10,7 @@ public class WaterCellAuthoring : MonoBehaviour
         {
             AddComponent<Position>();
             AddComponent<WaterAmount>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }

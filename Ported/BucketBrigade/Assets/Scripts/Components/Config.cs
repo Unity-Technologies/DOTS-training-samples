@@ -10,12 +10,17 @@ public struct Config : IComponentData
     public Entity flameCellPrefab;
     public Entity waterCellPrefab;
 
+    public Color bucketFetcherColour;
+    public Color bucketPasserColour;
+    public Color omniworkerColour;
+    public Color emptyBucketColour;
+    public Color fullBucketColour;
+
     public Color defaultTemperatureColour;
     public Color lowTemperatureColour;
     public Color highTemperatureColour;
 
-    public Color emptyBucketColour;
-    public Color fullBucketColour;
+    public Color waterCellColour;
 
     public int numberOfTeams;
     public int bucketPassersPerTeam;
@@ -25,6 +30,9 @@ public struct Config : IComponentData
     public int gridSize;
     public float heatTransferRate;
     public float baseHeatIncreaseRate;
+    // water
     public int waterCellCount;
+    public byte maxWaterCellWaterAmount;
     public int bucketCount;
+    public byte maxBucketAmount;
 }

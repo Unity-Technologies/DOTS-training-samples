@@ -1,7 +1,9 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [BurstCompile]
 partial struct MovementSystem : ISystem
@@ -29,7 +31,7 @@ partial struct MovementSystem : ISystem
             HasReachedDestinationTagLookup = m_HasReachedDestinationTagLookup,
             deltaTime = SystemAPI.Time.DeltaTime
         };
-        moveWorkerJob.Schedule();
+        state.Dependency = moveWorkerJob.Schedule(state.Dependency);
     }
 }
 
