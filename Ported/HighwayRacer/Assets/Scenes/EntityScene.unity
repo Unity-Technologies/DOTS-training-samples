@@ -160,12 +160,12 @@ MonoBehaviour:
     type: 3}
   LanePrefab: {fileID: 8641352834841830310, guid: eb8074aec7060004abc2b4b1c77b8805,
     type: 3}
-  NumCars: 1000
+  NumCars: 10000
   NumLanes: 4
   FollowClearance: 3
   LaneChangeClearance: 10
   LaneChangeTime: 0.25
-  TrackSize: 10
+  TrackSize: 99
   SpeedRange:
     x: 10
     y: 45
