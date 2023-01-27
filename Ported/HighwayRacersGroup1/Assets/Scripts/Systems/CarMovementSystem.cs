@@ -195,13 +195,17 @@ partial struct CarMovementJob : IJobEntity
                 carData.Lane = slowLane;
                 carData.Speed = carData.DefaultSpeed;
             }            
-        }
-        /*
-        if (carData.Lane != carData.TargetLane)
+        } else
         {
-            carData.Lane = carData.TargetLane;
+            if(carData.Lane > 0)
+            {
+                if (slowLane > -1 && carData.Lane != slowLane)
+                {
+                    carData.Lane = slowLane;
+                    carData.Speed = carData.DefaultSpeed;
+                }
+            }
         }
-        */
 
         float carSpeed = carData.Speed * DeltaTime;
 
