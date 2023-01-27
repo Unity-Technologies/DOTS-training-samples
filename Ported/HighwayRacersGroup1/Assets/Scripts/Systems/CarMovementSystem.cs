@@ -35,19 +35,11 @@ partial struct CarMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // todo: find nearest neighbors
-        //var allCarData = cars.ToComponentDataArray<CarData>(Allocator.TempJob);
-        //var allCarTransforms = cars.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-        
         if(segmentPositions.Length < 1)
             segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.Persistent);
 
         if(segmentDirections.Length < 1)
             segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.Persistent);
-
-        //var segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-        //var segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.TempJob);
-
 
         var SegmentCars = new NativeArray<CarData>(segmentPositions.Length * 10, Allocator.TempJob);
 
@@ -117,7 +109,6 @@ partial struct CarMovementJob : IJobEntity
         int nextSegmentID = carData.SegmentID + 1 > Segments.Length - 1 ? 0 : (carData.SegmentID + 1) * 10;
         int previousSegmentID = carData.SegmentID + 2 > Segments.Length - 1 ? 0 : (carData.SegmentID + 2) * 10;
         int previousSegmentID2 = carData.SegmentID - 1 < 0 ? (Segments.Length - 1) * 10 : (carData.SegmentID - 1) * 10;
-        //int previousSegmentID = carData.SegmentID - 1 < 0 ? (Segments.Length - 1) * 10 : (carData.SegmentID - 1) * 10;
 
         int fastLane = carData.Lane < 3 ? carData.Lane + 1 : 3;
         int slowLane = carData.Lane > 0 ? carData.Lane - 1 : 0;
@@ -194,21 +185,15 @@ partial struct CarMovementJob : IJobEntity
         
         if(pass == 1 || carData.Speed < carData.DefaultSpeed)
         {
-            if(fastLane > -1)
+            if(fastLane > -1 && carData.Lane != fastLane)
             {
-                if (carData.Lane != fastLane)
-                {
-                    carData.Lane = fastLane;
-                    carData.Speed = carData.DefaultSpeed;
-                }
+                carData.Lane = fastLane;
+                carData.Speed = carData.DefaultSpeed;
             } 
-            else if(slowLane > -1)
+            else if(slowLane > -1 && carData.Lane != slowLane)
             {
-                if (carData.Lane != slowLane)
-                {
-                    carData.Lane = slowLane;
-                    carData.Speed = carData.DefaultSpeed;
-                }
+                carData.Lane = slowLane;
+                carData.Speed = carData.DefaultSpeed;
             }            
         }
         /*
