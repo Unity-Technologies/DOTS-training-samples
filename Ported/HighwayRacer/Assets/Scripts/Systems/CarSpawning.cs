@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Collections;
+using Unity.Jobs;
 using Utils;
 using Random = Unity.Mathematics.Random;
 
@@ -11,6 +12,12 @@ namespace Systems
     [BurstCompile]
     public partial struct CarSpawning : ISystem
     {
+        public struct Slot
+        {
+            public int Lane;
+            public float Distance;
+        }
+
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -30,74 +37,63 @@ namespace Systems
             var random = new Random(1234);
 
 
+            NativeArray<float> laneLengths = new NativeArray<float>(config.NumLanes, Allocator.TempJob);
+            NativeArray<int> laneSlotCount = new NativeArray<int>(config.NumLanes, Allocator.Temp);
             int totalSlots = 0;
-            NativeArray<NativeArray<float>> slots = new NativeArray<NativeArray<float>>(config.NumLanes, Allocator.Temp);
-            NativeArray<int> slotIndex = new NativeArray<int>(config.NumLanes, Allocator.Temp);
-            NativeArray<float> laneLengths = new NativeArray<float>(config.NumLanes, Allocator.Temp);
             for (int i = 0; i < config.NumLanes; i++)
             {
                 // Each lane has different length.
                 var laneRadius = LaneSpawning.GetLaneRadius(i, config.NumLanes, Config.LaneOffset, Config.CurveRadius);
                 var laneLength = LaneSpawning.GetLaneLength(laneRadius, config.TrackSize);
                 laneLengths[i] = laneLength;
-
                 float slotSize = config.LaneChangeClearance;
                 int slotCount = (int)math.floor(laneLength / slotSize);
-                NativeArray<float> current = new NativeArray<float>(slotCount, Allocator.Temp);
+                totalSlots += slotCount;
+                laneSlotCount[i] = slotCount;
+            }
+            NativeArray<Slot> allSlots = new NativeArray<Slot>(totalSlots, Allocator.TempJob);
+
+            int count = 0;
+            for (int i = 0; i < config.NumLanes; i++)
+            {
+                int slotCount = laneSlotCount[i];
+
                 for (int j = 0; j < slotCount; j++)
                 {
-                    current[j] = j * slotSize;
+                    allSlots[count] = new Slot() { Lane = i, Distance = j * config.LaneChangeClearance };
+                    count++;
                 }
-
-                int n = current.Length;
-                while (n > 1)
-                {
-                    int k = random.NextInt(n--);
-                    float temp = current[n];
-                    current[n] = current[k];
-                    current[k] = temp;
-                }
-
-                slots[i] = current;
-
-                totalSlots += slotCount;
-                slotIndex[i] = 0;
             }
 
-            UnityEngine.Debug.Log($"Total Slots: {totalSlots}, Num Cars: {config.NumCars}");
-            for (int i = 0; i < config.NumCars; i++)
+            int n = allSlots.Length;
+            while (n > 1)
             {
-                var car = state.EntityManager.Instantiate(config.CarPrefab);
-
-                var laneNumber = random.NextInt(config.NumLanes);
-                int index = slotIndex[laneNumber]++;
-
-                if (index > slots[laneNumber].Length - 1)
-                    continue;
-
-                var segmentNumber = TransformationUtils.GetSegmentIndexFromDistance(slots[laneNumber][index], laneLengths[laneNumber],
-                    Config.SegmentLength * config.TrackSize);
-                state.EntityManager.SetComponentData(car, new Car()
-                {
-                    Distance = slots[laneNumber][index],
-                    Length = 1.0f,
-                    Speed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
-                    DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
-                    Acceleration = random.NextFloat(config.AccelerationRange.x, config.AccelerationRange.y),
-                    TrackLength = 1.0f,
-                    LaneNumber = laneNumber,
-                    NewLaneNumber = -1,
-                    LaneChangeProgress = 1.5f,
-                    LaneChangeClearance = config.LaneChangeClearance,
-                    Color = float4.zero,
-                    SegmentNumber = segmentNumber,
-                    Index = i
-                });
-                state.EntityManager.SetSharedComponent(car, new SegmentNumber
-                {
-                    SegmentId = segmentNumber
-                });
+                int k = random.NextInt(n--);
+                Slot temp = allSlots[n];
+                allSlots[n] = allSlots[k];
+                allSlots[k] = temp;
             }
+
+
+
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+            var writer = ecb.AsParallelWriter();
+
+            Jobs.CarSpawningJob testJob = new Jobs.CarSpawningJob
+            {
+                AllSlots = allSlots,
+                LaneLengths = laneLengths,
+                Random = random,
+                Config = config,
+                Writer = writer
+            };
+
+            int batchSize = 100;
+            var jobHandle = testJob.Schedule(config.NumCars, batchSize);
+            state.Dependency = jobHandle;
+            jobHandle.Complete();
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
 
             state.Enabled = false;
         }
