@@ -15,6 +15,7 @@ public class DroneManager : MonoBehaviour {
 	List<List<Matrix4x4>> matrices;
 	int batchNumber = 0;
 
+	[SerializeField]
 	public static int droneCount;
 	public static DroneManager instance;
 

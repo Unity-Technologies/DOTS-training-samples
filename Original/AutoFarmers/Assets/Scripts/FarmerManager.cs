@@ -15,6 +15,7 @@ public class FarmerManager : MonoBehaviour {
 	List<Matrix4x4> farmerMatrices;
 	
 	public static FarmerManager instance;
+	[SerializeField]
 	public static int farmerCount;
 
 	public static void SpawnFarmer() {
