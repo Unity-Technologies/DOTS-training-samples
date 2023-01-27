@@ -69,6 +69,10 @@ namespace Systems
 
                 var laneNumber = random.NextInt(config.NumLanes);
                 int index = slotIndex[laneNumber]++;
+
+                if (index > slots[laneNumber].Length - 1)
+                    continue;
+
                 var segmentNumber = TransformationUtils.GetSegmentIndexFromDistance(slots[laneNumber][index], laneLengths[laneNumber],
                     Config.SegmentLength * config.TrackSize);
                 state.EntityManager.SetComponentData(car, new Car()
