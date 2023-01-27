@@ -13,8 +13,31 @@ namespace Jobs
     [BurstCompile]
     public partial struct CarMovementJob : IJobEntity
     {
+        // DW: This is beyond greasy, but we can't have native arrays of native arrays in jobs, so just forcing it like
+        // this for now since we have a static number of segments
         [ReadOnly]
-        public NativeArray<Car> AllCars;
+        public NativeArray<Car> AllCarsInSegment0;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment1;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment2;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment3;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment4;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment5;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment6;
+
+        [ReadOnly]
+        public NativeArray<Car> AllCarsInSegment7;
 
         [ReadOnly]
         public NativeArray<Lane> Lanes;
@@ -30,13 +53,43 @@ namespace Jobs
         [BurstCompile]
         private void Execute([ChunkIndexInQuery] int entityQueryIndex, ref CarAspect car)
         {
-            Car neighbor = AllCars[0];//assume there is a car and that we will have one close to us
+            // Check only cars in the same segment as we are to cut down on iterations.
+            // TODO: Nice to have would be also check the segment in front or behind if we're close to the border
+            NativeArray<Car> carsInSegment = AllCarsInSegment0;
+
+            // Greasy, but it's late and we dont' have time to figure out a nice solution here
+            switch (car.SegmentNumber)
+            {
+                case 1:
+                    carsInSegment = AllCarsInSegment1;
+                    break;
+                case 2:
+                    carsInSegment = AllCarsInSegment2;
+                    break;
+                case 3:
+                    carsInSegment = AllCarsInSegment3;
+                    break;
+                case 4:
+                    carsInSegment = AllCarsInSegment4;
+                    break;
+                case 5:
+                    carsInSegment = AllCarsInSegment5;
+                    break;
+                case 6:
+                    carsInSegment = AllCarsInSegment6;
+                    break;
+                case 7:
+                    carsInSegment = AllCarsInSegment7;
+                    break;
+            }
+
+            Car neighbor = carsInSegment[0];//assume there is a car and that we will have one close to us
             float neighborDelta = 1000.0f;
 
             bool leftLaneOK = car.LaneNumber != Config.NumLanes - 1;//set to false if we are at the leftmost lane
             bool rightLaneOK = car.LaneNumber != 0;//set to false if we are at the rightmost lane
 
-            foreach (var other in AllCars)
+            foreach (var other in carsInSegment)
             {
                 if (other.Index == car.Index) { continue; }
 
@@ -156,6 +209,17 @@ namespace Jobs
 
             float4x4 carTransform = TransformationUtils.GetWorldTransformation(car.Distance, laneLength, laneRadius, Config.SegmentLength * Config.TrackSize);
             EntityParallelWriter.SetComponent(entityQueryIndex, car.Self, LocalTransform.FromMatrix(carTransform));
+
+            // Update our current segment if it has changed
+            var newSegment = TransformationUtils.GetSegmentIndexFromDistance(car.Distance, laneLength,
+                Config.SegmentLength * Config.TrackSize);
+            if (car.SegmentNumber != newSegment)
+            {
+                var carData = car.Car.ValueRW;
+                carData.SegmentNumber = newSegment;
+                EntityParallelWriter.SetComponent(entityQueryIndex, car.Self, carData);
+                EntityParallelWriter.SetSharedComponent(entityQueryIndex, car.Self, new SegmentNumber { SegmentId = newSegment });
+            }
         }
     }
 }

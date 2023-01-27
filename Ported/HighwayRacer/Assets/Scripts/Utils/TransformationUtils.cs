@@ -39,6 +39,20 @@ namespace Utils
             }
         }
 
+        public static int GetSegmentIndexFromDistance(float distance, float laneLength, float straightLength)
+        {
+            float combinedSegmentLength = laneLength * 0.25f;
+
+            int combinedSegmentIndex = (int)math.floor(distance / combinedSegmentLength);
+
+            float distanceInCombinedSegment = distance - combinedSegmentLength * combinedSegmentIndex;
+            bool isOnStraight = (distanceInCombinedSegment <= straightLength);
+
+            // Multiply our combined segment index by 2 to get the real segment index for the straight,
+            // then add 1 if we've moved onto the curve
+            return combinedSegmentIndex * 2 + (isOnStraight ? 0 : 1);
+        }
+
         // Get distance of two cars on the track
         public static float GetDistance(in float3 currentCarPosition, in float3 otherCarPosition)
         {

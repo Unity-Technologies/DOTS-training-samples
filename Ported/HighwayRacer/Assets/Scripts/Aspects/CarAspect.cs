@@ -68,5 +68,11 @@ namespace Aspects
             get => Car.ValueRO.IsPassing;
             set => Car.ValueRW.IsPassing = value;
         }
+
+        public int SegmentNumber
+        {
+            get => Car.ValueRO.SegmentNumber;
+            set => Car.ValueRW.SegmentNumber = value;
+        }
     }
 }
