@@ -21,6 +21,8 @@ public class Farm : MonoBehaviour {
 
 	public static GroundState[,] groundStates;
 	public static List<Rock> rocks;
+	[SerializeField]
+	public static int rockCount;
 	public static Rock[,] tileRocks;
 	public static Dictionary<int,List<Plant>> plants;
 	public static Plant[,] tilePlants;
@@ -94,6 +96,7 @@ public class Farm : MonoBehaviour {
 					tileRocks[x,y] = null;
 				}
 			}
+			rockCount = rocks.Count;
 		}
 	}
 
@@ -138,10 +141,14 @@ public class Farm : MonoBehaviour {
 		soldPlantTimers.Add(0f);
 		moneyForFarmers++;
 		if (moneyForFarmers>=10) {
-			if (FarmerManager.farmerCount<FarmerManager.instance.maxFarmerCount) {
+			if (FarmerManager.farmerCount < FarmerManager.instance.maxFarmerCount) {
 				FarmerManager.SpawnFarmer(storeX,storeY);
 				moneyForFarmers -= 10;
 			}
+			if (FarmerManager.farmerCount == FarmerManager.instance.maxFarmerCount / 2)
+				Debug.Log("Max farmers halfway reached");
+			if (FarmerManager.farmerCount == FarmerManager.instance.maxFarmerCount -1)
+				Debug.Log("Max farmers halfway reached");
 		}
 		moneyForDrones++;
 		if (moneyForDrones>=50) {
@@ -149,6 +156,10 @@ public class Farm : MonoBehaviour {
 				if (DroneManager.droneCount < DroneManager.instance.maxDroneCount) {
 					DroneManager.SpawnDrone(storeX,storeY);
 				}
+				if (DroneManager.droneCount == DroneManager.instance.maxDroneCount/2)
+					Debug.Log("Max drones halfway reached");
+				if (DroneManager.droneCount == DroneManager.instance.maxDroneCount -1)
+					Debug.Log("Max drones reached");
 			}
 			moneyForDrones -= 50;
 		}
@@ -277,6 +288,11 @@ public class Farm : MonoBehaviour {
 
 	Camera cam;
 	void Update () {
+
+		if (Time.frameCount == 1 || Time.frameCount % 100 == 0)
+        {
+			Debug.Log("Frame:" + Time.frameCount + " Farmers " + FarmerManager.farmerCount + " | Drone Count " + DroneManager.droneCount + " | Rock Count " + rockCount + " | Plants " + plantSeeds.Count);
+        }
 		/*
 		if (cam==null) {
 			cam = Camera.main;
