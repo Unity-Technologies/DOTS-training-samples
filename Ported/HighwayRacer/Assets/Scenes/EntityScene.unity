@@ -156,7 +156,7 @@ MonoBehaviour:
     type: 3}
   StraightTrackPrefab: {fileID: 1852285047314088, guid: 678178d21bc2ef948bc7b94a4661ec04,
     type: 3}
-  CarPrefab: {fileID: 8640439831192323725, guid: ffe1523c393fa8d448e2e77b7756b088,
+  CarPrefab: {fileID: 3825948997642507830, guid: 56bde020363bcc24a901898f1fe8c5dd,
     type: 3}
   LanePrefab: {fileID: 8641352834841830310, guid: eb8074aec7060004abc2b4b1c77b8805,
     type: 3}

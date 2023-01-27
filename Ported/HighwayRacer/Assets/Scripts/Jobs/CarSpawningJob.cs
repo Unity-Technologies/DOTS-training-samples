@@ -25,6 +25,9 @@ namespace Jobs
         [BurstCompile]
         public void Execute(int carNumber)
         {
+            if (carNumber > AllSlots.Length - 1)
+                return;
+
             var car = Writer.Instantiate(carNumber, Config.CarPrefab);
             Systems.CarSpawning.Slot slot = AllSlots[carNumber];
             var laneNumber = slot.Lane;
