@@ -30,123 +30,125 @@ namespace Jobs
         [BurstCompile]
         private void Execute([ChunkIndexInQuery] int entityQueryIndex, ref CarAspect car)
         {
-            Car neighbor = AllCars[0];//assume there is a car and that we will have one close to us
-            float neighborDelta = 1000.0f;
 
-            bool leftLaneOK = car.LaneNumber != Config.NumLanes - 1;//set to false if we are at the leftmost lane
-            bool rightLaneOK = car.LaneNumber != 0;//set to false if we are at the rightmost lane
+            float distanceToFrontCar = float.MaxValue;
+            Car nearestFrontCar = AllCars[0];//assume there is a car and that we will have one close to us
 
-            foreach (var other in AllCars)
+            bool leftLaneOk = car.LaneNumber != Config.NumLanes - 1;//set to false if we are at the leftmost lane
+            bool rightLaneOk = car.LaneNumber != 0;//set to false if we are at the rightmost lane
+
+            // Don't change lane if in lane changing
+            leftLaneOk = leftLaneOk && car.LaneChangeProgress > 1.0f;
+            rightLaneOk = rightLaneOk && car.LaneChangeProgress > 1.0f;
+
+            for (int otherIndex = 0; otherIndex < AllCars.Length; otherIndex++)
             {
-                if (other.Index == car.Index) { continue; }
+                var other = AllCars[otherIndex];
 
-                float min = car.Distance - Config.LaneChangeClearance;
-                float max = car.Distance + Config.LaneChangeClearance;
+                if (other.Index == car.Index) { continue;}
 
-                int leftLane = car.LaneNumber + 1;
-                int rightLane = car.LaneNumber - 1;
-
-                if ((other.LaneNumber == leftLane || other.NewLaneNumber == leftLane) && other.Distance > min && other.Distance < max)
+                // Update front car
+                if (other.LaneNumber == car.LaneNumber)
                 {
-                    leftLaneOK = false;
+                    // there should always be a car in the front, either in this loop or in next loop
+                    var distToOtherCarInLane = other.Distance - car.Distance;
+                    if (distToOtherCarInLane < 0.0f)
+                    {
+                        distToOtherCarInLane = other.Distance + Lanes[car.LaneNumber].LaneLength - car.Distance;
+                    }
+
+                    if (distToOtherCarInLane < distanceToFrontCar)
+                    {
+                        distanceToFrontCar = distToOtherCarInLane;
+                        nearestFrontCar = other;
+                    }
                 }
 
-                if ((other.LaneNumber == rightLane || other.NewLaneNumber == rightLane) && other.Distance > min && other.Distance < max)
+                // Check lane clearance on both sides
+                float laneChangeClearance = 2 * Config.LaneChangeClearance;
+                if (leftLaneOk)
                 {
-                    rightLaneOK = false;
+                    var leftLaneNumber = car.LaneNumber + 1;
+                    var leftLane = Lanes[leftLaneNumber];
+                    var laneDistAfterChanging = TransformationUtils.GetDistanceOnLaneChange(car.LaneNumber,
+                        car.Distance, leftLaneNumber, Lanes, Config.SegmentLength * Config.TrackSize, Config.LaneOffset);
+
+                    if (other.LaneNumber == leftLaneNumber)
+                    {
+                        if (math.abs(other.Distance - laneDistAfterChanging) < laneChangeClearance ||
+                            math.abs(other.Distance + leftLane.LaneLength - laneDistAfterChanging) <
+                            laneChangeClearance)
+                        {
+                            leftLaneOk =false;
+                        }
+                    }
                 }
 
-                if (other.LaneNumber != car.LaneNumber) { continue; }
-
-                float delta = other.Distance - car.Distance;
-                if (delta >= 0.0f && delta < neighborDelta)
+                if (rightLaneOk)
                 {
-                    neighbor = other;
-                    neighborDelta = delta;
+                    var rightLaneNumber = car.LaneNumber - 1;
+                    var rightLane = Lanes[rightLaneNumber];
+                    var laneDistAfterChanging = TransformationUtils.GetDistanceOnLaneChange(car.LaneNumber,
+                        car.Distance, rightLaneNumber, Lanes, Config.SegmentLength * Config.TrackSize, Config.LaneOffset);
+
+                    if (other.LaneNumber == rightLaneNumber)
+                    {
+                        if (math.abs(other.Distance - laneDistAfterChanging) < laneChangeClearance ||
+                            math.abs(other.Distance + rightLane.LaneLength - laneDistAfterChanging) <
+                            laneChangeClearance)
+                        {
+                            rightLaneOk = false;
+                        }
+                    }
                 }
             }
 
-            // If we're passing, our allowable speed changes from the cars desired speed to the percentage increase allowable while passing
-            // var targetSpeed = car.IsPassing ? car.DesiredSpeed * config.MaxSpeedIncreaseWhilePassing : car.DesiredSpeed;
-            var targetSpeed = car.DesiredSpeed;
-
-            float laneRadius = 0.0f;
-            float laneLength = 0.0f;
-            // if (car.LaneChangeProgress >= 0.0f)
-            if (car.NewLaneNumber >= 0)
+            // Give priority to merge back
+            if (rightLaneOk)
             {
-                targetSpeed = neighbor.Speed;
-                //just worry about the transition
-                car.LaneChangeProgress += DeltaTime;
 
-                if (car.LaneChangeProgress > Config.LaneChangeTime)
+                car.Speed = car.DesiredSpeed;
+                car.StartTransformation = TransformationUtils.GetWorldTransformation(car.Distance, Lanes[car.LaneNumber].LaneLength, Lanes[car.LaneNumber].LaneRadius, Config.SegmentLength * Config.TrackSize);
+
+                var laneDistAfterChanging = TransformationUtils.GetDistanceOnLaneChange(car.LaneNumber,
+                    car.Distance, car.LaneNumber - 1, Lanes, Config.SegmentLength * Config.TrackSize, Config.LaneOffset);
+
+                car.LaneNumber--;
+                car.Distance = laneDistAfterChanging;
+
+                // Distance when car finishes transition
+                float endDistance = (car.Distance + car.Speed * Config.LaneChangeTime) %
+                                    Lanes[car.LaneNumber].LaneLength;
+                car.EndTransformation = TransformationUtils.GetWorldTransformation(endDistance, Lanes[car.LaneNumber].LaneLength, Lanes[car.LaneNumber].LaneRadius, Config.SegmentLength * Config.TrackSize);
+                car.LaneChangeProgress = 0.0f;
+            }
+            else if (distanceToFrontCar < (Config.FollowClearance + (car.Length + nearestFrontCar.Length) / 2))
+            {
+                if (leftLaneOk)
                 {
-                    //finish it up
-                    //keep our distance the same, relative to the new lane we are in
-                    float percent = car.Distance / Lanes[car.LaneNumber].LaneLength;
-                    car.Distance = percent * Lanes[car.NewLaneNumber].LaneLength;
+                    car.Speed = car.DesiredSpeed * Config.MaxSpeedIncreaseWhilePassing;
+                    car.StartTransformation = TransformationUtils.GetWorldTransformation(car.Distance, Lanes[car.LaneNumber].LaneLength, Lanes[car.LaneNumber].LaneRadius, Config.SegmentLength * Config.TrackSize);
 
-                    car.LaneNumber = car.NewLaneNumber;
-                    car.NewLaneNumber = -1;
-                    car.LaneChangeProgress = -1.0f;
+                    var laneDistAfterChanging = TransformationUtils.GetDistanceOnLaneChange(car.LaneNumber,
+                        car.Distance, car.LaneNumber + 1, Lanes, Config.SegmentLength * Config.TrackSize, Config.LaneOffset);
 
+                    car.LaneNumber++;
+                    car.Distance = laneDistAfterChanging;
 
-                    var lane = Lanes[car.LaneNumber];
-                    laneRadius = lane.LaneRadius;
-                    laneLength = lane.LaneLength;
-                    car.IsPassing = false;
+                    float endDistance = (car.Distance + car.Speed * Config.LaneChangeTime) %
+                                        Lanes[car.LaneNumber].LaneLength;
+                    car.EndTransformation = TransformationUtils.GetWorldTransformation(endDistance, Lanes[car.LaneNumber].LaneLength, Lanes[car.LaneNumber].LaneRadius, Config.SegmentLength * Config.TrackSize);
+                    car.LaneChangeProgress = 0.0f;
                 }
                 else
                 {
-                    //do some percentage between
-                    float percent = car.LaneChangeProgress / Config.LaneChangeTime;
-                    var oldLane = Lanes[car.LaneNumber];
-                    var newLane = Lanes[car.NewLaneNumber];
-                    laneRadius = math.lerp(oldLane.LaneRadius, newLane.LaneRadius, percent);
-                    // laneLength = math.lerp(oldLane.LaneLength, newLane.LaneLength, percent);
-                    laneLength = oldLane.LaneLength;//keeps us changing lane parallel, without speeding up due to length change
+                    car.Speed = nearestFrontCar.Speed;
                 }
             }
-            else
-            {
-                // Give priority to merging back into the right lane
-                if (rightLaneOK)
-                {
-                    car.LaneNumber--;
-                    car.NewLaneNumber = car.LaneNumber - 1;
-                    car.LaneChangeProgress = 0.0f;
-                    car.IsPassing = false;
-                }
-                else if (neighborDelta < (Config.FollowClearance + (car.Length + neighbor.Length) / 2))
-                {
-                    // Otherwise if we're being blocked by a car in our lane, attempt to change left and pass
-                    if (leftLaneOK)
-                    {
-                        // car.LaneNumber++;
-                        car.NewLaneNumber = car.LaneNumber + 1;
-                        car.LaneChangeProgress = 0.0f;
-                        car.IsPassing = true;
-                    }
-                    // We can't pass, match our target speed to our neighbour
-                    targetSpeed = neighbor.Speed;
-                }
 
-
-                var lane = Lanes[car.LaneNumber];
-                laneRadius = lane.LaneRadius;
-                laneLength = lane.LaneLength;
-            }
-
-            // If we're currently going less than our target, increase speed based on our acceleration and if we're going faster, decelerate
-            // if (car.Speed < targetSpeed)
-            // {
-            //     car.Speed = math.min(targetSpeed, car.Speed + car.Acceleration);
-            // }
-            // else
-            // {
-            //     car.Speed = math.max(targetSpeed, car.Speed - car.Acceleration);
-            // }
-            car.Speed = targetSpeed;
+            var lane = Lanes[car.LaneNumber];
+            var laneRadius = lane.LaneRadius;
+            var laneLength = lane.LaneLength;
 
             car.Distance += car.Speed * DeltaTime;
             if (car.Distance >= laneLength)
@@ -154,7 +156,20 @@ namespace Jobs
                 car.Distance -= laneLength;
             }
 
-            float4x4 carTransform = TransformationUtils.GetWorldTransformation(car.Distance, laneLength, laneRadius, Config.SegmentLength * Config.TrackSize);
+            float4x4 carTransform = float4x4.identity;
+            if (car.LaneChangeProgress < 1.0)
+            {
+                // Interploate transformation and update progress
+                carTransform = car.StartTransformation * (1.0f - car.LaneChangeProgress) +
+                               car.EndTransformation * (car.LaneChangeProgress);
+                car.LaneChangeProgress += DeltaTime / Config.LaneChangeTime;
+            }
+            else
+            {
+                carTransform = TransformationUtils.GetWorldTransformation(car.Distance, laneLength, laneRadius,
+                    Config.SegmentLength * Config.TrackSize);
+            }
+
             EntityParallelWriter.SetComponent(entityQueryIndex, car.Self, LocalTransform.FromMatrix(carTransform));
         }
     }

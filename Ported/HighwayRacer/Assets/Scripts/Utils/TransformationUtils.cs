@@ -39,13 +39,7 @@ namespace Utils
             }
         }
 
-        // Get distance of two cars on the track
-        public static float GetDistance(in float3 currentCarPosition, in float3 otherCarPosition)
-        {
-            return math.length(currentCarPosition - otherCarPosition);
-        }
-
-        public static float GetDistanceOnLaneChange(int currentLane, float currentDistance, int laneChangeTo, in NativeArray<Lane> lanes, float straightLength, float laneOffset)
+         public static float GetDistanceOnLaneChange(int currentLane, float currentDistance, int laneChangeTo, in NativeArray<Lane> lanes, float straightLength, float laneOffset)
         {
             if (laneChangeTo < 0 || laneChangeTo >= lanes.Length)
             {

@@ -68,5 +68,17 @@ namespace Aspects
             get => Car.ValueRO.IsPassing;
             set => Car.ValueRW.IsPassing = value;
         }
+
+        public float4x4 StartTransformation
+        {
+            get => Car.ValueRO.StartTransformation;
+            set => Car.ValueRW.StartTransformation = value;
+        }
+
+        public float4x4 EndTransformation
+        {
+            get => Car.ValueRO.EndTransformation;
+            set => Car.ValueRW.EndTransformation = value;
+        }
     }
 }

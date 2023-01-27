@@ -56,4 +56,6 @@ public struct Car : IComponentData
     public int SegmentNumber;
     public int Index;
     public bool IsPassing;
+    public float4x4 StartTransformation;
+    public float4x4 EndTransformation;
 }

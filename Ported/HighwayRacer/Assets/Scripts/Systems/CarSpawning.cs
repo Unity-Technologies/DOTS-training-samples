@@ -74,7 +74,7 @@ namespace Systems
                     TrackLength = 1.0f,
                     LaneNumber = laneNumber,
                     NewLaneNumber = -1,
-                    LaneChangeProgress = -1.0f,
+                    LaneChangeProgress = 1.5f,
                     LaneChangeClearance = config.LaneChangeClearance,
                     Color = float4.zero,
                     SegmentNumber = 0,
