@@ -80,19 +80,30 @@ public partial struct BucketEmptySystem : ISystem
                 // we're at a water source, filling bucket
             {
                 var waterCellEntity = targetOfWorker.waterTargetEntity;
-                var waterCellAmount = SystemAPI.GetComponent<WaterAmount>(waterCellEntity);
-                var deltaWaterChange = math.max((float)bucketWaterAmount.maxContain, waterCellAmount.currentContain);
-                waterCellAmount.currentContain -= (byte)deltaWaterChange;
-                bucketWaterAmount.currentContain += (byte)deltaWaterChange;
-                if (waterCellAmount.currentContain <= 0)
+                var cellExists = SystemAPI.HasComponent<WaterAmount>(waterCellEntity);
+                if (cellExists)
                 {
-                    // water cell is depleted, we kill the entity
-                    state.EntityManager.DestroyEntity(waterCellEntity);
-                    targetOfWorker.waterTargetEntity = new();
+                    var waterCellAmount = SystemAPI.GetComponent<WaterAmount>(waterCellEntity);
+                    var deltaWaterChange = math.max((float)bucketWaterAmount.maxContain, waterCellAmount.currentContain);
+                    waterCellAmount.currentContain -= (byte)deltaWaterChange;
+                    bucketWaterAmount.currentContain += (byte)deltaWaterChange;
+                    if (waterCellAmount.currentContain <= 0)
+                    {
+                        // water cell is depleted, we kill the entity
+                        state.EntityManager.DestroyEntity(waterCellEntity);
+                        targetOfWorker.waterTargetEntity = new();
+                    }
+                    else
+                    {
+                        SystemAPI.SetComponent(waterCellEntity, waterCellAmount);
+                    }
                 }
                 else
                 {
-                    SystemAPI.SetComponent(waterCellEntity, waterCellAmount);
+                    // cell was destroyed while iterating over workers, another worker took the last remaining water.
+                    // could have used command buffer here
+                    targetOfWorker.waterTargetEntity = Entity.Null;
+                    SystemAPI.SetComponent(workerEntity, targetOfWorker);
                 }
             }
 
