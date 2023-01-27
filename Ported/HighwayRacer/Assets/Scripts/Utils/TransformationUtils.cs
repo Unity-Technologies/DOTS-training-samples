@@ -39,7 +39,21 @@ namespace Utils
             }
         }
 
-         public static float GetDistanceOnLaneChange(int currentLane, float currentDistance, int laneChangeTo, in NativeArray<Lane> lanes, float straightLength, float laneOffset)
+        public static int GetSegmentIndexFromDistance(float distance, float laneLength, float straightLength)
+        {
+            float combinedSegmentLength = laneLength * 0.25f;
+
+            int combinedSegmentIndex = (int)math.floor(distance / combinedSegmentLength);
+
+            float distanceInCombinedSegment = distance - combinedSegmentLength * combinedSegmentIndex;
+            bool isOnStraight = (distanceInCombinedSegment <= straightLength);
+
+            // Multiply our combined segment index by 2 to get the real segment index for the straight,
+            // then add 1 if we've moved onto the curve
+            return combinedSegmentIndex * 2 + (isOnStraight ? 0 : 1);
+        }
+
+        public static float GetDistanceOnLaneChange(int currentLane, float currentDistance, int laneChangeTo, in NativeArray<Lane> lanes, float straightLength, float laneOffset)
         {
             if (laneChangeTo < 0 || laneChangeTo >= lanes.Length)
             {

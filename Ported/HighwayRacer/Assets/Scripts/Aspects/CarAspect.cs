@@ -80,5 +80,10 @@ namespace Aspects
             get => Car.ValueRO.EndTransformation;
             set => Car.ValueRW.EndTransformation = value;
         }
+        public int SegmentNumber
+        {
+            get => Car.ValueRO.SegmentNumber;
+            set => Car.ValueRW.SegmentNumber = value;
+        }
     }
 }

@@ -3,10 +3,12 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Collections;
+using Utils;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
+    [BurstCompile]
     public partial struct CarSpawning : ISystem
     {
         [BurstCompile]
@@ -21,6 +23,7 @@ namespace Systems
 
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<Config>();
@@ -30,11 +33,13 @@ namespace Systems
             int totalSlots = 0;
             NativeArray<NativeArray<float>> slots = new NativeArray<NativeArray<float>>(config.NumLanes, Allocator.Temp);
             NativeArray<int> slotIndex = new NativeArray<int>(config.NumLanes, Allocator.Temp);
+            NativeArray<float> laneLengths = new NativeArray<float>(config.NumLanes, Allocator.Temp);
             for (int i = 0; i < config.NumLanes; i++)
             {
                 // Each lane has different length.
                 var laneRadius = LaneSpawning.GetLaneRadius(i, config.NumLanes, Config.LaneOffset, Config.CurveRadius);
                 var laneLength = LaneSpawning.GetLaneLength(laneRadius, config.TrackSize);
+                laneLengths[i] = laneLength;
 
                 float slotSize = config.LaneChangeClearance;
                 int slotCount = (int)math.floor(laneLength / slotSize);
@@ -64,6 +69,8 @@ namespace Systems
 
                 var laneNumber = random.NextInt(config.NumLanes);
                 int index = slotIndex[laneNumber]++;
+                var segmentNumber = TransformationUtils.GetSegmentIndexFromDistance(slots[laneNumber][index], laneLengths[laneNumber],
+                    Config.SegmentLength * config.TrackSize);
                 state.EntityManager.SetComponentData(car, new Car()
                 {
                     Distance = slots[laneNumber][index],
@@ -77,8 +84,12 @@ namespace Systems
                     LaneChangeProgress = 1.5f,
                     LaneChangeClearance = config.LaneChangeClearance,
                     Color = float4.zero,
-                    SegmentNumber = 0,
+                    SegmentNumber = segmentNumber,
                     Index = i
+                });
+                state.EntityManager.SetSharedComponent(car, new SegmentNumber
+                {
+                    SegmentId = segmentNumber
                 });
             }
 

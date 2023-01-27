@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -35,12 +36,12 @@ public class CarAuthoring : UnityEngine.MonoBehaviour
                 SegmentNumber = authoring.SegmentNumber,
                 IsPassing = authoring.IsPassing
             });
-
+            AddSharedComponent(new SegmentNumber());
         }
     }
 }
 
-public struct Car : IComponentData
+public struct Car : IComponentData, IEquatable<Car>
 {
     public float Distance;
     public float Length;
@@ -58,4 +59,14 @@ public struct Car : IComponentData
     public bool IsPassing;
     public float4x4 StartTransformation;
     public float4x4 EndTransformation;
+
+    public bool Equals(Car other)
+    {
+        return Index == other.Index;
+    }
+}
+
+public struct SegmentNumber : ISharedComponentData
+{
+    public int SegmentId;
 }
