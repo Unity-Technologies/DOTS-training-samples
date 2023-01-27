@@ -5,6 +5,8 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 
+[UpdateBefore(typeof(MovementSystem))]
+[UpdateBefore(typeof(OmniWorkerAiSystem))]
 [BurstCompile]
 public partial struct BucketEmptySystem : ISystem
 {
@@ -53,7 +55,7 @@ public partial struct BucketEmptySystem : ISystem
             var targetOfWorker = SystemAPI.GetComponent<Target>(workerEntity);
             var bucketEntity = SystemAPI.GetComponent<CarriedBucket>(workerEntity).bucket;
             var bucketWaterAmount = SystemAPI.GetComponent<WaterAmount>(bucketEntity);
-            if (bucketWaterAmount.currentContain > 0) // we're at a fire, emptying bucket
+            if (bucketWaterAmount.currentContain > 0 && targetOfWorker.fireTargetEntity != Entity.Null) // we're at a fire, emptying bucket
             {
                 var x = targetOfWorker.targetIndex.x;
                 var y = targetOfWorker.targetIndex.y;
@@ -74,9 +76,10 @@ public partial struct BucketEmptySystem : ISystem
 
                 bucketWaterAmount.currentContain = 0;
             }
-            else // we're at a water source, filling bucket
+            else if (targetOfWorker.waterTargetEntity != Entity.Null)
+                // we're at a water source, filling bucket
             {
-                var waterCellEntity = targetOfWorker.targetEntity;
+                var waterCellEntity = targetOfWorker.waterTargetEntity;
                 var waterCellAmount = SystemAPI.GetComponent<WaterAmount>(waterCellEntity);
                 var deltaWaterChange = math.max((float)bucketWaterAmount.maxContain, waterCellAmount.currentContain);
                 waterCellAmount.currentContain -= (byte)deltaWaterChange;
@@ -85,6 +88,7 @@ public partial struct BucketEmptySystem : ISystem
                 {
                     // water cell is depleted, we kill the entity
                     state.EntityManager.DestroyEntity(waterCellEntity);
+                    targetOfWorker.waterTargetEntity = new();
                 }
                 else
                 {

@@ -20,7 +20,7 @@ partial struct SpawningSystem : ISystem
         state.RequireForUpdate<Config>();
 
         m_BaseColorQuery = state.GetEntityQuery(ComponentType.ReadOnly<URPMaterialPropertyBaseColor>());
-        
+
         m_BucketFetcherQuery = state.GetEntityQuery(ComponentType.ReadWrite<TeamInfo>(), ComponentType.Exclude<LineInfo>());
     }
 
@@ -33,7 +33,7 @@ partial struct SpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colourQueryMask = m_BaseColorQuery.GetEntityQueryMask();
-        
+
         var config = SystemAPI.GetSingleton<Config>();
 
         // This system will only run once, so the random seed can be hard-coded.
@@ -66,17 +66,16 @@ partial struct SpawningSystem : ISystem
         // create Omniworkers
         var omniworkers = CollectionHelper.CreateNativeArray<Entity>(config.omniWorkersCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.omniWorkerPrefab, omniworkers);
-        
+
         // set Omniworker colour
         foreach (var omniworker in omniworkers)
         {
-            state.EntityManager.SetComponentData(omniworker, 
+            state.EntityManager.SetComponentData(omniworker,
                 new MoveInfo()
                 {
                     destinationPosition = new float2(0,0),
-                    speed = config.workerSpeed
                 });
-            
+
             // Every prefab root contains a LinkedEntityGroup, a list of all of its entities.
             ecb.SetComponentForLinkedEntityGroup(omniworker,
                 colourQueryMask,
@@ -90,7 +89,7 @@ partial struct SpawningSystem : ISystem
         // create BucketFetchers
         var bucketFetchers = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams * config.bucketFetchersPerTeam, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketFetcherPrefab, bucketFetchers);
-        
+
         // set BucketPasser colour
         foreach (var bucketFetcher in bucketFetchers)
         {
@@ -99,11 +98,11 @@ partial struct SpawningSystem : ISystem
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.bucketFetcherColour });
         }
-        
+
         // create BucketPassers
         var bucketPassers = CollectionHelper.CreateNativeArray<Entity>(config.numberOfTeams * config.bucketPassersPerTeam, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketPasserPrefab, bucketPassers);
-        
+
         // set BucketPasser colour
         foreach (var bucketPasser in bucketPassers)
         {
@@ -112,7 +111,7 @@ partial struct SpawningSystem : ISystem
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.bucketPasserColour });
         }
-        
+
         // set team Entity all BucketPassers
         int indexInLine = 0;
         int teamIndex = 0;
@@ -132,7 +131,7 @@ partial struct SpawningSystem : ISystem
                 }
             }
         }
-        
+
         // set team Entity to all BucketFetchers
         teamIndex = 0;
         int bucketFetcherIndex = 0;
@@ -161,11 +160,11 @@ partial struct SpawningSystem : ISystem
             transform.LocalPosition = entityPosition;
             position.ValueRW.position = new float2(entityPosition.x, entityPosition.z);
         }
-        
+
         // create water cells
         var waterCells = CollectionHelper.CreateNativeArray<Entity>(config.waterCellCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.waterCellPrefab, waterCells);
-        
+
         // set empty bucket colour
         foreach (var waterCell in waterCells)
         {
@@ -174,7 +173,7 @@ partial struct SpawningSystem : ISystem
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.waterCellColour });
         }
-        
+
         // set position and water amount on water cells
         foreach (var (transform, position, waterAmount) in SystemAPI.Query<TransformAspect, RefRW<Position>, RefRW<WaterAmount>>())
         {
@@ -187,7 +186,7 @@ partial struct SpawningSystem : ISystem
             waterAmount.ValueRW.currentContain = config.maxWaterCellWaterAmount;
             waterAmount.ValueRW.maxContain = config.maxWaterCellWaterAmount;
         }
-        
+
         // create buckets
         var buckets = CollectionHelper.CreateNativeArray<Entity>(config.bucketCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.bucketPrefab, buckets);
@@ -200,14 +199,14 @@ partial struct SpawningSystem : ISystem
                 colourQueryMask,
                 new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.fullBucketColour });
         }
-        
+
         // initialize buckets with max contain
         foreach (var (waterAmount, pickedUpTag) in SystemAPI.Query<RefRW<WaterAmount>, BucketTag>())
         {
             waterAmount.ValueRW.currentContain = 0;
             waterAmount.ValueRW.maxContain = config.maxBucketAmount;
         }
-        
+
         // set random position to buckets
         foreach (var (transform, position, pickedUpTag) in SystemAPI.Query<TransformAspect, RefRW<Position>, BucketTag>())
         {
@@ -219,7 +218,7 @@ partial struct SpawningSystem : ISystem
         // create flame cells
         var flameCells = CollectionHelper.CreateNativeArray<Entity>(config.gridSize * config.gridSize, Allocator.Temp);
         state.EntityManager.Instantiate(config.flameCellPrefab, flameCells);
-        
+
         // set default fire temperature to all flamecells
         foreach (var flameCell in flameCells)
         {

@@ -10,6 +10,8 @@ public struct TargetSystemData : IComponentData
 }
 
 [UpdateAfter(typeof(FireSimSystem))]
+[UpdateBefore(typeof(MovementSystem))]
+[UpdateAfter(typeof(OmniWorkerAiSystem))]
 [BurstCompile]
 partial struct TargetSystem : ISystem
 {
@@ -20,7 +22,7 @@ partial struct TargetSystem : ISystem
     EntityQuery m_WaterCellQuery;
 
     const double k_TimeBetweenUpdates = 5;
-    
+
 
     //[BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -42,12 +44,14 @@ partial struct TargetSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var currentTime = SystemAPI.Time.ElapsedTime;
-        if (currentTime < SystemAPI.GetComponent<TargetSystemData>(state.SystemHandle).NextUpdateTime) return;
-        SystemAPI.SetComponent(state.SystemHandle, new TargetSystemData() { NextUpdateTime = currentTime + k_TimeBetweenUpdates});
-        
+        // var currentTime = SystemAPI.Time.ElapsedTime;
+        // if (currentTime < SystemAPI.GetComponent<TargetSystemData>(state.SystemHandle).NextUpdateTime) return;
+        // SystemAPI.SetComponent(state.SystemHandle, new TargetSystemData() { NextUpdateTime = currentTime + k_TimeBetweenUpdates});
+
         m_PositionLookup.Update(ref state);
         m_TargetLookup.Update(ref state);
+        var MoveInfoLookup = SystemAPI.GetComponentLookup<MoveInfo>();
+
         foreach (var worker in m_OmniWorkerQuery.ToEntityArray(Allocator.Temp))
         {
             var workerPosition = m_PositionLookup.GetRefRO(worker).ValueRO.position;
@@ -56,35 +60,55 @@ partial struct TargetSystem : ISystem
             var waterTarget = workerPosition;
             Entity fireTargetEntity = new();
             int2 flameTargetIndex = new();
-            foreach (var flameEntity in m_FlameCellQuery.ToEntityArray(Allocator.Temp))
+
+
+
+            if (SystemAPI.GetComponent<OmniWorkerAIState>(worker).omniWorkerState == OmniWorkerState.EmptyingBucket)
             {
-                var flameCellPosition = SystemAPI.GetComponent<Position>(flameEntity);
-                var dist = math.distance(workerPosition, flameCellPosition.position);
-                if (dist < minDist)
+                foreach (var flameEntity in m_FlameCellQuery.ToEntityArray(Allocator.Temp))
                 {
-                    minDist = dist;
-                    flameTarget = flameCellPosition.position;
-                    var cellInfo = SystemAPI.GetComponent<CellInfo>(flameEntity);
-                    fireTargetEntity = flameEntity;
-                    flameTargetIndex = new int2(cellInfo.indexX,cellInfo.indexY);
+                    var flameCellPosition = SystemAPI.GetComponent<Position>(flameEntity);
+                    var dist = math.distance(workerPosition, flameCellPosition.position);
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        flameTarget = flameCellPosition.position;
+                        var cellInfo = SystemAPI.GetComponent<CellInfo>(flameEntity);
+                        fireTargetEntity = flameEntity;
+                        flameTargetIndex = new int2(cellInfo.indexX, cellInfo.indexY);
+                    }
                 }
+                MoveInfoLookup.GetRefRW(worker, false).ValueRW.destinationPosition = flameTarget;
             }
+
             m_TargetLookup.GetRefRW(worker, false).ValueRW.fireTargetEntity = fireTargetEntity;
 
             minDist = math.INFINITY;
             Entity waterTargetEntity = new();
-            foreach (var waterEntity in m_WaterCellQuery.ToEntityArray(Allocator.Temp))
+            if (SystemAPI.GetComponent<OmniWorkerAIState>(worker).omniWorkerState == OmniWorkerState.FillingBucket)
             {
-                var waterCellPosition = SystemAPI.GetComponent<Position>(waterEntity);
-                var dist = math.distance(workerPosition, waterCellPosition.position);
-                if (dist < minDist)
+                foreach (var waterEntity in m_WaterCellQuery.ToEntityArray(Allocator.Temp))
                 {
-                    minDist = dist;
-                    waterTarget = waterCellPosition.position;
-                    waterTargetEntity = waterEntity;
+                    var waterCellPosition = SystemAPI.GetComponent<Position>(waterEntity);
+                    var dist = math.distance(workerPosition, waterCellPosition.position);
+                    if (dist < minDist)
+                    {
+                        minDist = dist;
+                        waterTarget = waterCellPosition.position;
+                        waterTargetEntity = waterEntity;
+                    }
                 }
+                MoveInfoLookup.GetRefRW(worker, false).ValueRW.destinationPosition = waterTarget;
             }
+
             m_TargetLookup.GetRefRW(worker, false).ValueRW.waterTargetEntity = waterTargetEntity;
+
+            if (waterTargetEntity == Entity.Null && fireTargetEntity == Entity.Null)
+            {
+                // no target, nothing to do
+                var aiState = SystemAPI.GetComponent<OmniWorkerAIState>(worker);
+                // aiState.omniWorkerState = OmniWorkerState.Idle;
+            }
 
 
             m_TargetLookup.GetRefRW(worker, false).ValueRW.waterCellPosition = waterTarget;
