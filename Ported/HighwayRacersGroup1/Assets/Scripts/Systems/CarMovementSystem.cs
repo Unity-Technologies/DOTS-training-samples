@@ -13,204 +13,92 @@ partial struct CarMovementSystem : ISystem
     private EntityQuery trackSegments;
     private EntityQuery cars;
 
+    private NativeArray<LocalTransform> segmentPositions;
+    private NativeArray<Segment> segmentDirections;
+
     public void OnCreate(ref SystemState state)
     {
         trackSegments =
             state.GetEntityQuery(ComponentType.ReadOnly<Segment>(), ComponentType.ReadOnly<LocalTransform>());
 
         cars = state.GetEntityQuery(ComponentType.ReadOnly<CarData>(), ComponentType.ReadOnly<LocalTransform>());
+
+          
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+        
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         // todo: find nearest neighbors
-        var allCarData = cars.ToComponentDataArray<CarData>(Allocator.TempJob);
-        var allCarTransforms = cars.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        //var allCarData = cars.ToComponentDataArray<CarData>(Allocator.TempJob);
+        //var allCarTransforms = cars.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        
+        if(segmentPositions.Length < 1)
+            segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.Persistent);
 
-        var segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-        var segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.TempJob);
+        if(segmentDirections.Length < 1)
+            segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.Persistent);
 
-        var findNearest = new FindNearestNeighborsJob()
+        //var segmentPositions = trackSegments.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        //var segmentDirections = trackSegments.ToComponentDataArray<Segment>(Allocator.TempJob);
+
+
+        var SegmentCars = new NativeArray<CarData>(segmentPositions.Length * 10, Allocator.TempJob);
+
+        var findJob = new FindNearestJob
         {
-            AllCars = allCarData,
-            CarTransforms = allCarTransforms,
-            Segments = segmentPositions
+            SegmentCars = SegmentCars
         };
 
-        state.Dependency = findNearest.Schedule(state.Dependency);
+        state.Dependency = findJob.Schedule(state.Dependency);
         state.Dependency.Complete();
 
-        
         var carMovementJob = new CarMovementJob
         {
+            SegmentCars = SegmentCars,
             Segments = segmentPositions,
             SegmentDirections = segmentDirections,
             DeltaTime = SystemAPI.Time.DeltaTime
         };
 
         state.Dependency = carMovementJob.ScheduleParallel(state.Dependency);
+        
     }
 }
+
 
 [BurstCompile]
-partial struct FindNearestNeighborsJob : IJobEntity
+partial struct FindNearestJob : IJobEntity
 {
-    [Unity.Collections.ReadOnly] public NativeArray<CarData> AllCars;
+    public NativeArray<CarData> SegmentCars;
 
-    [Unity.Collections.ReadOnly] public NativeArray<LocalTransform> CarTransforms;
-
-    [Unity.Collections.ReadOnly] public NativeArray<LocalTransform> Segments;
-
-    private void Execute(Entity entity, ref CarData carData, ref LocalTransform transform)
+    private void Execute(Entity entity, ref CarData carData)
     {
-        int proposedLane = -1;
-        int alternativeLane = -1;
-
-        var car = carData;
-
-        int carAheadIndex = -1;
-
-        if(car.inFrontCarIndex > -1)
+        int segmentIndex = carData.SegmentID * 10;
+       
+        for(int i = 0; i < 10; i++)
         {
-            if (Math.Abs(AllCars[car.inFrontCarIndex].Speed - car.Speed) < 1f)
+            var currentSegmentCarID = SegmentCars[segmentIndex];
+
+            if(currentSegmentCarID.Speed < 1)
             {
-                proposedLane = carData.Lane < 3 ? carData.Lane + 1 : 2;
-                alternativeLane = carData.Lane > 0 ? carData.Lane - 1 : -1;
-            } else
-            {
-                carData.inFrontCarIndex = -1;
-                carData.Speed = carData.DefaultSpeed;                
+                break;
             }
-               
-        } else
-        {
-            for (int j = 0; j < AllCars.Length; ++j)
-            {
-                var carToCheck = AllCars[j];
 
-                if (car.Lane != carToCheck.Lane)
-                    continue;
-
-                if (car.Speed <= carToCheck.Speed)
-                    continue;
-
-                var carToCheckSegment = car.SegmentID == Segments.Length-1 ? carToCheck.SegmentID == 0 ? Segments.Length : carToCheck.SegmentID : carToCheck.SegmentID;
-
-                if (carToCheckSegment < car.SegmentID)
-                    continue;
-
-                var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
-
-                if (distanceCheck < 10)
-                {
-                    proposedLane = carData.Lane < 3 ? carData.Lane + 1 : carData.Lane > 0 ? carData.Lane - 1 : -1;
-                    alternativeLane = -1;
-                    carAheadIndex = j;
-                }
-
-                if (distanceCheck < 5)
-                {                            
-                    carData.Speed = carToCheck.Speed;
-                    carData.inFrontCarIndex = j;
-                    break;
-                }
-            }
+            segmentIndex++;
         }
 
-        if (proposedLane == -1)
-        {
-            if(car.inFrontCarIndex == -1)
-            {
-                //Going back to the slow lane
-                proposedLane = carData.Lane > 0 ? carData.Lane - 1 : -1;
-                alternativeLane = -1;
-
-                if (proposedLane == -1)
-                    return;
-
-            } else
-            {
-                return;
-            }            
-        }
-            
-
-        int carsInRange = 0;
-
-        for (int j = 0; j < AllCars.Length; ++j)
-        {
-            var carToCheck = AllCars[j];
-
-            if (carToCheck.Lane == proposedLane)
-            {
-                var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
-                //Overtake distance 
-                if (distanceCheck < 10)
-                {
-                    carsInRange = 1;
-                    break;
-                }
-            }            
-        }
-
-        if (carsInRange > 0 && alternativeLane > -1)
-        {
-            for (int j = 0; j < AllCars.Length; ++j)
-            {
-                var carToCheck = AllCars[j];
-
-                if (carToCheck.Lane == alternativeLane)
-                {
-                    var distanceCheck = math.distance(transform.Position, CarTransforms[j].Position);
-
-                    //Overtake distance 
-                    if (distanceCheck < 10)
-                    {
-                        carsInRange = 2;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (carsInRange > 1)
-            return;
-
-        var overtakeSpeed = 0f;
-        var speedCheck = 10f;
-
-        if (carData.inFrontCarIndex > -1)
-        {
-            overtakeSpeed = 20f * (1 - (math.clamp(car.Speed - AllCars[carData.inFrontCarIndex].Speed, 0, speedCheck) / speedCheck));
-        } else if (carAheadIndex > -1)
-        {
-            overtakeSpeed = 20f * (1 - (math.clamp(car.Speed - AllCars[carAheadIndex].Speed, 0, speedCheck) / speedCheck));
-        }
+        SegmentCars[segmentIndex] = carData;
         
-
-        if(carsInRange == 1)
-        {
-            if(alternativeLane > -1)
-            {
-                carData.Speed = carData.DefaultSpeed + overtakeSpeed;
-                carData.TargetLane = alternativeLane;
-                carData.inFrontCarIndex = -1;
-            }            
-            return;
-        }
-
-        carData.Speed = carData.DefaultSpeed + overtakeSpeed;
-        carData.TargetLane = proposedLane;
-        carData.inFrontCarIndex = -1;
-
     }
 }
+
 
 [BurstCompile]
 partial struct CarMovementJob : IJobEntity
@@ -219,16 +107,116 @@ partial struct CarMovementJob : IJobEntity
 
     [Unity.Collections.ReadOnly] public NativeArray<Segment> SegmentDirections;
 
+    [Unity.Collections.ReadOnly] public NativeArray<CarData> SegmentCars;
+
     public float DeltaTime;
 
     private void Execute(Entity entity, ref CarData carData, ref LocalTransform transform)
     {
-        // Update speed.
+        int currentSegmentID = carData.SegmentID * 10;
+        int nextSegmentID = carData.SegmentID + 1 > Segments.Length - 1 ? 0 : (carData.SegmentID + 1) * 10;
+        int previousSegmentID = carData.SegmentID + 2 > Segments.Length - 1 ? 0 : (carData.SegmentID + 2) * 10;
+        int previousSegmentID2 = carData.SegmentID - 1 < 0 ? (Segments.Length - 1) * 10 : (carData.SegmentID - 1) * 10;
+        //int previousSegmentID = carData.SegmentID - 1 < 0 ? (Segments.Length - 1) * 10 : (carData.SegmentID - 1) * 10;
+
+        int fastLane = carData.Lane < 3 ? carData.Lane + 1 : 3;
+        int slowLane = carData.Lane > 0 ? carData.Lane - 1 : 0;
+        int pass = 0;
+
+        var car = carData;
+
+        for (int j = 0; j < 40; j++)
+        {
+            var carToCheck = SegmentCars[0];
+
+            if (j < 10)
+            {
+                carToCheck = SegmentCars[currentSegmentID + j];
+            }
+            else if (j > 9 && j < 20)
+            {
+                carToCheck = SegmentCars[nextSegmentID + (j - 10)];
+            }            
+            else if (j > 19 && j < 30)
+            {
+                carToCheck = SegmentCars[previousSegmentID + (j - 20)];
+            }
+            else if (j > 29 && j < 40)
+            {
+                carToCheck = SegmentCars[previousSegmentID2 + (j - 30)];
+            }
+
+            if (carToCheck.Speed > 1 && carToCheck.CarID != carData.CarID)
+            {
+                if (car.Lane == carToCheck.Lane)
+                {
+                    if (car.Speed <= carToCheck.Speed)
+                        continue;
+
+                    var carToCheckSegment = carData.SegmentID == Segments.Length - 1 ? carToCheck.SegmentID == 0 ? Segments.Length : carToCheck.SegmentID : carToCheck.SegmentID;
+
+                    if (carToCheckSegment < carData.SegmentID)
+                        continue;
+
+                    if (carToCheck.LerpDistance < carData.LerpDistance)
+                        continue;
+
+                    var distanceCheck = math.distance(transform.Position, carToCheck.Position);
+
+                    if (distanceCheck < 6)
+                    {                       
+                        carData.Speed = carToCheck.Speed;
+                        pass = 1;
+                    }
+                }  
+                else if (carToCheck.Lane == fastLane)
+                {
+                    var distanceCheck = math.distance(transform.Position, carToCheck.Position);
+
+                    if (distanceCheck < 10)
+                    {
+                        fastLane = -1;
+                        pass = 0;
+                    }
+                }           
+                else if (carToCheck.Lane == slowLane)
+                {
+                    var distanceCheck = math.distance(transform.Position, carToCheck.Position);
+
+                    if (distanceCheck < 10)
+                    {
+                        slowLane = -1;
+                        pass = 0;
+                    }
+                }
+            }            
+        }
+        
+        if(pass == 1 || carData.Speed < carData.DefaultSpeed)
+        {
+            if(fastLane > -1)
+            {
+                if (carData.Lane != fastLane)
+                {
+                    carData.Lane = fastLane;
+                    carData.Speed = carData.DefaultSpeed;
+                }
+            } 
+            else if(slowLane > -1)
+            {
+                if (carData.Lane != slowLane)
+                {
+                    carData.Lane = slowLane;
+                    carData.Speed = carData.DefaultSpeed;
+                }
+            }            
+        }
+        /*
         if (carData.Lane != carData.TargetLane)
         {
             carData.Lane = carData.TargetLane;
-            //carData.Speed = carData.DefaultSpeed;
         }
+        */
 
         float carSpeed = carData.Speed * DeltaTime;
 
@@ -267,13 +255,14 @@ partial struct CarMovementJob : IJobEntity
         quaternion carRotation = quaternion.LookRotation(directionLerp, directionUp);
         
         transform.Position = MoveTowards(transform.Position, targetPosition, carSpeed);
-
+        carData.Position = transform.Position;
         transform.Rotation = carRotation;
 
         if (currentDistance <= 1f)
         {
             carData.SegmentID = carData.SegmentID < Segments.Length - 1 ? carData.SegmentID + 1 : 0;
             carData.SegmentDistance = math.distance(transform.Position, futurePosition);
+            
         }
     }
 
@@ -290,4 +279,5 @@ partial struct CarMovementJob : IJobEntity
             current.y + deltaY / dist * maxDistanceDelta,
             current.z + deltaZ / dist * maxDistanceDelta);
     }
+
 }

@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CornerPrefab: {fileID: 271049375937590116, guid: 3cb6a8b08696d1d4bb702816030f64f5, type: 3}
   StraightPrefab: {fileID: 8108023121139304503, guid: 235377e139a73c942a3c2f6f6d010556, type: 3}
-  HighwaySize: 100
+  HighwaySize: 5000
   HighwayPieces: []
   HighwaySegments: []
 --- !u!4 &78390362

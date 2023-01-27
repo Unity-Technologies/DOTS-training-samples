@@ -18,6 +18,7 @@ public class CarAuthoring : MonoBehaviour
 // todo: rename to "Car"
 struct CarData : IComponentData
 {
+    public int CarID;
     public int SegmentID;
     public float SegmentDistance;
     public int Lane;
@@ -27,6 +28,7 @@ struct CarData : IComponentData
     public float OvertakeSpeed;
     public float LerpDistance;
     public int inFrontCarIndex;
+    public float3 Position;
 
     public float4 Color;
     public Entity CarPrefab;

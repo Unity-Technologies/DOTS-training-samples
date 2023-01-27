@@ -69,6 +69,7 @@ partial struct SpawnerSystem : ISystem
 
             var car = new CarData
             {
+                CarID = i + 1,
                 SegmentID = segmentID,
                 Lane = laneID,
                 TargetLane = laneID,

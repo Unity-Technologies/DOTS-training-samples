@@ -24,6 +24,7 @@ namespace Systems
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
+            /*
             // Creating an EntityCommandBuffer to defer the structural changes required by instantiation.
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -32,6 +33,7 @@ namespace Systems
             {
                 state.EntityManager.SetComponentData(car.CarEntity, CreateColorBySpeed(car.Speed, car.DefaultSpeed));
             }
+            */
         }
 
         private URPMaterialPropertyBaseColor CreateColorBySpeed(float speed, float defaultSpeed)
@@ -39,7 +41,7 @@ namespace Systems
             const float diffTolerance = 2f;
             var color = UnityEngine.Color.HSVToRGB(0.5f, 1.0f, 1.0f);
             var speedDiff = speed - defaultSpeed;
-            if (Math.Abs(speedDiff) > diffTolerance)
+            if (math.abs(speedDiff) > diffTolerance)
             {
                 color = speedDiff > 0 ? UnityEngine.Color.HSVToRGB(0.25f, 1.0f, 1.0f) : UnityEngine.Color.HSVToRGB(0f, 1.0f, 1.0f);
             }
