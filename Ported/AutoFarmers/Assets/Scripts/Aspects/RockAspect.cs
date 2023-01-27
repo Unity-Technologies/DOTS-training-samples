@@ -18,4 +18,25 @@ readonly partial struct RockAspect : IAspect
         get => Rock.ValueRW.RockHealth;
         set => Rock.ValueRW.RockHealth = value;
     }
+
+    public bool Damage(int damage,int2 gridPoint, ref WorldGrid grid)
+    {
+        Health -= damage;
+
+        UpdateSizeBasedOnHealth();
+
+        
+
+        if (Health <= 0)
+        {
+            grid.SetTypeAt(gridPoint, 0);
+            return true;
+        }
+        return false;
+    }
+
+    public void UpdateSizeBasedOnHealth()
+    {
+        Transform.LocalScale = (Health / (float)RockAuthoring.MAX_ROCK_HEALTH);
+    }
 }

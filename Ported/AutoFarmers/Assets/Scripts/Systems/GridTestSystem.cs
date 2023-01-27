@@ -43,7 +43,7 @@ public partial struct GridTestSystem : ISystem
         {
             int2 gridPos = worldGrid.WorldToGrid(f.Transform.WorldPosition);
             float3 worldPos = worldGrid.GridToWorld(gridPos.x, gridPos.y);
-            testPos.WorldPosition = worldPos;
+            testPos.LocalPosition = worldPos;
             i++;
         }
 

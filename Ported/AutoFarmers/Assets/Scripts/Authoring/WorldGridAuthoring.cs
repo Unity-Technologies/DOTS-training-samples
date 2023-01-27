@@ -15,8 +15,6 @@ class WorldGridAuthoring : UnityEngine.MonoBehaviour
         {
             AddComponent(new WorldGrid
             {
-                typeGrid = new NativeArray<byte>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
-                entityGrid = new NativeArray<Entity>(authoring.GridSizeX * authoring.GridSizeY, Allocator.Persistent),
                 gridSize = new int2(authoring.GridSizeX, authoring.GridSizeY),
                 offset = new float3(authoring.GridSizeX / 2.0f, 0, authoring.GridSizeY / 2.0f),
                 arraySize = authoring.GridSizeX * authoring.GridSizeY,
@@ -60,6 +58,8 @@ struct WorldGrid : IComponentData
     public int arraySize;
     public float3 offset;
     public Entity entity;
+    public bool initialized;
+    public bool finishedGenerating;
 
     //public bool needsRegeneration;
     //public int2 regenStartPos;
@@ -72,7 +72,7 @@ struct WorldGrid : IComponentData
 
     public float3 GridToWorld(int2 pos)
     {
-        return GridToWorld(pos.x,pos.y);    
+        return GridToWorld(pos.x, pos.y);
     }
 
     public int2 WorldToGrid(float3 pos)

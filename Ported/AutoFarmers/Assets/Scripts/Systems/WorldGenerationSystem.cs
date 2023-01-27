@@ -26,21 +26,34 @@ public partial struct WorldGenerationSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+        //Have to cleanup NativeArrays
+        var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
+        worldGrid.typeGrid.Dispose();
+        worldGrid.entityGrid.Dispose();
+
+        //Let's make the chunks first
+        DynamicBuffer<ChunkCell> chunkBuffer = state.EntityManager.GetBuffer<ChunkCell>(worldGrid.entity);
+
+        for (int i = 0; i < chunkBuffer.Length; i++)
+        {
+            chunkBuffer[i].typeCount.Dispose();
+        }
+
     }
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
+        var worldGrid = SystemAPI.GetAspectRW<WorldAspect>(SystemAPI.GetSingletonEntity<WorldAspect>());
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
+
+        worldGrid.Initialize(ref state);
 
         //worldGrid.typeGrid = new NativeArray<byte>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
         //worldGrid.entityGrid = new NativeArray<Entity>(worldGrid.gridSize.x * worldGrid.gridSize.y, Allocator.Persistent);
 
-        int width = worldGrid.gridSize.x;
-        int height = worldGrid.gridSize.y;
+        
         float rockNoiseThreshold = 0.2f;
         float safeZone = config.safeZoneRadius * config.safeZoneRadius;
 
@@ -48,20 +61,14 @@ public partial struct WorldGenerationSystem : ISystem
         float minNoiseVal = math.INFINITY;
 
         float2 siloNoiseThreshold = new float2(-0.6f, -0.605f);
+        float2 farmerNoiseThreshold = new float2(-0.5f, -0.505f);
 
-        //Let's make the chunks first
-        DynamicBuffer<ChunkCell> chunkBuffer = state.EntityManager.GetBuffer<ChunkCell>(worldGrid.entity);
+        int width = worldGrid.Width;
+        int height = worldGrid.Height;
 
-        chunkBuffer.Length = (width * height) / ChunkCell.size;
+        bool createFarmers = true;
 
-
-
-        //foreach(var cell in chunkBuffer)
-        //{
-        //    cell.typeCount = new NativeArray<int>();
-        //}
-
-        for(int x = 0;x< width; x++)
+        for (int x = 0;x< width; x++)
         {
             for (int y = 0; y < height; y++)
             {
@@ -83,6 +90,7 @@ public partial struct WorldGenerationSystem : ISystem
                     Entity rock = state.EntityManager.Instantiate(config.RockPrefab);
                     RockAspect rAspect = SystemAPI.GetAspectRW<RockAspect>(rock);
                     rAspect.Health = (int)remappedNoise;
+                    rAspect.Damage(0, new int2(x, y), ref worldGrid.Grid.ValueRW);
                     rAspect.Transform.LocalPosition = gridWorldPos;
                     worldGrid.SetEntityAt(x,y,rock);
                 }
@@ -98,12 +106,41 @@ public partial struct WorldGenerationSystem : ISystem
                     worldGrid.SetEntityAt(x, y, silo);
                 }
 
+
+                if (createFarmers)
+                {
+                    if (noiseVal < farmerNoiseThreshold.x && noiseVal > farmerNoiseThreshold.y)
+                    {
+                        //worldGrid.SetTypeAt(x, y, Silo.type);
+                        //Create it
+                        Entity silo = state.EntityManager.Instantiate(config.FarmerPrefab);
+                        FarmerAspect rAspect = SystemAPI.GetAspectRW<FarmerAspect>(silo);
+                        //rAspect.Health = (int)remappedNoise;
+                        rAspect.Transform.LocalPosition = gridWorldPos;
+                        //worldGrid.SetEntityAt(x, y, silo);
+                    }
+                }
+                
+
                 //if(noiseVal)
             }
         }
 
-        
+        bool generateCenterSilo = true;
+        if (generateCenterSilo)
+        {
 
+            worldGrid.SetTypeAt(width/2, height/2, Silo.type);
+            //Create it
+            Entity silo = state.EntityManager.Instantiate(config.SiloPrefab);
+            SiloAspect rAspect = SystemAPI.GetAspectRW<SiloAspect>(silo);
+            //rAspect.Health = (int)remappedNoise;
+            rAspect.Transform.LocalPosition = worldGrid.GridToWorld(width / 2, height / 2);
+            worldGrid.SetEntityAt(width/2, height/2, silo);
+        }
+
+
+        worldGrid.Grid.ValueRW.finishedGenerating = true;
 
         state.Enabled = false;
 

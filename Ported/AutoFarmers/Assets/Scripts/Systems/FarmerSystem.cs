@@ -39,10 +39,10 @@ partial struct FarmerSystem : ISystem
     }
 
     [BurstCompile]
-    public void ChooseNewTask(FarmerAspect farmer, ref SystemState state)
+    public void ChooseNewTask(FarmerAspect farmer, ref SystemState state, bool force)
     {
         //Cooldown?
-        if((SystemAPI.Time.ElapsedTime - farmer.LastStateChangeTime) > farmer.StateChangeCooldown)
+        if(((SystemAPI.Time.ElapsedTime - farmer.LastStateChangeTime) > farmer.StateChangeCooldown) || force)
         {
             farmer.LastStateChangeTime = (float)SystemAPI.Time.ElapsedTime;
             farmer.StateChangeCooldown = random.NextFloat(0.5f, 1.0f);
@@ -215,7 +215,7 @@ partial struct FarmerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         float moveOffset = 1.5f;
-        float moveOffsetExtra = moveOffset + 0.5f;
+        float moveOffsetExtra = moveOffset + 1.5f;
 
         //have to update every frame to use handles
         _entityTypeHandle.Update(ref state);
@@ -225,11 +225,16 @@ partial struct FarmerSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var worldGrid = SystemAPI.GetSingleton<WorldGrid>();
+        //var worldGridChunks = SystemAPI.GetBuffer<ChunkCell>(worldGrid.entity);
         var config = SystemAPI.GetSingleton<Config>();
 
         //var = SystemAPI.Query<FarmerAspect>();
-        int searchRange = 50;
-
+        int searchRangeRock = 50;
+        int searchRangeSilo = 160;
+        int searchRangePlant = 40;
+        int searchRangePlantPlot = 40;
+        int searchRangeCreatePlot = 20;
+        if (!worldGrid.initialized) return;
 
         //var BrainJob = new FarmerBrainJob
         //{
@@ -237,7 +242,7 @@ partial struct FarmerSystem : ISystem
         //};
         //BrainJob.ScheduleParallel();
 
-        var rockChunks = _rockQuery.ToArchetypeChunkArray(state.WorldUpdateAllocator);
+        //var rockChunks = _rockQuery.ToArchetypeChunkArray(state.WorldUpdateAllocator);
 
 
         foreach (var farmer in SystemAPI.Query<FarmerAspect>())
@@ -251,16 +256,12 @@ partial struct FarmerSystem : ISystem
             }
 
             int2 farmerGridPosition = worldGrid.WorldToGrid(farmer.Transform.LocalTransform.Position);
-            int2 startPosition = farmerGridPosition - searchRange / 2;
-            int2 endPosition = farmerGridPosition + searchRange / 2;
-
-
 
             float closestSqrMag = math.INFINITY;
             switch (farmer.FarmerState)
             {
                 case FarmerStates.FARMER_STATE_IDLE:
-                    ChooseNewTask(farmer,ref state);
+                    ChooseNewTask(farmer,ref state,false);
                     break;
 
                 case FarmerStates.FARMER_STATE_ROCKDESTROY:
@@ -351,18 +352,18 @@ partial struct FarmerSystem : ISystem
 
                     #region Grid Search (USING THIS!)
 
-                    int2 rockLoc = SearchGridForType(Rock.type, farmerGridPosition, searchRange, worldGrid);
+                    int2 rockLoc = SearchGridForType(Rock.type, farmerGridPosition, searchRangeRock, worldGrid);
                     if (rockLoc.x == -1 && rockLoc.y == -1)
                     {
                         //No Rocks Found
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state,true);
                         break;
                     }
                     Entity rockEntity = worldGrid.GetEntityAt(rockLoc.x, rockLoc.y);
                     if (rockEntity == Entity.Null)
                     {
                         //Something wrong with the grid to world conversion
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state,true);
                         break;
                     }
                     foundRock = true;
@@ -373,21 +374,23 @@ partial struct FarmerSystem : ISystem
 
                     if (foundRock)
                     {
-                        float3 rockDiff = farmer.Transform.WorldPosition - closestRock.Transform.WorldPosition;
+                        float3 rockDiff = farmer.Transform.LocalPosition - closestRock.Transform.LocalPosition;
                         farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestRock.Transform.LocalPosition,moveOffset);
 
                         if (math.lengthsq(rockDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
                             //Let's hurt the rock.
-                            closestRock.Health -= 1;
-                            if(closestRock.Health <= 0)
+                            if(closestRock.Damage(1,rockLoc,ref worldGrid))
                             {
-                                ChooseNewTask(farmer,ref state);
+                                ecb.DestroyEntity(closestRock.Self);
+                                ChooseNewTask(farmer, ref state,false);
+                                break;
                             }
+                            
                         }
                     }
                     else
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state, true);
                     #endregion
 
                     #endregion
@@ -416,34 +419,45 @@ partial struct FarmerSystem : ISystem
                     #endregion
 
                     #region Grid Search
-                    int2 plantLoc = SearchGridForType(PlantFinishedGrowing.type, farmerGridPosition, searchRange, worldGrid);
+                    int2 plantLoc = SearchGridForType(PlantFinishedGrowing.type, farmerGridPosition, searchRangePlant, worldGrid);
                     if (plantLoc.x == -1 && plantLoc.y == -1)
                     {
                         //No plants Found
-                        ChooseNewTask(farmer, ref state);
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                         break;
                     }
                     Entity plantEntity = worldGrid.GetEntityAt(plantLoc.x, plantLoc.y);
                     if (plantEntity == Entity.Null)
                     {
                         //If here, something wrong with the grid to world conversion
-                        ChooseNewTask(farmer, ref state);
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                         break;
                     }
                     foundPlant = true;
                     closestPlant = SystemAPI.GetAspectRW<PlantAspect>(plantEntity);
                     #endregion
 
+
                     if (foundPlant)
                     {
                         float3 plantDiff = farmer.Transform.WorldPosition - closestPlant.Transform.WorldPosition;
 
-                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestPlant.Transform.LocalPosition, moveOffset);
+                        farmer.MoveTarget = closestPlant.Transform.LocalPosition;
 
                         closestPlant.BeingTargeted = true;
 
                         //TODO: Control all this in a Manager script.. including targeting and detargeting of stuff.
                         //farmer.TargetEntity(closestPlant.Self);
+
+                        if(closestPlant.Self == Entity.Null)
+                        {
+                            ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
+                            break;
+                        }
+
+                        //Just choose a new one after threshold has passed.
+                        ChooseNewTask(farmer, ref state, false);
+
 
                         if (math.lengthsq(plantDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
@@ -460,12 +474,12 @@ partial struct FarmerSystem : ISystem
                                 worldGrid.SetTypeAt(plantLoc, Plot.type);
                                 worldGrid.SetEntityAt(plantLoc, closestPlant.Plot);
                             }
-
                             ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_PLACEINSILO, ref state);
+
                         }
                     }
                     else
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state,true);
 
                     #endregion
                     break;
@@ -491,18 +505,18 @@ partial struct FarmerSystem : ISystem
                     #endregion
 
                     #region Grid search
-                    int2 siloLoc = SearchGridForType(Silo.type, farmerGridPosition, searchRange, worldGrid);
+                    int2 siloLoc = SearchGridForType(Silo.type, farmerGridPosition, searchRangeSilo, worldGrid);
                     if (siloLoc.x == -1 && siloLoc.y == -1)
                     {
                         //No plants Found
-                        ChooseNewTask(farmer, ref state);
+                        ChooseNewTask(farmer, ref state,true);
                         break;
                     }
                     Entity siloEntity = worldGrid.GetEntityAt(siloLoc.x, siloLoc.y);
                     if (siloEntity == Entity.Null)
                     {
                         //If here, something wrong with the grid to world conversion
-                        ChooseNewTask(farmer, ref state);
+                        ChooseNewTask(farmer, ref state,true);
                         break;
                     }
                     foundSilo = true;
@@ -525,7 +539,7 @@ partial struct FarmerSystem : ISystem
                         }
                     }
                     else
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state,true);
                     #endregion
                     break;
                 case FarmerStates.FARMER_STATE_CREATEPLOT:
@@ -535,11 +549,11 @@ partial struct FarmerSystem : ISystem
                     #region Grid Search (USING THIS!)
 
                     // type of 0 is empty
-                    int2 emptyGridPos = SearchGridForType(0, farmerGridPosition, searchRange, worldGrid);
+                    int2 emptyGridPos = SearchGridForType(0, farmerGridPosition, searchRangeCreatePlot, worldGrid);
                     if (emptyGridPos.x == -1 && emptyGridPos.y == -1)
                     {
                         //Can't find any empty lots
-                        ChooseNewTask(farmer,ref state);
+                        ChooseNewTask(farmer,ref state,true);
                         break;
                     }
                     foundTile = true;
@@ -561,7 +575,7 @@ partial struct FarmerSystem : ISystem
                             worldGrid.SetTypeAt(emptyGridPos, Plot.type);
                             worldGrid.SetEntityAt(emptyGridPos, plot);
                             
-                            ChooseNewTask(farmer, ref state);
+                            ChooseNewTask(farmer, ref state,false);
                         }
                     }
                     #endregion
@@ -593,39 +607,49 @@ partial struct FarmerSystem : ISystem
                     #endregion Query
 
                     #region Grid search
-                    int2 plotLoc = SearchGridForType(Plot.type, farmerGridPosition, searchRange, worldGrid);
+                    int2 plotLoc = SearchGridForType(Plot.type, farmerGridPosition, searchRangePlantPlot, worldGrid);
                     if (plotLoc.x == -1 && plotLoc.y == -1)
                     {
                         //No plots Found
-                        ChooseNewTask(farmer, ref state);
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                         break;
                     }
                     Entity plotEntity = worldGrid.GetEntityAt(plotLoc.x, plotLoc.y);
                     if (plotEntity == Entity.Null)
                     {
                         //If here, something wrong with the grid to world conversion
-                        ChooseNewTask(farmer, ref state);
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                         break;
                     }
                     foundEmptyPlot = true;
                     closestPlot = SystemAPI.GetAspectRW<PlotAspect>(plotEntity);
+                    if (closestPlot.HasPlant() || closestPlot.HasSeed())
+                    {
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
+                        break;
+                    }
                     #endregion
+
+                    Vector3 pos = worldGrid.GridToWorld(plotLoc);
 
                     if (foundEmptyPlot)
                     {
-                        float3 plotDiff = farmer.Transform.WorldPosition - closestPlot.Transform.WorldPosition;
-                        farmer.MoveTarget = MoveTowards(farmer.Transform.LocalPosition, closestPlot.Transform.LocalPosition, moveOffset);
+                        float3 plotPoint = worldGrid.GridToWorld(plotLoc);
+                        farmer.MoveTarget = plotPoint;
+                        float3 plotDiff = farmer.Transform.LocalPosition - plotPoint;
 
                         if (math.lengthsq(plotDiff) <= (moveOffsetExtra * moveOffsetExtra))
                         {
                             closestPlot.PlantSeed(plotLoc);
                             worldGrid.SetTypeAt(plotLoc, Plant.type);
                             worldGrid.SetEntityAt(plotLoc, closestPlot.Plant);
-                            ChooseNewTask(farmer,ref state);
+                            ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
+                            break;
                         }
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                     }
                     else
-                        ChooseNewTask(farmer,ref state);
+                        ChooseSpecificTask(farmer, FarmerStates.FARMER_STATE_ROCKDESTROY, ref state);
                     #endregion
                     break;
 
@@ -666,7 +690,7 @@ partial struct FarmerSystem : ISystem
     float3 MoveTowards(float3 from, float3 to, float moveOffset)
     {
         float3 diff = to - from;
-        float3 point = from;
+        float3 point = to;
 
         if(math.lengthsq(diff) > 0.1f)
         {

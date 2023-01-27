@@ -13,7 +13,8 @@ class FarmerAuthoring : UnityEngine.MonoBehaviour
                 moveTarget = new float3(0, 0, 0),
                 farmerState = FarmerStates.FARMER_STATE_HARVEST,
                 backpackOffset = new float3(0, 2, 0),
-                stateChangeCooldown = 3.0f
+                stateChangeCooldown = 3.0f,
+                lastStateChangeTime = -3.0f
             });
         }
     }

@@ -30,7 +30,7 @@ partial struct FarmerMovementSystem : ISystem
         foreach(var farmer in SystemAPI.Query<FarmerAspect>())
         {
             
-            float3 diff = farmer.MoveTarget - farmer.Transform.WorldPosition;
+            float3 diff = farmer.MoveTarget - farmer.Transform.LocalPosition;
 
             diff.y = 0;
             float diffMag = math.length(diff);
@@ -40,12 +40,12 @@ partial struct FarmerMovementSystem : ISystem
             moveDirection.y = 0;
             if(diffMag > 0.2f)
             {
-                farmer.Transform.WorldPosition += moveDirection;
+                farmer.Transform.LocalPosition += moveDirection;
                 farmer.Transform.LookAt(farmer.MoveTarget);
             }
             else
             {
-                farmer.Transform.WorldPosition = farmer.MoveTarget;
+                farmer.Transform.LocalPosition = farmer.MoveTarget;
             }
         }
     }
