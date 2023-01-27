@@ -49,7 +49,7 @@ partial struct FireVisualizationSystem : ISystem
             else
             {
                 var cellScale = SystemAPI.GetComponent<PostTransformScale>(flameCell).Value.c1.y;
-                if (cellScale > 1)
+                if (cellScale is > 1 or < 1)
                 {
                     var postTransformScale = new PostTransformScale() {Value = float3x3.Scale(1)};
                     var cellColor = new URPMaterialPropertyBaseColor() {Value = (Vector4) defaultColor};
