@@ -53,9 +53,9 @@ MonoBehaviour:
   bucketFetcherColour: {r: 1, g: 0.7359283, b: 0, a: 0}
   bucketPasserColour: {r: 1, g: 0.025157154, b: 0.8194157, a: 0}
   omniworkerColour: {r: 0, g: 0, b: 0, a: 0}
-  emptyBucketColour: {r: 0, g: 1, b: 0.84011483, a: 0}
-  fullBucketColour: {r: 0.06289297, g: 0.58376515, b: 1, a: 0}
-  defaultTemperatureColour: {r: 0.26816344, g: 1, b: 0, a: 0}
+  emptyBucketColour: {r: 0.478032, g: 0.552, b: 0.53989613, a: 0}
+  fullBucketColour: {r: 0.15800005, g: 0.98596686, b: 1, a: 0}
+  defaultTemperatureColour: {r: 0.17634667, g: 0.38900003, b: 0.24118, a: 0}
   lowTemperatureColour: {r: 0.9022776, g: 1, b: 0.08962262, a: 0}
   highTemperatureColour: {r: 1, g: 0.01978819, b: 0, a: 0}
   waterCellColour: {r: 0, g: 0, b: 1, a: 0}

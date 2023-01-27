@@ -84,7 +84,7 @@ public partial struct BucketEmptySystem : ISystem
                 if (cellExists)
                 {
                     var waterCellAmount = SystemAPI.GetComponent<WaterAmount>(waterCellEntity);
-                    var deltaWaterChange = math.max((float)bucketWaterAmount.maxContain, waterCellAmount.currentContain);
+                    var deltaWaterChange = math.min((float)bucketWaterAmount.maxContain, waterCellAmount.currentContain);
                     waterCellAmount.currentContain -= (byte)deltaWaterChange;
                     bucketWaterAmount.currentContain += (byte)deltaWaterChange;
                     if (waterCellAmount.currentContain <= 0)

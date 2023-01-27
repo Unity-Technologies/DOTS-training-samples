@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -7,12 +8,16 @@ using UnityEngine;
 
 [UpdateAfter(typeof(FireSimSystem))]
 [BurstCompile]
-partial struct FireVisualizationSystem : ISystem
+partial struct VisualizationSystem : ISystem
 {
+    EntityQuery m_water;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+
+        m_water = state.GetEntityQuery(ComponentType.ReadWrite<WaterAmount>());
     }
 
     [BurstCompile]
@@ -28,7 +33,7 @@ partial struct FireVisualizationSystem : ISystem
         var lowTempColor = config.lowTemperatureColour;
         var highTempColor = config.highTemperatureColour;
 
-        foreach (var flameCellAspect in SystemAPI.Query<FireCellAspect>())
+        foreach (var flameCellAspect in SystemAPI.Query<FireCellAspect>().WithAll<OnFireTag>())
         {
             var flameCell = flameCellAspect.Self;
             var displayHeight = flameCellAspect.DisplayHeight.ValueRO.height;
@@ -57,6 +62,21 @@ partial struct FireVisualizationSystem : ISystem
                     SystemAPI.SetComponent(flameCell, cellColor);
                 }
             }
+        }
+
+        var emptyBucketColor = config.emptyBucketColour;
+        var fullBucketColor = config.fullBucketColour;
+
+
+        foreach (var waterEntity in m_water.ToEntityArray(Allocator.Temp))
+        {
+            var waterAmount = SystemAPI.GetComponent<WaterAmount>(waterEntity).currentContain;
+            var lerpBucketColor = Color.Lerp(emptyBucketColor, fullBucketColor, waterAmount);
+            var bucketColor = new URPMaterialPropertyBaseColor() {Value = (Vector4)lerpBucketColor};
+            SystemAPI.SetComponent(waterEntity,bucketColor);
+
+            var transformAspect = SystemAPI.GetAspectRW<TransformAspect>(waterEntity);
+            transformAspect.LocalScale = waterAmount * 0.02f + 1;
         }
     }
 }
