@@ -21,7 +21,7 @@ namespace Authoring
         public float LaneChangeClearance;
         public float LaneChangeTime;
 
-        [Range(0f, 10f)]
+        [Range(0f, 200f)]
         public float TrackSize = 1;
 
         public float2 SpeedRange;

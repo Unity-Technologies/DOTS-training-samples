@@ -63,6 +63,8 @@ namespace Systems
                 totalSlots += slotCount;
                 slotIndex[i] = 0;
             }
+
+            UnityEngine.Debug.Log($"Total Slots: {totalSlots}, Num Cars: {config.NumCars}");
             for (int i = 0; i < config.NumCars; i++)
             {
                 var car = state.EntityManager.Instantiate(config.CarPrefab);
