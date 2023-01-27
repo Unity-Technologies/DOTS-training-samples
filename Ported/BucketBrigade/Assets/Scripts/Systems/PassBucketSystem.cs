@@ -3,7 +3,13 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
+public struct PassBucketSystemData : IComponentData
+{
+    public double NextUpdateTime;
+}
+
 [UpdateAfter(typeof(BucketTargetingSystem))]
+[UpdateBefore(typeof(OmniWorkerAiSystem))]
 [BurstCompile]
 partial struct PassBucketSystem : ISystem
 {
@@ -12,6 +18,8 @@ partial struct PassBucketSystem : ISystem
     //EntityQuery m_WorkerDroppingQuery;
     EntityQuery m_WorkerPickingUpQuery;
     EntityQuery m_AvailableBucketQuery;
+
+    const double k_TimeBetweenUpdates = 0.5;
 
     //[BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -22,6 +30,8 @@ partial struct PassBucketSystem : ISystem
         //m_WorkerDroppingQuery = state.GetEntityQuery(ComponentType.ReadOnly<CarriesBucketTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());
         m_WorkerPickingUpQuery = state.GetEntityQuery(ComponentType.Exclude<CarriesBucketTag>(), ComponentType.ReadOnly<HasReachedDestinationTag>(), ComponentType.ReadOnly<Position>());
         m_AvailableBucketQuery = state.GetEntityQuery(ComponentType.Exclude<PickedUpTag>(), ComponentType.ReadOnly<Position>(), ComponentType.ReadOnly<BucketTag>());
+        state.EntityManager.AddComponent<PassBucketSystemData>(state.SystemHandle);
+
     }
 
     [BurstCompile]
@@ -32,9 +42,13 @@ partial struct PassBucketSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // var currentTime = SystemAPI.Time.ElapsedTime;
+        // if (currentTime < SystemAPI.GetComponent<PassBucketSystemData>(state.SystemHandle).NextUpdateTime) return;
+        // SystemAPI.SetComponent(state.SystemHandle, new PassBucketSystemData() { NextUpdateTime = currentTime + k_TimeBetweenUpdates});
+
         m_PositionLookup.Update(ref state);
         m_CarriedBucketLookup.Update(ref state);
-        
+
         // todo define update frequency
         /*foreach (var worker in m_WorkerDroppingQuery.ToEntityArray(Allocator.Temp))
         {
@@ -43,7 +57,7 @@ partial struct PassBucketSystem : ISystem
             state.EntityManager.SetComponentEnabled<PickedUpTag>(carriedBucket.bucket, false);
             carriedBucket.bucket = Entity.Null;
         }*/
-        
+
         foreach (var worker in m_WorkerPickingUpQuery.ToEntityArray(Allocator.Temp))
         {
             foreach (var bucket in m_AvailableBucketQuery.ToEntityArray(Allocator.Temp))

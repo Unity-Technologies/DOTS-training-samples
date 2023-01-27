@@ -11,7 +11,7 @@ partial struct BucketTargetingSystem : ISystem
     ComponentLookup<BucketTargetPosition> m_TargetLookup;
     EntityQuery m_OmniWorkerQuery;
     EntityQuery m_BucketQuery;
-    
+
     //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -35,6 +35,7 @@ partial struct BucketTargetingSystem : ISystem
         foreach (var worker in m_OmniWorkerQuery.ToEntityArray(Allocator.Temp))
         {
             var workerPosition = m_PositionLookup.GetRefRO(worker).ValueRO.position;
+
             var minDist = math.INFINITY;
             var bucketTargetPosition = workerPosition;
             var bucketTarget = Entity.Null;
@@ -54,8 +55,13 @@ partial struct BucketTargetingSystem : ISystem
             {
                 m_TargetLookup.GetRefRW(worker, false).ValueRW.position = bucketTargetPosition;
                 state.EntityManager.SetComponentEnabled<TargetedTag>(bucketTarget, true);
+
+                state.GetComponentLookup<MoveInfo>().GetRefRW(worker, false).ValueRW.destinationPosition = bucketTargetPosition;
+
             }
         }
+
+        state.Enabled = false;
     }
-    
+
 }

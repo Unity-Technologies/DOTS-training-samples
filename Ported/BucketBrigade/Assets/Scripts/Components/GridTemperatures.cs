@@ -8,7 +8,7 @@ public struct GridTemperatures : IComponentData
     public double NextGridUpdateTime;
     public double LastGridUpdateTime;
     NativeArray<float> temperatures;
-    int sqrSize;
+    public int sqrSize;
     bool isInit;
 
     public void Init(int sideSize)
