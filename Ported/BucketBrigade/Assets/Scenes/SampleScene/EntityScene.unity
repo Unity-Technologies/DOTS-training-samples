@@ -175,6 +175,38 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: gridSize
+      value: 250
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: bucketCount
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: workerSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: waterCellCount
+      value: 3000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: maxBucketAmount
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: heatTransferRate
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: omniWorkersCount
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4404692490784860677, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
+      propertyPath: baseHeatIncreaseRate
+      value: 0.02
+      objectReference: {fileID: 0}
     - target: {fileID: 4404692490784860698, guid: d1c5d13ee48a71440956b05ab162a204, type: 3}
       propertyPath: m_Name
       value: Config
