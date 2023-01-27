@@ -4,9 +4,7 @@ using UnityEngine;
 class ConfigAuthoring : UnityEngine.MonoBehaviour
 {
     public GameObject RockPrefab;
-    public int RockCount;
     public GameObject SiloPrefab;
-    public int SiloCount;
     public GameObject FarmerPrefab;
     public GameObject DronePrefab;
     public float SafeZoneRadius = 10.0f;
@@ -21,9 +19,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
             AddComponent(new Config
             {
                 RockPrefab = GetEntity(authoring.RockPrefab),
-                RockCount = authoring.RockCount,
                 SiloPrefab = GetEntity(authoring.SiloPrefab),
-                SiloCount = authoring.SiloCount,
                 FarmerPrefab = GetEntity(authoring.FarmerPrefab),
                 DronePrefab = GetEntity(authoring.DronePrefab),
                 safeZoneRadius = authoring.SafeZoneRadius,
@@ -37,9 +33,7 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
 struct Config : IComponentData
 {
     public Entity RockPrefab;
-    public int RockCount;
     public Entity SiloPrefab;
-    public int SiloCount;
     public Entity FarmerPrefab;
     public Entity DronePrefab;
     public float safeZoneRadius;
