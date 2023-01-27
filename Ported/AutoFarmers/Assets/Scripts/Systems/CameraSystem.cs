@@ -36,11 +36,11 @@ partial struct CameraSystem : ISystem
     // Because this OnUpdate accesses managed objects, it cannot be Burst compiled.
     public void OnUpdate(ref SystemState state)
     {
-        //if (Target == Entity.Null || UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space))
-        //{
-        //    var farmers = FarmerQuery.ToEntityArray(Allocator.Temp);
-        //    Target = farmers[Random.NextInt(farmers.Length)];
-        //}
+        if (Target == Entity.Null || UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space))
+        {
+            var farmers = FarmerQuery.ToEntityArray(Allocator.Temp);
+            Target = farmers[Random.NextInt(farmers.Length)];
+        }
 
         //////handle mouse movement
         ////mouseInputDelta.x = Input.mousePosition.x - mouseInputLastFrame.x;
@@ -48,8 +48,8 @@ partial struct CameraSystem : ISystem
 
         ////mouseInputLastFrame = (Vector2)Input.mousePosition;
 
-        //var cameraTransform = CameraSingleton.Instance.transform;
-        //var farmerTransform = SystemAPI.GetComponent<LocalTransform>(Target);
+        var cameraTransform = CameraSingleton.Instance.transform;
+        var farmerTransform = SystemAPI.GetComponent<LocalTransform>(Target);
         ////cameraTransform.position = farmerTransform.Position - 10.0f * farmerTransform.Forward + new float3(0.0f, 5.0f, 0.0f);
         ////cameraTransform.RotateAround(farmerTransform.Position, Vector3.up * mouseInputDelta.x + Vector3.right * mouseInputDelta.y, (mouseInputDelta.x + mouseInputDelta.y));
         ////cameraTransform.LookAt(farmerTransform.Position, new float3(0.0f, 1.0f, 0.0f));
