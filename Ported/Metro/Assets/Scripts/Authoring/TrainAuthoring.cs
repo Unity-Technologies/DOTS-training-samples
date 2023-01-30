@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public enum TrainState
@@ -13,6 +14,10 @@ public enum TrainState
 public class TrainAuthoring : MonoBehaviour
 {
     public int CarriageCount;
+    public float Speed;
+    
+    //TODO Remove - just for debugging
+    public float3 targetDestTest;
 
     class Baker : Baker<TrainAuthoring>
     {
@@ -20,15 +25,22 @@ public class TrainAuthoring : MonoBehaviour
         {
             AddComponent(new Train()
             {
-                CarriageCount = authoring.CarriageCount
+                CarriageCount = authoring.CarriageCount,
+                Speed = authoring.Speed
+            });
+            
+            AddComponent(new TargetDestination()
+            {
+                TargetPosition = authoring.targetDestTest
             });
         }
     }
 }
 
-struct Train : IComponentData
+public struct Train : IComponentData
 {
     public Entity Line;
     public TrainState State;
     public int CarriageCount;
+    public float Speed;
 }
