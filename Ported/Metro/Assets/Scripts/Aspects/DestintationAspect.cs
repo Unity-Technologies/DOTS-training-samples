@@ -1,7 +1,7 @@
-﻿using Unity.Entities;
+﻿using Unity.Burst;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-
 
 public readonly partial struct DestinationAspect : IAspect
 {
@@ -9,6 +9,7 @@ public readonly partial struct DestinationAspect : IAspect
     public readonly TransformAspect transform;
     public readonly RefRO<TargetDestination> target;
 
+    [BurstCompile]
     public bool IsAtDestination(float epsilon = defaultEpsilon)
     {
         return math.distancesq(transform.WorldPosition, target.ValueRO.TargetPosition) < defaultEpsilon;
