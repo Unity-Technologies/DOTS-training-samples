@@ -152,6 +152,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcb1277f2f1fe497fac5ce5412e66ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  carPrefab: {fileID: 3136198787464853788, guid: 2d52cbc52aecd4941bdeb5645d3faabb,
+    type: 3}
+  amount: 20
+  NumLanes: 4
+  LengthLanes: 100
+  MinVelocity: 1
+  MaxVelocity: 2
 --- !u!4 &1098146812
 Transform:
   m_ObjectHideFlags: 0
