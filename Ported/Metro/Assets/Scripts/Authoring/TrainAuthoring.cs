@@ -21,9 +21,6 @@ public class TrainAuthoring : MonoBehaviour
     [Header("Timing Info")] 
     public float doorTransitionTime;
     public float stationWaitTime;
-    
-    //TODO Remove - just for debugging
-    public float3 targetDestTest;
 
     class Baker : Baker<TrainAuthoring>
     {
