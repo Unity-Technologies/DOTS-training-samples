@@ -10,7 +10,6 @@ partial struct CarTranslationJob : IJobEntity
     // A regular EntityCommandBuffer cannot be used in parallel, a ParallelWriter has to be explicitly used.
     // public EntityCommandBuffer.ParallelWriter ECB;
     // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-    public float DeltaTime;
 
     // The ChunkIndexInQuery attributes maps the chunk index to an int parameter.
     // Each chunk can only be processed by a single thread, so those indices are unique to each thread.
@@ -18,9 +17,10 @@ partial struct CarTranslationJob : IJobEntity
     // So those indices are used as a sorting key when recording commands in the EntityCommandBuffer,
     // this way we ensure that the playback of commands is always deterministic.
     [BurstCompile]
-    void Execute( ref TransformAspect pos, in CarVelocity vel)
+    void Execute( ref TransformAspect pos, in CarPositionInLane positionInLane)
     {
-        pos.LocalPosition += vel.VelY * DeltaTime * math.forward();
+        pos.LocalPosition = new float3( positionInLane.Lane, 0.0f, positionInLane.Position);
+
     }
 }
 
@@ -48,7 +48,7 @@ partial struct CarTranslationSystem : ISystem
             // Note the function call required to get a parallel writer for an EntityCommandBuffer.
             // ECB = ecb.AsParallelWriter(),
             // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-            DeltaTime = SystemAPI.Time.DeltaTime
+            //DeltaTime = SystemAPI.Time.DeltaTime
         };
         carTranslationJob.ScheduleParallel();
     }

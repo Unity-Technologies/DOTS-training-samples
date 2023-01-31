@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4370134888135507781}
   - component: {fileID: 4737249199206864351}
   - component: {fileID: 3962005146815965640}
+  - component: {fileID: 2138571954322182}
   m_Layer: 0
   m_Name: CarPrefab
   m_TagString: Untagged
@@ -118,3 +119,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a80e35d840e4238852b8131483ab665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2138571954322182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3136198787464853788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Value:
+    x: 0
+    y: 0
+    z: 0.7
+    w: 0

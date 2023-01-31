@@ -39,10 +39,12 @@ public partial struct CarSpawnerSystem : ISystem
 
             //TODO: position calculation on track
             var position = new float3 {x = (float)lane, y = 0.0f, z = Random.Range(0.0f, spawner.LengthLanes)};
+            float defaultVelocity = Random.Range(spawner.MinVelocity, spawner.MaxVelocity);
             
             state.EntityManager.SetComponentData(carEntity, new LocalTransform {Position = position, Scale = 1});
             state.EntityManager.SetComponentData(carEntity, new CarPositionInLane{Position = position.z, Lane = position.x});
-            state.EntityManager.SetComponentData(carEntity, new CarVelocity {VelX = 0.0f, VelY = Random.Range(spawner.MinVelocity, spawner.MaxVelocity)});
+            state.EntityManager.SetComponentData(carEntity, new CarVelocity {VelX = 0.0f, VelY = defaultVelocity});
+            state.EntityManager.SetComponentData(carEntity, new CarDefaultValues() {DefaultVelY = defaultVelocity});
             state.EntityManager.SetComponentData(carEntity, new CarOvertakeState {OvertakeStartTime = 0.0f, OriginalLane = lane, TargetLane = lane});
             state.EntityManager.SetComponentData(carEntity, new CarIsOvertaking {IsOvertaking = false});
             state.EntityManager.SetComponentData(carEntity, new CarCollision{Left = false, Right = false, Front = false, FrontVelocity = 0});
