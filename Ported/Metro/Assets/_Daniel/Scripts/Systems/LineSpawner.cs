@@ -97,16 +97,16 @@ partial struct LineSpawner : ISystem
 
     void SetStairColor(SystemState state, Entity platform, /*URPMaterialPropertyBaseColor color*/ Entity e)
     {
-        DynamicBuffer<Child> stairSet = SystemAPI.GetBuffer<Child>(platform);
+        //DynamicBuffer<Child> stairSet = SystemAPI.GetBuffer<Child>(platform);
         //foreach (var item in SystemAPI.Query<Child>().WithAll<Parent>().WithAll<Stair>)
         //foreach (var item in SystemAPI.Query</*Stair>().WithAll<Child>().WithAll<*/URPMaterialPropertyBaseColor>())
-        Debug.Log("Child count: " + stairSet.Length);
+        //Debug.Log("Child count: " + stairSet.Length);
         foreach (var color in SystemAPI.Query<RefRW<URPMaterialPropertyBaseColor>>())
         {
             //state.EntityManager.SetComponentData()
             color.ValueRW.Value = state.EntityManager.GetComponentData<Line>(e).LineColor;
         }
-        foreach (var item in stairSet)
+        //foreach (var item in stairSet)
         {
             //if(item != null)
             //state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(item.Value, state.EntityManager.GetComponentData<URPMaterialPropertyBaseColor>(e));
