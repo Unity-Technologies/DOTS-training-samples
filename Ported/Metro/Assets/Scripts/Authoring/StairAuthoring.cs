@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class StairAuthoring : MonoBehaviour
@@ -13,17 +14,17 @@ public class StairAuthoring : MonoBehaviour
         {
             AddComponent(new Stair()
             {
-                TopWaypoint = GetEntity(authoring.TopWaypoint),
-                TopWalkwayWaypoint = GetEntity(authoring.TopWalkwayWaypoint),
-                BottomWaypoint = GetEntity(authoring.BottomWaypoint)
+                TopWaypoint = authoring.TopWaypoint.transform.position,
+                TopWalkwayWaypoint = authoring.TopWalkwayWaypoint.transform.position,
+                BottomWaypoint = authoring.BottomWaypoint.transform.position
             });
         }
     }
 }
 
-struct Stair : IComponentData
+public struct Stair : IComponentData
 {
-    public Entity TopWaypoint;
-    public Entity TopWalkwayWaypoint;
-    public Entity BottomWaypoint;
+    public float3 TopWaypoint;
+    public float3 TopWalkwayWaypoint;
+    public float3 BottomWaypoint;
 }

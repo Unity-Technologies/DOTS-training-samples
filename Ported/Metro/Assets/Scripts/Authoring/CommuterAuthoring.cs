@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public enum CommuterState
@@ -32,14 +33,27 @@ public class CommuterAuthoring : MonoBehaviour
 
             AddComponent<TargetDestination>();
             AddComponent<SaschaMovementQueue>();
+            AddComponent<QueueingData>();
+            AddComponent<SeatReservation>();
         }
     }
 }
 
-struct Commuter : IComponentData
+public struct Commuter : IComponentData
 {
     public CommuterState State;
     public float Velocity;
     public Entity CurrentPlatform;
     public Unity.Mathematics.Random Random;
+}
+
+struct QueueingData : IComponentData
+{
+    public Entity TargetQueue;
+    public int PositionInQueue;
+}
+
+struct SeatReservation : IComponentData
+{
+    public Entity TargetSeat;
 }
