@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public enum TrainState
@@ -13,9 +16,8 @@ public enum TrainState
 
 public class TrainAuthoring : MonoBehaviour
 {
-    
     [Header("Train Info")]
-    public int CarriageCount;
+    public CarridgeInfo[] Carridges;
     public float Speed;
 
     [Header("Timing Info")] 
@@ -26,20 +28,21 @@ public class TrainAuthoring : MonoBehaviour
     {
         public override void Bake(TrainAuthoring authoring)
         {
-            AddComponent(new Train()
+            Train train = new Train()
             {
-                CarriageCount = authoring.CarriageCount,
-                Speed = authoring.Speed
-            });
+                Speed = authoring.Speed,
+                //Carriages = new NativeList<Carriage>(Allocator.Persistent)
+            };
 
             AddComponent(new TrainScheduleInfo(
                 authoring.doorTransitionTime,
                 authoring.stationWaitTime));
 
-            AddComponent(new TargetDestination()
-            {
-            });
+            AddComponent(new TargetDestination());
+
+            AddComponent(train);
         }
+        
     }
 }
 
@@ -50,9 +53,11 @@ public struct Train : IComponentData
     public int nextStationIndex;
     
     public int direction; //direction of travel -1 or 1
-    public int CarriageCount;
+    //public NativeList<Carriage> Carriages;
     public float Speed;
 }
+
+
 
 public struct TrainScheduleInfo : IComponentData
 {
