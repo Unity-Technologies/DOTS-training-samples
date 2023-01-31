@@ -1,5 +1,4 @@
 using Unity.Entities;
-using UnityEngine;
 
 public struct CarSpawner : IComponentData
 {
