@@ -12,7 +12,7 @@ public partial struct TrainMovementSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        
+        state.RequireForUpdate<Train>();
     }
 
     [BurstCompile]
@@ -24,11 +24,10 @@ public partial struct TrainMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        TrainMovementJob job = new TrainMovementJob()
+        new TrainMovementJob()
         {
             deltaTime = SystemAPI.Time.DeltaTime
-        };
-        job.ScheduleParallel();
+        }.ScheduleParallel();
     }
     
 }
@@ -39,22 +38,22 @@ public partial struct TrainMovementJob : IJobEntity
 {
     public float deltaTime;
 
-    private void Execute(RefRO<Train> train, RefRO<TargetDestination> targetPos, RefRW<LocalTransform> transform)
+    private void Execute(RefRO<Train> train, DestinationAspect destinationAspect)
     {
         if (train.ValueRO.State != TrainState.TrainMovement)
         {
             return;
         }
 
-        float3 direction = math.normalize(targetPos.ValueRO.TargetPosition - transform.ValueRO.Position);
+        float3 direction = math.normalize(destinationAspect.target.ValueRO.TargetPosition - destinationAspect.transform.WorldPosition);
         float3 move = train.ValueRO.Speed * direction * deltaTime;
 
-        float distToGoSq = math.distancesq(targetPos.ValueRO.TargetPosition, transform.ValueRO.Position);
+        float distToGoSq = math.distancesq(destinationAspect.target.ValueRO.TargetPosition, destinationAspect.transform.WorldPosition);
         if (distToGoSq < math.lengthsq(move))
         {
             move = distToGoSq * direction;
         }
         
-        transform.ValueRW.Position += move;
+        destinationAspect.transform.WorldPosition += move;
     }
 }

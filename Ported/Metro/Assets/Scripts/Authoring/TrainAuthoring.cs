@@ -13,8 +13,14 @@ public enum TrainState
 
 public class TrainAuthoring : MonoBehaviour
 {
+    
+    [Header("Train Info")]
     public int CarriageCount;
     public float Speed;
+
+    [Header("Timing Info")] 
+    public float doorTransitionTime;
+    public float stationWaitTime;
     
     //TODO Remove - just for debugging
     public float3 targetDestTest;
@@ -28,7 +34,11 @@ public class TrainAuthoring : MonoBehaviour
                 CarriageCount = authoring.CarriageCount,
                 Speed = authoring.Speed
             });
-            
+
+            AddComponent(new TrainScheduleInfo(
+                authoring.doorTransitionTime,
+                authoring.stationWaitTime));
+
             AddComponent(new TargetDestination()
             {
                 TargetPosition = authoring.targetDestTest
@@ -43,4 +53,19 @@ public struct Train : IComponentData
     public TrainState State;
     public int CarriageCount;
     public float Speed;
+}
+
+public struct TrainScheduleInfo : IComponentData
+{
+    public TrainScheduleInfo(float doorTransisionTime, float stationWaitTime)
+    {
+        this.doorTransisionTime = doorTransisionTime;
+        this.stationWaitTime = stationWaitTime;
+        this.timeInState = 0f;
+    }
+    
+    public readonly float stationWaitTime;
+    public readonly float doorTransisionTime;
+
+    public float timeInState;
 }

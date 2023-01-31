@@ -157,6 +157,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CarriageCount: 0
   Speed: 1
+  doorTransitionTime: 2
+  stationWaitTime: 10
   targetDestTest:
     x: 10
     y: 0
