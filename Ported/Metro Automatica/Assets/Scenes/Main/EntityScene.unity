@@ -158,6 +158,9 @@ MonoBehaviour:
   SafeZoneRadius: 10
   RailPrefab: {fileID: 5013848022990113398, guid: b90e19afbdf4a564283a697b8fa6ac75,
     type: 3}
+  WagonPrefab: {fileID: 1005656507454012, guid: 1d8b5bc18cc471a44a34ae63265ca3d4,
+    type: 3}
+  WagonCount: 5
 --- !u!4 &754792382
 Transform:
   m_ObjectHideFlags: 0
