@@ -8,7 +8,10 @@ public class ConfigAuthoring : MonoBehaviour
 {
     public List<GameObject> Lines;
     public GameObject CarriagePrefab;
+    public GameObject CommuterPrefab;
+    public GameObject PlatformPrefab;
     public int CommuterCount;
+    public int LineCount;
 
     class Baker : Baker<ConfigAuthoring>
     {
@@ -18,7 +21,10 @@ public class ConfigAuthoring : MonoBehaviour
             {
                 Lines = authoring.Lines.ConvertAll(x => GetEntity(x)).ToNativeList(Allocator.Persistent),
                 CarriagePrefab = GetEntity(authoring.CarriagePrefab),
+                CommuterPrefab = GetEntity(authoring.CommuterPrefab),
+                PlatformPrefab = GetEntity(authoring.PlatformPrefab),
                 CommuterCount = authoring.CommuterCount,
+                LineCount = authoring.LineCount,
             });
         }
     }
@@ -28,5 +34,8 @@ struct Config : IComponentData
 {
     public NativeList<Entity> Lines;
     public Entity CarriagePrefab;
+    public Entity CommuterPrefab;
+    public Entity PlatformPrefab;
     public int CommuterCount;
+    public int LineCount;
 }

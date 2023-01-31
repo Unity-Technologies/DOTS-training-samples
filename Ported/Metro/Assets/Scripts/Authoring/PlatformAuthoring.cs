@@ -21,11 +21,11 @@ public class PlatformAuthoring : MonoBehaviour
     }
 }
 
-struct Platform : IComponentData
+public struct Platform : IComponentData
 {
     public float3 TrainStopPosition;
     public NativeList<Entity> Queues;
     public Entity Stairs;
     public Entity ParkedTrain;
-    public Entity Line;
+    public Line Line;
 }
