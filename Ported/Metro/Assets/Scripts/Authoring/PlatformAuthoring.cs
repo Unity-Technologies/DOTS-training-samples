@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlatformAuthoring : MonoBehaviour
 {
+    public GameObject Stairs;
     public float3 TrainStopPosition;
 
     class Baker : Baker<PlatformAuthoring>
@@ -13,7 +14,8 @@ public class PlatformAuthoring : MonoBehaviour
         {
             AddComponent(new Platform()
             {
-                TrainStopPosition = authoring.TrainStopPosition
+                TrainStopPosition = authoring.TrainStopPosition,
+                Stairs = GetEntity(authoring.Stairs)
             });
         }
     }
@@ -23,7 +25,7 @@ struct Platform : IComponentData
 {
     public float3 TrainStopPosition;
     public NativeList<Entity> Queues;
-    public NativeList<Entity> Stairs;
+    public Entity Stairs;
     public Entity ParkedTrain;
     public Entity Line;
 }

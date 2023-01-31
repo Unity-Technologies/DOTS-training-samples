@@ -11,15 +11,26 @@ public class StationAuthoring : MonoBehaviour
     {
         public override void Bake(StationAuthoring authoring)
         {
-            AddComponent(new Station()
+            var stationPlatforms = AddBuffer<StationPlatform>();
+            foreach (var platform in authoring.Platforms)
             {
-                Platforms = authoring.Platforms.ConvertAll(x => GetEntity(x)).ToNativeList(Allocator.Persistent)
-            });
+                stationPlatforms.Add(new StationPlatform()
+                {
+                    Platform = GetEntity(platform)
+                });
+            }
+
+            AddComponent(new Station());
         }
     }
 }
 
 struct Station : IComponentData
 {
-    public NativeList<Entity> Platforms;
+}
+
+[InternalBufferCapacity(5)]
+public struct StationPlatform : IBufferElementData
+{
+    public Entity Platform;
 }
