@@ -27,7 +27,7 @@ public partial struct DoorJob : IJobEntity
 {
     public void Execute(RefRW<Carriage> carriage)
     {
-        switch (carriage.ValueRO.ownerTrain.State)
+        /*//switch (carriage.ValueRO.ownerTrain.State)
         {
             //TODO workout the side of the doors
             case TrainState.DoorOpening:
@@ -38,7 +38,7 @@ public partial struct DoorJob : IJobEntity
                 break;
             default:
                 return;
-        }
+        }*/
     }
 
     private void OpenDoors(RefRW<Carriage> carriage)

@@ -12,13 +12,13 @@ public class CarridgeInfo : MonoBehaviour
 }
 
 
-public struct Carriage : IComponentData
-{
-    public Train ownerTrain;
-    public NativeList<Entity> Seats;
-    public NativeList<Entity> LeftDoors;
-    public NativeList<Entity> RightDoors;
-}
+// public struct Carriage : IComponentData
+// {
+//     public Train ownerTrain;
+//     public NativeList<Entity> Seats;
+//     public NativeList<Entity> LeftDoors;
+//     public NativeList<Entity> RightDoors;
+// }
 
 [Serializable]
 public struct DoorInfoGameObjects

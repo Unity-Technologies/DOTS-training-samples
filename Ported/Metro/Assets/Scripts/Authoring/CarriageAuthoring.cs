@@ -28,7 +28,7 @@ public class CarriageAuthoring : MonoBehaviour
     }
 }
 
-struct Carriage : IComponentData
+public struct Carriage : IComponentData
 {
     public int CarriageNumber;
     public NativeList<Entity> LeftDoors;
