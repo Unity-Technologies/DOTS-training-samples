@@ -27,14 +27,11 @@ public class StationAuthoring : MonoBehaviour
 
 struct Station : IComponentData
 {
-<<<<<<< HEAD
     public NativeArray<Entity> Platforms;
-=======
 }
 
 [InternalBufferCapacity(5)]
 public struct StationPlatform : IBufferElementData
 {
     public Entity Platform;
->>>>>>> f2daeccabf380f6fa31566ab03d39fa6173e3100
 }
