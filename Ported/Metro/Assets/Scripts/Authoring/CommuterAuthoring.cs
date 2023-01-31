@@ -36,7 +36,7 @@ public class CommuterAuthoring : MonoBehaviour
     }
 }
 
-struct Commuter : IComponentData
+public struct Commuter : IComponentData
 {
     public CommuterState State;
     public float Velocity;

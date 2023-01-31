@@ -6,12 +6,20 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
-[UpdateAfter(typeof(TransformSystemGroup))] // Make sure WorldTransforms are already updated this frame.
-partial struct SaschaCommuterMovementSystem : ISystem
+public partial struct SaschaCommuterMovementSystem : ISystem
 {
+    private BufferLookup<StationPlatform> m_StationPlatformLookup;
+    private ComponentLookup<Parent> m_ParentLookup;
+    private ComponentLookup<Platform> m_PlatformLookup;
+    private ComponentLookup<Stair> m_StairsLookup;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        m_StationPlatformLookup = state.GetBufferLookup<StationPlatform>(true);
+        m_ParentLookup = state.GetComponentLookup<Parent>(true);
+        m_PlatformLookup = state.GetComponentLookup<Platform>(true);
+        m_StairsLookup = state.GetComponentLookup<Stair>(true);
     }
 
     [BurstCompile]
@@ -22,135 +30,185 @@ partial struct SaschaCommuterMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (commuter, commuterTransform, targetDestination, movementQueue) in SystemAPI.Query<RefRW<Commuter>, RefRW<LocalTransform>, RefRW<TargetDestination>, RefRW<SaschaMovementQueue>>())
+        m_StationPlatformLookup.Update(ref state);
+        m_ParentLookup.Update(ref state);
+        m_PlatformLookup.Update(ref state);
+        m_StairsLookup.Update(ref state);
+
+        var updateCommuterStateJob = new UpdateCommuterStateJob()
         {
-            switch (commuter.ValueRW.State)
-            {
-                case CommuterState.Idle:
-                    PickNextPlatformDestination(ref state, commuter, movementQueue);
-                    break;
-                case CommuterState.MoveToDestination:
-                    UpdateMoveToDestination(ref state, commuter, commuterTransform, targetDestination, movementQueue);
-                    break;
-            }
+            StationPlatformLookup = m_StationPlatformLookup,
+            ParentLookup = m_ParentLookup,
+            PlatformLookup = m_PlatformLookup,
+            StairsLookup = m_StairsLookup,
+            DeltaTime = SystemAPI.Time.DeltaTime
+        };
+        state.Dependency = updateCommuterStateJob.ScheduleParallel(state.Dependency);
+    }
+}
+
+[BurstCompile]
+public partial struct UpdateCommuterStateJob : IJobEntity
+{
+    [ReadOnly] public BufferLookup<StationPlatform> StationPlatformLookup;
+    [ReadOnly] public ComponentLookup<Parent> ParentLookup;
+    [ReadOnly] public ComponentLookup<Platform> PlatformLookup;
+    [ReadOnly] public ComponentLookup<Stair> StairsLookup;
+
+    [ReadOnly] public float DeltaTime;
+
+    [BurstCompile]
+    public void Execute(ref Commuter commuter, ref LocalTransform commuterTransform, ref TargetDestination targetDestination,
+        ref SaschaMovementQueue movementQueue)
+    {
+        switch (commuter.State)
+        {
+            case CommuterState.Idle:
+                // TODO: idle should mean commuter is standing on platform but not in a queue. Could join a queue on local platform or switch platform
+                PickNextPlatformDestination(ref commuter, ref movementQueue);
+                break;
+            case CommuterState.MoveToDestination:
+                UpdateMoveToDestination(ref commuter, ref commuterTransform, ref targetDestination, ref movementQueue);
+                break;
         }
     }
 
     [BurstCompile]
-    private void UpdateMoveToDestination(ref SystemState state, RefRW<Commuter> commuter, RefRW<LocalTransform> commuterTransform, RefRW<TargetDestination> targetDestination, RefRW<SaschaMovementQueue> movementQueue)
+    private void UpdateMoveToDestination(ref Commuter commuter, ref LocalTransform commuterTransform, ref TargetDestination targetDestination, ref SaschaMovementQueue movementQueue)
     {
+        // Find current move destination
         float3 currentDestination;
-        if (targetDestination.ValueRO.IsActive)
+        if (targetDestination.IsActive)
         {
-            currentDestination = targetDestination.ValueRO.TargetPosition;
+            // Commuter needs to move to the active TargetDestination
+            currentDestination = targetDestination.TargetPosition;
         }
         else
         {
-            if (movementQueue.ValueRO.QueuedInstructions.IsCreated == false ||
-                movementQueue.ValueRW.QueuedInstructions.TryDequeue(out var nextInstruction) == false)
+            if (movementQueue.QueuedInstructions.IsCreated == false ||
+                movementQueue.QueuedInstructions.TryDequeue(out var nextInstruction) == false)
             {
-                commuter.ValueRW.State = CommuterState.Idle;
+                // No active TargetDestination and no further movement instructions in the queue. We need to switch states to determine our next actions, and stop moving for the time being
+                commuter.State = CommuterState.Idle; // TODO: instead of switching to idle, perhaps we need to switch to a "NextState", e.g. MovingToQueue, Queueing, OnTrain, etc
                 return;
             }
 
+            // Update the TargetDestination and commuter's platform location with the new instruction
             currentDestination = nextInstruction.Destination;
-            commuter.ValueRW.CurrentPlatform = nextInstruction.Platform;
-            targetDestination.ValueRW.TargetPosition = nextInstruction.Destination;
-            targetDestination.ValueRW.IsActive = true;
+            commuter.CurrentPlatform = nextInstruction.Platform;
+            targetDestination.TargetPosition = nextInstruction.Destination;
+            targetDestination.IsActive = true;
         }
 
-        float movementMagnitude = commuter.ValueRO.Velocity * SystemAPI.Time.DeltaTime;
+        // Calculate the distance that the commuter should move this update
+        float movementMagnitude = commuter.Velocity * DeltaTime;
         float movementMagnitudeSquared = movementMagnitude * movementMagnitude;
-        var remainingPathVector = currentDestination - commuterTransform.ValueRO.Position;
+        
+        // Calculate the distance remaining to current destination
+        var remainingPathVector = currentDestination - commuterTransform.Position;
         float remainingPathLengthSquared = math.lengthsq(remainingPathVector);
         if (remainingPathLengthSquared < movementMagnitudeSquared)
         {
-            commuterTransform.ValueRW.Position = currentDestination;
-            targetDestination.ValueRW.IsActive = false;
+            // Commuter can move to/further than current destination, set commuter to destination position and mark TargetDestination inactive
+            commuterTransform.Position = currentDestination;
+            targetDestination.IsActive = false;
             // TODO: the remaining distance that can be traveled during this tick is not applied towards next waypoint
         }
         else
         {
+            // Commuter won't reach current destination this update, move the full distance
             var directionalVector = math.normalize(remainingPathVector);
-            commuterTransform.ValueRW.Position += (directionalVector * movementMagnitude);
+            commuterTransform.Position += (directionalVector * movementMagnitude);
         }
 
     }
 
     [BurstCompile]
-    private void PickNextPlatformDestination(ref SystemState state, RefRW<Commuter> commuter, RefRW<SaschaMovementQueue> movementQueue)
+    private void PickNextPlatformDestination(ref Commuter commuter, ref SaschaMovementQueue movementQueue)
     {
-        if (commuter.ValueRO.CurrentPlatform == Entity.Null || state.EntityManager.Exists(commuter.ValueRO.CurrentPlatform) == false)
+        if (commuter.CurrentPlatform == Entity.Null)
         {
             Debug.LogError("Commuter doesn't have a current platform");
             return;
         }
         
-        var parent = state.EntityManager.GetComponentData<Parent>(commuter.ValueRO.CurrentPlatform);
-        var stationPlatforms = state.EntityManager.GetBuffer<StationPlatform>(parent.Value);
-        var randomPlatformIndex = commuter.ValueRW.Random.NextInt(0, stationPlatforms.Length - 1); // max is excluded, but use length - 1 as one platform in the list is the same as the current
+        // Find the station of the current platform the player is on
+        ParentLookup.TryGetComponent(commuter.CurrentPlatform, out var parent);
+        
+        // Get all the platforms that are in the current station, and pick a random different platform then the current one
+        StationPlatformLookup.TryGetBuffer(parent.Value, out var stationPlatforms);
+        var randomPlatformIndex = commuter.Random.NextInt(0, stationPlatforms.Length - 1); // max is excluded, but use length - 1 as one platform in the list is the same as the current
 
         for (int i = 0; i <= randomPlatformIndex; ++i)
         {
-            if (stationPlatforms[i].Platform == commuter.ValueRO.CurrentPlatform)
+            if (stationPlatforms[i].Platform == commuter.CurrentPlatform)
             {
                 ++randomPlatformIndex;
                 break;
             }
         }
 
-        var currentPlatform = state.EntityManager.GetComponentData<Platform>(commuter.ValueRO.CurrentPlatform);
-        var currentPlatformStairs = state.EntityManager.GetComponentData<Stair>(currentPlatform.Stairs);
+        // Find the stairs components for current platform and the destination platform
+        PlatformLookup.TryGetComponent(commuter.CurrentPlatform, out var currentPlatform);
+        StairsLookup.TryGetComponent(currentPlatform.Stairs, out var currentPlatformStairs);
         var destinationPlatformEntity = stationPlatforms[randomPlatformIndex].Platform;
-        var destinationPlatform = state.EntityManager.GetComponentData<Platform>(destinationPlatformEntity);
-        var destinationPlatformStairs = state.EntityManager.GetComponentData<Stair>(destinationPlatform.Stairs);
+        PlatformLookup.TryGetComponent(destinationPlatformEntity, out var destinationPlatform);
+        StairsLookup.TryGetComponent(destinationPlatform.Stairs, out var destinationPlatformStairs);
 
-        if (movementQueue.ValueRW.QueuedInstructions.IsCreated)
+        // Ensure the movementQueue is initialised and in a cleared state
+        if (movementQueue.QueuedInstructions.IsCreated)
         {
-            movementQueue.ValueRW.QueuedInstructions.Clear();
+            movementQueue.QueuedInstructions.Clear();
         }
         else
         {
-            movementQueue.ValueRW.QueuedInstructions = new NativeQueue<SaschaMovementQueueInstruction>(Allocator.Persistent);
+            movementQueue.QueuedInstructions = new NativeQueue<SaschaMovementQueueInstruction>(Allocator.Persistent);
         }
 
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Queue the movements
+        // Movement 1: Go towards the current platform stairs
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(currentPlatformStairs.BottomWaypoint).Position,
-            Platform = commuter.ValueRO.CurrentPlatform
+            Destination = currentPlatformStairs.BottomWaypoint,
+            Platform = commuter.CurrentPlatform
         });
         
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Movement 2: Go up the stairs
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(currentPlatformStairs.TopWaypoint).Position,
+            Destination = currentPlatformStairs.TopWaypoint,
             Platform = Entity.Null
         });
         
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Movement 3: Go into the walkway by the current stairs
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(currentPlatformStairs.TopWalkwayWaypoint).Position,
+            Destination = currentPlatformStairs.TopWalkwayWaypoint,
             Platform = Entity.Null
         });
         
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Movement 4: Go to the walkway waypoint of the stairs by the destination platform
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(destinationPlatformStairs.TopWalkwayWaypoint).Position,
+            Destination = destinationPlatformStairs.TopWalkwayWaypoint,
             Platform = Entity.Null
         });
         
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Movement 5: Go to the top of the stair
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(destinationPlatformStairs.TopWaypoint).Position,
+            Destination = destinationPlatformStairs.TopWaypoint,
             Platform = Entity.Null
         });
         
-        movementQueue.ValueRW.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
+        // Movement 6: Go down the stairs
+        movementQueue.QueuedInstructions.Enqueue(new SaschaMovementQueueInstruction()
         {
-            Destination = state.EntityManager.GetComponentData<WorldTransform>(destinationPlatformStairs.BottomWaypoint).Position,
+            Destination = destinationPlatformStairs.BottomWaypoint,
             Platform = destinationPlatformEntity
         });
         
-        commuter.ValueRW.State = CommuterState.MoveToDestination;
-
+        // Set the current commuter state to MoveToDestination to start moving the commuter
+        commuter.State = CommuterState.MoveToDestination;
     }
 }
