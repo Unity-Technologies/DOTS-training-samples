@@ -25,7 +25,7 @@ partial struct RailPlacingSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        var railSpawn = ecb.Instantiate(config.RailPrefab);
+        /*var railSpawn = ecb.Instantiate(config.RailPrefab);
         
         // need var distance /2 between first and last station in x value (for now)
 
@@ -35,9 +35,9 @@ partial struct RailPlacingSystem : ISystem
 
         ecb.SetComponent(railSpawn, new PostTransformScale{Value = float3x3.Scale(90,1,1)});
 
-        ecb.SetComponent(railSpawn, transform);
-
-            // This system should only run once at startup. So it disables itself after one update.
+        ecb.SetComponent(railSpawn, transform); 
+        
+        // This system should only run once at startup. So it disables itself after one update.*/
         state.Enabled = false;
     }
 }
