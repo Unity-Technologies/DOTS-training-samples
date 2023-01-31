@@ -45,8 +45,11 @@ public class TrainAuthoring : MonoBehaviour
 
 public struct Train : IComponentData
 {
-    public Entity Line;
+    public Line Line;
     public TrainState State;
+    public int nextStationIndex;
+    
+    public int direction; //direction of travel -1 or 1
     public int CarriageCount;
     public float Speed;
 }
