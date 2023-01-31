@@ -7,24 +7,34 @@ using UnityEngine;
 
 public class LineAuthoring : MonoBehaviour
 {
-    public List<GameObject> Platforms;
+    public List<PlatformAuthoring> Platforms;
     public Color LineColor;
 
     class Baker : Baker<LineAuthoring>
     {
         public override void Bake(LineAuthoring authoring)
         {
+            NativeList<float3> platformStopPos = new NativeList<float3>(authoring.Platforms.Count, Allocator.Persistent);
+            NativeList<Entity> platformEnts = new NativeList<Entity>(authoring.Platforms.Count, Allocator.Persistent);
+            foreach (PlatformAuthoring authoringPlatform in authoring.Platforms)
+            {
+                platformStopPos.Add(authoringPlatform.TrainStopPosition);
+                platformEnts.Add(GetEntity(authoringPlatform.gameObject));
+            }
+
             AddComponent(new Line()
             {
-                Platforms = authoring.Platforms.ConvertAll(x => GetEntity(x)).ToNativeList(Allocator.Persistent),
+                platformStopPositions = platformStopPos,
+                platforms = platformEnts,
                 LineColor = (Vector4)authoring.LineColor
             });
         }
     }
 }
 
-struct Line : IComponentData
+public struct Line : IComponentData
 {
     public float4 LineColor;
-    public NativeList<Entity> Platforms;
+    public NativeList<float3> platformStopPositions;
+    public NativeList<Entity> platforms;
 }

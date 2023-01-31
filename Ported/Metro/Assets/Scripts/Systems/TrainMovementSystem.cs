@@ -45,7 +45,7 @@ public partial struct TrainMovementJob : IJobEntity
             return;
         }
 
-        float3 direction = math.normalize(destinationAspect.target.ValueRO.TargetPosition - destinationAspect.transform.WorldPosition);
+        float3 direction = math.normalizesafe(destinationAspect.target.ValueRO.TargetPosition - destinationAspect.transform.WorldPosition);
         float3 move = train.ValueRO.Speed * direction * deltaTime;
 
         float distToGoSq = math.distancesq(destinationAspect.target.ValueRO.TargetPosition, destinationAspect.transform.WorldPosition);

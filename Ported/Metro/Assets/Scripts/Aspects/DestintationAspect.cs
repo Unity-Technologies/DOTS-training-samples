@@ -7,7 +7,7 @@ public readonly partial struct DestinationAspect : IAspect
 {
     private const float defaultEpsilon = 0.1f;
     public readonly TransformAspect transform;
-    public readonly RefRO<TargetDestination> target;
+    public readonly RefRW<TargetDestination> target;
 
     [BurstCompile]
     public bool IsAtDestination(float epsilon = defaultEpsilon)
