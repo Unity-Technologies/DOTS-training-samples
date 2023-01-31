@@ -1,9 +1,7 @@
-using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [BurstCompile]
 // IJobEntity relies on source generation to implicitly define a query from the signature of the Execute function.
@@ -19,6 +17,7 @@ partial struct CarTranslationJob : IJobEntity
     // They are also fully deterministic, regardless of the amounts of parallel processing happening.
     // So those indices are used as a sorting key when recording commands in the EntityCommandBuffer,
     // this way we ensure that the playback of commands is always deterministic.
+    [BurstCompile]
     void Execute( ref TransformAspect pos, in CarVelocity vel)
     {
         pos.LocalPosition += vel.VelY * DeltaTime * math.forward();

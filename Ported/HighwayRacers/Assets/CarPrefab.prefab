@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6600092316723489800}
   - component: {fileID: 4370134888135507781}
   - component: {fileID: 4737249199206864351}
-  - component: {fileID: -1188599552520048420}
+  - component: {fileID: 3962005146815965640}
   m_Layer: 0
   m_Name: CarPrefab
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6600092316723489800
 MeshFilter:
@@ -106,7 +106,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-1188599552520048420
+--- !u!114 &3962005146815965640
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,6 +115,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3136198787464853788}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1dfa021bf3ac247fabdf621f2c82b176, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a80e35d840e4238852b8131483ab665, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
