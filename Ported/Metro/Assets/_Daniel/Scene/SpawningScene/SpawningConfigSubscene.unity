@@ -156,6 +156,7 @@ MonoBehaviour:
   CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc, type: 3}
   CommuterPrefab: {fileID: 2956426704895310502, guid: 43ce6597590348b4789fbb3b9c6cfae5, type: 3}
   PlatformPrefab: {fileID: 1891511846621564, guid: 01884bc9b2b1947729476fa75daf772a, type: 3}
+  StationPrefab: {fileID: 8401425199850543138, guid: 47bb57823835f0f4c97a8dcb2cd758d7, type: 3}
   CommuterCount: 30
   LineCount: 4
 --- !u!4 &1036607647

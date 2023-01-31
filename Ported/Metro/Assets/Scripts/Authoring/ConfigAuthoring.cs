@@ -10,6 +10,8 @@ public class ConfigAuthoring : MonoBehaviour
     public GameObject CarriagePrefab;
     public GameObject CommuterPrefab;
     public GameObject PlatformPrefab;
+    public GameObject StationPrefab;
+
     public int CommuterCount;
     public int LineCount;
 
@@ -23,6 +25,7 @@ public class ConfigAuthoring : MonoBehaviour
                 CarriagePrefab = GetEntity(authoring.CarriagePrefab),
                 CommuterPrefab = GetEntity(authoring.CommuterPrefab),
                 PlatformPrefab = GetEntity(authoring.PlatformPrefab),
+                StationPrefab = GetEntity(authoring.StationPrefab),
                 CommuterCount = authoring.CommuterCount,
                 LineCount = authoring.LineCount,
             });
@@ -36,6 +39,7 @@ struct Config : IComponentData
     public Entity CarriagePrefab;
     public Entity CommuterPrefab;
     public Entity PlatformPrefab;
+    public Entity StationPrefab;
     public int CommuterCount;
     public int LineCount;
 }

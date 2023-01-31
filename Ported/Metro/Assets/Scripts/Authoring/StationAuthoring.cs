@@ -21,5 +21,5 @@ public class StationAuthoring : MonoBehaviour
 
 struct Station : IComponentData
 {
-    public NativeList<Entity> Platforms;
+    public NativeArray<Entity> Platforms;
 }
