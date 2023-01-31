@@ -38,7 +38,6 @@ public class TrainAuthoring : MonoBehaviour
 
             AddComponent(new TargetDestination()
             {
-                TargetPosition = authoring.targetDestTest
             });
         }
     }
