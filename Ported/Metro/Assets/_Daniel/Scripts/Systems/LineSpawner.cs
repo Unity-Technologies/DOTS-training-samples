@@ -4,7 +4,9 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
+[UpdateAfter(typeof(ParentSystem))]
 [BurstCompile]
 partial struct LineSpawner : ISystem
 {
@@ -23,7 +25,7 @@ partial struct LineSpawner : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        var random = Random.CreateFromIndex(1234);
+        var random = Unity.Mathematics.Random.CreateFromIndex(1234);
         var hue = random.NextFloat();
 
         URPMaterialPropertyBaseColor RandomColor()
@@ -33,20 +35,20 @@ partial struct LineSpawner : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
-        var lines = state.EntityManager.Instantiate(config.PlatformPrefab, config.LineCount, Allocator.Temp);
-        int lineCounter = 0;
-        float offset = 20;
-        foreach (var line in lines)
+        var platforms = state.EntityManager.Instantiate(config.PlatformPrefab, config.LineCount, Allocator.Temp);
+        float lineCounter = 0f;
+        float offset = 20f;
+        foreach (var platform in platforms)
         {
-            var position = new float3(lineCounter, lineCounter, lineCounter + offset);
-            //position.xz = new floa;
+            var position = new float3();
+            position.xz = random.NextFloat2() * 2;
             URPMaterialPropertyBaseColor color = RandomColor();
             //state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(line, color);
 
-            SetStairColor(state, line, color);
+            SetStairColor(state, platform, color);
 
-            state.EntityManager.SetComponentData<Line>(line, new Line { LineColor = color.Value } );
-            state.EntityManager.SetComponentData<WorldTransform>(line, new WorldTransform { Position = position, Scale = 1 });
+            //state.EntityManager.SetComponentData<Line>(line, new Line { LineColor = color.Value });
+            state.EntityManager.SetComponentData<WorldTransform>(platform, new WorldTransform { Position = position, Scale = 1 });
             lineCounter++;
         }
 
@@ -55,13 +57,32 @@ partial struct LineSpawner : ISystem
         state.Enabled = false;
     }
 
-    void SetStairColor(SystemState state, Entity line, URPMaterialPropertyBaseColor color) 
+    void SetStairColor(SystemState state, Entity platform, URPMaterialPropertyBaseColor color) 
     {
-        //DynamicBuffer<Child> db = SystemAPI.GetBuffer<Child>(line);
-        //foreach (var stairSet in null)
+        //foreach (var item in SystemAPI.Query<Child>().WithAll<Parent>().WithAll<Stair>)
+        foreach (var item in SystemAPI.Query<Stair>().WithAll<Child>().WithAll<URPMaterialPropertyBaseColor>())
+        {
+            Debug.Log(item.ToString());
+        }
+        //DynamicBuffer<Child> stairSet = SystemAPI.GetBuffer<Child>(platform);
+        //for (int i = 1; i < stairSet.Length - 1; i++)
         //{
-        //    //state.
-        //    var stairs = SystemAPI.Query<Stair>();
+        //    DynamicBuffer<Child> steps = SystemAPI.GetBuffer<Child>(stairSet[i].Value);
+        //    foreach (var step in steps)
+        //    {
+        //        state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(step.Value, color);
+        //    }
+        //}
+
+        //foreach (Child set in stairSet)
+        //{
+            
+        //    var baseColor = state.EntityManager.GetComponentData<URPMaterialPropertyBaseColor>(set.Value);
+        //    //if(baseColor)
+        //    {
+        //        baseColor = color;
+        //        state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(set.Value, baseColor);
+        //    }
 
         //}
     }

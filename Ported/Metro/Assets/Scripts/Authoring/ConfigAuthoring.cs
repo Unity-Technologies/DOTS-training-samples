@@ -24,7 +24,7 @@ public class ConfigAuthoring : MonoBehaviour
                 CommuterPrefab = GetEntity(authoring.CommuterPrefab),
                 PlatformPrefab = GetEntity(authoring.PlatformPrefab),
                 CommuterCount = authoring.CommuterCount,
-                LineCount = authoring.CommuterCount,
+                LineCount = authoring.LineCount,
             });
         }
     }

@@ -31,7 +31,7 @@ partial struct CommuterSpawner : ISystem
         {
             hue = (hue + 0.618034005f) % 1;
             var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
-            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4) color };
         }
 
         var commuters = state.EntityManager.Instantiate(config.CommuterPrefab, config.CommuterCount, Allocator.Persistent);

@@ -333,7 +333,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &770219815
+--- !u!1 &1036607645
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -341,43 +341,43 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 770219817}
-  - component: {fileID: 770219816}
+  - component: {fileID: 1036607647}
+  - component: {fileID: 1036607646}
   m_Layer: 0
-  m_Name: ConfigSubscene
+  m_Name: SpawningConfigSubscene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &770219816
+--- !u!114 &1036607646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 770219815}
+  m_GameObject: {fileID: 1036607645}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SceneAsset: {fileID: 102900000, guid: c2a8c42d16f25004691e52ec6448393b, type: 3}
+  _SceneAsset: {fileID: 102900000, guid: c2fb5462a3499954a9cbf117c861cc86, type: 3}
   _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 3528231468
-      y: 1074081633
-      z: 3458589078
-      w: 3012789318
---- !u!4 &770219817
+      x: 642105132
+      y: 1167692858
+      z: 1897905306
+      w: 1758205580
+--- !u!4 &1036607647
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 770219815}
+  m_GameObject: {fileID: 1036607645}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
