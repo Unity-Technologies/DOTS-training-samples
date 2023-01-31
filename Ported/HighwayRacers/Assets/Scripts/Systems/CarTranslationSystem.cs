@@ -25,6 +25,7 @@ partial struct CarTranslationJob : IJobEntity
 }
 
 [BurstCompile]
+[UpdateAfter(typeof(CarDrivingSystem))]
 partial struct CarTranslationSystem : ISystem
 {
     [BurstCompile]

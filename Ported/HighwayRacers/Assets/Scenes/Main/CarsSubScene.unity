@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731689, g: 0.13414702, b: 0.1210784, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -154,11 +154,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carPrefab: {fileID: 3136198787464853788, guid: 2d52cbc52aecd4941bdeb5645d3faabb,
     type: 3}
-  amount: 20
+  amount: 200
   NumLanes: 4
-  LengthLanes: 100
+  LengthLanes: 200
   MinVelocity: 1
-  MaxVelocity: 2
+  MaxVelocity: 4
 --- !u!4 &1098146812
 Transform:
   m_ObjectHideFlags: 0
