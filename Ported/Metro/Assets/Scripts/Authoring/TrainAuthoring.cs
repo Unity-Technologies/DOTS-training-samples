@@ -16,13 +16,15 @@ public enum TrainState
 
 public class TrainAuthoring : MonoBehaviour
 {
-    [Header("Train Info")]
-    public CarridgeInfo[] Carridges;
+    [Header("Train Info")] 
+    public GameObject carridgePrefab;
     public float Speed;
 
     [Header("Timing Info")] 
     public float doorTransitionTime;
     public float stationWaitTime;
+
+    public static int trainID = 0;
 
     class Baker : Baker<TrainAuthoring>
     {
@@ -31,7 +33,8 @@ public class TrainAuthoring : MonoBehaviour
             Train train = new Train()
             {
                 Speed = authoring.Speed,
-                //Carriages = new NativeList<Carriage>(Allocator.Persistent)
+                entity = GetEntity(authoring.gameObject),
+                trainID = trainID++
             };
 
             AddComponent(new TrainScheduleInfo(
@@ -48,16 +51,14 @@ public class TrainAuthoring : MonoBehaviour
 
 public struct Train : IComponentData
 {
+    public Entity entity;
     public Line Line;
     public TrainState State;
+    public int trainID;
     public int nextStationIndex;
-    
     public int direction; //direction of travel -1 or 1
-    //public NativeList<Carriage> Carriages;
     public float Speed;
 }
-
-
 
 public struct TrainScheduleInfo : IComponentData
 {
