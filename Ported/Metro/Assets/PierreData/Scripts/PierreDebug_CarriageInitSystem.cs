@@ -26,10 +26,10 @@ public partial struct PierreDebug_CarriageInitSystem : ISystem
                 var queue = SystemAPI.GetComponent<Queue>(queueEntity.Queue);
                 foreach (var (carriage, parent, carriageEntity) in SystemAPI.Query<RefRW<Carriage>, Parent>().WithEntityAccess())
                 {
-                    carriage.ValueRW.CurrentPlatform = platformEntity;
                     if (parent.Value == platform.ValueRO.ParkedTrain &&
                         carriage.ValueRO.CarriageNumber == queue.FacingCarriageNumber)
                     {
+                        carriage.ValueRW.CurrentPlatform = platformEntity;
                         SystemAPI.SetComponent(queueEntity.Queue, new QueueState()
                         {
                             FacingCarriage = carriageEntity
