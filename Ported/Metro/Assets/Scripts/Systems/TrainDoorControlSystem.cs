@@ -51,6 +51,8 @@ public partial struct DoorJob : IJobEntity
                 myTrain = train;
             }
         }
+
+        return;
         
         switch (myTrain.ValueRO.State)
         {
