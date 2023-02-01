@@ -121,7 +121,7 @@ partial struct CollisionJob : IJobEntity
     [ReadOnly] public ComponentLookup<CarVelocity> CarVelocityLookup;
 
     //TODO: Make this component?
-    private const float CarRadius = 1;
+    private const float CarRadius = 2;
 
     [BurstCompile]
     void Execute(ref CarCollision collision, in CarIndex carIndex, in CarPositionInLane positionInLane,
