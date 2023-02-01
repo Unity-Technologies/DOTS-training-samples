@@ -1,13 +1,16 @@
 using Unity.Entities;
+using UnityEngine;
 
-class ConfigAuthoring : UnityEngine.MonoBehaviour
+class ConfigAuthoring : MonoBehaviour
 {
-    public UnityEngine.GameObject StationPrefab;
+    public GameObject StationPrefab;
     public int StationCount;
     public float SafeZoneRadius;
-    public UnityEngine.GameObject RailPrefab;
-    public UnityEngine.GameObject WagonPrefab;
+    public GameObject RailPrefab;
+    public GameObject WagonPrefab;
+    public GameObject HumanPrefab;
     public int WagonCount;
+    public int HumanCount;
 
     class ConfigBaker : Baker<ConfigAuthoring>
     {
@@ -18,9 +21,11 @@ class ConfigAuthoring : UnityEngine.MonoBehaviour
                 StationPrefab = GetEntity(authoring.StationPrefab),
                 RailPrefab = GetEntity(authoring.RailPrefab),
                 WagonPrefab = GetEntity(authoring.WagonPrefab),
+                HumanPrefab = GetEntity(authoring.HumanPrefab),
                 StationCount = authoring.StationCount,
                 WagonCount = authoring.WagonCount,
-                SafeZoneRadius = authoring.SafeZoneRadius
+                SafeZoneRadius = authoring.SafeZoneRadius,
+                HumanCount = authoring.HumanCount
             });
         }
     }
@@ -31,7 +36,9 @@ struct Config : IComponentData
     public Entity StationPrefab;
     public Entity RailPrefab;
     public Entity WagonPrefab;
+    public Entity HumanPrefab;
     public int WagonCount;
     public int StationCount;
     public float SafeZoneRadius;
+    public int HumanCount;
 }

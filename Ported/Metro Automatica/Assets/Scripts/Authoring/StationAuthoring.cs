@@ -1,13 +1,19 @@
 using System.Security.Cryptography.X509Certificates;
 using Unity.Entities;
+using Unity.Transforms;
+using UnityEngine;
 
-class StationAuthoring : UnityEngine.MonoBehaviour
+class StationAuthoring : MonoBehaviour
 {
-    class StationBaker : Baker<StationAuthoring>
+    public Transform HumanSpawner;
+    
+    public class StationBaker : Baker<StationAuthoring>
     {
         public override void Bake(StationAuthoring authoring)
         {
-            AddComponent<Station>();
+            var spawnerTransform = WorldTransform.FromPosition(authoring.HumanSpawner.position);
+            Station tempStation = new Station() { HumanSpawnerLocation = spawnerTransform };
+            AddComponent<Station>(tempStation);
         }
     }
 }
@@ -15,4 +21,5 @@ class StationAuthoring : UnityEngine.MonoBehaviour
 struct Station : IComponentData
 {
    // public Entity StationPrefab;
+   public WorldTransform HumanSpawnerLocation;
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
@@ -6,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [BurstCompile]
 partial struct StationSpawningSystem : ISystem
@@ -43,8 +45,13 @@ partial struct StationSpawningSystem : ISystem
         for (int i = 0; i < stations.Length; i++)
         {
             var transform = LocalTransform.FromPosition(i * 90, 0, 0);
-          //  transform.Rotation = quaternion.RotateY(math.radians(90));
-          state.EntityManager.SetComponentData(stations[i], transform);
+            //  transform.Rotation = quaternion.RotateY(math.radians(90));
+            state.EntityManager.SetComponentData(stations[i], transform);
+
+            var spawnerTransform = WorldTransform.FromPosition(transform.Position + state.EntityManager.GetComponentData<Station>(stations[i]).HumanSpawnerLocation.Position);
+            Station tempStation = new Station() { HumanSpawnerLocation = spawnerTransform };
+            state.EntityManager.SetComponentData(stations[i], tempStation);
+            
             if (i == 0)
             {
                 first = transform;
@@ -110,5 +117,23 @@ partial struct StationSpawningSystem : ISystem
         state.EntityManager.SetComponentData(railSpawn, railTransform);
         
         
+        var humans = CollectionHelper.CreateNativeArray<Entity>(config.HumanCount, Allocator.Temp);
+        state.EntityManager.Instantiate(config.HumanPrefab, humans);
+
+        List<WorldTransform> stationSpawners = new List<WorldTransform>();
+        
+        foreach (var station in SystemAPI.Query<RefRW<Station>>())
+        {
+            Debug.Log("I have found some stations");
+            stationSpawners.Add(station.ValueRO.HumanSpawnerLocation);
+        }
+
+        foreach (var human in humans)
+        {
+            int randomStation = Random.Range(0, config.StationCount);
+            var humanTransform = LocalTransform.FromPosition(stationSpawners[randomStation].Position);
+            humanTransform.Position += new float3(Random.Range(0f, 2f), 0f, Random.Range(0f, 2f));
+            state.EntityManager.SetComponentData(human, humanTransform);
+        }
     }
 }

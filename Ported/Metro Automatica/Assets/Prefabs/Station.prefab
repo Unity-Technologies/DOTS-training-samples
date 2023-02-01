@@ -3851,6 +3851,7 @@ Transform:
   m_Children:
   - {fileID: 4066806852996300}
   - {fileID: 4762202529410812}
+  - {fileID: 3014115652569870110}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3866,6 +3867,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28b7d30023a9cc842993676bfdbd55e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HumanSpawner: {fileID: 3014115652569870110}
 --- !u!1 &1562893980695656
 GameObject:
   m_ObjectHideFlags: 0
@@ -7124,3 +7126,34 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &342976128303843408
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3014115652569870110}
+  m_Layer: 0
+  m_Name: HumanSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3014115652569870110
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342976128303843408}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4, y: 0, z: -12}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4780274334679588}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
