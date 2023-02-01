@@ -131,16 +131,12 @@ partial struct CollisionJob : IJobEntity
         //TODO reduce amount of unnecessary data in structs
         
         //TODO refactor collision to use bitwise flags
-        collision.Front = false; 
-        collision.Left = positionInLane.LaneIndex == 0;
-        collision.Right = positionInLane.LaneIndex == MaxLaneIndex;
         collision.FrontVelocity = 0.0f;
         collision.FrontDistance = 0.0f;
         
-        const byte _F_NONE = 0, _F_FRONT = 1, _F_LEFT = 2, _F_RIGHT = 4;
-        byte b_collFlags = 0;
-        b_collFlags |= collision.Left  ? _F_LEFT  : _F_NONE;
-        b_collFlags |= collision.Right ? _F_RIGHT : _F_NONE;
+        collision.CollisionFlags = 0;
+        collision.CollisionFlags |= positionInLane.LaneIndex == 0  ? CollisionType.Left  : CollisionType.None;
+        collision.CollisionFlags |= positionInLane.LaneIndex == MaxLaneIndex ? CollisionType.Right : CollisionType.None;
         
 
 
@@ -155,7 +151,7 @@ partial struct CollisionJob : IJobEntity
         for (int i = startIndex; i <= endIndex; i++)
         {
             //full out if found colls on all sides
-            if (b_collFlags == (_F_FRONT | _F_LEFT | _F_RIGHT)) break;
+            if (collision.CollisionFlags == (CollisionType.Left | CollisionType.Right | CollisionType.Front)) break;
             if (i == 0) continue;
             
             int wrappedIndex = WrappedIndex(i + carIndex.Index, out int wrapDirection);
@@ -182,9 +178,9 @@ partial struct CollisionJob : IJobEntity
                 continue;
             }
             
-            if ((b_collFlags & _F_FRONT) == 0 && sameLane && distance > 0) //
+            if ((collision.CollisionFlags & CollisionType.Front) == 0 && sameLane && distance > 0) //
             {
-                b_collFlags |= _F_FRONT;
+                collision.CollisionFlags |= CollisionType.Front;
                 
                 //TODO what if we didn't care about velocity/dist, used a PID or something in CarDrivingSystem
                 collision.FrontVelocity = CarVelocityLookup[otherCar.Value].VelY;
@@ -193,20 +189,16 @@ partial struct CollisionJob : IJobEntity
 
             if (otherCarLane == lane + 1)
             {
-                b_collFlags |= _F_RIGHT;
+                collision.CollisionFlags |= CollisionType.Right;
             }
             else if (otherCarLane == lane - 1)
             {
-                b_collFlags |= _F_LEFT;
+                collision.CollisionFlags |= CollisionType.Left;
             }
         }
 
-        collision.Front = (b_collFlags & _F_FRONT) != 0;
-        collision.Left = (b_collFlags & _F_LEFT) != 0;
-        collision.Right = (b_collFlags & _F_RIGHT) != 0;
-
         //DEBUG
-        if (collision.Front)
+        if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
         {
             baseColor.Value = new float4(1.0f, 1.0f, 1.0f, 1.0f);
         }

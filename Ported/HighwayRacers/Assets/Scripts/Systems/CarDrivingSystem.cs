@@ -41,7 +41,7 @@ partial struct UpdateVelocityJob : IJobEntity
         in CarCollision collision, in CarDefaultValues defaults)
     {
         float targetVelY = 0;
-        if (collision.Front)
+        if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
         {
             targetVelY = collision.FrontVelocity; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
         }

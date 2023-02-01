@@ -47,7 +47,7 @@ public partial struct CarSpawnerSystem : ISystem
             state.EntityManager.SetComponentData(carEntity, new CarDefaultValues() {DefaultVelY = defaultVelocity});
             state.EntityManager.SetComponentData(carEntity, new CarOvertakeState {OvertakeStartTime = 0.0f, OriginalLane = lane, ChangingLane = false});
             state.EntityManager.SetComponentData(carEntity, new CarIsOvertaking {IsOvertaking = false});
-            state.EntityManager.SetComponentData(carEntity, new CarCollision{Left = false, Right = false, Front = false, FrontVelocity = 0});
+            state.EntityManager.SetComponentData(carEntity, new CarCollision{CollisionFlags = CollisionType.None, FrontVelocity = 0});
             state.EntityManager.SetComponentData(carEntity, new CarIndex{Index = -1});
         }
         

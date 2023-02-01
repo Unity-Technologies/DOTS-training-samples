@@ -48,15 +48,15 @@ partial struct OvertakeStateJob : IJobEntity
             }
         }
         //Figure out if we should start changing lane
-        else if (collision.Front)
+        else if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
         {
-            if (MergeDirectionIsRight && !collision.Right)
+            if (MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Right) == CollisionType.Right)
             {
                 overtakeState.ChangingLane = true;
                 overtakeState.OriginalLane = positionInLane.LaneIndex;
                 positionInLane.LaneIndex++;
             }
-            else if (!MergeDirectionIsRight && !collision.Left)
+            else if (!MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Left) == CollisionType.Left)
             {
                 overtakeState.ChangingLane = true;
                 overtakeState.OriginalLane = positionInLane.LaneIndex;

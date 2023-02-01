@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using UnityEngine;
 
@@ -12,7 +13,7 @@ public class CarAuthoring : MonoBehaviour
             AddComponent<CarDefaultValues>(new CarDefaultValues {DefaultVelY = 0});
             AddComponent<CarOvertakeState>(new CarOvertakeState {OvertakeStartTime = 0.0f, OriginalLane = 0, ChangingLane = false});
             AddComponent<CarPositionInLane>(new CarPositionInLane{Position = 0, LanePosition = 0, LaneIndex = 0});
-            AddComponent<CarCollision>(new CarCollision {Left = false, Right = false, Front = false});
+            AddComponent<CarCollision>(new CarCollision {CollisionFlags = CollisionType.None});
             AddComponent<CarIndex>(new CarIndex {Index = 0});
         }
     }
@@ -49,9 +50,19 @@ struct CarDefaultValues : IComponentData
 }
 
 
+[Flags]
+public enum CollisionType : byte
+{
+    None = 0,
+    Front = 1 << 0,
+    Left = 1 << 1,
+    Right = 1 << 2,
+    
+}
+
 struct CarCollision : IComponentData
 {
-    public bool Left, Right, Front;
+    public CollisionType CollisionFlags;
     public float FrontVelocity;
     public float FrontDistance;
 }
