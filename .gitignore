@@ -46,3 +46,5 @@ sysinfo.txt
 
 *.DS_Store
 Ported/Captures/*
+Ported/HighwayRacers/UserSettings/Layouts/*.dwlt
+Ported/HighwayRacers/ProfileAnalyzer/*.pdata
