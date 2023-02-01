@@ -10,8 +10,8 @@ public class CarAuthoring : MonoBehaviour
             AddComponent<CarIsOvertaking>(new CarIsOvertaking {IsOvertaking = false});
             AddComponent<CarVelocity>(new CarVelocity {VelX = 0, VelY = 0});
             AddComponent<CarDefaultValues>(new CarDefaultValues {DefaultVelY = 0});
-            AddComponent<CarOvertakeState>(new CarOvertakeState {OvertakeStartTime = 0.0f, OriginalLane = 0, TargetLane = 0});
-            AddComponent<CarPositionInLane>(new CarPositionInLane{Position = 0, Lane = 0});
+            AddComponent<CarOvertakeState>(new CarOvertakeState {OvertakeStartTime = 0.0f, OriginalLane = 0, ChangingLane = false});
+            AddComponent<CarPositionInLane>(new CarPositionInLane{Position = 0, LanePosition = 0, LaneIndex = 0});
             AddComponent<CarCollision>(new CarCollision {Left = false, Right = false, Front = false});
             AddComponent<CarIndex>(new CarIndex {Index = 0});
         }
@@ -27,14 +27,15 @@ struct CarIsOvertaking : IComponentData
 struct CarOvertakeState : IComponentData
 {
     public float OvertakeStartTime;
-    public int OriginalLane, TargetLane;
-    
+    public int OriginalLane;
+    public bool ChangingLane;
 }
 
 public partial struct CarPositionInLane : IComponentData
 {
     public float Position;
-    public float Lane;
+    public float LanePosition;
+    public int LaneIndex;
 }
 
 struct CarVelocity : IComponentData
@@ -45,7 +46,6 @@ struct CarVelocity : IComponentData
 struct CarDefaultValues : IComponentData
 {
     public float DefaultVelY;
-    
 }
 
 

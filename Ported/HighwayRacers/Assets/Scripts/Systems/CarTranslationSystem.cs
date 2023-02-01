@@ -7,19 +7,24 @@ using Unity.Transforms;
 // IJobEntity relies on source generation to implicitly define a query from the signature of the Execute function.
 partial struct CarTranslationJob : IJobEntity
 {
-    // A regular EntityCommandBuffer cannot be used in parallel, a ParallelWriter has to be explicitly used.
-    // public EntityCommandBuffer.ParallelWriter ECB;
-    // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-
-    // The ChunkIndexInQuery attributes maps the chunk index to an int parameter.
-    // Each chunk can only be processed by a single thread, so those indices are unique to each thread.
-    // They are also fully deterministic, regardless of the amounts of parallel processing happening.
-    // So those indices are used as a sorting key when recording commands in the EntityCommandBuffer,
-    // this way we ensure that the playback of commands is always deterministic.
+    public float InverseLaneLength;
+    public float LaneLength;
+    
     [BurstCompile]
-    void Execute( ref TransformAspect pos, in CarPositionInLane positionInLane)
+    void Execute( ref TransformAspect transform, in CarPositionInLane positionInLane)
     {
-        pos.LocalPosition = new float3( positionInLane.Lane, 0.0f, positionInLane.Position);
+        float3 positionBefore = transform.LocalPosition;
+        float lanePosition = positionInLane.LanePosition;
+        float position = positionInLane.Position * InverseLaneLength * math.PI * 2;
+
+        //Add radius setting here
+        float radius = LaneLength / (math.PI * 2) + lanePosition;
+        
+        float x = math.sin(position) * radius;
+        float y = math.cos(position) * radius;
+        float3 targetPosition = new float3(x, 0.0f, y);
+        transform.LocalPosition = targetPosition;
+        transform.LookAt(targetPosition + math.cross(transform.Up, targetPosition));
 
     }
 }
@@ -41,14 +46,12 @@ partial struct CarTranslationSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-        // var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
+        
         var carTranslationJob = new CarTranslationJob
         {
-            // Note the function call required to get a parallel writer for an EntityCommandBuffer.
-            // ECB = ecb.AsParallelWriter(),
-            // Time cannot be directly accessed from a job, so DeltaTime has to be passed in as a parameter.
-            //DeltaTime = SystemAPI.Time.DeltaTime
+            InverseLaneLength = 1 / globalSettings.LengthLanes,
+            LaneLength = globalSettings.LengthLanes
         };
         carTranslationJob.ScheduleParallel();
     }

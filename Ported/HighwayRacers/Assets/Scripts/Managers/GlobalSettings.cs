@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct CarSpawner : IComponentData
+public struct GlobalSettings : IComponentData
 {
     public Entity carPrefab;    
     

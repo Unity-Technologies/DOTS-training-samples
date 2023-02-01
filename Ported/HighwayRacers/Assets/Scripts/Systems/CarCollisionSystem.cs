@@ -7,12 +7,12 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Random = UnityEngine.Random;
 
-[assembly: RegisterGenericJobType(typeof(SortJob<CarEntity, CarEntityComparer>))] 
+[assembly: RegisterGenericJobType(typeof(SortJob<CarEntity, CarEntityComparer>))]
+
 [BurstCompile]
 //[UpdateAfter(typeof(CarSpawnerSystem))]
-public partial struct CollisionSystem : ISystem
+public partial struct CarCollisionSystem : ISystem
 {
-    
     private ComponentLookup<CarPositionInLane> carPositionInLaneLookup;
     private ComponentLookup<CarVelocity> carVelocityLookup;
     private ComponentLookup<CarIndex> carIndexLookup;
@@ -32,7 +32,7 @@ public partial struct CollisionSystem : ISystem
     public void OnDestroy(ref SystemState state)
     {
     }
-    
+
     //[BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -40,24 +40,34 @@ public partial struct CollisionSystem : ISystem
         carPositionInLaneLookup.Update(ref state);
         carVelocityLookup.Update(ref state);
         colorLookup.Update(ref state);
-        
+
         var carEntities = SystemAPI.GetSingletonBuffer<CarEntity>().AsNativeArray();
         int entitiesLength = carEntities.Length;
         int batchSize = 100;
-            
+
+        var spawner = SystemAPI.GetSingleton<GlobalSettings>();
+        
         var positionAssignmentJob = new PositionAssignmentJob
         {
-            CarEntities = carEntities, CarPositionInLaneLookup = carPositionInLaneLookup, ColorLookup = colorLookup, random = new Unity.Mathematics.Random((uint)Random.Range(1,int.MaxValue))
+            CarEntities = carEntities, CarPositionInLaneLookup = carPositionInLaneLookup, ColorLookup = colorLookup,
+            random = new Unity.Mathematics.Random((uint)Random.Range(1, int.MaxValue))
         };
-        state.Dependency = positionAssignmentJob.Schedule(entitiesLength, batchSize,state.Dependency);
-            
+        state.Dependency = positionAssignmentJob.Schedule(entitiesLength, batchSize, state.Dependency);
+
         var sortingJob = carEntities.SortJob(new CarEntityComparer());
         state.Dependency = sortingJob.Schedule(state.Dependency);
 
-        var indexAssignmentJob = new IndexAssignmentJob { CarEntities = carEntities, CarIndexLookup = carIndexLookup, ColorLookup = colorLookup};
+        var indexAssignmentJob = new IndexAssignmentJob
+            { CarEntities = carEntities, CarIndexLookup = carIndexLookup, ColorLookup = colorLookup };
         state.Dependency = indexAssignmentJob.Schedule(entitiesLength, batchSize, state.Dependency);
-        
-        var collisionJob = new CollisionJob { CarEntities = carEntities, CarPositionInLaneLookup = carPositionInLaneLookup, CarVelocityLookup = carVelocityLookup};
+
+        var collisionJob = new CollisionJob
+        {
+            CarEntities = carEntities, CarPositionInLaneLookup = carPositionInLaneLookup,
+            CarVelocityLookup = carVelocityLookup,
+            MaxLaneIndex = spawner.NumLanes - 1,
+            LaneLength = spawner.LengthLanes
+        };
         state.Dependency = collisionJob.Schedule(state.Dependency);
     }
 }
@@ -73,13 +83,12 @@ partial struct PositionAssignmentJob : IJobParallelFor
     {
         var entity = CarEntities[index];
         entity.position = CarPositionInLaneLookup[entity.Value].Position;
-        CarEntities[index] = entity;    
+        CarEntities[index] = entity;
         // ColorLookup[CarEntities[index].Value] = 
         //     new URPMaterialPropertyBaseColor
         //     {
         //         Value = new float4 (random.NextFloat() % 1.0f,0,0,0)
         //     };
-        
     }
 }
 
@@ -88,12 +97,12 @@ partial struct IndexAssignmentJob : IJobParallelFor
     [ReadOnly] public NativeArray<CarEntity> CarEntities;
     [NativeDisableParallelForRestriction] public ComponentLookup<CarIndex> CarIndexLookup;
     [NativeDisableParallelForRestriction] public ComponentLookup<URPMaterialPropertyBaseColor> ColorLookup;
-    
+
 
     public void Execute(int index)
     {
-        CarIndexLookup[CarEntities[index].Value] = new CarIndex{Index = index};
-            
+        CarIndexLookup[CarEntities[index].Value] = new CarIndex { Index = index };
+
         // ColorLookup[CarEntities[index].Value] = 
         //     new URPMaterialPropertyBaseColor
         //     {
@@ -105,68 +114,91 @@ partial struct IndexAssignmentJob : IJobParallelFor
 [BurstCompile]
 partial struct CollisionJob : IJobEntity
 {
+    public int MaxLaneIndex;
+    public float LaneLength;
     public NativeArray<CarEntity> CarEntities;
     [ReadOnly] public ComponentLookup<CarPositionInLane> CarPositionInLaneLookup;
     [ReadOnly] public ComponentLookup<CarVelocity> CarVelocityLookup;
 
     //TODO: Make this component?
-    private const float CarRadius = 10;
-    
-    void Execute(ref CarCollision collision, in CarIndex carIndex, in CarPositionInLane positionInLane, ref URPMaterialPropertyBaseColor baseColor)
-    {
+    private const float CarRadius = 1;
 
+    void Execute(ref CarCollision collision, in CarIndex carIndex, in CarPositionInLane positionInLane,
+        ref URPMaterialPropertyBaseColor baseColor)
+    {
         collision.Front = false;
-        collision.Left = false;
-        collision.Right = false;
+        collision.Left = positionInLane.LaneIndex == 0;
+        collision.Right = positionInLane.LaneIndex == MaxLaneIndex;
         collision.FrontVelocity = 0.0f;
         collision.FrontDistance = 0.0f;
-        
+
         //TODO: Define how many lanes and use this to determine how many cars to check
         for (int i = -3; i <= 7; i++)
         {
             if (i == 0) continue;
-            int wrappedIndex = WrappedIndex(i + carIndex.Index);
+            int wrappedIndex = WrappedIndex(i + carIndex.Index, out int wrapDirection);
 
             var otherCar = CarEntities[wrappedIndex];
             var otherCarPosition = CarPositionInLaneLookup[otherCar.Value];
+
+            int otherCarLane = otherCarPosition.LaneIndex;
+            int lane = positionInLane.LaneIndex;
             
             //Front:
-            bool sameLane = math.abs(otherCarPosition.Lane - positionInLane.Lane) < 0.8f;
+            bool sameLane = otherCarLane == lane;
 
-            if (sameLane)
+            float distance = (otherCarPosition.Position + LaneLength * wrapDirection) - positionInLane.Position;
+            float absoluteDistance = math.abs(distance);
+
+            if (sameLane && distance > 0 && distance < CarRadius)
             {
-                float distance = otherCarPosition.Position - positionInLane.Position;
-                if (distance > 0 && distance < CarRadius)
-                {
-                    collision.Front = true;
-                    collision.FrontVelocity = CarVelocityLookup[otherCar.Value].VelY;
-                    collision.FrontDistance = CarRadius - distance; //calc distance to perfect following distance
-                }
+                collision.Front = true;
+                collision.FrontVelocity = CarVelocityLookup[otherCar.Value].VelY;
+                collision.FrontDistance = CarRadius - distance; //calc distance to perfect following distance
+            }
+            else if (absoluteDistance > CarRadius)
+            {
+                continue;
+            }
+
+            if (otherCarLane > lane)
+            {
+                collision.Right = true;
+            }
+            else if (otherCarLane < lane)
+            {
+                collision.Left = true;
             }
         }
-        
-        
+
+
         //DEBUG
         if (collision.Front)
         {
-            baseColor.Value = new float4(1.0f,1.0f,1.0f,1.0f);
+            baseColor.Value = new float4(1.0f, 1.0f, 1.0f, 1.0f);
         }
         else
         {
-            baseColor.Value = new float4(0,0,0,0);
+            baseColor.Value = new float4(0, 0, 0, 0);
         }
-        
     }
-    
-    private int WrappedIndex(int index)
+
+    private int WrappedIndex(int index, out int wrapDirection)
     {
-        
+        wrapDirection = 0;
         
         if (index < 0)
         {
+            wrapDirection = -1;
             index += CarEntities.Length;
         }
-        
-        return index % CarEntities.Length;
+
+        if (index >= CarEntities.Length)
+        {
+            wrapDirection = 1;
+            index %= CarEntities.Length;
+        }
+
+        return index;
     }
 }

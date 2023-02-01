@@ -1,7 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 
-public class CarSpawnerAuthoring : MonoBehaviour
+public class GlobalSettingsAuthoring : MonoBehaviour
 {
     [SerializeField] private GameObject carPrefab;
     [SerializeField] private int amount;
@@ -10,11 +10,11 @@ public class CarSpawnerAuthoring : MonoBehaviour
     [SerializeField] public float MinVelocity = 1.0f;
     [SerializeField] public float MaxVelocity = 2.0f;
  
-    public class Baker : Baker<CarSpawnerAuthoring>
+    public class Baker : Baker<GlobalSettingsAuthoring>
     {
-        public override void Bake(CarSpawnerAuthoring authoring)
+        public override void Bake(GlobalSettingsAuthoring authoring)
         {
-            AddComponent(new CarSpawner
+            AddComponent(new GlobalSettings
             {
                 carPrefab = GetEntity(authoring.carPrefab),
                 amount = authoring.amount,
