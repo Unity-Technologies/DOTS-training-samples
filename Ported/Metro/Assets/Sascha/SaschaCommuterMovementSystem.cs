@@ -1,3 +1,4 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -69,6 +70,8 @@ public partial struct UpdateCommuterStateJob : IJobEntity
                 break;
             case CommuterState.MoveToDestination:
             case CommuterState.Queueing:
+            case CommuterState.Boarding:
+            case CommuterState.Unboarding:
                 UpdateMoveToDestination(ref commuter, ref commuterTransform, ref targetDestination, ref movementQueue);
                 break;
         }
@@ -90,7 +93,13 @@ public partial struct UpdateCommuterStateJob : IJobEntity
                 movementQueue.QueuedInstructions.TryDequeue(out var nextInstruction) == false)
             {
                 // No active TargetDestination and no further movement instructions in the queue. We need to switch states to determine our next actions, and stop moving for the time being
-                commuter.State = CommuterState.PickQueue;
+
+                commuter.State = commuter.State switch
+                {
+                    CommuterState.Boarding => CommuterState.InTrain,
+                    CommuterState.Unboarding => CommuterState.Idle,
+                    CommuterState.MoveToDestination => CommuterState.PickQueue
+                };
                 return;
             }
 

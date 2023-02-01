@@ -2,6 +2,7 @@ using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
@@ -24,8 +25,8 @@ public partial struct CommuterStateSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (commuter, queueingData, seatReservation, destinationAspect)
-                 in SystemAPI.Query<RefRW<Commuter>, RefRW<QueueingData>, RefRO<SeatReservation>, DestinationAspect>())
+        foreach (var (commuter, queueingData, seatReservation, movementQueue)
+                 in SystemAPI.Query<RefRW<Commuter>, RefRW<QueueingData>, RefRW<SeatReservation>, RefRW<SaschaMovementQueue>>())
         {
             switch (commuter.ValueRO.State)
             {
@@ -57,28 +58,56 @@ public partial struct CommuterStateSystem : ISystem
 
                     break;
                 }
-
-                case CommuterState.Boarding:
+                
+                
+                case CommuterState.InTrain:
                 {
-                    if (!destinationAspect.IsAtDestination())
-                    {
-                        commuter.ValueRW.State = CommuterState.InTrain;
-                        //TODO: Set seat as parent
-                    }
-                    break;
-                }
+                    //TODO: wait for train to be at the right station
 
-                case CommuterState.Unboarding:
-                {
-                    if (!destinationAspect.IsAtDestination())
-                    {
-                        commuter.ValueRW.State = CommuterState.Idle;
-                    }
+                    var carriageTransform = SystemAPI.GetComponent<WorldTransform>(seatReservation.ValueRO.TargetCarriage);
+                    SystemAPI.SetComponent(seatReservation.ValueRO.TargetSeat, new Seat(){ IsTaken = false });
 
+                    var (targetPlatform, targetQueue) = FindTargetPlatformQueue(ref state, seatReservation.ValueRO.TargetCarriage);
+                    var queueTransform = SystemAPI.GetComponent<WorldTransform>(targetQueue);
+
+                    seatReservation.ValueRW.TargetSeat = Entity.Null;
+                    seatReservation.ValueRW.TargetCarriage = Entity.Null;
+
+                    movementQueue.ValueRW.QueuedInstructions.Clear();
+                    movementQueue.ValueRW.QueuedInstructions.Enqueue(new()
+                    {
+                        Destination = carriageTransform.Position
+                    });
+                    movementQueue.ValueRW.QueuedInstructions.Enqueue(new()
+                    {
+                        Destination = queueTransform.Position,
+                        Platform = targetPlatform
+                    });
+
+                    commuter.ValueRW.State = CommuterState.Unboarding;
                     break;
                 }
             }
         }
 
+    }
+
+    [BurstCompile]
+    private (Entity, Entity) FindTargetPlatformQueue(ref SystemState state, Entity carriage)
+    {
+        foreach (var (platform, platformEntity) in SystemAPI.Query<Platform>().WithEntityAccess())
+        {
+            var queues = SystemAPI.GetBuffer<PlatformQueue>(platformEntity);
+            foreach (var queue in queues)
+            {
+                var queueState = SystemAPI.GetComponent<QueueState>(queue.Queue);
+                if (queueState.FacingCarriage == carriage)
+                {
+                    return (platformEntity, queue.Queue);
+                }
+            }
+        }
+
+        return (Entity.Null, Entity.Null);
     }
 }

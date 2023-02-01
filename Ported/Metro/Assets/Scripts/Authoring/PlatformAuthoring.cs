@@ -7,6 +7,7 @@ using UnityEngine;
 public class PlatformAuthoring : MonoBehaviour
 {
     public GameObject Stairs;
+    public GameObject InitialParkedTrain;
     public List<GameObject> Queues;
     public float3 TrainStopPosition;
 
@@ -17,7 +18,8 @@ public class PlatformAuthoring : MonoBehaviour
             AddComponent(new Platform()
             {
                 TrainStopPosition = authoring.TrainStopPosition,
-                Stairs = GetEntity(authoring.Stairs)
+                Stairs = GetEntity(authoring.Stairs),
+                ParkedTrain = GetEntity(authoring.InitialParkedTrain)
             });
 
             var queueBuffer = AddBuffer<PlatformQueue>();

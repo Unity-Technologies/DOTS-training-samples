@@ -38,8 +38,8 @@ public partial struct QueueSystem : ISystem
 
         NativeList<Entity> queuesToUpdate = new(Allocator.Temp);
 
-        foreach (var (queueingData, targetDestination, seatReservation, destinationAspect) in
-                 SystemAPI.Query<RefRW<QueueingData>, RefRW<TargetDestination>, RefRW<SeatReservation>, DestinationAspect>())
+        foreach (var (queueingData, targetDestination, movementQueue, seatReservation, destinationAspect) in
+                 SystemAPI.Query<RefRW<QueueingData>, RefRW<TargetDestination>, RefRW<SaschaMovementQueue>, RefRW<SeatReservation>, DestinationAspect>())
         {
             if (queueingData.ValueRO.TargetQueue != Entity.Null)
             {
@@ -55,9 +55,16 @@ public partial struct QueueSystem : ISystem
                     Entity availableSeatEntity = FindAvailableSeat(ref state, queueState.FacingCarriage);
                     if (availableSeatEntity != Entity.Null)
                     {
+                        var carriageTransform = SystemAPI.GetComponent<WorldTransform>(queueState.FacingCarriage);
                         var seatTransform = SystemAPI.GetComponent<WorldTransform>(availableSeatEntity);
-                        targetDestination.ValueRW.TargetPosition = seatTransform.Position;
+                        targetDestination.ValueRW.IsActive = false;
+
+                        movementQueue.ValueRW.QueuedInstructions.Clear();
+                        movementQueue.ValueRW.QueuedInstructions.Enqueue(new() { Destination = carriageTransform.Position });
+                        movementQueue.ValueRW.QueuedInstructions.Enqueue(new() { Destination = seatTransform.Position });
+                        
                         seatReservation.ValueRW.TargetSeat = availableSeatEntity;
+                        seatReservation.ValueRW.TargetCarriage = queueState.FacingCarriage;
 
                         SystemAPI.SetComponent(availableSeatEntity, new Seat(){ IsTaken = true });
 

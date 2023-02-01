@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Transforms;
 
 [BurstCompile]
 public partial struct PierreDebug_CarriageInitSystem : ISystem
@@ -17,13 +18,22 @@ public partial struct PierreDebug_CarriageInitSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (queue, queueState) in SystemAPI.Query<Queue, RefRW<QueueState>>())
+        foreach (var (platform, platformEntity) in SystemAPI.Query<RefRO<Platform>>().WithEntityAccess())
         {
-            foreach (var (carriage, carriageEntity) in SystemAPI.Query<Carriage>().WithEntityAccess())
+            var queues = SystemAPI.GetBuffer<PlatformQueue>(platformEntity);
+            foreach (var queueEntity in queues)
             {
-                if (queue.FacingCarriageNumber == carriage.CarriageNumber)
+                var queue = SystemAPI.GetComponent<Queue>(queueEntity.Queue);
+                foreach (var (carriage, parent, carriageEntity) in SystemAPI.Query<RefRO<Carriage>, Parent>().WithEntityAccess())
                 {
-                    queueState.ValueRW.FacingCarriage = carriageEntity;
+                    if (parent.Value == platform.ValueRO.ParkedTrain &&
+                        carriage.ValueRO.CarriageNumber == queue.FacingCarriageNumber)
+                    {
+                        SystemAPI.SetComponent(queueEntity.Queue, new QueueState()
+                        {
+                            FacingCarriage = carriageEntity
+                        });
+                    }
                 }
             }
         }

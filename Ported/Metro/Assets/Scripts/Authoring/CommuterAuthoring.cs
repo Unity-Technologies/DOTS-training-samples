@@ -57,4 +57,5 @@ struct QueueingData : IComponentData
 struct SeatReservation : IComponentData
 {
     public Entity TargetSeat;
+    public Entity TargetCarriage;
 }
