@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 

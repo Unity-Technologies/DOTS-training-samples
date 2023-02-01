@@ -10,7 +10,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [BurstCompile]
-partial struct HumanSpawningSystem : ISystem
+partial struct HumanMovementSystem : ISystem
 {
     
     [BurstCompile]
