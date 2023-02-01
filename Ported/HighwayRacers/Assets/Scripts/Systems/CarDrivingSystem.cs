@@ -40,14 +40,16 @@ partial struct UpdateVelocityJob : IJobEntity
     void Execute(ref CarVelocity velocity, ref CarPositionInLane positionInLane, in CarOvertakeState overtakeState,
         in CarCollision collision, in CarDefaultValues defaults)
     {
+        float targetVelY = 0;
         if (collision.Front)
         {
-            velocity.VelY = collision.FrontVelocity * (collision.FrontDistance > 0.1f ? 0 : 1) ; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
+            targetVelY = collision.FrontVelocity; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
         }
         else
         {
-            velocity.VelY = defaults.DefaultVelY; //default
+            targetVelY = defaults.DefaultVelY; //default
         }
+        velocity.VelY = math.lerp(velocity.VelY, targetVelY, targetVelY * 0.1f)  * (collision.FrontDistance > 0.1f ? 0 : 1);
 
         velocity.VelX = overtakeState.ChangingLane ? 5f * math.sign(positionInLane.LaneIndex - overtakeState.OriginalLane) : 0;
 
