@@ -2345,7 +2345,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420b2098259d0bc4080518aaf27d2ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Stairs: {fileID: 1558439489}
+  Stairs:
+  - {fileID: 1558439489}
   InitialParkedTrain: {fileID: 1685086014}
   Queues:
   - {fileID: 1732836258}
@@ -5225,7 +5226,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420b2098259d0bc4080518aaf27d2ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Stairs: {fileID: 1981622733}
+  Stairs:
+  - {fileID: 1981622733}
   InitialParkedTrain: {fileID: 1768091662}
   Queues:
   - {fileID: 913534533}
@@ -11310,7 +11312,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420b2098259d0bc4080518aaf27d2ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Stairs: {fileID: 1814956582}
+  Stairs:
+  - {fileID: 1814956582}
   InitialParkedTrain: {fileID: 1829391976}
   Queues:
   - {fileID: 8432349691259754616}
@@ -11915,6 +11918,7 @@ MonoBehaviour:
   Speed: 1
   doorTransitionTime: 0.5
   stationWaitTime: 100000
+  line: {fileID: 0}
 --- !u!4 &1685086016
 Transform:
   m_ObjectHideFlags: 0
@@ -11986,7 +11990,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420b2098259d0bc4080518aaf27d2ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Stairs: {fileID: 1627178257}
+  Stairs:
+  - {fileID: 1627178257}
   InitialParkedTrain: {fileID: 2041004022}
   Queues:
   - {fileID: 114091534}
@@ -12328,6 +12333,7 @@ MonoBehaviour:
   Speed: 1
   doorTransitionTime: 0.5
   stationWaitTime: 100000
+  line: {fileID: 0}
 --- !u!4 &1768091664
 Transform:
   m_ObjectHideFlags: 0
@@ -12811,6 +12817,7 @@ MonoBehaviour:
   Speed: 1
   doorTransitionTime: 0.5
   stationWaitTime: 100000
+  line: {fileID: 0}
 --- !u!4 &1829391978
 Transform:
   m_ObjectHideFlags: 0
@@ -14424,6 +14431,7 @@ MonoBehaviour:
   Speed: 1
   doorTransitionTime: 0.5
   stationWaitTime: 100000
+  line: {fileID: 0}
 --- !u!4 &2041004024
 Transform:
   m_ObjectHideFlags: 0
