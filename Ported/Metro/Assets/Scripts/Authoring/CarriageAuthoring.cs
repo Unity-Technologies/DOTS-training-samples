@@ -41,6 +41,7 @@ public struct Carriage : IComponentData
     public int ownerTrainID;
     public NativeList<Entity> LeftDoors;
     public NativeList<Entity> RightDoors;
+    public Entity CurrentPlatform;
 }
 
 struct CarriageSeat : IBufferElementData

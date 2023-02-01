@@ -8,6 +8,7 @@ public enum CommuterState
 {
     Idle,
     InTrain,
+    InTrainReadyToUnboard,
     Boarding,
     Unboarding,
     MoveToDestination,
@@ -48,13 +49,13 @@ public struct Commuter : IComponentData
     public Unity.Mathematics.Random Random;
 }
 
-struct QueueingData : IComponentData
+public struct QueueingData : IComponentData
 {
     public Entity TargetQueue;
     public int PositionInQueue;
 }
 
-struct SeatReservation : IComponentData
+public struct SeatReservation : IComponentData
 {
     public Entity TargetSeat;
     public Entity TargetCarriage;
