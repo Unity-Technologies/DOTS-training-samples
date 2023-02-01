@@ -68,6 +68,7 @@ public partial struct UpdateCommuterStateJob : IJobEntity
                 PickNextPlatformDestination(ref commuter, ref movementQueue);
                 break;
             case CommuterState.MoveToDestination:
+            case CommuterState.Queueing:
                 UpdateMoveToDestination(ref commuter, ref commuterTransform, ref targetDestination, ref movementQueue);
                 break;
         }
@@ -89,7 +90,7 @@ public partial struct UpdateCommuterStateJob : IJobEntity
                 movementQueue.QueuedInstructions.TryDequeue(out var nextInstruction) == false)
             {
                 // No active TargetDestination and no further movement instructions in the queue. We need to switch states to determine our next actions, and stop moving for the time being
-                commuter.State = CommuterState.Idle; // TODO: instead of switching to idle, perhaps we need to switch to a "NextState", e.g. MovingToQueue, Queueing, OnTrain, etc
+                commuter.State = CommuterState.PickQueue;
                 return;
             }
 

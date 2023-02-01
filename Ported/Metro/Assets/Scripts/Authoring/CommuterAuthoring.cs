@@ -11,6 +11,7 @@ public enum CommuterState
     Boarding,
     Unboarding,
     MoveToDestination,
+    PickQueue,
     Queueing
 }
 

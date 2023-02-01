@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,6 +7,7 @@ using UnityEngine;
 public class PlatformAuthoring : MonoBehaviour
 {
     public GameObject Stairs;
+    public List<GameObject> Queues;
     public float3 TrainStopPosition;
 
     class Baker : Baker<PlatformAuthoring>
@@ -17,6 +19,13 @@ public class PlatformAuthoring : MonoBehaviour
                 TrainStopPosition = authoring.TrainStopPosition,
                 Stairs = GetEntity(authoring.Stairs)
             });
+
+            var queueBuffer = AddBuffer<PlatformQueue>();
+            queueBuffer.EnsureCapacity(queueBuffer.Length);
+            foreach (var queueObject in authoring.Queues)
+            {
+                queueBuffer.Add(new PlatformQueue(){ Queue = GetEntity(queueObject) });
+            }
         }
     }
 }
@@ -24,8 +33,12 @@ public class PlatformAuthoring : MonoBehaviour
 public struct Platform : IComponentData
 {
     public float3 TrainStopPosition;
-    public NativeList<Entity> Queues;
     public Entity Stairs;
     public Entity ParkedTrain;
     public Line Line;
+}
+
+public struct PlatformQueue : IBufferElementData
+{
+    public Entity Queue;
 }

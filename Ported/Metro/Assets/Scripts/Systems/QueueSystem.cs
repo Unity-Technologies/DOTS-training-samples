@@ -6,6 +6,7 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
+[UpdateAfter(typeof(CommuterStateSystem))]
 public partial struct QueueSystem : ISystem
 {
     Random m_Random;
@@ -46,6 +47,7 @@ public partial struct QueueSystem : ISystem
                 var queueState = SystemAPI.GetComponent<QueueState>(queueingData.ValueRO.TargetQueue);
                 var queueTransform = SystemAPI.GetComponent<WorldTransform>(queueingData.ValueRO.TargetQueue);
 
+                targetDestination.ValueRW.IsActive = true;
                 targetDestination.ValueRW.TargetPosition = queueTransform.Position + queueingData.ValueRO.PositionInQueue * queue.QueueDirection;
 
                 if (queueState.IsOpen && queueingData.ValueRO.PositionInQueue == 0 && destinationAspect.IsAtDestination())
