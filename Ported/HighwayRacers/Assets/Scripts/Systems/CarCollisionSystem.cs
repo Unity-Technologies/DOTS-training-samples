@@ -72,6 +72,7 @@ public partial struct CarCollisionSystem : ISystem
     }
 }
 
+[BurstCompile]
 partial struct PositionAssignmentJob : IJobParallelFor
 {
     public NativeArray<CarEntity> CarEntities;
