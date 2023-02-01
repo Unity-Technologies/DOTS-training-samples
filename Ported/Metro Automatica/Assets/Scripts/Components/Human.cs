@@ -9,4 +9,5 @@ struct Human : IComponentData
     public Entity WagonOfChoice;
     public float Height;
     public Color HumanColor;
+    public HumanRoute HumanRoute;
 }

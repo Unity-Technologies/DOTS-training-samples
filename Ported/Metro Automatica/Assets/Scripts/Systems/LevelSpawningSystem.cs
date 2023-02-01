@@ -52,6 +52,8 @@ partial struct LevelSpawningSystem : ISystem
             Station tempStation = new Station() { HumanSpawnerLocation = spawnerTransform };
             state.EntityManager.SetComponentData(stations[i], tempStation);
             
+            
+            
             if (i == 0)
             {
                 first = transform;
@@ -138,6 +140,8 @@ partial struct LevelSpawningSystem : ISystem
             state.EntityManager.SetComponentData(human, humanTransform);
             state.EntityManager.SetComponentData(human, new PostTransformScale{Value = float3x3.Scale(.25f,height,.25f)});
             state.EntityManager.SetComponentData(human, new URPMaterialPropertyBaseColor{Value = new float4(rng.NextFloat3(), 1f),});
+            //state.EntityManager.AddComponent<HumanWaitForRouteTag>(human);
+            //--Uncomment once Routing is done
         }
     }
 }
