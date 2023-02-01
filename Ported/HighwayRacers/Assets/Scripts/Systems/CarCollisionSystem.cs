@@ -13,8 +13,8 @@ using Random = UnityEngine.Random;
 //[UpdateAfter(typeof(CarSpawnerSystem))]
 public partial struct CarCollisionSystem : ISystem
 {
-    private ComponentLookup<CarPositionInLane> carPositionInLaneLookup;
-    private ComponentLookup<CarVelocity> carVelocityLookup;
+    [ReadOnly]private ComponentLookup<CarPositionInLane> carPositionInLaneLookup;
+    [ReadOnly]private ComponentLookup<CarVelocity> carVelocityLookup;
     private ComponentLookup<CarIndex> carIndexLookup;
     private ComponentLookup<URPMaterialPropertyBaseColor> colorLookup;
 
@@ -22,8 +22,8 @@ public partial struct CarCollisionSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<CarEntity>();
-        carPositionInLaneLookup = SystemAPI.GetComponentLookup<CarPositionInLane>();
-        carVelocityLookup = SystemAPI.GetComponentLookup<CarVelocity>();
+        carPositionInLaneLookup = SystemAPI.GetComponentLookup<CarPositionInLane>(true);
+        carVelocityLookup = SystemAPI.GetComponentLookup<CarVelocity>(true);
         carIndexLookup = SystemAPI.GetComponentLookup<CarIndex>();
         colorLookup = SystemAPI.GetComponentLookup<URPMaterialPropertyBaseColor>();
     }
@@ -68,7 +68,7 @@ public partial struct CarCollisionSystem : ISystem
             MaxLaneIndex = spawner.NumLanes - 1,
             LaneLength = spawner.LengthLanes
         };
-        state.Dependency = collisionJob.Schedule(state.Dependency);
+        collisionJob.ScheduleParallel();
     }
 }
 
@@ -116,13 +116,14 @@ partial struct CollisionJob : IJobEntity
 {
     public int MaxLaneIndex;
     public float LaneLength;
-    public NativeArray<CarEntity> CarEntities;
+    [ReadOnly] public NativeArray<CarEntity> CarEntities;
     [ReadOnly] public ComponentLookup<CarPositionInLane> CarPositionInLaneLookup;
     [ReadOnly] public ComponentLookup<CarVelocity> CarVelocityLookup;
 
     //TODO: Make this component?
     private const float CarRadius = 1;
 
+    [BurstCompile]
     void Execute(ref CarCollision collision, in CarIndex carIndex, in CarPositionInLane positionInLane,
         ref URPMaterialPropertyBaseColor baseColor)
     {
@@ -132,8 +133,11 @@ partial struct CollisionJob : IJobEntity
         collision.FrontVelocity = 0.0f;
         collision.FrontDistance = 0.0f;
 
+
+        int startIndex = -(MaxLaneIndex - 1);
+        int endIndex = 1 + 2 * (MaxLaneIndex - 1);
         //TODO: Define how many lanes and use this to determine how many cars to check
-        for (int i = -3; i <= 7; i++)
+        for (int i = startIndex; i <= endIndex; i++)
         {
             if (i == 0) continue;
             int wrappedIndex = WrappedIndex(i + carIndex.Index, out int wrapDirection);
@@ -161,11 +165,11 @@ partial struct CollisionJob : IJobEntity
                 continue;
             }
 
-            if (otherCarLane > lane)
+            if (otherCarLane == lane + 1)
             {
                 collision.Right = true;
             }
-            else if (otherCarLane < lane)
+            else if (otherCarLane == lane - 1)
             {
                 collision.Left = true;
             }
@@ -183,6 +187,7 @@ partial struct CollisionJob : IJobEntity
         }
     }
 
+   [BurstCompile] 
     private int WrappedIndex(int index, out int wrapDirection)
     {
         wrapDirection = 0;

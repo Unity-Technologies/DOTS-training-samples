@@ -18,7 +18,7 @@ partial struct CarTranslationJob : IJobEntity
         float position = positionInLane.Position * InverseLaneLength * math.PI * 2;
 
         //Add radius setting here
-        float radius = LaneLength / (math.PI * 2) + lanePosition;
+        float radius = LaneLength / (math.PI * 2) - lanePosition;
         
         float x = math.sin(position) * radius;
         float y = math.cos(position) * radius;

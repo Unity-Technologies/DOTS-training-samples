@@ -42,8 +42,7 @@ partial struct UpdateVelocityJob : IJobEntity
     {
         if (collision.Front)
         {
-            velocity.VelY =
-                collision.FrontVelocity; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
+            velocity.VelY = collision.FrontVelocity * (collision.FrontDistance > 0.1f ? 0 : 1) ; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
         }
         else
         {
@@ -55,7 +54,6 @@ partial struct UpdateVelocityJob : IJobEntity
         //Convert setting
 
         positionInLane.Position = (positionInLane.Position + velocity.VelY * DeltaTime) % LaneLength;
-        positionInLane.LanePosition = math.clamp(positionInLane.LanePosition + velocity.VelX * DeltaTime, 0,
-            positionInLane.LaneIndex);
+        positionInLane.LanePosition += velocity.VelX * DeltaTime;
     }
 }
