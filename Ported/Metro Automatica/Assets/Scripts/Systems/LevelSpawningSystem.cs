@@ -10,7 +10,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [BurstCompile]
-partial struct StationSpawningSystem : ISystem
+partial struct LevelSpawningSystem : ISystem
 {
     
     [BurstCompile]
@@ -128,12 +128,16 @@ partial struct StationSpawningSystem : ISystem
             stationSpawners.Add(station.ValueRO.HumanSpawnerLocation);
         }
 
+        Unity.Mathematics.Random rng = new Unity.Mathematics.Random(123);
         foreach (var human in humans)
         {
             int randomStation = Random.Range(0, config.StationCount);
             var humanTransform = LocalTransform.FromPosition(stationSpawners[randomStation].Position);
-            humanTransform.Position += new float3(Random.Range(0f, 2f), 0f, Random.Range(0f, 2f));
+            var height = rng.NextFloat(.4f, 0.6f);
+            humanTransform.Position += new float3(Random.Range(0f, 2f), (1 - height)/-2, Random.Range(0f, 2f));
             state.EntityManager.SetComponentData(human, humanTransform);
+            state.EntityManager.SetComponentData(human, new PostTransformScale{Value = float3x3.Scale(.25f,height,.25f)});
+            state.EntityManager.SetComponentData(human, new URPMaterialPropertyBaseColor{Value = new float4(rng.NextFloat3(), 1f),});
         }
     }
 }

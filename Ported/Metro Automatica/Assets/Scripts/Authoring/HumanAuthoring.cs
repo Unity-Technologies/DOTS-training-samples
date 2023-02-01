@@ -1,5 +1,7 @@
 using System.Security.Cryptography.X509Certificates;
 using Unity.Entities;
+using Unity.Rendering;
+using Unity.Transforms;
 
 class HumanAuthoring : UnityEngine.MonoBehaviour
 {
@@ -8,6 +10,8 @@ class HumanAuthoring : UnityEngine.MonoBehaviour
         public override void Bake(HumanAuthoring authoring)
         {
             AddComponent<Human>();
+            AddComponent<PostTransformScale>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }
