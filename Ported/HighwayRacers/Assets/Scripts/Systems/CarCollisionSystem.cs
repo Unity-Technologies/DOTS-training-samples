@@ -134,7 +134,7 @@ partial struct CollisionJob : IJobEntity
         collision.FrontVelocity = 0.0f;
         collision.FrontDistance = 0.0f;
         
-        collision.CollisionFlags = 0;
+        collision.CollisionFlags = CollisionType.None;
         collision.CollisionFlags |= positionInLane.LaneIndex == 0  ? CollisionType.Left  : CollisionType.None;
         collision.CollisionFlags |= positionInLane.LaneIndex == MaxLaneIndex ? CollisionType.Right : CollisionType.None;
         
@@ -198,14 +198,11 @@ partial struct CollisionJob : IJobEntity
         }
 
         //DEBUG
-        if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
-        {
-            baseColor.Value = new float4(1.0f, 1.0f, 1.0f, 1.0f);
-        }
-        else
-        {
-            baseColor.Value = new float4(0, 0, 0, 0);
-        }
+        baseColor.Value = new float4(
+            (collision.CollisionFlags & CollisionType.Front) == CollisionType.Front ? 1.0f: 0.0f, 
+            (collision.CollisionFlags & CollisionType.Right) == CollisionType.Right ? 1.0f: 0.0f, 
+            (collision.CollisionFlags & CollisionType.Left) == CollisionType.Left ? 1.0f: 0.0f, 
+            1.0f);
     }
 
    [BurstCompile] 

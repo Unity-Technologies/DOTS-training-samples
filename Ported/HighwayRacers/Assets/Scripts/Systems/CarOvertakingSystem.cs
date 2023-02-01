@@ -36,7 +36,6 @@ partial struct OvertakeStateJob : IJobEntity
     [BurstCompile]
     void Execute(ref CarOvertakeState overtakeState, ref CarPositionInLane positionInLane, in CarCollision collision)
     {
-        
         //Figure out if we're finished changing lane
         if (overtakeState.ChangingLane)
         {
@@ -50,13 +49,13 @@ partial struct OvertakeStateJob : IJobEntity
         //Figure out if we should start changing lane
         else if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
         {
-            if (MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Right) == CollisionType.Right)
+            if (MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Right) == 0)
             {
                 overtakeState.ChangingLane = true;
                 overtakeState.OriginalLane = positionInLane.LaneIndex;
                 positionInLane.LaneIndex++;
             }
-            else if (!MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Left) == CollisionType.Left)
+            else if (!MergeDirectionIsRight && (collision.CollisionFlags & CollisionType.Left) == 0)
             {
                 overtakeState.ChangingLane = true;
                 overtakeState.OriginalLane = positionInLane.LaneIndex;
