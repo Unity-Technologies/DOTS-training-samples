@@ -24,6 +24,8 @@ public class TrainAuthoring : MonoBehaviour
     public float doorTransitionTime;
     public float stationWaitTime;
 
+    public GameObject line;
+
     public static int trainID = 0;
 
     class Baker : Baker<TrainAuthoring>
@@ -34,7 +36,8 @@ public class TrainAuthoring : MonoBehaviour
             {
                 Speed = authoring.Speed,
                 entity = GetEntity(authoring.gameObject),
-                trainID = trainID++
+                trainID = trainID++,
+                Line = GetEntity(authoring.line)
             };
 
             AddComponent(new TrainScheduleInfo(
@@ -52,7 +55,8 @@ public class TrainAuthoring : MonoBehaviour
 public struct Train : IComponentData
 {
     public Entity entity;
-    public Line Line;
+    public Entity Line;
+    public Entity currentStation;
     public TrainState State;
     public int trainID;
     public int nextStationIndex;

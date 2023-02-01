@@ -168,6 +168,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Stairs: {fileID: 0}
+  InitialParkedTrain: {fileID: 0}
+  Queues: []
   TrainStopPosition:
     x: 0
     y: 0
@@ -217,6 +219,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Stairs: {fileID: 0}
+  InitialParkedTrain: {fileID: 0}
+  Queues: []
   TrainStopPosition:
     x: 10
     y: 0
@@ -309,6 +313,7 @@ MonoBehaviour:
   Speed: 10
   doorTransitionTime: 2
   stationWaitTime: 2
+  line: {fileID: 995339992}
 --- !u!65 &1058280665
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -547,6 +552,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Stairs: {fileID: 0}
+  InitialParkedTrain: {fileID: 0}
+  Queues: []
   TrainStopPosition:
     x: -10
     y: 0

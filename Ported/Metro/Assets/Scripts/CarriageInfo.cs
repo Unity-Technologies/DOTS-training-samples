@@ -12,4 +12,3 @@ public class CarridgeInfo : MonoBehaviour
     public Vector3 closeLocalPos;
     public Vector3 openLocalPos;
 }
-
