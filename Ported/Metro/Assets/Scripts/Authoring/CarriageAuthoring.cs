@@ -39,8 +39,9 @@ public struct Carriage : IComponentData
 {
     public int CarriageNumber;
     public int ownerTrainID;
-    public NativeList<Entity> LeftDoors; //NEED TO USE A BUFFER
-    public NativeList<Entity> RightDoors; //NEED TO USE A BUFFER
+    public NativeList<Entity> LeftDoors;//NEED TO USE A BUFFER
+    public NativeList<Entity> RightDoors;//NEED TO USE A BUFFER
+    public Entity CurrentPlatform; 
 }
 
 struct CarriageSeat : IBufferElementData

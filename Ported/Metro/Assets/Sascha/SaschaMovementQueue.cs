@@ -8,6 +8,7 @@ public struct SaschaMovementQueueInstruction
     public Entity Platform;
 }
 
+[ChunkSerializable]
 public struct SaschaMovementQueue : IComponentData
 {
     public NativeQueue<SaschaMovementQueueInstruction> QueuedInstructions;
