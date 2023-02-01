@@ -13,7 +13,6 @@ public partial struct CommuterStateSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Config>();
         m_Random = Random.CreateFromIndex(1234);
     }
 
@@ -25,10 +24,30 @@ public partial struct CommuterStateSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (commuter, seatReservation, destinationAspect) in SystemAPI.Query<RefRW<Commuter>, RefRO<SeatReservation>, DestinationAspect>())
+        foreach (var (commuter, queueingData, seatReservation, destinationAspect)
+                 in SystemAPI.Query<RefRW<Commuter>, RefRW<QueueingData>, RefRO<SeatReservation>, DestinationAspect>())
         {
             switch (commuter.ValueRO.State)
             {
+                case CommuterState.PickQueue:
+                {
+                    var platformQueues = SystemAPI.GetBuffer<PlatformQueue>(commuter.ValueRO.CurrentPlatform);
+                    if (platformQueues.Length > 0)
+                    {
+                        commuter.ValueRW.State = CommuterState.Queueing;
+
+                        var targetQueue = platformQueues[math.abs(m_Random.NextInt()) % platformQueues.Length].Queue;
+                        var queueState = SystemAPI.GetComponent<QueueState>(targetQueue);
+                        queueingData.ValueRW.TargetQueue = targetQueue;
+                        queueingData.ValueRW.PositionInQueue = queueState.QueueSize;
+
+                        ++queueState.QueueSize;
+                        SystemAPI.SetComponent(targetQueue, queueState);
+                    }
+
+                    break;
+                }
+
                 case CommuterState.Queueing:
                 {
                     if (seatReservation.ValueRO.TargetSeat != Entity.Null)
