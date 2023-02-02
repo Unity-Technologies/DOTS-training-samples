@@ -9,6 +9,8 @@ public class GlobalSettingsAuthoring : MonoBehaviour
     [SerializeField] public float LengthLanes = 100.0f;
     [SerializeField] public float MinVelocity = 1.0f;
     [SerializeField] public float MaxVelocity = 2.0f;
+    [SerializeField] public float MinOvertakeVelocity = 1.0f;
+    [SerializeField] public float MaxOvertakeVelocity = 2.0f;
  
     public class Baker : Baker<GlobalSettingsAuthoring>
     {
@@ -20,6 +22,8 @@ public class GlobalSettingsAuthoring : MonoBehaviour
                 amount = authoring.amount,
                 MaxVelocity = authoring.MaxVelocity,
                 MinVelocity = authoring.MinVelocity,
+                MinOvertakeVelocity = authoring.MinOvertakeVelocity,
+                MaxOvertakeVelocity = authoring.MaxOvertakeVelocity,
                 LengthLanes = authoring.LengthLanes,
                 NumLanes = authoring.NumLanes
             });

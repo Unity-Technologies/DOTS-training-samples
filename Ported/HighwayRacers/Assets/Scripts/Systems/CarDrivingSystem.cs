@@ -47,9 +47,9 @@ partial struct UpdateVelocityJob : IJobEntity
         }
         else
         {
-            targetVelY = defaults.DefaultVelY; //default
+            targetVelY = overtakeState.IsOvertaking ? defaults.DefaultVelY + overtakeState.OvertakeVelocity : defaults.DefaultVelY; //default
         }
-        velocity.VelY = math.lerp(velocity.VelY, targetVelY, targetVelY * 0.5f * DeltaTime)  * (collision.FrontDistance > 0.1f ? 0 : 1);
+        velocity.VelY = math.lerp(velocity.VelY, targetVelY, 3 * DeltaTime)  * (collision.FrontDistance > 0.1f ? 0 : 1);
 
         velocity.VelX = overtakeState.ChangingLane ? 5f * math.sign(positionInLane.LaneIndex - overtakeState.OriginalLane) : 0;
 

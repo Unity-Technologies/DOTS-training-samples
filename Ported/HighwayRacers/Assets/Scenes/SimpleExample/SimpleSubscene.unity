@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731689, g: 0.13414702, b: 0.1210784, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &1098146810
+--- !u!1 &1318616592
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,22 +131,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1098146812}
-  - component: {fileID: 1098146811}
+  - component: {fileID: 1318616594}
+  - component: {fileID: 1318616593}
   m_Layer: 0
-  m_Name: SpawnerSystem
+  m_Name: Settings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1098146811
+--- !u!114 &1318616593
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1098146810}
+  m_GameObject: {fileID: 1318616592}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fcb1277f2f1fe497fac5ce5412e66ec1, type: 3}
@@ -154,22 +154,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carPrefab: {fileID: 3136198787464853788, guid: 2d52cbc52aecd4941bdeb5645d3faabb,
     type: 3}
-  amount: 40000
-  NumLanes: 100
-  LengthLanes: 40000
+  amount: 50
+  NumLanes: 4
+  LengthLanes: 200
   MinVelocity: 2
   MaxVelocity: 10
   MinOvertakeVelocity: 4
   MaxOvertakeVelocity: 8
---- !u!4 &1098146812
+--- !u!4 &1318616594
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1098146810}
+  m_GameObject: {fileID: 1318616592}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 90, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -241,7 +241,7 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 1
---- !u!1 &1098146810
+--- !u!1 &1003826531
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -249,43 +249,43 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1098146812}
-  - component: {fileID: 1098146811}
+  - component: {fileID: 1003826533}
+  - component: {fileID: 1003826532}
   m_Layer: 0
-  m_Name: CarsSubScene
+  m_Name: SimpleSubscene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1098146811
+--- !u!114 &1003826532
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1098146810}
+  m_GameObject: {fileID: 1003826531}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SceneAsset: {fileID: 102900000, guid: 22c25d793f2bf40e58e0ed55c4804a2d, type: 3}
+  _SceneAsset: {fileID: 102900000, guid: 3fda29b95c7814318be890b8ee93421f, type: 3}
   _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 2547330082
-      y: 3763319539
-      z: 1440616069
-      w: 3533965388
---- !u!4 &1098146812
+      x: 2610081267
+      y: 323061701
+      z: 2332659384
+      w: 4045683182
+--- !u!4 &1003826533
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1098146810}
+  m_GameObject: {fileID: 1003826531}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -354,7 +354,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 5000
-  field of view: 1.3
+  field of view: 20
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -380,7 +380,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1639377532}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 4492, z: -6320}
+  m_LocalPosition: {x: 0, y: 250, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

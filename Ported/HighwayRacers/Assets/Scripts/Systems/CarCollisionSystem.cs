@@ -77,7 +77,7 @@ public partial struct CarCollisionSystem : ISystem
 
         var collisionJob = new CollisionJob
         {
-            CarEntities = carEntities, CarPositionInLaneLookup = carPositionInLaneLookup,
+            CarEntities = carEntities,
             CarVelocityLookup = carVelocityLookup,
             MaxLaneIndex = spawner.NumLanes - 1,
             LaneLength = spawner.LengthLanes
@@ -169,7 +169,6 @@ partial struct CollisionJob : IJobEntity
     public int MaxLaneIndex;
     public float LaneLength;
     [ReadOnly] public NativeArray<CarEntity> CarEntities;
-    [ReadOnly] public ComponentLookup<CarPositionInLane> CarPositionInLaneLookup;
     [ReadOnly] public ComponentLookup<CarVelocity> CarVelocityLookup;
 
     //TODO: Make this component?
