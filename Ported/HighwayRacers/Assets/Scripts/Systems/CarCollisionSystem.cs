@@ -94,7 +94,7 @@ partial struct PositionAssignmentJob : IJobParallelFor
         //     };
     }
 }
-
+[BurstCompile]
 partial struct IndexAssignmentJob : IJobParallelFor
 {
     [ReadOnly] public NativeArray<CarEntity> CarEntities;
