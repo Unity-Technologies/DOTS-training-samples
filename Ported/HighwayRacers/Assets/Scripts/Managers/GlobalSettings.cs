@@ -15,4 +15,6 @@ public struct GlobalSettings : IComponentData
     public float MinVelocity;
     public float MaxVelocity;
 
+    public float MinOvertakeVelocity;
+    public float MaxOvertakeVelocity;
 }

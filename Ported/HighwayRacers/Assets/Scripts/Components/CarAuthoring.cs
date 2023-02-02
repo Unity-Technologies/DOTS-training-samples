@@ -27,9 +27,11 @@ struct CarIsOvertaking : IComponentData
 
 struct CarOvertakeState : IComponentData
 {
-    public float OvertakeStartTime;
+    public double OvertakeStartTime;
     public int OriginalLane;
     public bool ChangingLane;
+    public bool IsOvertaking;
+    public float OvertakeVelocity;
 }
 
 public partial struct CarPositionInLane : IComponentData
