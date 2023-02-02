@@ -7,7 +7,8 @@ using UnityEngine;
 public enum CommuterState
 {
     Idle,
-    InTrain,
+    InTrainWaitingForDeparture,
+    InTrainMoving,
     InTrainReadyToUnboard,
     Boarding,
     Unboarding,
