@@ -8,6 +8,7 @@ class WagonAuthoring : UnityEngine.MonoBehaviour
         public override void Bake(WagonAuthoring authoring)
         {
             AddComponent<Wagon>();
+            AddBuffer<StationWayPoints>();
         }
     }
 }

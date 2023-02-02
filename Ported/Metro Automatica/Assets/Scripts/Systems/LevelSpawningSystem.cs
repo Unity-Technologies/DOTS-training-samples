@@ -73,23 +73,31 @@ partial struct LevelSpawningSystem : ISystem
                     state.EntityManager.SetComponentData(wagons[j], wagonTransform);
                     var tempWagon = SystemAPI.GetComponent<Wagon>(wagons[j]);
                     tempWagon.TrainOffset = firstWagon.Position.x;
+                    tempWagon.StationCounter = i;
+                    tempWagon.Direction = 1;
                     SystemAPI.SetComponent(wagons[j], tempWagon);
                     firstWagon.Position.x += 5.2f;
                 }
             }
 
-            if (i == stations.Length -1)
+            for (int j = 0; j < wagons.Length; j++)
             {
-                last = transform;
+                var wagonStationBuffer = SystemAPI.GetBuffer<StationWayPoints>(wagons[j]);
+                float3 stationLocation = new float3(i * 90f, 0, 0);
+                wagonStationBuffer.Add(new StationWayPoints{Value = stationLocation});
             }
+
+            
+                    
+            // foreach (var stationTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Station>())
+            // {
+            //     var wagonStationBuffer = SystemAPI.GetBuffer<StationWayPoints>(wagons[j]);
+            //     wagonStationBuffer.Add(new StationWayPoints{Value = stationTransform.ValueRO.Position});
+            // }
             //Debug.Log($"First: {first.Position.x}");
         }
 
-        foreach (var wagon in SystemAPI.Query<RefRW<Wagon>>())
-        {
-            float3 finalDestination = new float3(180, 0, 0);
-            wagon.ValueRW.currentDestination = last.Position + new float3(wagon.ValueRO.TrainOffset, 0, 0);
-        }
+        
 
         // This system should only run once at startup. So it disables itself after one update.
         var railSpawn = state.EntityManager.Instantiate(config.RailPrefab);
