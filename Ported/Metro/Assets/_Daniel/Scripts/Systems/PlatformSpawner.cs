@@ -33,8 +33,8 @@ public partial struct PlatformSpawner : ISystem
         NativeArray<Entity> stations = new NativeArray<Entity>();
         foreach (var (station, stationEntity) in SystemAPI.Query<Station>().WithEntityAccess())
         {
-            //stations = SpawnStations(state, lineEntity, line, config);
-           SetStepsColor(state, station, stationEntity);
+           //Disabling steps color change as the original implementations depended on the Stairs entity in the Platform component, which doesn't exist now (using buffers instead)
+           //SetStepsColor(state, station, stationEntity);
 
         }
         state.Enabled = false;
@@ -46,21 +46,21 @@ public partial struct PlatformSpawner : ISystem
             foreach (var platfomChild in /*station.Platforms*/ SystemAPI.GetBuffer<Child>(stationEntity))
             {
                 var platfom = state.EntityManager.GetComponentData<Platform>(platfomChild.Value);
-                if (SystemAPI.HasBuffer<Child>(platfom.Stairs))
-                {
-                    foreach (var step in SystemAPI.GetBuffer<Child>(platfom.Stairs))
-                    {
-                        if (state.EntityManager.HasComponent<URPMaterialPropertyBaseColor>(step.Value))
-                        {
-                        state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>
-                            (step.Value,
-                            new URPMaterialPropertyBaseColor
-                            {
-                                Value = station.Colors[colorIndex]
-                            }) ;
-                        }
-                    }
-                }
+                //if (SystemAPI.HasBuffer<Child>(platfom.Stairs))
+                //{
+                //    foreach (var step in SystemAPI.GetBuffer<Child>(platfom.Stairs))
+                //    {
+                //        if (state.EntityManager.HasComponent<URPMaterialPropertyBaseColor>(step.Value))
+                //        {
+                //        state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>
+                //            (step.Value,
+                //            new URPMaterialPropertyBaseColor
+                //            {
+                //                Value = station.Colors[colorIndex]
+                //            }) ;
+                //        }
+                //    }
+                //}
             }
             colorIndex++;
         }

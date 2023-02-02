@@ -38,6 +38,7 @@ public struct Line : IComponentData
 {
     public Entity Entity;
     public float4 LineColor;
+    public int Id;
 }
 
 public struct StationEntity : IBufferElementData

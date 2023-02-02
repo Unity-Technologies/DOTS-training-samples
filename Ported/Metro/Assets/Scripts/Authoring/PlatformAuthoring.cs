@@ -8,6 +8,7 @@ public class PlatformAuthoring : MonoBehaviour
 {
     public List<GameObject> Stairs;
     public GameObject InitialParkedTrain;
+    public GameObject PlatformFloor;
     public List<GameObject> Queues;
     public float3 TrainStopPosition;
 
@@ -18,7 +19,9 @@ public class PlatformAuthoring : MonoBehaviour
             AddComponent(new Platform()
             {
                 TrainStopPosition = authoring.TrainStopPosition,
-                ParkedTrain = GetEntity(authoring.InitialParkedTrain)
+                ParkedTrain = GetEntity(authoring.InitialParkedTrain),
+                PlatformFloor = GetEntity(authoring.PlatformFloor)
+
             });
 
             var queueBuffer = AddBuffer<PlatformQueue>();
@@ -46,6 +49,7 @@ public struct Platform : IComponentData
     public float3 TrainStopPosition;
     public Entity ParkedTrain;
     public Line Line;
+    public Entity PlatformFloor;
 }
 
 public struct PlatformQueue : IBufferElementData
