@@ -23,7 +23,8 @@ partial struct CarDrivingSystem : ISystem
         var updateVelocityJob = new UpdateVelocityJob()
         {
             DeltaTime = SystemAPI.Time.DeltaTime,
-            LaneLength = globalSettings.LengthLanes
+            LaneLength = globalSettings.LengthLanes,
+            MinSpeed = globalSettings.MinVelocity
 
         };
         updateVelocityJob.ScheduleParallel();
@@ -35,6 +36,7 @@ partial struct UpdateVelocityJob : IJobEntity
 {
     public float DeltaTime;
     public float LaneLength;
+    public float MinSpeed;
     
     [BurstCompile]
     void Execute(ref CarVelocity velocity, ref CarPositionInLane positionInLane, in CarOvertakeState overtakeState,
@@ -43,7 +45,7 @@ partial struct UpdateVelocityJob : IJobEntity
         float targetVelY = 0;
         if ((collision.CollisionFlags & CollisionType.Front) == CollisionType.Front)
         {
-            targetVelY = collision.FrontVelocity; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
+            targetVelY = MinSpeed; //math.clamp(collision.FrontVelocity - collision.FrontDistance, 0.0f, defaults.DefaultVelY);
         }
         else
         {

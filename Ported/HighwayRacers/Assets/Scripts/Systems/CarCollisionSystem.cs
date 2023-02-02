@@ -232,7 +232,7 @@ partial struct CollisionJob : IJobEntity
                 collision.CollisionFlags |= CollisionType.Front;
                 
                 //TODO what if we didn't care about velocity/dist, used a PID or something in CarDrivingSystem
-                collision.FrontVelocity = CarVelocityLookup[otherCar.Value].VelY;
+                //collision.FrontVelocity = CarVelocityLookup[otherCar.Value].VelY;
                 collision.FrontDistance = CarRadius - distance; //calc distance to perfect following distance
             }
 
