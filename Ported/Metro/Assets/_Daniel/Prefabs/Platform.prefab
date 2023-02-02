@@ -1142,6 +1142,7 @@ MonoBehaviour:
     y: 0
     z: 0
   QueueCapacity: 0
+  FacingCarriageNumber: 0
 --- !u!1 &1213905639728568
 GameObject:
   m_ObjectHideFlags: 0
@@ -1442,7 +1443,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TopWaypoint: {fileID: 1486633408824928}
-  BottomWaypoint: {fileID: 1213905639728568}
+  TopWalkwayWaypoint: {fileID: 1213905639728568}
+  BottomWaypoint: {fileID: 1486633408824928}
 --- !u!1 &1272844429851966
 GameObject:
   m_ObjectHideFlags: 0
@@ -1611,6 +1613,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TopWaypoint: {fileID: 1574182237066516}
+  TopWalkwayWaypoint: {fileID: 1574182237066516}
   BottomWaypoint: {fileID: 1450824125963010}
 --- !u!1 &1310124040700200
 GameObject:
@@ -2430,6 +2433,7 @@ MonoBehaviour:
     y: 0
     z: 0
   QueueCapacity: 0
+  FacingCarriageNumber: 0
 --- !u!1 &1523140137529862
 GameObject:
   m_ObjectHideFlags: 0
@@ -4025,6 +4029,7 @@ MonoBehaviour:
     y: 0
     z: 0
   QueueCapacity: 0
+  FacingCarriageNumber: 0
 --- !u!1 &1795619003263208
 GameObject:
   m_ObjectHideFlags: 0
@@ -4110,6 +4115,7 @@ MonoBehaviour:
     y: 0
     z: 0
   QueueCapacity: 0
+  FacingCarriageNumber: 0
 --- !u!1 &1843755825545522
 GameObject:
   m_ObjectHideFlags: 0
@@ -4562,6 +4568,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 420b2098259d0bc4080518aaf27d2ac3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Stairs: {fileID: 1302944679018018}
+  PlatformFloor: {fileID: 1028453994985532}
   TrainStopPosition:
     x: 0
     y: 0
@@ -4716,3 +4724,4 @@ MonoBehaviour:
     y: 0
     z: 0
   QueueCapacity: 0
+  FacingCarriageNumber: 0
