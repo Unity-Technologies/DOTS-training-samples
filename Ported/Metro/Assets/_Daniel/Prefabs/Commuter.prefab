@@ -98,9 +98,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value:
-    x: 0
-    y: 0
-    z: 0
+    x: 1.84
+    y: 4.74
+    z: 0.43
     w: 0
 --- !u!114 &3936010416465773817
 MonoBehaviour:
@@ -114,3 +114,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cc7e5b11f898434c9a3e1a1df690726, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CurrentPlatform: {fileID: 0}
+  Velocity: 5

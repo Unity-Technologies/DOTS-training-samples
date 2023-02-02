@@ -14,6 +14,9 @@ public class ConfigAuthoring : MonoBehaviour
 
     public int CommuterCount;
     public int LineCount;
+    public int LineOffset;
+    public int StationsPerLineCount;
+    public int StationsOffset;
 
     class Baker : Baker<ConfigAuthoring>
     {
@@ -28,6 +31,9 @@ public class ConfigAuthoring : MonoBehaviour
                 StationPrefab = GetEntity(authoring.StationPrefab),
                 CommuterCount = authoring.CommuterCount,
                 LineCount = authoring.LineCount,
+                LineOffset = authoring.LineOffset,
+                StationsPerLineCount = authoring.StationsPerLineCount,
+                StationsOffset = authoring.StationsOffset
             });
         }
     }
@@ -42,4 +48,7 @@ struct Config : IComponentData
     public Entity StationPrefab;
     public int CommuterCount;
     public int LineCount;
+    public int LineOffset;
+    public int StationsPerLineCount;
+    public int StationsOffset;
 }

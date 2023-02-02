@@ -37,4 +37,5 @@ public struct Line : IComponentData
     public float4 LineColor;
     public NativeList<float3> platformStopPositions;
     public NativeList<Entity> platforms;
+    public int Id;
 }
