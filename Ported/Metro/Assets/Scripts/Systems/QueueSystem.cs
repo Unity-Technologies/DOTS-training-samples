@@ -2,7 +2,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
@@ -25,17 +24,6 @@ public partial struct QueueSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        //TODO: get train from platform
-        bool areDoorsOpen = false;
-        foreach (var train in SystemAPI.Query<RefRW<Train>>())
-        {
-            areDoorsOpen |= train.ValueRW.State == TrainState.Boarding;
-        }
-        foreach (var queue in SystemAPI.Query<RefRW<QueueState>>())
-        {
-            queue.ValueRW.IsOpen = areDoorsOpen;
-        }
-
         NativeList<Entity> queuesToUpdate = new(Allocator.Temp);
 
         foreach (var (queueingData, targetDestination, movementQueue, seatReservation, destinationAspect) in

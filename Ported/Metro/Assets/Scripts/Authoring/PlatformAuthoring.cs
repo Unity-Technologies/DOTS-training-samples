@@ -9,7 +9,7 @@ public class PlatformAuthoring : MonoBehaviour
     public List<GameObject> Stairs;
     public GameObject InitialParkedTrain;
     public List<GameObject> Queues;
-    public float3 TrainStopPosition;
+    public GameObject TrainStopPosition;
 
     class Baker : Baker<PlatformAuthoring>
     {
@@ -17,7 +17,7 @@ public class PlatformAuthoring : MonoBehaviour
         {
             AddComponent(new Platform()
             {
-                TrainStopPosition = authoring.TrainStopPosition,
+                TrainStopPosition = authoring.TrainStopPosition.transform.position,
                 ParkedTrain = GetEntity(authoring.InitialParkedTrain)
             });
 

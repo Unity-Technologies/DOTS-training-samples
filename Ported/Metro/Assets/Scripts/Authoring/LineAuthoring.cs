@@ -21,7 +21,7 @@ public class LineAuthoring : MonoBehaviour
                 stationBuffer.Add(new()
                 {
                     Station = GetEntity(authoringPlatform.gameObject),
-                    StopPos = authoringPlatform.TrainStopPosition
+                    StopPos = authoringPlatform.TrainStopPosition.transform.position
                 });
             }
 

@@ -12,14 +12,18 @@ using UnityEngine;
 public partial struct TrainStateMachine : ISystem
 {
     private ComponentLookup<Platform> allPlatforms;
+    private ComponentLookup<QueueState> allQueueStates;
     private BufferLookup<StationEntity> allStations; 
+    private BufferLookup<PlatformQueue> allPlatformQueues; 
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Train>();
         allPlatforms = SystemAPI.GetComponentLookup<Platform>();
+        allQueueStates = SystemAPI.GetComponentLookup<QueueState>();
         allStations = SystemAPI.GetBufferLookup<StationEntity>();
+        allPlatformQueues = SystemAPI.GetBufferLookup<PlatformQueue>();
     }
 
     [BurstCompile]
@@ -31,14 +35,9 @@ public partial struct TrainStateMachine : ISystem
     public void OnUpdate(ref SystemState state)
     {
         allPlatforms.Update(ref state);
+        allQueueStates.Update(ref state);
         allStations.Update(ref state);
-        
-        Line testLine = SystemAPI.GetSingleton<Line>();
-        
-        foreach (RefRW<Train> train in SystemAPI.Query<RefRW<Train>>())
-        {
-            train.ValueRW.Line = testLine.Entity;
-        }
+        allPlatformQueues.Update(ref state);
 
                     //platformID, trainID
         //NativeHashMap<Entity, int> trainsArrivedAtStation = new NativeHashMap<int, int>(0, Allocator.TempJob);
@@ -46,7 +45,9 @@ public partial struct TrainStateMachine : ISystem
         {
             deltaTime = SystemAPI.Time.DeltaTime,
             allStations = allStations,
-            allPlatforms = allPlatforms
+            allPlatforms = allPlatforms,
+            allPlatformQueues = allPlatformQueues,
+            allQueueStates = allQueueStates
         }.ScheduleParallel();
 
         // JobHandle informJobHandle = new InformStationsJob()
@@ -66,6 +67,8 @@ public partial struct TrainStateDecider : IJobEntity
     //[NativeDisableContainerSafetyRestriction] public NativeHashMap<Entity, int> trainsArrivedAtStation;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Platform> allPlatforms;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<StationEntity> allStations;
+    [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformQueue> allPlatformQueues;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<QueueState> allQueueStates;
 
     private void Execute(TrainSchedulingAspect trainScheduling)
     {
@@ -157,13 +160,23 @@ public partial struct TrainStateDecider : IJobEntity
 
     private void InformAtStation(TrainSchedulingAspect trainScheduling)
     {
-        allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false).ValueRW.ParkedTrain 
-            = trainScheduling.train.ValueRW.entity;   
+        var arrivalPlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false);
+        arrivalPlatform.ValueRW.ParkedTrain = trainScheduling.train.ValueRW.entity;
+        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentStation];
+        foreach (var platformQueue in platformQueues)
+        {
+            allQueueStates.GetRefRW(platformQueue.Queue, false).ValueRW.IsOpen = true;
+        }
     }
 
     private void InformLeftStation(TrainSchedulingAspect trainScheduling)
     {
-        allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false).ValueRW.ParkedTrain 
-            = Entity.Null;
+        var departurePlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false);
+        departurePlatform.ValueRW.ParkedTrain = Entity.Null;
+        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentStation];
+        foreach (var platformQueue in platformQueues)
+        {
+            allQueueStates.GetRefRW(platformQueue.Queue, false).ValueRW.IsOpen = false;
+        }
     }
 }
