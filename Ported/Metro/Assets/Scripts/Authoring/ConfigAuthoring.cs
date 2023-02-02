@@ -6,11 +6,12 @@ using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
-    public List<GameObject> Lines;
     public GameObject CarriagePrefab;
     public GameObject CommuterPrefab;
     public GameObject PlatformPrefab;
     public GameObject StationPrefab;
+    public GameObject LinePrefab;
+
 
     public int CommuterCount;
     public int LineCount;
@@ -24,11 +25,12 @@ public class ConfigAuthoring : MonoBehaviour
         {
             AddComponent(new Config()
             {
-                Lines = authoring.Lines.ConvertAll(x => GetEntity(x)).ToNativeList(Allocator.Persistent),
+                //Lines = authoring.Lines.ConvertAll(x => GetEntity(x)).ToNativeList(Allocator.Persistent),
                 CarriagePrefab = GetEntity(authoring.CarriagePrefab),
                 CommuterPrefab = GetEntity(authoring.CommuterPrefab),
                 PlatformPrefab = GetEntity(authoring.PlatformPrefab),
                 StationPrefab = GetEntity(authoring.StationPrefab),
+                LinePrefab = GetEntity(authoring.LinePrefab),
                 CommuterCount = authoring.CommuterCount,
                 LineCount = authoring.LineCount,
                 LineOffset = authoring.LineOffset,
@@ -41,11 +43,11 @@ public class ConfigAuthoring : MonoBehaviour
 
 struct Config : IComponentData
 {
-    public NativeList<Entity> Lines;
     public Entity CarriagePrefab;
     public Entity CommuterPrefab;
     public Entity PlatformPrefab;
     public Entity StationPrefab;
+    public Entity LinePrefab;
     public int CommuterCount;
     public int LineCount;
     public int LineOffset;

@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &944684770
+--- !u!1001 &4695637452097394588
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -185,19 +185,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: LineOffset
-      value: 80
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: StationsOffset
-      value: 120
-      objectReference: {fileID: 0}
-    - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
-      propertyPath: StationPerLineCount
-      value: 3
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: StationsPerLineCount
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

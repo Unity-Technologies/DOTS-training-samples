@@ -53,12 +53,9 @@ public partial struct StationSpawner : ISystem
         {
             var stationTransform = LocalTransform.FromPosition(new float3(0, 0, line.Id * lineOffset) + new float3(stationOffset * stationCounter, 0, 0));
             state.EntityManager.SetComponentData<LocalTransform>(station, stationTransform);
-            var stationData = state.EntityManager.GetComponentData<Station>(station);
-            var colors = new NativeList<float4>(4, Allocator.Persistent);
+            //var stationData = state.EntityManager.GetComponentData<Station>(station);
             //Need to set proper colors
-            colors.AddReplicate(line.LineColor, 4);
-            stationData.Colors = colors;
-            state.EntityManager.SetComponentData<Station>(station, stationData);
+            //state.EntityManager.SetComponentData<Station>(station, stationData);
             stationCounter++;
         }
         return stations;

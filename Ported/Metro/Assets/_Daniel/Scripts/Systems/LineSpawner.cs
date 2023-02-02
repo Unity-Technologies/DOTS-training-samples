@@ -42,10 +42,16 @@ partial struct LineSpawner : ISystem
         NativeArray<Entity> lines = new NativeArray<Entity>(config.LineCount, Allocator.Persistent);
         for (int i = 0; i < config.LineCount; i++)
         {
-            Entity e = state.EntityManager.CreateEntity();
+            Entity e = state.EntityManager.Instantiate(config.LinePrefab);
             state.EntityManager.AddComponent<Line>(e);
-            state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = i });
+            state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = i + 1 });
         }
+        //for (int i = 0; i < config.LineCount; i++)
+        //{
+        //    Entity e = state.EntityManager.Instantiate(config.LinePrefab,lines);
+        //    state.EntityManager.AddComponent<Line>(e);
+        //    state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = i });
+        //}
         state.Enabled = false;
     }
 }

@@ -7,18 +7,15 @@ using UnityEngine;
 public class StationAuthoring : MonoBehaviour
 {
     public List<GameObject> Platforms;
-    public List<Color> PlatformColors;
+    public List<float4> PlatformColors;
 
     class Baker : Baker<StationAuthoring>
     {
         public override void Bake(StationAuthoring authoring)
         {
             var stationPlatforms = AddBuffer<StationPlatform>();
-            var platformColors = new NativeList<float4>(authoring.PlatformColors.Count, Allocator.Persistent);
-            foreach (var c in authoring.PlatformColors)
-            {
-                platformColors.Add(new float4((Vector4)c));
-            }
+            var platformColors = new NativeArray<float4>(authoring.PlatformColors.Count, Allocator.Persistent);
+            platformColors.CopyFrom(authoring.PlatformColors.ToArray());
 
             var platforms = new NativeList<Entity>(authoring.Platforms.Count, Allocator.Persistent);
             foreach (var p in authoring.Platforms)
@@ -36,8 +33,7 @@ public class StationAuthoring : MonoBehaviour
 
             AddComponent(new Station()
             {
-                Platforms = platforms,
-                Colors = platformColors
+
             });
         }
     }
@@ -45,8 +41,6 @@ public class StationAuthoring : MonoBehaviour
 
 struct Station : IComponentData
 {
-    public NativeList<Entity> Platforms;
-    public NativeList<float4> Colors;
 
 }
 
