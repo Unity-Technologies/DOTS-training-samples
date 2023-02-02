@@ -59,7 +59,15 @@ public partial struct QueueSystem : ISystem
                         var seatTransform = SystemAPI.GetComponent<WorldTransform>(availableSeatEntity);
                         targetDestination.ValueRW.IsActive = false;
 
-                        movementQueue.ValueRW.QueuedInstructions.Clear();
+                        if (movementQueue.ValueRW.QueuedInstructions.IsCreated)
+                        {
+                            movementQueue.ValueRW.QueuedInstructions.Clear();
+                        }
+                        else
+                        {
+                            movementQueue.ValueRW.QueuedInstructions = new NativeQueue<SaschaMovementQueueInstruction>(Allocator.Persistent);
+                        }
+
                         movementQueue.ValueRW.QueuedInstructions.Enqueue(new() { Destination = carriageTransform.Position });
                         movementQueue.ValueRW.QueuedInstructions.Enqueue(new() { Destination = seatTransform.Position });
                         

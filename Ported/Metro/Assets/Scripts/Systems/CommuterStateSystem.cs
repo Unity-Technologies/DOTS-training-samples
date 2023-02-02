@@ -6,11 +6,12 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[UpdateAfter(typeof(PierreDebug_CarriageInitSystem))] // Make sure some initialising is already done
 public partial struct CommuterStateSystem : ISystem
 {
     private BufferLookup<StationPlatform> m_StationPlatformLookupRO;
+    private BufferLookup<PlatformStairs> m_PlatformStairsLookupRO;
     private ComponentLookup<Parent> m_ParentLookupRO;
-    private ComponentLookup<Platform> m_PlatformLookupRO;
     private ComponentLookup<Stair> m_StairsLookupRO;
     private ComponentLookup<WorldTransform> m_WorldTransformLookupRO;
     private ComponentLookup<Carriage> m_CarriageLookupRO;
@@ -23,8 +24,8 @@ public partial struct CommuterStateSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         m_StationPlatformLookupRO = state.GetBufferLookup<StationPlatform>(true);
+        m_PlatformStairsLookupRO = state.GetBufferLookup<PlatformStairs>(true);
         m_ParentLookupRO = state.GetComponentLookup<Parent>(true);
-        m_PlatformLookupRO = state.GetComponentLookup<Platform>(true);
         m_StairsLookupRO = state.GetComponentLookup<Stair>(true);
         m_WorldTransformLookupRO = state.GetComponentLookup<WorldTransform>(true);
         m_CarriageLookupRO = state.GetComponentLookup<Carriage>(true);
@@ -43,8 +44,8 @@ public partial struct CommuterStateSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         m_StationPlatformLookupRO.Update(ref state);
+        m_PlatformStairsLookupRO.Update(ref state);
         m_ParentLookupRO.Update(ref state);
-        m_PlatformLookupRO.Update(ref state);
         m_StairsLookupRO.Update(ref state);
         m_WorldTransformLookupRO.Update(ref state);
         m_CarriageLookupRO.Update(ref state);
@@ -57,8 +58,8 @@ public partial struct CommuterStateSystem : ISystem
         {
             StationPlatformLookup = m_StationPlatformLookupRO,
             ParentLookup = m_ParentLookupRO,
-            PlatformLookup = m_PlatformLookupRO,
             StairsLookup = m_StairsLookupRO,
+            PlatformStairsLookup = m_PlatformStairsLookupRO,
             DeltaTime = SystemAPI.Time.DeltaTime
         };
         state.Dependency = updateCommuterStateParallelJob.ScheduleParallel(state.Dependency);
@@ -173,8 +174,8 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
 {
     [ReadOnly] public BufferLookup<StationPlatform> StationPlatformLookup;
     [ReadOnly] public ComponentLookup<Parent> ParentLookup;
-    [ReadOnly] public ComponentLookup<Platform> PlatformLookup;
     [ReadOnly] public ComponentLookup<Stair> StairsLookup;
+    [ReadOnly] public BufferLookup<PlatformStairs> PlatformStairsLookup;
 
     [ReadOnly] public float DeltaTime;
 
@@ -185,8 +186,10 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
         switch (commuter.State)
         {
             case CommuterState.Idle:
-                // TODO: idle should mean commuter is standing on platform but not in a queue. Could join a queue on local platform or switch platform
-                PickNextPlatformDestination(ref commuter, ref movementQueue);
+                if (commuter.Random.NextBool())
+                    PickNextPlatformDestination(ref commuter, ref commuterTransform, ref movementQueue);
+                else
+                    commuter.State = CommuterState.PickQueue;
                 break;
             case CommuterState.MoveToDestination:
             case CommuterState.Queueing:
@@ -254,7 +257,7 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
     }
 
     [BurstCompile]
-    private void PickNextPlatformDestination(ref Commuter commuter, ref SaschaMovementQueue movementQueue)
+    private void PickNextPlatformDestination(ref Commuter commuter, ref LocalTransform commuterTransform, ref SaschaMovementQueue movementQueue)
     {
         if (commuter.CurrentPlatform == Entity.Null)
         {
@@ -279,11 +282,27 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
         }
 
         // Find the stairs components for current platform and the destination platform
-        PlatformLookup.TryGetComponent(commuter.CurrentPlatform, out var currentPlatform);
-        StairsLookup.TryGetComponent(currentPlatform.Stairs, out var currentPlatformStairs);
+        // First find the closest stairs on the current platform
+        PlatformStairsLookup.TryGetBuffer(commuter.CurrentPlatform, out var currentPlatformStairsBuffer);
+        int platformStairsIndex = 0;
+        float closestStairsDistanceSq = float.MaxValue;
+        for (int i = 0; i < currentPlatformStairsBuffer.Length; ++i)
+        {
+            StairsLookup.TryGetComponent(currentPlatformStairsBuffer[i].Stairs, out var stairs);
+            float distanceSq = math.distancesq(commuterTransform.Position, stairs.BottomWaypoint);
+            if (distanceSq < closestStairsDistanceSq)
+            {
+                platformStairsIndex = i;
+                closestStairsDistanceSq = distanceSq;
+                
+            }
+        }
+        StairsLookup.TryGetComponent(currentPlatformStairsBuffer[platformStairsIndex].Stairs, out var currentPlatformStairs);
+        
+        // Then get the matching index stairs for the destination platform
         var destinationPlatformEntity = stationPlatforms[randomPlatformIndex].Platform;
-        PlatformLookup.TryGetComponent(destinationPlatformEntity, out var destinationPlatform);
-        StairsLookup.TryGetComponent(destinationPlatform.Stairs, out var destinationPlatformStairs);
+        PlatformStairsLookup.TryGetBuffer(destinationPlatformEntity, out var destinationPlatformStairsBuffer);
+        StairsLookup.TryGetComponent(destinationPlatformStairsBuffer[platformStairsIndex].Stairs, out var destinationPlatformStairs);
 
         // Ensure the movementQueue is initialised and in a cleared state
         if (movementQueue.QueuedInstructions.IsCreated)
