@@ -83,7 +83,9 @@ partial struct PositionAssignmentJob : IJobParallelFor
     public void Execute(int index)
     {
         var entity = CarEntities[index];
-        entity.position = CarPositionInLaneLookup[entity.Value].Position;
+        var positionInLane = CarPositionInLaneLookup[entity.Value];
+        entity.Position = positionInLane.Position;
+        entity.Lane = positionInLane.LaneIndex;
         CarEntities[index] = entity;
         // ColorLookup[CarEntities[index].Value] = 
         //     new URPMaterialPropertyBaseColor
@@ -157,10 +159,9 @@ partial struct CollisionJob : IJobEntity
             int wrappedIndex = WrappedIndex(i + carIndex.Index, out int wrapDirection);
 
             var otherCar = CarEntities[wrappedIndex];
-            var otherCarPosition = CarPositionInLaneLookup[otherCar.Value];
 
-            int otherCarLane = otherCarPosition.LaneIndex;
-            float otherCarPositionValue = otherCarPosition.Position;
+            int otherCarLane = otherCar.Lane;
+            float otherCarPositionValue = otherCar.Position;
             
             //Wrap other car pos when appropriate
             if (wrapDirection != 0) otherCarPositionValue += LaneLength * wrapDirection;
