@@ -36,7 +36,15 @@ public partial struct QueueSystem : ISystem
                 var queueTransform = SystemAPI.GetComponent<WorldTransform>(queueingData.ValueRO.TargetQueue);
 
                 targetDestination.ValueRW.IsActive = true;
-                targetDestination.ValueRW.TargetPosition = queueTransform.Position + queueingData.ValueRO.PositionInQueue * queue.QueueDirection;
+                int maxSingleQueueLength = queue.QueueCapacity;
+                int queuePositionInDirection = queueingData.ValueRO.PositionInQueue % maxSingleQueueLength;
+                int queuePositionOrthogonalDirection = queueingData.ValueRO.PositionInQueue / maxSingleQueueLength;
+                if ((queuePositionOrthogonalDirection & 1) != 0)
+                {
+                    queuePositionInDirection = maxSingleQueueLength - queuePositionInDirection - 1;
+                }
+
+                targetDestination.ValueRW.TargetPosition = queueTransform.Position + (queuePositionInDirection * queue.QueueDirection) + (queuePositionOrthogonalDirection * queue.QueueDirectionOrthogonal);
 
                 if (queueState.IsOpen && queueingData.ValueRO.PositionInQueue == 0 && destinationAspect.IsAtDestination())
                 {

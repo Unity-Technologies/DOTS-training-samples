@@ -16,6 +16,7 @@ public class QueueAuthoring : MonoBehaviour
             AddComponent(new Queue()
             {
                 QueueDirection = authoring.QueueDirection,
+                QueueDirectionOrthogonal = new float3(authoring.QueueDirection.z, authoring.QueueDirection.y, authoring.QueueDirection.x),
                 QueueCapacity = authoring.QueueCapacity,
                 FacingCarriageNumber = authoring.FacingCarriageNumber
             });
@@ -26,6 +27,7 @@ public class QueueAuthoring : MonoBehaviour
 public struct Queue : IComponentData
 {
     public float3 QueueDirection;
+    public float3 QueueDirectionOrthogonal;
     public int FacingCarriageNumber;
     public int QueueCapacity;
 }
