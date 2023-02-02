@@ -5,7 +5,6 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
-using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 
 [assembly: RegisterGenericJobType(typeof(SortJob<CarEntity, CarEntityComparer>))]
@@ -78,7 +77,6 @@ public partial struct CarCollisionSystem : ISystem
         var collisionJob = new CollisionJob
         {
             CarEntities = carEntities,
-            CarVelocityLookup = carVelocityLookup,
             MaxLaneIndex = spawner.NumLanes - 1,
             LaneLength = spawner.LengthLanes
         };
@@ -169,7 +167,6 @@ partial struct CollisionJob : IJobEntity
     public int MaxLaneIndex;
     public float LaneLength;
     [ReadOnly] public NativeArray<CarEntity> CarEntities;
-    [ReadOnly] public ComponentLookup<CarVelocity> CarVelocityLookup;
 
     //TODO: Make this component?
     private const float CarRadius = 2;
