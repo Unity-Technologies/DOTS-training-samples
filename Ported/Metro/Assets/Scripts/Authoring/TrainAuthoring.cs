@@ -23,6 +23,7 @@ public class TrainAuthoring : MonoBehaviour
     [Header("Timing Info")] 
     public float doorTransitionTime;
     public float stationWaitTime;
+    public float stationWaitTimeVariance = 2f;
 
     public GameObject line;
 
@@ -40,9 +41,12 @@ public class TrainAuthoring : MonoBehaviour
                 Line = GetEntity(authoring.line)
             };
 
-            AddComponent(new TrainScheduleInfo(
-                authoring.doorTransitionTime,
-                authoring.stationWaitTime));
+            AddComponent(new TrainScheduleInfo
+            {
+                baseStationWaitTime = authoring.stationWaitTime,
+                doorTransisionTime = authoring.doorTransitionTime,
+                waitTimeRandomVariance = authoring.stationWaitTimeVariance
+            });
 
             AddComponent(new TargetDestination());
 
@@ -66,15 +70,12 @@ public struct Train : IComponentData
 
 public struct TrainScheduleInfo : IComponentData
 {
-    public TrainScheduleInfo(float doorTransisionTime, float stationWaitTime)
-    {
-        this.doorTransisionTime = doorTransisionTime;
-        this.stationWaitTime = stationWaitTime;
-        this.timeInState = 0f;
-    }
-    
-    public readonly float stationWaitTime;
-    public readonly float doorTransisionTime;
 
+    public float baseStationWaitTime;
+    public float stationWaitTime;
+    public float doorTransisionTime;
+
+    public float waitTimeRandomVariance;
+    
     public float timeInState;
 }
