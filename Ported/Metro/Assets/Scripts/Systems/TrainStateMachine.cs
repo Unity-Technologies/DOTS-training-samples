@@ -62,8 +62,6 @@ public partial struct TrainStateMachine : ISystem
 public partial struct TrainStateDecider : IJobEntity
 {
     public float deltaTime;
-                                                                //platform, train
-    //[NativeDisableContainerSafetyRestriction] public NativeHashMap<Entity, int> trainsArrivedAtStation;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Platform> allPlatforms;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformEntity> allStations;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformQueue> allPlatformQueues;
