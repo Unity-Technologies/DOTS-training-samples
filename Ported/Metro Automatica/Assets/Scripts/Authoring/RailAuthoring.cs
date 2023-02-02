@@ -10,6 +10,7 @@ class RailAuthoring : UnityEngine.MonoBehaviour
         {
             AddComponent<Rail>();
             AddComponent<PostTransformScale>();
+            AddComponent<RailStretchFactor>();
         }
     }
 }

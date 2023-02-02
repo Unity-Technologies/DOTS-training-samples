@@ -13,10 +13,12 @@ using Random = UnityEngine.Random;
 [BurstCompile]
 partial struct HumanRoutingSystem : ISystem
 {
+    private EntityQuery humanQuery;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        humanQuery = SystemAPI.QueryBuilder().WithAll<Human, HumanWaitForRouteTag, LocalTransform>().Build();
     }
 
     [BurstCompile]
@@ -27,49 +29,47 @@ partial struct HumanRoutingSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        //state.Enabled = false;
-        //var config = SystemAPI.GetSingleton<Config>();
+        var humanTransforms = humanQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+        var humanData = humanQuery.ToComponentDataArray<Human>(Allocator.Temp);
+        var humanEntities = humanQuery.ToEntityArray(Allocator.Temp);
 
-
-        List<(Entity, LocalTransform)> humansWaitingForRoute = new List<(Entity,LocalTransform)>();
-        //Check for people waiting to get a route
-        foreach (var (human, _, humanTransform, ent) in SystemAPI.Query<RefRW<Human>, RefRW<HumanWaitForRouteTag>, RefRO<LocalTransform>>().WithEntityAccess())
-        {
-            humansWaitingForRoute.Add((ent, humanTransform.ValueRO));
-        }
-
-        foreach (var (human, humanTransform) in humansWaitingForRoute)
+        for (int i = 0; i < humanEntities.Length; i++)
         {
             Debug.Log("Human with tag found");
-            Station nearestStation = new Station();
+            Entity nearestStation = new Entity();
             float shortestDistance = float.MaxValue;
-            
-            foreach (var (station, stationTransform) in SystemAPI.Query<RefRO<Station>, RefRO<LocalTransform>>())
+
+            var humanTransform = humanTransforms[i];
+            foreach (var (station, stationTransform, stationEntity) in SystemAPI.Query<RefRO<Station>, RefRO<LocalTransform>>().WithEntityAccess())
             {
                 var distance = Vector3.Distance(humanTransform.Position, stationTransform.ValueRO.Position);
 
                 if (distance <= shortestDistance)
                 {
                     shortestDistance = distance;
-                    nearestStation = station.ValueRO;
+                    nearestStation = stationEntity;
                 }
             }
-            // Nusprest ar Queue ar PerTilta
+            // Nusprest ar Queue ar Per Tilta
             if (Random.Range(1, 1).Equals(1))
             {
+                var queuePointsColl = SystemAPI.GetBuffer<QueueWaypointCollection>(nearestStation);
+                var bridgePointsColl = SystemAPI.GetBuffer<BridgeWaypointCollection>(nearestStation);
                 //Queue picked
-                var distance1 = Mathf.Abs(humanTransform.Position.y - nearestStation.StationWaypoints.QueuePoints1[0].y);
-                var distance2 = Mathf.Abs(humanTransform.Position.y - nearestStation.StationWaypoints.QueuePoints2[0].y);
+                var distance1 = Vector3.Distance(humanTransform.Position, queuePointsColl[0].North);
+                var distance2 = Vector3.Distance(humanTransform.Position, queuePointsColl[0].South);
 
+                var tempHuman = humanData[i];
+                
                 if (distance1 < distance2)
                 {
-                    state.EntityManager.SetComponentData(human, new HumanRoute {BridgeRoute = new NativeList<float3>(),
-                        QueuePoint = nearestStation.StationWaypoints.QueuePoints1[Random.Range(0, nearestStation.StationWaypoints.QueuePoints1.Length - 1)]});
+                    tempHuman.QueuePoint = queuePointsColl[Random.Range(0, queuePointsColl.Length - 1)].North;
+                    state.EntityManager.SetComponentData(humanEntities[i], tempHuman);
                 }
                 else
                 {
-                    state.EntityManager.SetComponentData(human, new HumanRoute {BridgeRoute = new NativeList<float3>(),
-                        QueuePoint = nearestStation.StationWaypoints.QueuePoints2[Random.Range(0, nearestStation.StationWaypoints.QueuePoints2.Length - 1)]});
+                    tempHuman.QueuePoint = queuePointsColl[Random.Range(0, queuePointsColl.Length - 1)].South;
+                    state.EntityManager.SetComponentData(humanEntities[i], tempHuman);
                 }
             }
             else
@@ -77,9 +77,8 @@ partial struct HumanRoutingSystem : ISystem
                 //Bridge picked
                 
             }
-            //nearestStation.StationWaypoints.QueuePoints1
 
-            state.EntityManager.RemoveComponent<HumanWaitForRouteTag>(human);
+            state.EntityManager.RemoveComponent<HumanWaitForRouteTag>(humanEntities[i]);
         }
     }
 }

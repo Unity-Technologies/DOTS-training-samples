@@ -12,39 +12,50 @@ using Random = UnityEngine.Random;
 [BurstCompile]
 partial struct HumanMovementSystem : ISystem
 {
+    private EntityQuery humanQuery;
+    private float startTime;
+    public float speed;
+    //public EntityCommandBuffer ec;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        humanQuery = SystemAPI.QueryBuilder().WithNone<HumanWaitForRouteTag, HumanInTrainTag>().WithAll<LocalTransform, Human>().Build();
+        startTime = Time.time;
+        speed = 0.01f;
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+        
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        state.Enabled = false;
-        /*var config = SystemAPI.GetSingleton<Config>();
-
-        var humans = CollectionHelper.CreateNativeArray<Entity>(config.HumanCount, Allocator.Temp);
-        state.EntityManager.Instantiate(config.HumanPrefab, humans);
-
-        List<LocalTransform> stationSpawners = new List<LocalTransform>();
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
-        foreach (var station in SystemAPI.Query<RefRW<Station>>())
-        {
-            Debug.Log("I have found some stations");
-            stationSpawners.Add(station.ValueRO.HumanSpawnerLocation);
-        }
+        var humanTransforms = humanQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+        var humanData = humanQuery.ToComponentDataArray<Human>(Allocator.Temp);
+        var humanEntities = humanQuery.ToEntityArray(Allocator.Temp);
 
-        foreach (var human in humans)
+        for (int i = 0; i < humanEntities.Length; i++)
         {
-            int randomStation = 0;//Random.Range(0, config.StationCount);
-            var humanTransform = LocalTransform.FromPosition(stationSpawners[randomStation].Position);
-            state.EntityManager.SetComponentData(human, humanTransform);
-        }*/
+            float3 finalDestination = humanData[i].QueuePoint;
+            float distCovered = (Time.time - startTime) * speed;
+
+            // Fraction of journey completed equals current distance divided by total distance.
+            float journeyLength = Vector3.Distance(humanTransforms[i].Position, finalDestination);
+            float fractionOfJourney = distCovered / journeyLength;
+
+            // Set our position as a fraction of the distance between the markers.
+            //var newTransform = Vector3.Lerp(startMarker.position, endMarker.position, fractionOfJourney); 
+
+            var newTransform = LocalTransform.FromPosition(Vector3.Lerp(humanTransforms[i].Position, finalDestination, fractionOfJourney));
+            ecb.SetComponent(humanEntities[i], newTransform);
+            
+        }
     }
 }

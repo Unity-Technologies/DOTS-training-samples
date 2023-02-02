@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -29,10 +27,6 @@ partial struct LevelSpawningSystem : ISystem
         state.Enabled = false;
         var config = SystemAPI.GetSingleton<Config>();
 
-       // var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        //var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        //var ecb = new EntityCommandBuffer(Allocator.Temp);
-
         var stations = CollectionHelper.CreateNativeArray<Entity>(config.StationCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.StationPrefab, stations);
         
@@ -45,14 +39,28 @@ partial struct LevelSpawningSystem : ISystem
         for (int i = 0; i < stations.Length; i++)
         {
             var transform = LocalTransform.FromPosition(i * 90, 0, 0);
-            //  transform.Rotation = quaternion.RotateY(math.radians(90));
             state.EntityManager.SetComponentData(stations[i], transform);
 
+            var queuePoints = state.EntityManager.GetBuffer<QueueWaypointCollection>(stations[i]);
+            var bridgePoints = state.EntityManager.GetBuffer<BridgeWaypointCollection>(stations[i]);
+            for (int j = 0; j < queuePoints.Length; j++)
+            {
+                var offSetLocation = queuePoints[j];
+                offSetLocation.North.x += i * 90;
+                offSetLocation.South.x += i * 90;
+                queuePoints[j] = offSetLocation;
+            }
+            for (int j = 0; j < bridgePoints.Length; j++)
+            {
+                var offSetLocation = bridgePoints[j];
+                offSetLocation.West.x += i * 90;
+                offSetLocation.East.x += i * 90;
+                bridgePoints[j] = offSetLocation;
+            }
+            
             var spawnerTransform = WorldTransform.FromPosition(transform.Position + state.EntityManager.GetComponentData<Station>(stations[i]).HumanSpawnerLocation.Position);
             Station tempStation = new Station() { HumanSpawnerLocation = spawnerTransform };
             state.EntityManager.SetComponentData(stations[i], tempStation);
-            
-            
             
             if (i == 0)
             {
@@ -63,13 +71,9 @@ partial struct LevelSpawningSystem : ISystem
                     var wagonTransform = LocalTransform.FromPosition(firstWagon.Position.x, 0, 0);
                     wagonTransform.Rotation = quaternion.RotateY(math.radians(90));
                     state.EntityManager.SetComponentData(wagons[j], wagonTransform);
-                    //SystemAPI.SetComponent(SystemAPI.GetComponent<Wagon>(wagons[j]), stations.Last());
-                    
                     var tempWagon = SystemAPI.GetComponent<Wagon>(wagons[j]);
                     tempWagon.TrainOffset = firstWagon.Position.x;
                     SystemAPI.SetComponent(wagons[j], tempWagon);
-                    //var temp = state.GetComponentLookup<Wagon>(false);
-                    //EntityManager.
                     firstWagon.Position.x += 5.2f;
                 }
             }
@@ -78,33 +82,15 @@ partial struct LevelSpawningSystem : ISystem
             {
                 last = transform;
             }
-            Debug.Log("First:" + first.Position.x);
-            //Debug.Log("Last:" + last.Position.x);
-            
+            //Debug.Log($"First: {first.Position.x}");
         }
-        //ecb.Playback(state.EntityManager);
-        
-        //Debug.Log("Last FIRST:" + last.Position.x);
+
         foreach (var wagon in SystemAPI.Query<RefRW<Wagon>>())
         {
-            Debug.Log("Last LAST:" + last.Position.x);
-            //transform.LocalTransform = Vector3.Lerp(startMarker.position, endMarker.position, fractionOfJourney);
-            //wagon.ValueRW.currentDestination
-            //state.EntityManager.GetComponentData<LocalTransform>(wagon.Item2);
             float3 finalDestination = new float3(180, 0, 0);
             wagon.ValueRW.currentDestination = last.Position + new float3(wagon.ValueRO.TrainOffset, 0, 0);
-            //Debug.Log(first.Position.x);
-            //transform.ValueRW.Position.x += 1;
-            //float3 startDestination
         }
-        
-        /*foreach (var transform in SystemAPI.Query<TransformAspect>().WithAll<Turret>())
-        {
-            transform.RotateWorld(rotation);
-        }*/
-        
-        
-        
+
         // This system should only run once at startup. So it disables itself after one update.
         var railSpawn = state.EntityManager.Instantiate(config.RailPrefab);
         
@@ -114,7 +100,10 @@ partial struct LevelSpawningSystem : ISystem
         
         // need var distance to calculate scale value
 
-        state.EntityManager.SetComponentData(railSpawn, new PostTransformScale{Value = float3x3.Scale(last.Position.x - first.Position.x,1,1)});
+        float stretch = last.Position.x - first.Position.x;
+
+        state.EntityManager.SetComponentData(railSpawn, new PostTransformScale{Value = float3x3.Scale(stretch,.1f,1)});
+        state.EntityManager.SetComponentData(railSpawn, new RailStretchFactor{StretchFactor = new float2(stretch, 1)});
 
         state.EntityManager.SetComponentData(railSpawn, railTransform);
         
@@ -122,7 +111,7 @@ partial struct LevelSpawningSystem : ISystem
         var humans = CollectionHelper.CreateNativeArray<Entity>(config.HumanCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.HumanPrefab, humans);
 
-        List<WorldTransform> stationSpawners = new List<WorldTransform>();
+        NativeList<WorldTransform> stationSpawners = new NativeList<WorldTransform>(Allocator.Temp);
         
         foreach (var station in SystemAPI.Query<RefRW<Station>>())
         {
@@ -140,7 +129,7 @@ partial struct LevelSpawningSystem : ISystem
             state.EntityManager.SetComponentData(human, humanTransform);
             state.EntityManager.SetComponentData(human, new PostTransformScale{Value = float3x3.Scale(.25f,height,.25f)});
             state.EntityManager.SetComponentData(human, new URPMaterialPropertyBaseColor{Value = new float4(rng.NextFloat3(), 1f),});
-            //state.EntityManager.AddComponent<HumanWaitForRouteTag>(human);
+            state.EntityManager.AddComponent<HumanWaitForRouteTag>(human);
             //--Uncomment once Routing is done
         }
     }

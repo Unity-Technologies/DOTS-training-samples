@@ -163,7 +163,7 @@ MonoBehaviour:
   HumanPrefab: {fileID: 58631452150476252, guid: f68190fb13cbe4125a26c61fb25bc066,
     type: 3}
   WagonCount: 5
-  HumanCount: 10
+  HumanCount: 1000
 --- !u!4 &754792382
 Transform:
   m_ObjectHideFlags: 0
