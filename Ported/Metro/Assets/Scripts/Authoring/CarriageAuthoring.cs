@@ -21,8 +21,8 @@ public class CarriageAuthoring : MonoBehaviour
 
             AddComponent(new Carriage()
             {
+                Entity = GetEntity(authoring),
                 CarriageNumber = authoring.CarriageNumber,
-                LeftDoors = doors
             });
 
             var seatBuffer = AddBuffer<CarriageSeat>();
@@ -31,6 +31,13 @@ public class CarriageAuthoring : MonoBehaviour
             {
                 seatBuffer.Add(new() { Seat = GetEntity(seatGameObject) });
             }
+            
+            var doorBuffer = AddBuffer<DoorEntity>();
+            doorBuffer.EnsureCapacity(authoring.Doors.Count);
+            foreach (var doorObj in authoring.Doors)
+            {
+                doorBuffer.Add(new() { doorEntity = GetEntity(doorObj) });
+            }
         }
     }
 }
@@ -38,13 +45,17 @@ public class CarriageAuthoring : MonoBehaviour
 public struct Carriage : IComponentData
 {
     public int CarriageNumber;
-    public int ownerTrainID;
-    public NativeList<Entity> LeftDoors;//NEED TO USE A BUFFER
-    public NativeList<Entity> RightDoors;//NEED TO USE A BUFFER
+    public Entity Entity;
+    public Entity ownerTrainID;
     public Entity CurrentPlatform; 
 }
 
 struct CarriageSeat : IBufferElementData
 {
     public Entity Seat;
+}
+
+public struct DoorEntity : IBufferElementData
+{
+    public Entity doorEntity;
 }

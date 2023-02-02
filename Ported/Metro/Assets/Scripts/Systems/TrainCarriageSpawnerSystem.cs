@@ -44,7 +44,7 @@ public partial struct TrainCarriageSpawnerSystem : ISystem
                 }
                 
                 Carriage c = SystemAPI.GetComponent<Carriage>(child.Value);
-                c.ownerTrainID = train.ValueRO.trainID;
+                c.ownerTrainID = train.ValueRO.entity;
                 SystemAPI.SetComponent(child.Value, c);
             }
         }

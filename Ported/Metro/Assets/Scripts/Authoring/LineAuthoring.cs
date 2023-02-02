@@ -14,7 +14,7 @@ public class LineAuthoring : MonoBehaviour
     {
         public override void Bake(LineAuthoring authoring)
         {
-            var stationBuffer = AddBuffer<StationEntity>();
+            var stationBuffer = AddBuffer<PlatformEntity>();
             stationBuffer.EnsureCapacity(authoring.Platforms.Count);
             foreach (PlatformAuthoring authoringPlatform in authoring.Platforms)
             {
@@ -41,7 +41,7 @@ public struct Line : IComponentData
     public int Id;
 }
 
-public struct StationEntity : IBufferElementData
+public struct PlatformEntity : IBufferElementData
 {
     public Entity Station;
     public float3 StopPos;

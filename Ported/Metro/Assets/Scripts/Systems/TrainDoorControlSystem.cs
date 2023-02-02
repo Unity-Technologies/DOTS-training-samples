@@ -1,5 +1,6 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -8,12 +9,21 @@ using UnityEngine;
 [BurstCompile]
 public partial struct TrainDoorControlSystem : ISystem
 {
-    
+    private ComponentLookup<LocalTransform> worldTransforms;
+    private ComponentLookup<Train> trains;
+    private BufferLookup<DoorEntity> doorsInCarridges;
+    private ComponentLookup<Door> doors;
+
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        
+        doorsInCarridges = SystemAPI.GetBufferLookup<DoorEntity>();
+        trains = SystemAPI.GetComponentLookup<Train>();
+        doors = SystemAPI.GetComponentLookup<Door>();
+        worldTransforms = SystemAPI.GetComponentLookup<LocalTransform>();
     }
-
+    
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
@@ -21,60 +31,85 @@ public partial struct TrainDoorControlSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // new DoorJob()
-        // {
-        //     trains = trains,
-        //     ecbp = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
-        // }.ScheduleParallel();
+        worldTransforms.Update(ref state);
+        doorsInCarridges.Update(ref state);
+        doors.Update(ref state);
+        trains.Update(ref state);
+        
+        new DoorJob()
+        {
+            trains = trains,
+            localTransforms = worldTransforms,
+            doorEntities = doorsInCarridges,
+            doors = doors,
+            deltaTime = SystemAPI.Time.DeltaTime
+        }.ScheduleParallel();
     }
 }
 
 [BurstCompile]
 public partial struct DoorJob : IJobEntity
 {
-    [ReadOnly] public NativeList<RefRO<Train>> trains;
-    public EntityCommandBuffer.ParallelWriter ecbp;
-
-    public void Execute([EntityIndexInQuery] int sortKey, RefRW<Carriage> carriage)
+    [ReadOnly] public ComponentLookup<Train> trains;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> localTransforms;
+    [ReadOnly] public BufferLookup<DoorEntity> doorEntities;
+    [NativeDisableContainerSafetyRestriction] public ComponentLookup<Door> doors;
+    [ReadOnly] public float deltaTime;
+    
+    public void Execute(RefRW<Carriage> carriage)
     {
-        //Find the owner train
-        RefRO<Train> myTrain = default;
-        foreach (RefRO<Train> train in trains)
+        Entity ownerTrainEntity = carriage.ValueRO.ownerTrainID;
+        if (ownerTrainEntity == Entity.Null)
         {
-            if (train.ValueRO.trainID == carriage.ValueRO.ownerTrainID)
-            {
-                myTrain = train;
-            }
+            return;
         }
 
-        return;
-        
-        switch (myTrain.ValueRO.State)
+        RefRO<Train> train = trains.GetRefRO(ownerTrainEntity);
+        if (!train.IsValid)
         {
-            //TODO workout the side of the doors
+            return;
+        }
+
+        if (train.ValueRO.State != TrainState.DoorOpening && train.ValueRO.State != TrainState.DoorClosing)
+        {
+            return;
+        }
+        
+        var doors = doorEntities[carriage.ValueRO.Entity];
+        
+        switch (train.ValueRO.State)
+        {
             case TrainState.DoorOpening:
-                OpenDoors(sortKey, myTrain, carriage);
+                OpenDoors(doors);
                 break;
             case TrainState.DoorClosing:
-                CloseDoors();
+                CloseDoors(doors);
                 break;
             default:
                 return;
         }
     }
 
-    private void OpenDoors(int sortKey, RefRO<Train> train, RefRW<Carriage> carriage)
+    private void OpenDoors(DynamicBuffer<DoorEntity> doors)
     {
-        //All door Entities
-        for (int i = 0; i < carriage.ValueRW.LeftDoors.Length; i++)
+        foreach (DoorEntity door in doors)
         {
-            //ecbp.AddComponent<LocalTransform>(0, door);
-            //ecbp.SetComponentEnabled<>(sortKey, carriage.ValueRW.LeftDoors[i], false);
+            RefRW<Door> doorE = this.doors.GetRefRW(door.doorEntity, false);
+            doorE.ValueRW.elapsedMoveTime += deltaTime;
+            float3 newPos = math.lerp(DoorInfo.closePos, DoorInfo.openPos, this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
+            localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
         }
     }
-
-    private void CloseDoors()
+    
+    private void CloseDoors(DynamicBuffer<DoorEntity> doors)
     {
-        
+        foreach (DoorEntity door in doors)
+        {
+            RefRW<Door> doorE = this.doors.GetRefRW(door.doorEntity, false);
+            //So we don't have to reset the elpased time we can just reverse the time to close the doors
+            doorE.ValueRW.elapsedMoveTime -= deltaTime;
+            float3 newPos = math.lerp(DoorInfo.closePos,DoorInfo.openPos, this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
+            localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
+        }
     }
 }

@@ -12,14 +12,14 @@ using UnityEngine;
 public partial struct TrainStateMachine : ISystem
 {
     private ComponentLookup<Platform> allPlatforms;
-    private BufferLookup<StationEntity> allStations; 
+    private BufferLookup<PlatformEntity> platformBuffer; 
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Train>();
         allPlatforms = SystemAPI.GetComponentLookup<Platform>();
-        allStations = SystemAPI.GetBufferLookup<StationEntity>();
+        platformBuffer = SystemAPI.GetBufferLookup<PlatformEntity>();
     }
 
     [BurstCompile]
@@ -31,30 +31,14 @@ public partial struct TrainStateMachine : ISystem
     public void OnUpdate(ref SystemState state)
     {
         allPlatforms.Update(ref state);
-        allStations.Update(ref state);
+        platformBuffer.Update(ref state);
         
-        Line testLine = SystemAPI.GetSingleton<Line>();
-        
-        foreach (RefRW<Train> train in SystemAPI.Query<RefRW<Train>>())
-        {
-            train.ValueRW.Line = testLine.Entity;
-        }
-
-                    //platformID, trainID
-        //NativeHashMap<Entity, int> trainsArrivedAtStation = new NativeHashMap<int, int>(0, Allocator.TempJob);
         new TrainStateDecider
         {
             deltaTime = SystemAPI.Time.DeltaTime,
-            allStations = allStations,
+            allStations = platformBuffer,
             allPlatforms = allPlatforms
         }.ScheduleParallel();
-
-        // JobHandle informJobHandle = new InformStationsJob()
-        // {
-        //     trainsArrivedAtStation = trainsArrivedAtStation
-        // }.Schedule(stateJobHandle);
-
-        //state.Dependency = informJobHandle;
     }
 }
 
@@ -65,7 +49,7 @@ public partial struct TrainStateDecider : IJobEntity
                                                                 //platform, train
     //[NativeDisableContainerSafetyRestriction] public NativeHashMap<Entity, int> trainsArrivedAtStation;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Platform> allPlatforms;
-    [NativeDisableContainerSafetyRestriction] public BufferLookup<StationEntity> allStations;
+    [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformEntity> allStations;
 
     private void Execute(TrainSchedulingAspect trainScheduling)
     {
@@ -138,7 +122,7 @@ public partial struct TrainStateDecider : IJobEntity
             trainScheduling.train.ValueRW.direction *= -1;
         }
 
-        DynamicBuffer<StationEntity> lineStations = allStations[trainScheduling.train.ValueRO.Line];
+        DynamicBuffer<PlatformEntity> lineStations = allStations[trainScheduling.train.ValueRO.Line];
         trainScheduling.train.ValueRW.currentStation = lineStations[currentStationIndex].Station;
         
         int nextStationIndex = currentStationIndex + trainScheduling.train.ValueRO.direction;
