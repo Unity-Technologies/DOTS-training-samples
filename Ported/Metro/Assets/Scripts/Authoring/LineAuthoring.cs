@@ -14,18 +14,20 @@ public class LineAuthoring : MonoBehaviour
     {
         public override void Bake(LineAuthoring authoring)
         {
-            NativeList<float3> platformStopPos = new NativeList<float3>(authoring.Platforms.Count, Allocator.Persistent);
-            NativeList<Entity> platformEnts = new NativeList<Entity>(authoring.Platforms.Count, Allocator.Persistent);
+            var stationBuffer = AddBuffer<StationEntity>();
+            stationBuffer.EnsureCapacity(authoring.Platforms.Count);
             foreach (PlatformAuthoring authoringPlatform in authoring.Platforms)
             {
-                platformStopPos.Add(authoringPlatform.TrainStopPosition);
-                platformEnts.Add(GetEntity(authoringPlatform.gameObject));
+                stationBuffer.Add(new()
+                {
+                    Station = GetEntity(authoringPlatform.gameObject),
+                    StopPos = authoringPlatform.TrainStopPosition
+                });
             }
 
             AddComponent(new Line()
             {
-                platformStopPositions = platformStopPos,
-                platforms = platformEnts,
+                Entity = GetEntity(authoring),
                 LineColor = (Vector4)authoring.LineColor
             });
         }
@@ -34,8 +36,12 @@ public class LineAuthoring : MonoBehaviour
 
 public struct Line : IComponentData
 {
+    public Entity Entity;
     public float4 LineColor;
-    public NativeList<float3> platformStopPositions;
-    public NativeList<Entity> platforms;
-    public int Id;
+}
+
+public struct StationEntity : IBufferElementData
+{
+    public Entity Station;
+    public float3 StopPos;
 }

@@ -12,7 +12,7 @@ public class SeatAuthoring : MonoBehaviour
     }
 }
 
-struct Seat : IComponentData
+public struct Seat : IComponentData
 {
     public bool IsTaken;
 }

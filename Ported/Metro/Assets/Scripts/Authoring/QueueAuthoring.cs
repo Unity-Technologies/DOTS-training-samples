@@ -23,14 +23,14 @@ public class QueueAuthoring : MonoBehaviour
     }
 }
 
-struct Queue : IComponentData
+public struct Queue : IComponentData
 {
     public float3 QueueDirection;
     public int FacingCarriageNumber;
     public int QueueCapacity;
 }
 
-struct QueueState : IComponentData
+public struct QueueState : IComponentData
 {
     public Entity FacingCarriage;
     public int QueueSize;

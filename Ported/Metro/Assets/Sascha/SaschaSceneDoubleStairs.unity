@@ -327,7 +327,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1315080933}
   m_LocalRotation: {x: 0.27059805, y: 0.6532815, z: -0.27059805, w: 0.6532815}
-  m_LocalPosition: {x: -90, y: 65, z: -80}
+  m_LocalPosition: {x: -103.8, y: 65, z: -80}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -399,15 +399,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SceneAsset: {fileID: 102900000, guid: f0ca07fdb8aa24c498abb81fe015b5f0, type: 3}
+  _SceneAsset: {fileID: 102900000, guid: 299c37204d6342247b864d86234d47e9, type: 3}
   _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 3748703247
-      y: 1279437451
-      z: 4052466313
-      w: 257642766
+      x: 41142674
+      y: 1109669588
+      z: 1758750903
+      w: 2658456626
 --- !u!4 &1635811240
 Transform:
   m_ObjectHideFlags: 0
