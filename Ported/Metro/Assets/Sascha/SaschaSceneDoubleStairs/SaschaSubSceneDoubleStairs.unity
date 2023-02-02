@@ -1323,6 +1323,7 @@ MonoBehaviour:
   - {fileID: 954478597}
   - {fileID: 969370995}
   InitialParkedTrain: {fileID: 1685086014}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 711940213}
   - {fileID: 906616472}
@@ -1330,6 +1331,7 @@ MonoBehaviour:
   - {fileID: 996482000}
   - {fileID: 2001605760}
   TrainStopPosition: {fileID: 944130477}
+  TrainDoorOpenSide: 1
 --- !u!4 &49835527
 Transform:
   m_ObjectHideFlags: 0
@@ -5271,6 +5273,7 @@ MonoBehaviour:
   - {fileID: 1089009095}
   - {fileID: 139898314}
   InitialParkedTrain: {fileID: 2041004022}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 2139959264}
   - {fileID: 1328808719}
@@ -5278,6 +5281,7 @@ MonoBehaviour:
   - {fileID: 1099565850}
   - {fileID: 1881670693}
   TrainStopPosition: {fileID: 454948695}
+  TrainDoorOpenSide: 1
 --- !u!1 &230145354
 GameObject:
   m_ObjectHideFlags: 0
@@ -9575,6 +9579,7 @@ MonoBehaviour:
   - {fileID: 436397981}
   - {fileID: 1191106075}
   InitialParkedTrain: {fileID: 1768091662}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 565362930}
   - {fileID: 1971187340}
@@ -9582,6 +9587,7 @@ MonoBehaviour:
   - {fileID: 2053352334}
   - {fileID: 1942289402}
   TrainStopPosition: {fileID: 795887271}
+  TrainDoorOpenSide: 1
 --- !u!1 &416829243
 GameObject:
   m_ObjectHideFlags: 0
@@ -11002,6 +11008,7 @@ MonoBehaviour:
   - {fileID: 1603706875}
   - {fileID: 2027304586}
   InitialParkedTrain: {fileID: 1685086014}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 809915949}
   - {fileID: 2040659666}
@@ -11009,6 +11016,7 @@ MonoBehaviour:
   - {fileID: 993693886}
   - {fileID: 737280203}
   TrainStopPosition: {fileID: 1825379618}
+  TrainDoorOpenSide: 1
 --- !u!4 &460081207
 Transform:
   m_ObjectHideFlags: 0
@@ -11777,6 +11785,7 @@ MonoBehaviour:
   - {fileID: 1617717384}
   - {fileID: 2126382657}
   InitialParkedTrain: {fileID: 1768091662}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 25770206}
   - {fileID: 812117230}
@@ -11784,6 +11793,7 @@ MonoBehaviour:
   - {fileID: 1614574860}
   - {fileID: 561120689}
   TrainStopPosition: {fileID: 1427330334}
+  TrainDoorOpenSide: 1
 --- !u!1 &498363227
 GameObject:
   m_ObjectHideFlags: 0
@@ -18380,6 +18390,7 @@ MonoBehaviour:
   - {fileID: 226048507}
   - {fileID: 410167019}
   - {fileID: 2018639556}
+  PlatformColors: []
 --- !u!1 &795887271
 GameObject:
   m_ObjectHideFlags: 0
@@ -19029,6 +19040,7 @@ MonoBehaviour:
   - {fileID: 1530366772}
   - {fileID: 1470338097}
   InitialParkedTrain: {fileID: 2041004022}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 1142239850}
   - {fileID: 774074320}
@@ -19036,6 +19048,7 @@ MonoBehaviour:
   - {fileID: 598726063}
   - {fileID: 352310394}
   TrainStopPosition: {fileID: 1557271986}
+  TrainDoorOpenSide: 1
 --- !u!1 &837039664
 GameObject:
   m_ObjectHideFlags: 0
@@ -26655,6 +26668,7 @@ MonoBehaviour:
   - {fileID: 834271776}
   - {fileID: 496289962}
   - {fileID: 49835525}
+  PlatformColors: []
 --- !u!1 &1142239850
 GameObject:
   m_ObjectHideFlags: 0
@@ -27589,6 +27603,7 @@ MonoBehaviour:
   - {fileID: 1215727513}
   - {fileID: 1857570065}
   - {fileID: 460081205}
+  PlatformColors: []
 --- !u!4 &1192302864
 Transform:
   m_ObjectHideFlags: 0
@@ -28479,6 +28494,7 @@ MonoBehaviour:
   - {fileID: 1808617803}
   - {fileID: 1173503899}
   InitialParkedTrain: {fileID: 2041004022}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 1444825454}
   - {fileID: 1810646909}
@@ -28486,6 +28502,7 @@ MonoBehaviour:
   - {fileID: 1081680997}
   - {fileID: 1261358130}
   TrainStopPosition: {fileID: 1820849758}
+  TrainDoorOpenSide: 1
 --- !u!1 &1242266502
 GameObject:
   m_ObjectHideFlags: 0
@@ -34914,6 +34931,7 @@ MonoBehaviour:
   - {fileID: 874717710}
   - {fileID: 1031593087}
   InitialParkedTrain: {fileID: 1829391976}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 2078480259}
   - {fileID: 1461271142}
@@ -34921,6 +34939,7 @@ MonoBehaviour:
   - {fileID: 598256689}
   - {fileID: 1184717159}
   TrainStopPosition: {fileID: 1004459423}
+  TrainDoorOpenSide: 1
 --- !u!1 &1492649170
 GameObject:
   m_ObjectHideFlags: 0
@@ -38705,6 +38724,7 @@ MonoBehaviour:
   - {fileID: 1814956582}
   - {fileID: 442933347}
   InitialParkedTrain: {fileID: 1829391976}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 8432349691259754616}
   - {fileID: 8432596072602441192}
@@ -38712,6 +38732,7 @@ MonoBehaviour:
   - {fileID: 8432948749395665984}
   - {fileID: 8432132124878391138}
   TrainStopPosition: {fileID: 1991094031}
+  TrainDoorOpenSide: 1
 --- !u!1 &1640305156
 GameObject:
   m_ObjectHideFlags: 0
@@ -40442,6 +40463,7 @@ MonoBehaviour:
   - {fileID: 1178520810}
   - {fileID: 1420359625}
   InitialParkedTrain: {fileID: 1829391976}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 1965261389}
   - {fileID: 959958964}
@@ -40449,6 +40471,7 @@ MonoBehaviour:
   - {fileID: 37411116}
   - {fileID: 529164893}
   TrainStopPosition: {fileID: 206614797}
+  TrainDoorOpenSide: 1
 --- !u!1 &1701783318
 GameObject:
   m_ObjectHideFlags: 0
@@ -44266,6 +44289,7 @@ MonoBehaviour:
   - {fileID: 230495656}
   - {fileID: 965423990}
   InitialParkedTrain: {fileID: 1768091662}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 943865295}
   - {fileID: 230145354}
@@ -44273,6 +44297,7 @@ MonoBehaviour:
   - {fileID: 123730235}
   - {fileID: 1800130930}
   TrainStopPosition: {fileID: 1195226236}
+  TrainDoorOpenSide: 1
 --- !u!1 &1857881347
 GameObject:
   m_ObjectHideFlags: 0
@@ -48571,6 +48596,7 @@ MonoBehaviour:
   - {fileID: 1377660586}
   - {fileID: 1404213474}
   InitialParkedTrain: {fileID: 1685086014}
+  PlatformFloor: {fileID: 0}
   Queues:
   - {fileID: 1366283553}
   - {fileID: 661576006}
@@ -48578,6 +48604,7 @@ MonoBehaviour:
   - {fileID: 1192798454}
   - {fileID: 1846214462}
   TrainStopPosition: {fileID: 121363413}
+  TrainDoorOpenSide: 1
 --- !u!4 &2018639558
 Transform:
   m_ObjectHideFlags: 0

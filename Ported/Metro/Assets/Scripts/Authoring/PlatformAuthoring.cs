@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlatformAuthoring : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class PlatformAuthoring : MonoBehaviour
     public GameObject PlatformFloor;
     public List<GameObject> Queues;
     public GameObject TrainStopPosition;
+    [FormerlySerializedAs("trainDoorOpenSide")] public DoorSide TrainDoorOpenSide = DoorSide.Both;
 
     class Baker : Baker<PlatformAuthoring>
     {
@@ -20,8 +22,8 @@ public class PlatformAuthoring : MonoBehaviour
             {
                 TrainStopPosition = authoring.TrainStopPosition.transform.position,
                 ParkedTrain = GetEntity(authoring.InitialParkedTrain),
-                PlatformFloor = GetEntity(authoring.PlatformFloor)
-
+                PlatformFloor = GetEntity(authoring.PlatformFloor),
+                TrainDoorOpenSide = authoring.TrainDoorOpenSide
             });
 
             var queueBuffer = AddBuffer<PlatformQueue>();
@@ -50,6 +52,7 @@ public struct Platform : IComponentData
     public Entity ParkedTrain;
     public Line Line;
     public Entity PlatformFloor;
+    public DoorSide TrainDoorOpenSide;
 }
 
 public struct PlatformQueue : IBufferElementData

@@ -5,7 +5,8 @@ using UnityEngine;
 public enum DoorSide
 {
     Left,
-    Right
+    Right,
+    Both
 }
 
 public class DoorAuthoring : MonoBehaviour
