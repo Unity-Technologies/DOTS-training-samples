@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
@@ -49,14 +50,27 @@ partial struct WagonMovementSystem : ISystem
             
             if (journeyLength < 0.001f)
             {
-                if(wagon.ValueRW.StationCounter == 0 && wagon.ValueRW.Direction > 0)
+                if (wagon.ValueRO.StationCounter == 0 && wagon.ValueRO.Direction > 0)
+                {
                     wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
+                }
+                    
                 if (wagon.ValueRO.StationCounter == stationList.Length - 1)
                 {
-                    wagon.ValueRW.Direction *= -1;
+                    wagon.ValueRW.Direction = -1;
+                    //Debug.Log($"First: {wagon.ValueRW.Direction}");
+                    wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
                 }
                 
+               /* if (wagon.ValueRO.StationCounter == 0 && wagon.ValueRO.Direction < 0 && wagon.ValueRO.StationCounter != stationList.Length - 1)
+                {
+                    wagon.ValueRW.Direction = 1;
+                    //Debug.Log($"Last: {wagon.ValueRW.Direction}");
+                    //wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
+                    Debug.Log(wagon.ValueRW.StationCounter);
+                }*/
             }
+           // Debug.Log(stationList.Length);
         }
     }
 }

@@ -87,6 +87,10 @@ partial struct LevelSpawningSystem : ISystem
                 wagonStationBuffer.Add(new StationWayPoints{Value = stationLocation});
             }
 
+            if (i == stations.Length -1)
+            {
+                last = transform;
+            }
             
                     
             // foreach (var stationTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Station>())
@@ -123,7 +127,7 @@ partial struct LevelSpawningSystem : ISystem
         
         foreach (var station in SystemAPI.Query<RefRW<Station>>())
         {
-            Debug.Log("I have found some stations");
+           // Debug.Log("I have found some stations");
             stationSpawners.Add(station.ValueRO.HumanSpawnerLocation);
         }
 

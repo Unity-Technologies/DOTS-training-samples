@@ -16,10 +16,10 @@ partial class ScalingSystem : SystemBase
             .Build(this);
 
         var variable = query.ToComponentDataArray<LocalTransform>(Allocator.Temp);
-        Debug.Log(variable.Length);
+        //Debug.Log(variable.Length);
         foreach (var localTransform in variable)
         {
-            Debug.Log(localTransform.Position);
+            //Debug.Log(localTransform.Position);
         }
         //Debug.Log(variable);
     }

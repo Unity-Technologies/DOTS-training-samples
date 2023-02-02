@@ -35,7 +35,7 @@ partial struct HumanRoutingSystem : ISystem
 
         for (int i = 0; i < humanEntities.Length; i++)
         {
-            Debug.Log("Human with tag found");
+            //Debug.Log("Human with tag found");
             Entity nearestStation = new Entity();
             float shortestDistance = float.MaxValue;
 
