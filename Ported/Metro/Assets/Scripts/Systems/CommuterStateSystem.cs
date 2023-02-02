@@ -56,6 +56,7 @@ public partial struct CommuterStateSystem : ISystem
 
         var updateCommuterStateParallelJob = new UpdateCommuterStateParallelJob()
         {
+            WorldTransformLookupRO = m_WorldTransformLookupRO,
             StationPlatformLookup = m_StationPlatformLookupRO,
             ParentLookup = m_ParentLookupRO,
             StairsLookup = m_StairsLookupRO,
@@ -178,6 +179,7 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
     [ReadOnly] public ComponentLookup<Stair> StairsLookup;
     [ReadOnly] public BufferLookup<PlatformStairs> PlatformStairsLookup;
     [ReadOnly] public ComponentLookup<Carriage> CarriageLookup;
+    [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformLookupRO;
 
     [ReadOnly] public float DeltaTime;
 
@@ -211,8 +213,9 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
             }
             case CommuterState.InTrainMoving:
             {
-                // TODO: update commuter position to seat location on train that might have moved
-                
+                var seatTransform = WorldTransformLookupRO.GetRefRO(seatReservation.TargetSeat);
+                commuterTransform.Position = seatTransform.ValueRO.Position;
+            
                 // Check if we have arrived at a platform
                 if (CarriageLookup.TryGetComponent(seatReservation.TargetCarriage, out var carriage) &&
                     carriage.CurrentPlatform != Entity.Null)
