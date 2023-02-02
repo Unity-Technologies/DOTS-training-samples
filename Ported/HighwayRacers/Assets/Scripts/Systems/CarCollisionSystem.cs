@@ -148,7 +148,7 @@ partial struct CollisionJob : IJobEntity
          * [end:1] then
          * [-1:start]
          */
-        for (int i = startIndex; i <= endIndex; i++)
+        for (int i = endIndex; i >= startIndex; i--)
         {
             //full out if found colls on all sides
             if (collision.CollisionFlags == (CollisionType.Left | CollisionType.Right | CollisionType.Front)) break;
