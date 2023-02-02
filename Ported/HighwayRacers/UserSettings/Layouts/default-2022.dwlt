@@ -8,21 +8,21 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 12004, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: -1
-    y: 67
+    x: 0
+    y: 66
     width: 1728
-    height: 966
-  m_ShowMode: 4
-  m_Title: Game
-  m_RootView: {fileID: 11}
-  m_MinSize: {x: 875, y: 300}
-  m_MaxSize: {x: 10000, y: 10000}
+    height: 987
+  m_ShowMode: 0
+  m_Title: Profiler
+  m_RootView: {fileID: 4}
+  m_MinSize: {x: 100, y: 50}
+  m_MaxSize: {x: 8096, y: 8096}
   m_Maximized: 1
 --- !u!114 &2
 MonoBehaviour:
@@ -32,24 +32,22 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: GameView
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 12004, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
   m_EditorClassIdentifier: 
-  m_Children: []
-  m_Position:
+  m_PixelRect:
     serializedVersion: 2
-    x: 589
-    y: 0
-    width: 460.5
-    height: 506
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 19}
-  m_Panes:
-  - {fileID: 19}
-  m_Selected: 0
-  m_LastSelected: 0
+    x: 0
+    y: 67
+    width: 1728
+    height: 966
+  m_ShowMode: 4
+  m_Title: Game
+  m_RootView: {fileID: 5}
+  m_MinSize: {x: 875, y: 300}
+  m_MaxSize: {x: 10000, y: 10000}
+  m_Maximized: 1
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -59,49 +57,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Children:
-  - {fileID: 14}
-  - {fileID: 2}
-  m_Position:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1049.5
-    height: 506
-  m_MinSize: {x: 200, y: 50}
-  m_MaxSize: {x: 16192, y: 8096}
-  vertical: 0
-  controlID: 30
---- !u!114 &4
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ConsoleWindow
+  m_Name: ProfilerWindow
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 506
-    width: 1049.5
-    height: 410
-  m_MinSize: {x: 101, y: 121}
-  m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 20}
+    y: 0
+    width: 1728
+    height: 987
+  m_MinSize: {x: 900, y: 237}
+  m_MaxSize: {x: 4000, y: 4021}
+  m_ActualView: {fileID: 23}
   m_Panes:
-  - {fileID: 20}
+  - {fileID: 23}
+  - {fileID: 19}
   m_Selected: 0
-  m_LastSelected: 0
---- !u!114 &5
+  m_LastSelected: 1
+--- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -115,147 +89,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Children:
   - {fileID: 3}
-  - {fileID: 4}
   m_Position:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1049.5
-    height: 916
-  m_MinSize: {x: 200, y: 100}
-  m_MaxSize: {x: 16192, y: 16192}
-  vertical: 1
-  controlID: 29
---- !u!114 &6
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ProjectBrowser
-  m_EditorClassIdentifier: 
-  m_Children: []
-  m_Position:
-    serializedVersion: 2
-    x: 0
-    y: 318
-    width: 227
-    height: 598
-  m_MinSize: {x: 232, y: 271}
-  m_MaxSize: {x: 10002, y: 10021}
-  m_ActualView: {fileID: 15}
-  m_Panes:
-  - {fileID: 15}
-  m_Selected: 0
-  m_LastSelected: 0
---- !u!114 &7
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Children:
-  - {fileID: 8}
-  - {fileID: 6}
-  m_Position:
-    serializedVersion: 2
-    x: 1049.5
-    y: 0
-    width: 227
-    height: 916
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 8096, y: 16192}
-  vertical: 1
-  controlID: 106
---- !u!114 &8
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: SceneHierarchyWindow
-  m_EditorClassIdentifier: 
-  m_Children: []
-  m_Position:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 227
-    height: 318
-  m_MinSize: {x: 202, y: 221}
-  m_MaxSize: {x: 4002, y: 4021}
-  m_ActualView: {fileID: 17}
-  m_Panes:
-  - {fileID: 17}
-  m_Selected: 0
-  m_LastSelected: 0
---- !u!114 &9
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 1
-  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Children:
-  - {fileID: 5}
-  - {fileID: 7}
-  - {fileID: 10}
-  m_Position:
-    serializedVersion: 2
-    x: 0
-    y: 30
     width: 1728
-    height: 916
-  m_MinSize: {x: 400, y: 100}
-  m_MaxSize: {x: 32384, y: 16192}
+    height: 987
+  m_MinSize: {x: 100, y: 50}
+  m_MaxSize: {x: 8096, y: 8096}
   vertical: 0
-  controlID: 28
---- !u!114 &10
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 1
-  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Children: []
-  m_Position:
-    serializedVersion: 2
-    x: 1276.5
-    y: 0
-    width: 451.5
-    height: 916
-  m_MinSize: {x: 276, y: 71}
-  m_MaxSize: {x: 4001, y: 4021}
-  m_ActualView: {fileID: 16}
-  m_Panes:
-  - {fileID: 16}
-  m_Selected: 0
-  m_LastSelected: 0
---- !u!114 &11
+  controlID: 5610
+--- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -268,9 +112,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Children:
-  - {fileID: 12}
-  - {fileID: 9}
-  - {fileID: 13}
+  - {fileID: 6}
+  - {fileID: 8}
+  - {fileID: 7}
   m_Position:
     serializedVersion: 2
     x: 0
@@ -283,7 +127,7 @@ MonoBehaviour:
   m_TopViewHeight: 30
   m_UseBottomView: 1
   m_BottomViewHeight: 20
---- !u!114 &12
+--- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -305,7 +149,7 @@ MonoBehaviour:
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
   m_LastLoadedLayoutName: 
---- !u!114 &13
+--- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -326,7 +170,107 @@ MonoBehaviour:
     height: 20
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
---- !u!114 &14
+--- !u!114 &8
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Children:
+  - {fileID: 9}
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 30
+    width: 1728
+    height: 916
+  m_MinSize: {x: 400, y: 100}
+  m_MaxSize: {x: 32384, y: 16192}
+  vertical: 1
+  controlID: 4887
+--- !u!114 &9
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Children:
+  - {fileID: 10}
+  - {fileID: 15}
+  - {fileID: 18}
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1728
+    height: 916
+  m_MinSize: {x: 400, y: 100}
+  m_MaxSize: {x: 32384, y: 16192}
+  vertical: 0
+  controlID: 4888
+--- !u!114 &10
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Children:
+  - {fileID: 11}
+  - {fileID: 14}
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1175.5
+    height: 916
+  m_MinSize: {x: 200, y: 100}
+  m_MaxSize: {x: 16192, y: 16192}
+  vertical: 1
+  controlID: 5145
+--- !u!114 &11
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Children:
+  - {fileID: 12}
+  - {fileID: 13}
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1175.5
+    height: 581
+  m_MinSize: {x: 200, y: 50}
+  m_MaxSize: {x: 16192, y: 8096}
+  vertical: 0
+  controlID: 5146
+--- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -343,13 +287,65 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 589
-    height: 506
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 18}
+    width: 428.5
+    height: 581
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 20}
   m_Panes:
-  - {fileID: 18}
+  - {fileID: 20}
+  m_Selected: 0
+  m_LastSelected: 0
+--- !u!114 &13
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: GameView
+  m_EditorClassIdentifier: 
+  m_Children: []
+  m_Position:
+    serializedVersion: 2
+    x: 428.5
+    y: 0
+    width: 747
+    height: 581
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
+  m_ActualView: {fileID: 21}
+  m_Panes:
+  - {fileID: 21}
+  m_Selected: 0
+  m_LastSelected: 0
+--- !u!114 &14
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: ConsoleWindow
+  m_EditorClassIdentifier: 
+  m_Children: []
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 581
+    width: 1175.5
+    height: 335
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 22}
+  m_Panes:
+  - {fileID: 22}
   m_Selected: 0
   m_LastSelected: 0
 --- !u!114 &15
@@ -360,143 +356,23 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 1
-  m_Script: {fileID: 12014, guid: 0000000000000000e000000000000000, type: 0}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12010, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MinSize: {x: 230, y: 250}
-  m_MaxSize: {x: 10000, y: 10000}
-  m_TitleContent:
-    m_Text: Project
-    m_Image: {fileID: -5179483145760003458, guid: 0000000000000000d000000000000000,
-      type: 0}
-    m_Tooltip: 
-  m_Pos:
+  m_Children:
+  - {fileID: 16}
+  - {fileID: 17}
+  m_Position:
     serializedVersion: 2
-    x: 1
-    y: 337
-    width: 225
-    height: 577
-  m_SerializedDataModeController:
-    m_DataMode: 0
-    m_PreferredDataMode: 0
-    m_SupportedDataModes: 
-    isAutomatic: 1
-  m_ViewDataDictionary: {fileID: 0}
-  m_OverlayCanvas:
-    m_LastAppliedPresetName: Default
-    m_SaveData: []
-  m_SearchFilter:
-    m_NameFilter: 
-    m_ClassNames: []
-    m_AssetLabels: []
-    m_AssetBundleNames: []
-    m_VersionControlStates: []
-    m_SoftLockControlStates: []
-    m_ReferencingInstanceIDs: 
-    m_SceneHandles: 
-    m_ShowAllHits: 0
-    m_SkipHidden: 0
-    m_SearchArea: 1
-    m_Folders: []
-    m_Globs: []
-    m_OriginalText: 
-    m_ImportLogFlags: 0
-  m_ViewMode: 0
-  m_StartGridSize: 64
-  m_LastFolders: []
-  m_LastFoldersGridSize: -1
-  m_LastProjectPath: /Users/casper.nymose/Documents/DOTS-training-samples/Ported/HighwayRacers
-  m_LockTracker:
-    m_IsLocked: 0
-  m_FolderTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 1ea50000
-    m_LastClickedID: 42270
-    m_ExpandedIDs: 000000007e7a0000807a0000827a0000847a0000
-    m_RenameOverlay:
-      m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
-      m_EditFieldRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      m_UserData: 0
-      m_IsWaitingForDelay: 0
-      m_IsRenaming: 0
-      m_OriginalEventType: 11
-      m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 0}
-    m_SearchString: 
-    m_CreateAssetUtility:
-      m_EndAction: {fileID: 0}
-      m_InstanceID: 0
-      m_Path: 
-      m_Icon: {fileID: 0}
-      m_ResourceFile: 
-  m_AssetTreeState:
-    scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 
-    m_LastClickedID: 0
-    m_ExpandedIDs: ffffffff000000007e7a0000807a0000827a0000847a0000d27a0000ea7a0000ec7a0000ee7a0000
-    m_RenameOverlay:
-      m_UserAcceptedRename: 0
-      m_Name: CarTranslationSystem
-      m_OriginalName: CarTranslationSystem
-      m_EditFieldRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      m_UserData: 10112
-      m_IsWaitingForDelay: 0
-      m_IsRenaming: 0
-      m_OriginalEventType: 0
-      m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 6}
-    m_SearchString: 
-    m_CreateAssetUtility:
-      m_EndAction: {fileID: 0}
-      m_InstanceID: 0
-      m_Path: 
-      m_Icon: {fileID: 0}
-      m_ResourceFile: 
-  m_ListAreaState:
-    m_SelectedInstanceIDs: 
-    m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
-    m_ExpandedInstanceIDs: c6230000
-    m_RenameOverlay:
-      m_UserAcceptedRename: 0
-      m_Name: 
-      m_OriginalName: 
-      m_EditFieldRect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 0
-        height: 0
-      m_UserData: 0
-      m_IsWaitingForDelay: 0
-      m_IsRenaming: 0
-      m_OriginalEventType: 11
-      m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 0}
-    m_CreateAssetUtility:
-      m_EndAction: {fileID: 0}
-      m_InstanceID: 0
-      m_Path: 
-      m_Icon: {fileID: 0}
-      m_ResourceFile: 
-    m_NewAssetIndexInList: -1
-    m_ScrollPosition: {x: 0, y: 0}
-    m_GridSize: 64
-  m_SkipHiddenPackages: 0
-  m_DirectoriesAreaWidth: 207
+    x: 1175.5
+    y: 0
+    width: 231
+    height: 916
+  m_MinSize: {x: 100, y: 100}
+  m_MaxSize: {x: 8096, y: 16192}
+  vertical: 1
+  controlID: 4984
 --- !u!114 &16
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -505,45 +381,24 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 1
-  m_Script: {fileID: 12019, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: SceneHierarchyWindow
   m_EditorClassIdentifier: 
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_TitleContent:
-    m_Text: Inspector
-    m_Image: {fileID: -440750813802333266, guid: 0000000000000000d000000000000000,
-      type: 0}
-    m_Tooltip: 
-  m_Pos:
+  m_Children: []
+  m_Position:
     serializedVersion: 2
-    x: 1277.5
-    y: 19
-    width: 450.5
-    height: 895
-  m_SerializedDataModeController:
-    m_DataMode: 0
-    m_PreferredDataMode: 0
-    m_SupportedDataModes: 
-    isAutomatic: 1
-  m_ViewDataDictionary: {fileID: 0}
-  m_OverlayCanvas:
-    m_LastAppliedPresetName: Default
-    m_SaveData: []
-  m_ObjectsLockedBeforeSerialization: []
-  m_InstanceIDsLockedBeforeSerialization: 
-  m_PreviewResizer:
-    m_CachedPref: 160
-    m_ControlHash: -371814159
-    m_PrefName: Preview_InspectorPreview
-  m_LastInspectedObjectInstanceID: -1
-  m_LastVerticalScrollValue: 0
-  m_GlobalObjectId: 
-  m_InspectorMode: 0
-  m_LockTracker:
-    m_IsLocked: 0
-  m_PreviewWindow: {fileID: 0}
+    x: 0
+    y: 0
+    width: 231
+    height: 317.5
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
+  m_ActualView: {fileID: 24}
+  m_Panes:
+  - {fileID: 24}
+  m_Selected: 0
+  m_LastSelected: 0
 --- !u!114 &17
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -552,23 +407,74 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: ProjectBrowser
+  m_EditorClassIdentifier: 
+  m_Children: []
+  m_Position:
+    serializedVersion: 2
+    x: 0
+    y: 317.5
+    width: 231
+    height: 598.5
+  m_MinSize: {x: 232, y: 271}
+  m_MaxSize: {x: 10002, y: 10021}
+  m_ActualView: {fileID: 25}
+  m_Panes:
+  - {fileID: 25}
+  m_Selected: 0
+  m_LastSelected: 0
+--- !u!114 &18
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
   m_EditorHideFlags: 1
-  m_Script: {fileID: 12061, guid: 0000000000000000e000000000000000, type: 0}
+  m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MinSize: {x: 200, y: 200}
+  m_Children: []
+  m_Position:
+    serializedVersion: 2
+    x: 1406.5
+    y: 0
+    width: 321.5
+    height: 916
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 26}
+  m_Panes:
+  - {fileID: 26}
+  m_Selected: 0
+  m_LastSelected: 0
+--- !u!114 &19
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dc59854f72ef4a1fb6dbb8d0cd6aea3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 1090, y: 480}
   m_MaxSize: {x: 4000, y: 4000}
   m_TitleContent:
-    m_Text: Hierarchy
-    m_Image: {fileID: -3734745235275155857, guid: 0000000000000000d000000000000000,
-      type: 0}
+    m_Text: Profile Analyzer
+    m_Image: {fileID: 0}
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1
-    y: 19
-    width: 225
-    height: 297
+    x: 0
+    y: 66
+    width: 1728
+    height: 966
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -578,36 +484,3529 @@ MonoBehaviour:
   m_OverlayCanvas:
     m_LastAppliedPresetName: Default
     m_SaveData: []
-  m_SceneHierarchy:
-    m_TreeViewState:
-      scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: e8810000
-      m_LastClickedID: 33256
-      m_ExpandedIDs: 546fb2ff2e71b2ff2a72b2ff1410b3ff5215b3ff966adaff046cdaff129fdfff72a0dfffe8b5f2ff38f4f6ffee04f7ff26fbffffcc810000
-      m_RenameOverlay:
-        m_UserAcceptedRename: 0
-        m_Name: 
-        m_OriginalName: 
-        m_EditFieldRect:
-          serializedVersion: 2
-          x: 0
-          y: 0
-          width: 0
-          height: 0
-        m_UserData: 0
-        m_IsWaitingForDelay: 0
-        m_IsRenaming: 0
-        m_OriginalEventType: 11
-        m_IsRenamingFilename: 0
-        m_ClientGUIView: {fileID: 0}
-      m_SearchString: 
-    m_ExpandedScenes: []
-    m_CurrenRootInstanceID: 0
-    m_LockTracker:
-      m_IsLocked: 0
-    m_CurrentSortingName: TransformSorting
-  m_WindowGUID: 4c969a2b90040154d917609493e03593
---- !u!114 &18
+  m_DepthSliceUI:
+    m_DepthFilter: -1
+    m_DepthFilter1: -1
+    m_DepthFilter2: -1
+    m_DepthFilterAuto: 1
+    m_MostCommonDepthDiff: 0
+  m_TimingOption: 0
+  m_ParentMarker: 
+  m_ThreadSelection:
+    groups:
+    - All:Job.Worker
+    selection:
+    - 1:Main Thread
+    - 1:Job.Worker
+    - 2:Job.Worker
+    - 3:Job.Worker
+    - 4:Job.Worker
+    - 5:Job.Worker
+    - 6:Job.Worker
+    - 7:Job.Worker
+    - 8:Job.Worker
+    - 9:Job.Worker
+  m_NameFilter: CollisionJob (Bur
+  m_NameExclude: 
+  m_TopTenDisplay: 0
+  m_NameFilterOperation: 0
+  m_NameExcludeOperation: 1
+  m_ShowFilters: 1
+  m_ShowTopNMarkers: 1
+  m_ShowFrameSummary: 1
+  m_ShowThreadSummary: 0
+  m_ShowMarkerSummary: 1
+  m_ShowMarkerTable: 1
+  m_ProfileSingleView:
+    path: Unsaved 1
+    data:
+      FirstFrameIncomplete: 0
+      LastFrameIncomplete: 0
+    selectedIndices: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f000000300000003100000032000000330000003400000035000000360000003700000038000000390000003a0000003b0000003c0000003d0000003e0000003f000000400000004100000042000000430000004400000045000000460000004700000048000000490000004a0000004b0000004c0000004d0000004e0000004f000000500000005100000052000000530000005400000055000000560000005700000058000000590000005a0000005b0000005c0000005d0000005e0000005f000000600000006100000062000000630000006400000065000000660000006700000068000000690000006a0000006b0000006c0000006d0000006e0000006f000000700000007100000072000000730000007400000075000000760000007700000078000000790000007a0000007b0000007c0000007d0000007e0000007f000000800000008100000082000000830000008400000085000000860000008700000088000000890000008a0000008b0000008c0000008d0000008e0000008f000000900000009100000092000000930000009400000095000000960000009700000098000000990000009a0000009b0000009c0000009d0000009e0000009f000000a0000000a1000000a2000000a3000000a4000000a5000000a6000000a7000000a8000000a9000000aa000000ab000000ac000000ad000000ae000000af000000b0000000b1000000b2000000b3000000b4000000b5000000b6000000b7000000b8000000b9000000ba000000bb000000bc000000bd000000be000000bf000000c0000000c1000000c2000000c3000000c4000000c5000000c6000000c7000000c8000000c9000000ca000000cb000000cc000000cd000000ce000000cf000000d0000000d1000000d2000000d3000000d4000000d5000000d6000000d7000000d8000000d9000000da000000db000000dc000000dd000000de000000df000000e0000000e1000000e2000000e3000000e4000000e5000000e6000000e7000000e8000000e9000000ea000000eb000000ec000000
+  m_ProfileLeftView:
+    path: Unsaved 1
+    data:
+      FirstFrameIncomplete: 0
+      LastFrameIncomplete: 0
+    selectedIndices: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f000000300000003100000032000000330000003400000035000000360000003700000038000000390000003a0000003b0000003c0000003d0000003e0000003f000000400000004100000042000000430000004400000045000000460000004700000048000000490000004a0000004b0000004c0000004d0000004e0000004f000000500000005100000052000000530000005400000055000000560000005700000058000000590000005a0000005b0000005c0000005d0000005e0000005f000000600000006100000062000000630000006400000065000000660000006700000068000000690000006a0000006b0000006c0000006d0000006e0000006f000000700000007100000072000000730000007400000075000000760000007700000078000000790000007a0000007b0000007c0000007d0000007e0000007f000000800000008100000082000000830000008400000085000000860000008700000088000000890000008a0000008b0000008c0000008d0000008e0000008f000000900000009100000092000000930000009400000095000000960000009700000098000000990000009a0000009b0000009c0000009d0000009e0000009f000000a0000000a1000000a2000000a3000000a4000000a5000000a6000000a7000000a8000000a9000000aa000000ab000000ac000000ad000000ae000000af000000b0000000b1000000b2000000b3000000b4000000b5000000b6000000b7000000b8000000b9000000ba000000bb000000bc000000bd000000be000000bf000000c0000000c1000000c2000000c3000000c4000000c5000000c6000000c7000000c8000000c9000000ca000000cb000000cc000000cd000000ce000000cf000000d0000000d1000000d2000000d3000000d4000000d5000000d6000000d7000000d8000000d9000000da000000db000000dc000000dd000000de000000df000000e0000000e1000000e2000000e3000000e4000000e5000000e6000000e7000000e8000000e9000000ea000000eb000000ec000000
+  m_ProfileRightView:
+    path: Unsaved 3
+    data:
+      FirstFrameIncomplete: 0
+      LastFrameIncomplete: 0
+    selectedIndices: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f000000100000001100000012000000130000001400000015000000160000001700000018000000190000001a0000001b0000001c0000001d0000001e0000001f000000200000002100000022000000230000002400000025000000260000002700000028000000290000002a0000002b0000002c0000002d0000002e0000002f000000300000003100000032000000330000003400000035000000360000003700000038000000390000003a0000003b0000003c0000003d0000003e0000003f000000400000004100000042000000430000004400000045000000460000004700000048000000490000004a0000004b0000004c0000004d0000004e0000004f000000500000005100000052000000530000005400000055000000560000005700000058000000590000005a0000005b0000005c0000005d0000005e0000005f000000600000006100000062000000630000006400000065000000660000006700000068000000690000006a0000006b0000006c0000006d0000006e0000006f000000700000007100000072000000730000007400000075000000760000007700000078000000790000007a0000007b0000007c0000007d0000007e0000007f000000800000008100000082000000830000008400000085000000860000008700000088000000890000008a0000008b0000008c0000008d0000008e0000008f000000900000009100000092000000930000009400000095000000960000009700000098000000990000009a0000009b0000009c0000009d0000009e0000009f000000a0000000a1000000a2000000a3000000a4000000a5000000a6000000a7000000a8000000a9000000aa000000ab000000ac000000ad000000ae000000af000000b0000000b1000000b2000000b3000000b4000000b5000000b6000000b7000000b8000000b9000000ba000000bb000000bc000000bd000000be000000bf000000c0000000c1000000c2000000c3000000c4000000c5000000c6000000c7000000c8000000c9000000ca000000cb000000cc000000cd000000ce000000cf000000d0000000d1000000d2000000d3000000d4000000d5000000d6000000d7000000d8000000d9000000da000000db000000dc000000dd000000de000000df000000e0000000e1000000e2000000e3000000e4000000e5000000e6000000e7000000e8000000e9000000ea000000eb000000ec000000ed000000ee000000ef000000f0000000f1000000f2000000f3000000f4000000f5000000f6000000f7000000f8000000f9000000fa000000fb000000fc000000fd000000fe000000ff000000000100000101000002010000030100000401000005010000060100000701000008010000090100000a0100000b0100000c0100000d0100000e0100000f010000100100001101000012010000130100001401000015010000160100001701000018010000190100001a0100001b0100001c0100001d0100001e0100001f010000200100002101000022010000230100002401000025010000260100002701000028010000290100002a0100002b0100002c0100002d0100002e0100002f010000
+  m_SelectedMarker:
+    id: 1
+    threadName: 
+    threadGroupName: 
+    name: CollisionJob (Burst)
+  m_Pairings:
+  - name: Idle
+    leftIndex: 0
+    rightIndex: 0
+  - name: CollisionJob (Burst)
+    leftIndex: 1
+    rightIndex: 1
+  - name: PlayerLoop
+    leftIndex: 2
+    rightIndex: 2
+  - name: UnityEngine.CoreModule.dll!::UpdateFunction.Invoke() [Invoke]
+    leftIndex: 3
+    rightIndex: 3
+  - name: PresentationSystemGroup
+    leftIndex: 4
+    rightIndex: 4
+  - name: Default World Unity.Entities.PresentationSystemGroup
+    leftIndex: 5
+    rightIndex: 5
+  - name: Default World Unity.Rendering.EntitiesGraphicsSystem
+    leftIndex: 6
+    rightIndex: 6
+  - name: WaitForJobGroupID
+    leftIndex: 7
+    rightIndex: 7
+  - name: JobHandle.Complete
+    leftIndex: 8
+    rightIndex: 8
+  - name: CompleteJobs
+    leftIndex: 9
+    rightIndex: 9
+  - name: UnityEngine.CoreModule.dll!::ExecuteJobFunction.Invoke() [Invoke]
+    leftIndex: 10
+    rightIndex: 10
+  - name: ExecuteGpuUploads (Burst)
+    leftIndex: 11
+    rightIndex: 11
+  - name: EditorLoop
+    leftIndex: 12
+    rightIndex: 13
+  - name: FrustumCullingJob (Burst)
+    leftIndex: 13
+    rightIndex: 12
+  - name: PositionAssignmentJob
+    leftIndex: 14
+    rightIndex: 14
+  - name: CarTranslationJob (Burst)
+    leftIndex: 15
+    rightIndex: 16
+  - name: IndexAssignmentJob
+    leftIndex: 16
+    rightIndex: 15
+  - name: Profiler.ParseThreadData
+    leftIndex: 17
+    rightIndex: 17
+  - name: SortJob`2:SegmentSortMerge (Burst)
+    leftIndex: 18
+    rightIndex: 513
+  - name: UpdateEntitiesGraphicsBatches
+    leftIndex: 19
+    rightIndex: 19
+  - name: UpdateAllBatches
+    leftIndex: 20
+    rightIndex: 20
+  - name: LocalToWorldSystem:ComputeRootLocalToWorldJob (Burst)
+    leftIndex: 21
+    rightIndex: 25
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.DoRenderLoop_Internal()
+      [Invoke]
+    leftIndex: 22
+    rightIndex: 22
+  - name: Inl_UniversalRenderTotal
+    leftIndex: 23
+    rightIndex: 23
+  - name: UpdateOldEntitiesGraphicsChunksJob (Burst)
+    leftIndex: 24
+    rightIndex: 18
+  - name: Inl_RenderCameraStack
+    leftIndex: 25
+    rightIndex: 24
+  - name: RenderBoundsUpdateSystem:BoundsJob (Burst)
+    leftIndex: 26
+    rightIndex: 21
+  - name: UpdateVelocityJob (Burst)
+    leftIndex: 27
+    rightIndex: 27
+  - name: UpdateDrawCommandFlagsJob (Burst)
+    leftIndex: 28
+    rightIndex: 26
+  - name: 'Inl_UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera'
+    leftIndex: 29
+    rightIndex: 30
+  - name: EmitDrawCommandsJob (Burst)
+    leftIndex: 30
+    rightIndex: 33
+  - name: SortJob`2:SegmentSort (Burst)
+    leftIndex: 31
+    rightIndex: 31
+  - name: FlushWorkItemsJob (Burst)
+    leftIndex: 32
+    rightIndex: 29
+  - name: OvertakeStateJob (Burst)
+    leftIndex: 33
+    rightIndex: 32
+  - name: Inl_ScriptableRenderContext.Submit
+    leftIndex: 34
+    rightIndex: 34
+  - name: SelectLodEnabled (Burst)
+    leftIndex: 35
+    rightIndex: 39
+  - name: 'Inl_ScriptableRenderer.Execute: URP-HighFidelity-Renderer'
+    leftIndex: 36
+    rightIndex: 45
+  - name: 'UniversalRenderPipeline.RenderSingleCameraInternal: Main Camera'
+    leftIndex: 37
+    rightIndex: 35
+  - name: 'ScriptableRenderer.Execute: URP-HighFidelity-Renderer'
+    leftIndex: 38
+    rightIndex: 36
+  - name: Profiler.FlushCounters
+    leftIndex: 39
+    rightIndex: 40
+  - name: DrawBinCollector:CollectBinsJob (Burst)
+    leftIndex: 40
+    rightIndex: 37
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::BatchRendererGroup.InvokeOnPerformCulling()
+      [Invoke]
+    leftIndex: 41
+    rightIndex: 49
+  - name: Profiler.FlushMemoryCounters
+    leftIndex: 42
+    rightIndex: 42
+  - name: OnPerformCulling
+    leftIndex: 43
+    rightIndex: 50
+  - name: Inl_ScriptableRenderer.Setup
+    leftIndex: 44
+    rightIndex: 48
+  - name: InitializationSystemGroup
+    leftIndex: 45
+    rightIndex: 46
+  - name: Default World Unity.Entities.InitializationSystemGroup
+    leftIndex: 46
+    rightIndex: 47
+  - name: CullScriptable
+    leftIndex: 47
+    rightIndex: 51
+  - name: SceneCulling
+    leftIndex: 48
+    rightIndex: 55
+  - name: MainLightShadow
+    leftIndex: 49
+    rightIndex: 43
+  - name: Shadows.ExecuteDrawShadows
+    leftIndex: 50
+    rightIndex: 44
+  - name: SimulationSystemGroup
+    leftIndex: 51
+    rightIndex: 53
+  - name: Default World Unity.Entities.SimulationSystemGroup
+    leftIndex: 52
+    rightIndex: 54
+  - name: Shadows.PrepareDrawShadows
+    leftIndex: 53
+    rightIndex: 63
+  - name: CoroutinesDelayedCalls
+    leftIndex: 54
+    rightIndex: 59
+  - name: Default World Unity.Scenes.Editor.LiveConversionEditorSystemGroup
+    leftIndex: 55
+    rightIndex: 58
+  - name: Update.ScriptRunDelayedDynamicFrameRate
+    leftIndex: 56
+    rightIndex: 428
+  - name: Default World Unity.Scenes.Editor.EditorSubSceneLiveConversionSystem
+    leftIndex: 57
+    rightIndex: 62
+  - name: Inl_UniversalRenderer.CreateCameraRenderTarget
+    leftIndex: 58
+    rightIndex: 65
+  - name: Destroy
+    leftIndex: 59
+    rightIndex: 64
+  - name: Inl_ScriptableRenderer.InternalStartRendering
+    leftIndex: 60
+    rightIndex: 66
+  - name: RenderLoop.ScheduleDraw
+    leftIndex: 61
+    rightIndex: 67
+  - name: UnsafeDisposeJob (Burst)
+    leftIndex: 62
+    rightIndex: 79
+  - name: Inl_RenderPassBlock.BeforeRendering
+    leftIndex: 63
+    rightIndex: 68
+  - name: Default World CarCollisionSystem
+    leftIndex: 64
+    rightIndex: 71
+  - name: Inl_MainLightShadowCasterPass
+    leftIndex: 65
+    rightIndex: 74
+  - name: Inl_RenderPassBlock.MainRenderingOpaque
+    leftIndex: 66
+    rightIndex: 75
+  - name: ChunkDrawCommandOutput:ReleaseChunkDrawCommandsJob (Burst)
+    leftIndex: 67
+    rightIndex: 69
+  - name: GetComponentTypes
+    leftIndex: 68
+    rightIndex: 72
+  - name: DrawBinSort:SortSlicesJob (Burst)
+    leftIndex: 69
+    rightIndex: 70
+  - name: PostLateUpdate.UpdateAudio
+    leftIndex: 70
+    rightIndex: 78
+  - name: EarlyUpdate.PollPlayerConnection
+    leftIndex: 71
+    rightIndex: 88
+  - name: Default World Unity.Rendering.RegisterMaterialsAndMeshesSystem
+    leftIndex: 72
+    rightIndex: 76
+  - name: AudioManager.Update
+    leftIndex: 73
+    rightIndex: 80
+  - name: RegisterMaterialsAndMeshes
+    leftIndex: 74
+    rightIndex: 77
+  - name: Inl_MainLightShadow
+    leftIndex: 75
+    rightIndex: 81
+  - name: UpdatePostFrame
+    leftIndex: 76
+    rightIndex: 87
+  - name: Inl_RenderPassBlock.AfterRendering
+    leftIndex: 77
+    rightIndex: 85
+  - name: Inl_ScriptableRenderPass.SetRenderPassAttachments
+    leftIndex: 78
+    rightIndex: 84
+  - name: NativeArrayDisposeJob
+    leftIndex: 79
+    rightIndex: 82
+  - name: Inl_FinalBlitPass
+    leftIndex: 80
+    rightIndex: 86
+  - name: RenderLoop.DrawSRPBatcher
+    leftIndex: 81
+    rightIndex: 83
+  - name: Update.ScriptRunBehaviourUpdate
+    leftIndex: 82
+    rightIndex: 100
+  - name: BehaviourUpdate
+    leftIndex: 83
+    rightIndex: 103
+  - name: EditorConnection.PollAllCustomMessages
+    leftIndex: 84
+    rightIndex: 110
+  - name: Default World Unity.Scenes.SceneSystemGroup
+    leftIndex: 85
+    rightIndex: 96
+  - name: RemapMaterialMeshIndexJob (Burst)
+    leftIndex: 86
+    rightIndex: 89
+  - name: Default World Unity.Rendering.UpdatePresentationSystemGroup
+    leftIndex: 87
+    rightIndex: 91
+  - name: EndUpdate
+    leftIndex: 88
+    rightIndex: 90
+  - name: Inl_ScriptableRenderer.SetupLights
+    leftIndex: 89
+    rightIndex: 93
+  - name: Unity.RenderPipelines.Core.Runtime.dll!UnityEngine.Rendering::DebugUpdater.Update()
+      [Invoke]
+    leftIndex: 90
+    rightIndex: 118
+  - name: Default World Unity.Rendering.StructuralChangePresentationSystemGroup
+    leftIndex: 91
+    rightIndex: 95
+  - name: Inl_UniversalRenderPipeline.InitializeCameraData
+    leftIndex: 92
+    rightIndex: 109
+  - name: Inl_ScriptableRenderer.SetupCullingParameters
+    leftIndex: 93
+    rightIndex: 115
+  - name: Inl_Setup Main Shadowmap
+    leftIndex: 94
+    rightIndex: 106
+  - name: UnsafeParallelHashMapDataDisposeJob (Burst)
+    leftIndex: 95
+    rightIndex: 73
+  - name: Inl_Setup Light Constants
+    leftIndex: 96
+    rightIndex: 102
+  - name: Inl_Unnamed_ScriptableRenderPass
+    leftIndex: 97
+    rightIndex: 108
+  - name: SRPBRender.ApplyShader
+    leftIndex: 98
+    rightIndex: 94
+  - name: Inl_RenderPassBlock.MainRenderingTransparent
+    leftIndex: 99
+    rightIndex: 98
+  - name: Inl_DrawObjectsPass
+    leftIndex: 100
+    rightIndex: 105
+  - name: DepthNormalPrepass
+    leftIndex: 101
+    rightIndex: 99
+  - name: UpdateGlobalAABB
+    leftIndex: 102
+    rightIndex: 97
+  - name: ClassifyNewChunksJob (Burst)
+    leftIndex: 103
+    rightIndex: 92
+  - name: EarlyUpdate.ExecuteMainThreadJobs
+    leftIndex: 104
+    rightIndex: 126
+  - name: DrawOpaqueObjects
+    leftIndex: 105
+    rightIndex: 104
+  - name: ZeroThreadLocalAABBJob (Burst)
+    leftIndex: 106
+    rightIndex: 136
+  - name: Inl_Setup Additional Shadows
+    leftIndex: 107
+    rightIndex: 113
+  - name: Inl_UniversalRenderPipeline.InitializeRenderingData
+    leftIndex: 108
+    rightIndex: 114
+  - name: JobDebuggerFrameMaintenance
+    leftIndex: 109
+    rightIndex: 133
+  - name: Semaphore.WaitForSignal
+    leftIndex: 110
+    rightIndex: 38
+  - name: AssetDatabase.GetGUIDFromAssetPathV2
+    leftIndex: 111
+    rightIndex: 107
+  - name: RenderLoop.Prepare
+    leftIndex: 112
+    rightIndex: 28
+  - name: Default World Unity.Transforms.TransformSystemGroup
+    leftIndex: 113
+    rightIndex: 111
+  - name: Default World Unity.Entities.FixedStepSimulationSystemGroup
+    leftIndex: 114
+    rightIndex: 319
+  - name: CullSendEvents
+    leftIndex: 115
+    rightIndex: 130
+  - name: Gfx.EndAsyncJobFrame
+    leftIndex: 116
+    rightIndex: 101
+  - name: Default World Unity.Entities.CompanionGameObjectUpdateTransformSystem
+    leftIndex: 117
+    rightIndex: 129
+  - name: StartUpdate
+    leftIndex: 118
+    rightIndex: 116
+  - name: Inl_SSAO
+    leftIndex: 119
+    rightIndex: 128
+  - name: Default World Unity.Rendering.RenderBoundsUpdateSystem
+    leftIndex: 120
+    rightIndex: 121
+  - name: Profiler.CollectLegacyStats
+    leftIndex: 121
+    rightIndex: 117
+  - name: Default World Unity.Scenes.ResolveSceneReferenceSystem
+    leftIndex: 122
+    rightIndex: 148
+  - name: ExpandVisibleInstancesJob (Burst)
+    leftIndex: 123
+    rightIndex: 122
+  - name: PreUpdate.SendMouseEvents
+    leftIndex: 124
+    rightIndex: 138
+  - name: WaitForRenderJobs
+    leftIndex: 125
+    rightIndex: 112
+  - name: Monobehaviour.OnMouse_
+    leftIndex: 126
+    rightIndex: 139
+  - name: Inl_Setup Camera Parameters
+    leftIndex: 127
+    rightIndex: 144
+  - name: MemoryProfiler:MemoryProfilerJob (Burst)
+    leftIndex: 128
+    rightIndex: 160
+  - name: Default World Unity.Transforms.LocalToWorldSystem
+    leftIndex: 129
+    rightIndex: 120
+  - name: Default World Unity.Rendering.DeformationsInPresentation
+    leftIndex: 130
+    rightIndex: 134
+  - name: Default World Unity.Entities.CompanionGameObjectUpdateSystem
+    leftIndex: 131
+    rightIndex: 124
+  - name: DrawBinCollector:AllocateBinsJob (Burst)
+    leftIndex: 132
+    rightIndex: 125
+  - name: UnityEngine.InputLegacyModule.dll!UnityEngine::SendMouseEvents.DoSendMouseEvents()
+      [Invoke]
+    leftIndex: 133
+    rightIndex: 147
+  - name: Audio.FMODSystemUpdate
+    leftIndex: 134
+    rightIndex: 162
+  - name: UGUI.Rendering.EmitWorldScreenspaceCameraGeometry
+    leftIndex: 135
+    rightIndex: 142
+  - name: UpdateFilterSettings
+    leftIndex: 136
+    rightIndex: 141
+  - name: Default World Unity.Entities.Content.RuntimeContentSystem
+    leftIndex: 137
+    rightIndex: 119
+  - name: AllocateInstancesJob (Burst)
+    leftIndex: 138
+    rightIndex: 145
+  - name: Compute.Dispatch
+    leftIndex: 139
+    rightIndex: 140
+  - name: Inl_DepthNormalOnlyPass
+    leftIndex: 140
+    rightIndex: 150
+  - name: Default World Unity.Entities.UpdateWorldTimeSystem
+    leftIndex: 141
+    rightIndex: 152
+  - name: RewindAllocators
+    leftIndex: 142
+    rightIndex: 155
+  - name: Inl_UniversalRenderPipeline.SetupPerFrameShaderConstants
+    leftIndex: 143
+    rightIndex: 157
+  - name: Inl_ScriptableRenderer.SetPerCameraShaderVariables
+    leftIndex: 144
+    rightIndex: 158
+  - name: Shadows.ScheduleRenderJobs
+    leftIndex: 145
+    rightIndex: 174
+  - name: Default World Unity.Rendering.MatrixPreviousSystem
+    leftIndex: 146
+    rightIndex: 156
+  - name: SSAO
+    leftIndex: 147
+    rightIndex: 137
+  - name: UIEvents.UIElementsRegisterRenderers
+    leftIndex: 148
+    rightIndex: 154
+  - name: GenerateDrawCommandsJob (Burst)
+    leftIndex: 149
+    rightIndex: 131
+  - name: UnsafeParallelHashMapDisposeJob (Burst)
+    leftIndex: 150
+    rightIndex: 135
+  - name: CollectWorkItemsJob (Burst)
+    leftIndex: 151
+    rightIndex: 169
+  - name: Profiler.FlushCountersWithFlushOnEndOfFrame
+    leftIndex: 152
+    rightIndex: 151
+  - name: Shadows.ExtractCasters
+    leftIndex: 153
+    rightIndex: 52
+  - name: DrawBinSort:MergeSlicesJob (Burst)
+    leftIndex: 154
+    rightIndex: 132
+  - name: Inl_AdditionalLightsShadowCasterPass
+    leftIndex: 155
+    rightIndex: 159
+  - name: Inl_UniversalRenderPipeline.InitializeLightData
+    leftIndex: 156
+    rightIndex: 164
+  - name: Inl_ScriptableRenderer.ClearRenderingState
+    leftIndex: 157
+    rightIndex: 165
+  - name: UnityEngine.UIElementsModule.dll!UnityEngine.UIElements.UIR::Utility.RaiseRegisterIntermediateRenderers()
+      [Invoke]
+    leftIndex: 158
+    rightIndex: 166
+  - name: Default World Unity.Rendering.AddLODRequirementComponents
+    leftIndex: 159
+    rightIndex: 168
+  - name: PostLateUpdate.PlayerUpdateCanvases
+    leftIndex: 160
+    rightIndex: 187
+  - name: Default World CarOvertakingSystem
+    leftIndex: 161
+    rightIndex: 161
+  - name: Default World CarDrivingSystem
+    leftIndex: 162
+    rightIndex: 163
+  - name: Inl_NativeRenderPass SetupNativeRenderPassFrameData
+    leftIndex: 163
+    rightIndex: 173
+  - name: Default World Unity.Entities.BeginInitializationEntityCommandBufferSystem
+    leftIndex: 164
+    rightIndex: 183
+  - name: Audibility computation
+    leftIndex: 165
+    rightIndex: 218
+  - name: EarlyUpdate.ProcessRemoteInput
+    leftIndex: 166
+    rightIndex: 228
+  - name: ProcessRemoteInput
+    leftIndex: 167
+    rightIndex: 230
+  - name: AllocateDrawCommandsJob (Burst)
+    leftIndex: 168
+    rightIndex: 149
+  - name: Default World Unity.Rendering.LightProbeUpdateSystem
+    leftIndex: 169
+    rightIndex: 184
+  - name: SRPBatcher.DrawCommandsInjection
+    leftIndex: 170
+    rightIndex: 41
+  - name: CullAllVisibleLights
+    leftIndex: 171
+    rightIndex: 167
+  - name: UIEvents.WillRenderCanvases
+    leftIndex: 172
+    rightIndex: 215
+  - name: RenderLoop.CleanupNodeQueue
+    leftIndex: 173
+    rightIndex: 143
+  - name: UpdateSceneCullingMasks
+    leftIndex: 174
+    rightIndex: 171
+  - name: UGUI.Rendering.UpdateBatches
+    leftIndex: 175
+    rightIndex: 223
+  - name: PreLateUpdate.ParticleSystemBeginUpdateAll
+    leftIndex: 176
+    rightIndex: 181
+  - name: Rewind
+    leftIndex: 177
+    rightIndex: 197
+  - name: FinalBlit
+    leftIndex: 178
+    rightIndex: 172
+  - name: EditorConnection.CheckForIncomingConnections
+    leftIndex: 179
+    rightIndex: 199
+  - name: PrepareSceneNodes
+    leftIndex: 180
+    rightIndex: 188
+  - name: CullResults.CreateSharedRendererScene
+    leftIndex: 181
+    rightIndex: 146
+  - name: Profiler.FrameMetadata
+    leftIndex: 182
+    rightIndex: 305
+  - name: AllocateWorkItemsJob (Burst)
+    leftIndex: 183
+    rightIndex: 123
+  - name: UpdateScreenManagerAndInput
+    leftIndex: 184
+    rightIndex: 127
+  - name: Profiler.CollectEditorStats
+    leftIndex: 185
+    rightIndex: 236
+  - name: Inl_FinalBlit
+    leftIndex: 186
+    rightIndex: 205
+  - name: Profiler.CollectAudioStats
+    leftIndex: 187
+    rightIndex: 180
+  - name: Inl_DrawSkyboxPass
+    leftIndex: 188
+    rightIndex: 185
+  - name: ParticleSystem.Update
+    leftIndex: 189
+    rightIndex: 186
+  - name: EmitDrawCommandsJob (Cleanup)
+    leftIndex: 190
+    rightIndex: 210
+  - name: Inl_UniversalRenderPipeline.InitializeStackedCameraData
+    leftIndex: 191
+    rightIndex: 190
+  - name: Inl_UpdateVolumeFramework
+    leftIndex: 192
+    rightIndex: 208
+  - name: Camera.RenderSkybox
+    leftIndex: 193
+    rightIndex: 176
+  - name: GenerateDrawRangesJob (Burst)
+    leftIndex: 194
+    rightIndex: 182
+  - name: Inl_DrawOpaqueObjects
+    leftIndex: 195
+    rightIndex: 201
+  - name: PostLateUpdate.UpdateCustomRenderTextures
+    leftIndex: 196
+    rightIndex: 200
+  - name: Inl_UniversalRenderPipeline.InitializeAdditionalCameraData
+    leftIndex: 197
+    rightIndex: 217
+  - name: Update.ScriptRunDelayedTasks
+    leftIndex: 198
+    rightIndex: 222
+  - name: DrawBinSort:AllocateForSortJob (Burst)
+    leftIndex: 199
+    rightIndex: 193
+  - name: GC.Alloc
+    leftIndex: 200
+    rightIndex: 189
+  - name: Inl_InvokeOnRenderObjectCallbackPass
+    leftIndex: 201
+    rightIndex: 209
+  - name: Inl_DepthNormalPrepass
+    leftIndex: 202
+    rightIndex: 211
+  - name: PostLateUpdate.UpdateAllRenderers
+    leftIndex: 203
+    rightIndex: 153
+  - name: Default World CarTranslationSystem
+    leftIndex: 204
+    rightIndex: 192
+  - name: Default World Unity.Scenes.SceneSectionStreamingSystem
+    leftIndex: 205
+    rightIndex: 226
+  - name: Default World Unity.Rendering.ManageSHPropertiesSystem
+    leftIndex: 206
+    rightIndex: 194
+  - name: ComputeStats
+    leftIndex: 207
+    rightIndex: 203
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Experimental.Rendering::ScriptableRuntimeReflectionSystemWrapper.Internal_ScriptableRuntimeReflectionSystemWrapper_TickRealtimeProbes()
+      [Invoke]
+    leftIndex: 208
+    rightIndex: 204
+  - name: SRPBatcher.Flush
+    leftIndex: 209
+    rightIndex: 240
+  - name: EarlyUpdate.UpdatePreloading
+    leftIndex: 210
+    rightIndex: 191
+  - name: Loading.UpdatePreloading
+    leftIndex: 211
+    rightIndex: 198
+  - name: Shadows.ExtractShaderPassContext
+    leftIndex: 212
+    rightIndex: 212
+  - name: EarlyUpdate.UpdateInputManager
+    leftIndex: 213
+    rightIndex: 235
+  - name: CustomRenderTextures.Update
+    leftIndex: 214
+    rightIndex: 219
+  - name: FrameEvents.NewInputBeforeRenderUpdate
+    leftIndex: 215
+    rightIndex: 196
+  - name: Update
+    leftIndex: 216
+    rightIndex: 244
+  - name: UpdatePreFrame
+    leftIndex: 217
+    rightIndex: 207
+  - name: UnityEngine.CoreModule.dll!UnityEngine::UnitySynchronizationContext.ExecuteTasks()
+      [Invoke]
+    leftIndex: 218
+    rightIndex: 242
+  - name: Profiler.SerializeStats
+    leftIndex: 219
+    rightIndex: 227
+  - name: PostLateUpdate.MemoryFrameMaintenance
+    leftIndex: 220
+    rightIndex: 224
+  - name: EarlyUpdate.PlayerCleanupCachedData
+    leftIndex: 221
+    rightIndex: 243
+  - name: Cleanup Unused Cached Data
+    leftIndex: 222
+    rightIndex: 246
+  - name: ExpandVisibleInstancesJob (Cleanup)
+    leftIndex: 223
+    rightIndex: 221
+  - name: Profiler.DerializeStats
+    leftIndex: 224
+    rightIndex: 231
+  - name: Audibility computation clear
+    leftIndex: 225
+    rightIndex: 282
+  - name: CullPerObjectLights
+    leftIndex: 226
+    rightIndex: 170
+  - name: CullPerObjectLightsCombine
+    leftIndex: 227
+    rightIndex: 177
+  - name: ResolveSceneReferenceSystem_3ED87375_LambdaJob_0
+    leftIndex: 228
+    rightIndex: 260
+  - name: UpdatePreloading
+    leftIndex: 229
+    rightIndex: 202
+  - name: PreLateUpdate.EndGraphicsJobsAfterScriptUpdate
+    leftIndex: 230
+    rightIndex: 216
+  - name: EndGraphicsJobs
+    leftIndex: 231
+    rightIndex: 220
+  - name: PlayerCleanupCachedData
+    leftIndex: 232
+    rightIndex: 250
+  - name: TimeUpdate.WaitForLastPresentationAndUpdateTime
+    leftIndex: 233
+    rightIndex: 225
+  - name: Inl_DrawTransparentObjects
+    leftIndex: 234
+    rightIndex: 249
+  - name: Default World Unity.Rendering.UpdateHybridChunksStructure
+    leftIndex: 235
+    rightIndex: 232
+  - name: Default World Unity.Entities.WorldUpdateAllocatorResetSystem
+    leftIndex: 236
+    rightIndex: 238
+  - name: PreUpdate.PhysicsUpdate
+    leftIndex: 237
+    rightIndex: 309
+  - name: Default World Unity.Rendering.HybridLightBakingDataSystem
+    leftIndex: 238
+    rightIndex: 255
+  - name: Inl_LightCookies
+    leftIndex: 239
+    rightIndex: 248
+  - name: Default World CarSpawnerSystem
+    leftIndex: 240
+    rightIndex: 233
+  - name: LightCookies
+    leftIndex: 241
+    rightIndex: 398
+  - name: ReflectionProbes.Update
+    leftIndex: 242
+    rightIndex: 253
+  - name: PreUpdate.AIUpdate
+    leftIndex: 243
+    rightIndex: 252
+  - name: Inl_UniversalRenderPipeline.InitializeShadowData
+    leftIndex: 244
+    rightIndex: 247
+  - name: Application.Integrate Assets in Background
+    leftIndex: 245
+    rightIndex: 214
+  - name: DestroyCullResults
+    leftIndex: 246
+    rightIndex: 239
+  - name: CarTranslationJob (Cleanup)
+    leftIndex: 247
+    rightIndex: 418
+  - name: DrawBinSort:SortSlicesJob (Cleanup)
+    leftIndex: 248
+    rightIndex: 261
+  - name: RenderTexture.GarbageCollectTemporary
+    leftIndex: 249
+    rightIndex: 258
+  - name: PreUpdate.Physics2DUpdate
+    leftIndex: 250
+    rightIndex: 392
+  - name: Default World Unity.Entities.RetainBlobAssetSystem
+    leftIndex: 251
+    rightIndex: 245
+  - name: UnityEngine.IMGUIModule.dll!UnityEngine::GUIUtility.SetSkin() [Invoke]
+    leftIndex: 252
+    rightIndex: 263
+  - name: BeginRenderQueueExtraction
+    leftIndex: 253
+    rightIndex: 251
+  - name: Default World Unity.Scenes.SceneSystem
+    leftIndex: 254
+    rightIndex: 286
+  - name: Material.SetPassFast
+    leftIndex: 255
+    rightIndex: 254
+  - name: Default World Unity.Rendering.PushMeshDataSystem
+    leftIndex: 256
+    rightIndex: 277
+  - name: GUI.Repaint
+    leftIndex: 257
+    rightIndex: 237
+  - name: UnityEngine.UIModule.dll!UnityEngine::Canvas.SendPreWillRenderCanvases()
+      [Invoke]
+    leftIndex: 258
+    rightIndex: 310
+  - name: FrameEvents.OnBeforeRenderCallback
+    leftIndex: 259
+    rightIndex: 259
+  - name: Default World Unity.Rendering.AddWorldAndChunkRenderBounds
+    leftIndex: 260
+    rightIndex: 268
+  - name: PreLateUpdate.ConstraintManagerUpdate
+    leftIndex: 261
+    rightIndex: 300
+  - name: Inl_ScriptableRenderPass.Configure
+    leftIndex: 262
+    rightIndex: 265
+  - name: GenerateDrawCommandsJob (Cleanup)
+    leftIndex: 263
+    rightIndex: 195
+  - name: Initialization.DirectorSampleTime
+    leftIndex: 264
+    rightIndex: 257
+  - name: Preload Single Step
+    leftIndex: 265
+    rightIndex: 229
+  - name: Default World Unity.Entities.BeginSimulationEntityCommandBufferSystem
+    leftIndex: 266
+    rightIndex: 276
+  - name: Default World Unity.Entities.EndSimulationEntityCommandBufferSystem
+    leftIndex: 267
+    rightIndex: 288
+  - name: PostLateUpdate.UpdateRectTransform
+    leftIndex: 268
+    rightIndex: 280
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.HandleRenderPipelineChange()
+      [Invoke]
+    leftIndex: 269
+    rightIndex: 266
+  - name: Default World Unity.Rendering.LODRequirementsUpdateSystem
+    leftIndex: 270
+    rightIndex: 284
+  - name: PrepareSceneCullingParameters
+    leftIndex: 271
+    rightIndex: 256
+  - name: AddLocalLights
+    leftIndex: 272
+    rightIndex: 283
+  - name: UpdateHybridChunksStructure
+    leftIndex: 273
+    rightIndex: 272
+  - name: CollectWorkItemsJob (Cleanup)
+    leftIndex: 274
+    rightIndex: 241
+  - name: Director.SampleTime
+    leftIndex: 275
+    rightIndex: 264
+  - name: InitializeUnreferencedIndicesScatterJob (Burst)
+    leftIndex: 276
+    rightIndex: 292
+  - name: PlayerEndOfFrame
+    leftIndex: 277
+    rightIndex: 273
+  - name: UnityEngine.UIModule.dll!UnityEngine::Canvas.SendWillRenderCanvases() [Invoke]
+    leftIndex: 278
+    rightIndex: 415
+  - name: PreUpdate.NewInputUpdate
+    leftIndex: 279
+    rightIndex: 274
+  - name: Shadows.SplitAndSortCasters
+    leftIndex: 280
+    rightIndex: 323
+  - name: Physics2D.InterpolatePoses
+    leftIndex: 281
+    rightIndex: 451
+  - name: EarlyUpdate.ScriptRunDelayedStartupFrame
+    leftIndex: 282
+    rightIndex: 302
+  - name: CompanionGameObjectUpdateSystem_1E2F7C5A_LambdaJob_0
+    leftIndex: 283
+    rightIndex: 295
+  - name: UnityEngine.CoreModule.dll!UnityEngine::Application.InvokeOnBeforeRender()
+      [Invoke]
+    leftIndex: 284
+    rightIndex: 279
+  - name: FlushWorkItemsJob (Cleanup)
+    leftIndex: 285
+    rightIndex: 297
+  - name: Default World Unity.Entities.EndInitializationEntityCommandBufferSystem
+    leftIndex: 286
+    rightIndex: 315
+  - name: updateScene.Invoke
+    leftIndex: 287
+    rightIndex: 56
+  - name: Default World Unity.Entities.BeginPresentationEntityCommandBufferSystem
+    leftIndex: 288
+    rightIndex: 281
+  - name: ReflectionProbeAnchorManagerUpdate
+    leftIndex: 289
+    rightIndex: 294
+  - name: DrawTransparentObjects
+    leftIndex: 290
+    rightIndex: 178
+  - name: Default World Unity.Entities.BeginFixedStepSimulationEntityCommandBufferSystem
+    leftIndex: 291
+    rightIndex: 521
+  - name: Profiler.CollectUIStats
+    leftIndex: 292
+    rightIndex: 270
+  - name: Profiler.SortThreadMetadata
+    leftIndex: 293
+    rightIndex: 293
+  - name: Update.DirectorUpdate
+    leftIndex: 294
+    rightIndex: 408
+  - name: UploadAllBlits
+    leftIndex: 295
+    rightIndex: 334
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::SupportedRenderingFeatures.IsUIOverlayRenderedBySRP()
+      [Invoke]
+    leftIndex: 296
+    rightIndex: 385
+  - name: UnityEngine.UIElementsModule.dll!UnityEngine.UIElements::UIElementsRuntimeUtilityNative.RepaintOverlayPanels()
+      [Invoke]
+    leftIndex: 297
+    rightIndex: 303
+  - name: Inl_UniversalRenderPipeline.GetMainLightIndex
+    leftIndex: 298
+    rightIndex: 321
+  - name: EndRenderQueueExtraction
+    leftIndex: 299
+    rightIndex: 326
+  - name: Default World Unity.Transforms.ParentSystem
+    leftIndex: 300
+    rightIndex: 269
+  - name: PreLateUpdate.Physics2DLateUpdate
+    leftIndex: 301
+    rightIndex: 322
+  - name: EarlyUpdate.UpdateContentLoading
+    leftIndex: 302
+    rightIndex: 343
+  - name: PreUpdate.WindUpdate
+    leftIndex: 303
+    rightIndex: 328
+  - name: EarlyUpdate.ClearLines
+    leftIndex: 304
+    rightIndex: 341
+  - name: PostLateUpdate.UpdateLightProbeProxyVolumes
+    leftIndex: 305
+    rightIndex: 307
+  - name: HybridLightBakingDataSystem_6384F435_LambdaJob_0
+    leftIndex: 306
+    rightIndex: 348
+  - name: UnityEngine.InputModule.dll!UnityEngineInternal.Input::NativeInputSystem.ShouldRunUpdate()
+      [Invoke]
+    leftIndex: 307
+    rightIndex: 262
+  - name: PostLateUpdate.DirectorLateUpdate
+    leftIndex: 308
+    rightIndex: 314
+  - name: Default World Unity.Entities.EndFixedStepSimulationEntityCommandBufferSystem
+    leftIndex: 309
+    rightIndex: 673
+  - name: AudioProfiler.CaptureFrame
+    leftIndex: 310
+    rightIndex: 291
+  - name: Inl_ScriptableRenderer.InternalFinishRendering
+    leftIndex: 311
+    rightIndex: 296
+  - name: ConstraintManager::Update
+    leftIndex: 312
+    rightIndex: 339
+  - name: PrepareSceneNodesCombineJob
+    leftIndex: 313
+    rightIndex: 332
+  - name: FrameEvents.XRBeginFrame
+    leftIndex: 314
+    rightIndex: 311
+  - name: Default World Unity.Scenes.WeakAssetReferenceLoadingSystem
+    leftIndex: 315
+    rightIndex: 325
+  - name: EarlyUpdate.DispatchEventQueueEvents
+    leftIndex: 316
+    rightIndex: 362
+  - name: Default World Unity.Entities.VariableRateSimulationSystemGroup
+    leftIndex: 317
+    rightIndex: 333
+  - name: Inl_ScriptableRenderer.AddRenderPasses
+    leftIndex: 318
+    rightIndex: 352
+  - name: TransformChangeSystem
+    leftIndex: 319
+    rightIndex: 290
+  - name: EarlyUpdate.ProcessMouseInWindow
+    leftIndex: 320
+    rightIndex: 377
+  - name: PreLateUpdate.ScriptRunBehaviourLateUpdate
+    leftIndex: 321
+    rightIndex: 356
+  - name: Default World Unity.Rendering.PushSkinMatrixSystem
+    leftIndex: 322
+    rightIndex: 335
+  - name: PostLateUpdate.PhysicsSkinnedClothBeginUpdate
+    leftIndex: 323
+    rightIndex: 301
+  - name: FrustumCullingJob (Cleanup)
+    leftIndex: 324
+    rightIndex: 285
+  - name: EarlyUpdate.UpdateTextureStreamingManager
+    leftIndex: 325
+    rightIndex: 429
+  - name: PostLateUpdate.ScriptRunDelayedDynamicFrameRate
+    leftIndex: 326
+    rightIndex: 347
+  - name: Inl_RenderPipeline.BeginContextRendering
+    leftIndex: 327
+    rightIndex: 337
+  - name: Initialization.XREarlyUpdate
+    leftIndex: 328
+    rightIndex: 330
+  - name: UIEvents.CanvasManagerEmitOffScreenGeometry
+    leftIndex: 329
+    rightIndex: 312
+  - name: Audibility computation fwd
+    leftIndex: 330
+    rightIndex: 380
+  - name: PreUpdate.IMGUISendQueuedEvents
+    leftIndex: 331
+    rightIndex: 359
+  - name: Initialization.AsyncUploadTimeSlicedUpdate
+    leftIndex: 332
+    rightIndex: 340
+  - name: afterCullingOutputReady.Invoke
+    leftIndex: 333
+    rightIndex: 354
+  - name: Default World Unity.Rendering.PushBlendWeightSystem
+    leftIndex: 334
+    rightIndex: 344
+  - name: TextRendering.CollectGarbage
+    leftIndex: 335
+    rightIndex: 57
+  - name: CompanionGameObjectUpdateSystem_1E2F7C5A_LambdaJob_1
+    leftIndex: 336
+    rightIndex: 306
+  - name: UnityEngine.InputModule.dll!UnityEngineInternal.Input::NativeInputSystem.NotifyBeforeUpdate()
+      [Invoke]
+    leftIndex: 337
+    rightIndex: 336
+  - name: PostLateUpdate.VFXUpdate
+    leftIndex: 338
+    rightIndex: 371
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::OnDemandRendering.GetRenderFrameInterval()
+      [Invoke]
+    leftIndex: 339
+    rightIndex: 331
+  - name: CleanUp.TextRenderingGarbageCollect
+    leftIndex: 340
+    rightIndex: 316
+  - name: ChunkDrawCommandOutput:ReleaseChunkDrawCommandsJob (Cleanup)
+    leftIndex: 341
+    rightIndex: 289
+  - name: GlobalEventQueue
+    leftIndex: 342
+    rightIndex: 389
+  - name: EarlyUpdate.AnalyticsCoreStatsUpdate
+    leftIndex: 343
+    rightIndex: 405
+  - name: Default World Unity.Rendering.InstantiateDeformationSystem
+    leftIndex: 344
+    rightIndex: 338
+  - name: PostLateUpdate.UpdateVideo
+    leftIndex: 345
+    rightIndex: 345
+  - name: Shadows.CullDirectionalShadowCasters
+    leftIndex: 346
+    rightIndex: 317
+  - name: ClothManager.LateUpdate
+    leftIndex: 347
+    rightIndex: 313
+  - name: Director.PrepareFrame
+    leftIndex: 348
+    rightIndex: 350
+  - name: PrepareUpdateRendererBoundingVolumes
+    leftIndex: 349
+    rightIndex: 355
+  - name: GarbageCollectUnreferencedBatches
+    leftIndex: 350
+    rightIndex: 360
+  - name: LightProbeProxyVolumeManager.Update
+    leftIndex: 351
+    rightIndex: 361
+  - name: SelectLodEnabled (Cleanup)
+    leftIndex: 352
+    rightIndex: 372
+  - name: Renderers.OncePerFrameUpdate
+    leftIndex: 353
+    rightIndex: 342
+  - name: Physics2D.CollectProfileInfo
+    leftIndex: 354
+    rightIndex: 366
+  - name: Profiler.CollectVideoStats
+    leftIndex: 355
+    rightIndex: 329
+  - name: Default World Unity.Entities.EntitiesJournaling+FrameCountSystem
+    leftIndex: 356
+    rightIndex: 382
+  - name: UnityEngine.AIModule.dll!UnityEngine.AI::NavMesh.Internal_CallOnNavMeshPreUpdate()
+      [Invoke]
+    leftIndex: 357
+    rightIndex: 365
+  - name: UnityEngine.IMGUIModule.dll!UnityEngine::Event.Internal_MakeMasterEventCurrent()
+      [Invoke]
+    leftIndex: 358
+    rightIndex: 308
+  - name: Shadows.Sort
+    leftIndex: 359
+    rightIndex: 374
+  - name: PostLateUpdate.InputEndFrame
+    leftIndex: 360
+    rightIndex: 393
+  - name: Default World Unity.Entities.LateSimulationSystemGroup
+    leftIndex: 361
+    rightIndex: 406
+  - name: Default World Unity.Rendering.BlendShapeDeformationSystem
+    leftIndex: 362
+    rightIndex: 381
+  - name: PostLateUpdate.GUIClearEvents
+    leftIndex: 363
+    rightIndex: 436
+  - name: PostLateUpdate.UpdateAllSkinnedMeshes
+    leftIndex: 364
+    rightIndex: 369
+  - name: PostLateUpdate.TriggerEndOfFrameCallbacks
+    leftIndex: 365
+    rightIndex: 351
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::SupportedRenderingFeatures.IsLightmapBakeTypeSupportedByRef()
+      [Invoke]
+    leftIndex: 366
+    rightIndex: 367
+  - name: AddNew
+    leftIndex: 367
+    rightIndex: 376
+  - name: Physics.Interpolation
+    leftIndex: 368
+    rightIndex: 357
+  - name: PostLateUpdate.UpdateVideoTextures
+    leftIndex: 369
+    rightIndex: 346
+  - name: DrawBinCollector:CollectBinsJob (Cleanup)
+    leftIndex: 370
+    rightIndex: 304
+  - name: GeneralConnection.Poll
+    leftIndex: 371
+    rightIndex: 379
+  - name: UnsafeUtility.Free
+    leftIndex: 372
+    rightIndex: 435
+  - name: OvertakeStateJob (Cleanup)
+    leftIndex: 373
+    rightIndex: 462
+  - name: Shadows.CullingCallbacks
+    leftIndex: 374
+    rightIndex: 358
+  - name: Inl_Sort Render Passes
+    leftIndex: 375
+    rightIndex: 400
+  - name: PreLateUpdate.DirectorDeferredEvaluate
+    leftIndex: 376
+    rightIndex: 397
+  - name: Camera.Render
+    leftIndex: 377
+    rightIndex: 407
+  - name: SceneNodesInitJob
+    leftIndex: 378
+    rightIndex: 401
+  - name: Default World Unity.Entities.Content.ContentDeliverySystem
+    leftIndex: 379
+    rightIndex: 370
+  - name: PostLateUpdate.PhysicsSkinnedClothFinishUpdate
+    leftIndex: 380
+    rightIndex: 426
+  - name: UnityEngine.InputModule.dll!UnityEngineInternal.Input::NativeInputSystem.NotifyUpdate()
+      [Invoke]
+    leftIndex: 381
+    rightIndex: 327
+  - name: AddActiveLocalLights
+    leftIndex: 382
+    rightIndex: 455
+  - name: RenderingCommandBuffer.PrepareKeywords
+    leftIndex: 383
+    rightIndex: 378
+  - name: Default World Unity.Rendering.SkinningDeformationSystem
+    leftIndex: 384
+    rightIndex: 387
+  - name: ReflectionProbeAnchorPositionUpdate
+    leftIndex: 385
+    rightIndex: 386
+  - name: PostLateUpdate.SortingGroupsUpdate
+    leftIndex: 386
+    rightIndex: 431
+  - name: AddDirectionalLights
+    leftIndex: 387
+    rightIndex: 390
+  - name: RenderBoundsUpdateSystem:BoundsJob (Cleanup)
+    leftIndex: 388
+    rightIndex: 388
+  - name: EarlyUpdate.Physics2DEarlyUpdate
+    leftIndex: 389
+    rightIndex: 508
+  - name: EarlyUpdate.UnityWebRequestUpdate
+    leftIndex: 390
+    rightIndex: 447
+  - name: PostLateUpdate.ParticleSystemEndUpdateAll
+    leftIndex: 391
+    rightIndex: 349
+  - name: FindActiveLights
+    leftIndex: 392
+    rightIndex: 416
+  - name: PreLateUpdate.AIUpdatePostScript
+    leftIndex: 393
+    rightIndex: 411
+  - name: Initialization.UpdateCameraMotionVectors
+    leftIndex: 394
+    rightIndex: 487
+  - name: EarlyUpdate.XRUpdate
+    leftIndex: 395
+    rightIndex: 468
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Rendering::RenderPipelineManager.GetCurrentPipelineAssetType()
+      [Invoke]
+    leftIndex: 396
+    rightIndex: 396
+  - name: ApplyPass.PrepareKeywords
+    leftIndex: 397
+    rightIndex: 375
+  - name: RenderTexture.SetActive
+    leftIndex: 398
+    rightIndex: 427
+  - name: ParticleSystem.EndUpdateAll
+    leftIndex: 399
+    rightIndex: 363
+  - name: EarlyUpdate.UpdateStreamingManager
+    leftIndex: 400
+    rightIndex: 434
+  - name: Profiler.FlushFileIOCounters
+    leftIndex: 401
+    rightIndex: 423
+  - name: UnsafeUtility.Malloc
+    leftIndex: 402
+    rightIndex: 391
+  - name: PostLateUpdate.ShaderHandleErrors
+    leftIndex: 403
+    rightIndex: 373
+  - name: EarlyUpdate.RendererNotifyInvisible
+    leftIndex: 404
+    rightIndex: 394
+  - name: EarlyUpdate.UpdateAsyncReadbackManager
+    leftIndex: 405
+    rightIndex: 417
+  - name: Graphics.DrawProcedural
+    leftIndex: 406
+    rightIndex: 454
+  - name: UpdateOldEntitiesGraphicsChunksJob (Cleanup)
+    leftIndex: 407
+    rightIndex: 432
+  - name: Remove
+    leftIndex: 408
+    rightIndex: 414
+  - name: UpdateDrawCommandFlagsJob (Cleanup)
+    leftIndex: 409
+    rightIndex: 483
+  - name: Profiler.CollectGIStats
+    leftIndex: 410
+    rightIndex: 383
+  - name: ConstraintManager::Update::JobSetup
+    leftIndex: 411
+    rightIndex: 452
+  - name: PreUpdate.CheckTexFieldInput
+    leftIndex: 412
+    rightIndex: 490
+  - name: InitializeUnreferencedIndicesScatterJob (Cleanup)
+    leftIndex: 413
+    rightIndex: 422
+  - name: CullResultsToNativeArrays
+    leftIndex: 414
+    rightIndex: 410
+  - name: Initialization.SynchronizeInputs
+    leftIndex: 415
+    rightIndex: 402
+  - name: SortingGroupManager.Update
+    leftIndex: 416
+    rightIndex: 493
+  - name: PreLateUpdate.LegacyAnimationUpdate
+    leftIndex: 417
+    rightIndex: 463
+  - name: BlitDirtyGlobalValues
+    leftIndex: 418
+    rightIndex: 437
+  - name: PositionAssignmentJob (Cleanup)
+    leftIndex: 419
+    rightIndex: 399
+  - name: NavMeshManager
+    leftIndex: 420
+    rightIndex: 424
+  - name: PrepareSceneNodesSetUp
+    leftIndex: 421
+    rightIndex: 364
+  - name: BatchRendererGroup.CreateMissingMetadata
+    leftIndex: 422
+    rightIndex: 318
+  - name: ZeroThreadLocalAABBJob (Cleanup)
+    leftIndex: 423
+    rightIndex: 404
+  - name: ClassifyNewChunksJob (Cleanup)
+    leftIndex: 424
+    rightIndex: 425
+  - name: LocalToWorldSystem:ComputeRootLocalToWorldJob (Cleanup)
+    leftIndex: 425
+    rightIndex: 449
+  - name: EarlyUpdate.SpriteAtlasManagerUpdate
+    leftIndex: 426
+    rightIndex: 413
+  - name: ClothScene.Update
+    leftIndex: 427
+    rightIndex: 395
+  - name: EarlyUpdate.ClearIntermediateRenderers
+    leftIndex: 428
+    rightIndex: 457
+  - name: LOD.ComputeLOD
+    leftIndex: 429
+    rightIndex: 420
+  - name: SoundManager.Update
+    leftIndex: 430
+    rightIndex: 421
+  - name: FindBrightestDirectionalLight
+    leftIndex: 431
+    rightIndex: 453
+  - name: Flush DSP connections
+    leftIndex: 432
+    rightIndex: 486
+  - name: EarlyUpdate.PerformanceAnalyticsUpdate
+    leftIndex: 433
+    rightIndex: 467
+  - name: UGUI.Rendering.RenderOverlays
+    leftIndex: 434
+    rightIndex: 469
+  - name: UpdateVelocityJob (Cleanup)
+    leftIndex: 435
+    rightIndex: 271
+  - name: Connections.Process
+    leftIndex: 436
+    rightIndex: 484
+  - name: EnlightenRuntimeManager.AddCustomLights
+    leftIndex: 437
+    rightIndex: 496
+  - name: Inl_ScriptableRenderer.SetupRenderPasses
+    leftIndex: 438
+    rightIndex: 430
+  - name: ContentLoadFrontend.IntegrateUpdate
+    leftIndex: 439
+    rightIndex: 478
+  - name: Inl_RenderPipeline.BeginCameraRendering
+    leftIndex: 440
+    rightIndex: 497
+  - name: ExecuteGpuUploads (Cleanup)
+    leftIndex: 441
+    rightIndex: 450
+  - name: Director.ProcessFrame
+    leftIndex: 442
+    rightIndex: 419
+  - name: QueuePrepareIntegrateMainThreadObjects
+    leftIndex: 443
+    rightIndex: 480
+  - name: PreLateUpdate.PhysicsLateUpdate
+    leftIndex: 444
+    rightIndex: 510
+  - name: Update Lights
+    leftIndex: 445
+    rightIndex: 213
+  - name: UpdateRendererBoundingVolumes
+    leftIndex: 446
+    rightIndex: 441
+  - name: EditorConnection.RefreshObservablePlayerList
+    leftIndex: 447
+    rightIndex: 444
+  - name: Inl_RenderPipeline.EndCameraRendering
+    leftIndex: 448
+    rightIndex: 458
+  - name: PreLateUpdate.DirectorUpdateAnimationBegin
+    leftIndex: 449
+    rightIndex: 443
+  - name: UIEvents.UpdateCanvasRectTransform
+    leftIndex: 450
+    rightIndex: 476
+  - name: PostLateUpdate.XRPreEndFrame
+    leftIndex: 451
+    rightIndex: 456
+  - name: FindLocalShadowCastingLights
+    leftIndex: 452
+    rightIndex: 460
+  - name: PreLateUpdate.DirectorUpdateAnimationEnd
+    leftIndex: 453
+    rightIndex: 464
+  - name: FindShadowCastingLights
+    leftIndex: 454
+    rightIndex: 481
+  - name: PostLateUpdate.DirectorRenderImage
+    leftIndex: 455
+    rightIndex: 448
+  - name: CollisionJob (Cleanup)
+    leftIndex: 456
+    rightIndex: 412
+  - name: suspendPointHook.Invoke
+    leftIndex: 457
+    rightIndex: 461
+  - name: PostLateUpdate.ResetInputAxis
+    leftIndex: 458
+    rightIndex: 470
+  - name: ScheduleCullingGroups
+    leftIndex: 459
+    rightIndex: 675
+  - name: EarlyUpdate.UpdateCanvasRectTransform
+    leftIndex: 460
+    rightIndex: 511
+  - name: PostLateUpdate.EndGraphicsJobsAfterScriptLateUpdate
+    leftIndex: 461
+    rightIndex: 492
+  - name: Initialization.SynchronizeState
+    leftIndex: 462
+    rightIndex: 501
+  - name: SkinnedMeshOncePerFrameUpdate
+    leftIndex: 463
+    rightIndex: 459
+  - name: Inl_UniversalRenderPipeline.GetPerObjectLightFlags
+    leftIndex: 464
+    rightIndex: 491
+  - name: Terrain.Trees.OnWillRender
+    leftIndex: 465
+    rightIndex: 489
+  - name: PostLateUpdate.UpdateCaptureScreenshot
+    leftIndex: 466
+    rightIndex: 517
+  - name: IndexAssignmentJob (Cleanup)
+    leftIndex: 467
+    rightIndex: 409
+  - name: TextureStreamingManager.Update
+    leftIndex: 468
+    rightIndex: 495
+  - name: Inl_RenderPipeline.EndContextRendering
+    leftIndex: 469
+    rightIndex: 672
+  - name: LateBehaviourUpdate
+    leftIndex: 470
+    rightIndex: 368
+  - name: FinalizeUpdateRendererBoundingVolumes
+    leftIndex: 471
+    rightIndex: 438
+  - name: PostLateUpdate.XRPostLateUpdate
+    leftIndex: 472
+    rightIndex: 446
+  - name: RemapMaterialMeshIndexJob (Cleanup)
+    leftIndex: 473
+    rightIndex: 669
+  - name: EarlyUpdate.UpdateMainGameViewRect
+    leftIndex: 474
+    rightIndex: 472
+  - name: addCustomLights.Invoke
+    leftIndex: 475
+    rightIndex: 475
+  - name: FrameEvents.XREndFrame
+    leftIndex: 476
+    rightIndex: 440
+  - name: Gfx.WaitForPresentOnGfxThread
+    leftIndex: 477
+    rightIndex: 479
+  - name: EnlightenRuntimeManager.RemoveCustomLights
+    leftIndex: 478
+    rightIndex: 674
+  - name: ClothManager.UploadSimulatedSkinData
+    leftIndex: 479
+    rightIndex: 488
+  - name: AddCustomActiveLocalLights
+    leftIndex: 480
+    rightIndex: 445
+  - name: FindDirectionalShadowCastingLights
+    leftIndex: 481
+    rightIndex: 439
+  - name: BatchRendererGroup.InvalidateStaleBatches
+    leftIndex: 482
+    rightIndex: -1
+  - name: BatchRendererGroup.UpdateMetadataCache
+    leftIndex: 483
+    rightIndex: -1
+  - name: Default World Unity.Entities.EndVariableRateSimulationEntityCommandBufferSystem
+    leftIndex: 484
+    rightIndex: 520
+  - name: Physics2D.SyncColliderTransformChanges
+    leftIndex: 485
+    rightIndex: 384
+  - name: Physics2D.SyncRigidbodyTransformChanges
+    leftIndex: 486
+    rightIndex: 442
+  - name: Profiler.CollectPhysicsStats
+    leftIndex: 487
+    rightIndex: 206
+  - name: SortJob`2:SegmentSort (Cleanup)
+    leftIndex: 488
+    rightIndex: 473
+  - name: Terrain.UpdateSplatProperties
+    leftIndex: 489
+    rightIndex: 509
+  - name: EarlyUpdate.ResetFrameStatsAfterPresent
+    leftIndex: 490
+    rightIndex: 512
+  - name: EarlyUpdate.PhysicsResetInterpolatedTransformPosition
+    leftIndex: 491
+    rightIndex: 175
+  - name: TextRendering.Cleanup
+    leftIndex: 492
+    rightIndex: 60
+  - name: CullingGroupSendEvents
+    leftIndex: 493
+    rightIndex: 477
+  - name: UIEvents.AlignCanvasRectTransformWithCamera
+    leftIndex: 494
+    rightIndex: 516
+  - name: UnityEditor.CoreModule.dll!UnityEditor::PhysicsDebugDraw.InvokeBeforeSimulate()
+      [Invoke]
+    leftIndex: 495
+    rightIndex: 320
+  - name: ParticleSystem.WaitForPreviousRenderingToFinish
+    leftIndex: 496
+    rightIndex: 482
+  - name: Send messages
+    leftIndex: 497
+    rightIndex: 519
+  - name: FixedUpdate.XRFixedUpdate
+    leftIndex: 498
+    rightIndex: 433
+  - name: Profiler.CollectUICanvasStats
+    leftIndex: 499
+    rightIndex: 518
+  - name: FixedBehaviourUpdate
+    leftIndex: 500
+    rightIndex: 670
+  - name: FixedUpdate.DirectorFixedUpdatePostPhysics
+    leftIndex: 501
+    rightIndex: 466
+  - name: EarlyUpdate.GpuTimestamp
+    leftIndex: 502
+    rightIndex: 494
+  - name: Physics.SyncColliderTransform
+    leftIndex: 503
+    rightIndex: 498
+  - name: TimeManager.Update
+    leftIndex: 504
+    rightIndex: 474
+  - name: FixedUpdate.PhysicsFixedUpdate
+    leftIndex: 505
+    rightIndex: 179
+  - name: FixedUpdate.ScriptRunDelayedFixedFrameRate
+    leftIndex: 506
+    rightIndex: 61
+  - name: Physics.SyncRigidbodyTransform
+    leftIndex: 507
+    rightIndex: 298
+  - name: ComputeNeedsPerObjectLights
+    leftIndex: 508
+    rightIndex: 671
+  - name: FixedUpdate.LegacyFixedAnimationUpdate
+    leftIndex: 509
+    rightIndex: 465
+  - name: FixedUpdate.DirectorFixedSampleTime
+    leftIndex: 510
+    rightIndex: 471
+  - name: GPU Frame Time
+    leftIndex: 511
+    rightIndex: 531
+  - name: CPU Render Thread Frame Time
+    leftIndex: 512
+    rightIndex: 534
+  - name: CPU Main Thread Frame Time
+    leftIndex: 513
+    rightIndex: 533
+  - name: Physics Used Memory (2D)
+    leftIndex: 514
+    rightIndex: 541
+  - name: Kinematic Shapes
+    leftIndex: 515
+    rightIndex: 547
+  - name: Total Joints
+    leftIndex: 516
+    rightIndex: 530
+  - name: CPU Total Frame Time
+    leftIndex: 517
+    rightIndex: 532
+  - name: Removed Contacts
+    leftIndex: 518
+    rightIndex: 551
+  - name: Object Load Requests
+    leftIndex: 519
+    rightIndex: 539
+  - name: Loaded Files
+    leftIndex: 520
+    rightIndex: 537
+  - name: Loaded Archives
+    leftIndex: 521
+    rightIndex: 538
+  - name: Solver Continuous Islands
+    leftIndex: 522
+    rightIndex: 522
+  - name: Object Release Requests
+    leftIndex: 523
+    rightIndex: 540
+  - name: Object Ref Count
+    leftIndex: 524
+    rightIndex: 561
+  - name: Dynamic Shapes
+    leftIndex: 525
+    rightIndex: 546
+  - name: Command Process Time
+    leftIndex: 526
+    rightIndex: 566
+  - name: Create Entity
+    leftIndex: 527
+    rightIndex: 590
+  - name: Destroy Entity
+    leftIndex: 528
+    rightIndex: 568
+  - name: Add Component
+    leftIndex: 529
+    rightIndex: 593
+  - name: Asleep Shapes
+    leftIndex: 530
+    rightIndex: 545
+  - name: Loaded Objects
+    leftIndex: 531
+    rightIndex: 536
+  - name: Solver Simulation Count
+    leftIndex: 532
+    rightIndex: 529
+  - name: Transform Parent Sync Bodies
+    leftIndex: 533
+    rightIndex: 527
+  - name: Transform Parent Sync Colliders
+    leftIndex: 534
+    rightIndex: 526
+  - name: Broadphase Updates
+    leftIndex: 535
+    rightIndex: 552
+  - name: Total Contacts
+    leftIndex: 536
+    rightIndex: 549
+  - name: Broadphase Pairs
+    leftIndex: 537
+    rightIndex: 553
+  - name: Total Callbacks
+    leftIndex: 538
+    rightIndex: 555
+  - name: Collision Enter
+    leftIndex: 539
+    rightIndex: 565
+  - name: Static Shapes
+    leftIndex: 540
+    rightIndex: 548
+  - name: Collision Stay
+    leftIndex: 541
+    rightIndex: 556
+  - name: Collision Exit
+    leftIndex: 542
+    rightIndex: 557
+  - name: Trigger Enter
+    leftIndex: 543
+    rightIndex: 642
+  - name: Trigger Stay
+    leftIndex: 544
+    rightIndex: 558
+  - name: Trigger Exit
+    leftIndex: 545
+    rightIndex: 559
+  - name: Total Queries
+    leftIndex: 546
+    rightIndex: 560
+  - name: Raycast Queries
+    leftIndex: 547
+    rightIndex: 543
+  - name: Remove Component
+    leftIndex: 548
+    rightIndex: 594
+  - name: Shapecast Queries
+    leftIndex: 549
+    rightIndex: 562
+  - name: Overlap Queries
+    leftIndex: 550
+    rightIndex: 563
+  - name: IsTouching Queries
+    leftIndex: 551
+    rightIndex: 564
+  - name: GetContacts Queries
+    leftIndex: 552
+    rightIndex: 544
+  - name: Particle Queries
+    leftIndex: 553
+    rightIndex: 554
+  - name: Total Transform Sync Calls
+    leftIndex: 554
+    rightIndex: 542
+  - name: Transform Sync Bodies
+    leftIndex: 555
+    rightIndex: 535
+  - name: Transform Sync Colliders
+    leftIndex: 556
+    rightIndex: 528
+  - name: Added Contacts
+    leftIndex: 557
+    rightIndex: 550
+  - name: Solver World Count
+    leftIndex: 558
+    rightIndex: 525
+  - name: Set Shared Component
+    leftIndex: 559
+    rightIndex: 567
+  - name: Total Reserved Memory
+    leftIndex: 560
+    rightIndex: 605
+  - name: Unused Memory
+    leftIndex: 561
+    rightIndex: 597
+  - name: Material Memory
+    leftIndex: 562
+    rightIndex: 589
+  - name: Material Count
+    leftIndex: 563
+    rightIndex: 580
+  - name: AnimationClip Memory
+    leftIndex: 564
+    rightIndex: 581
+  - name: AnimationClip Count
+    leftIndex: 565
+    rightIndex: 582
+  - name: AudioClip Memory
+    leftIndex: 566
+    rightIndex: 583
+  - name: AudioClip Count
+    leftIndex: 567
+    rightIndex: 584
+  - name: Object Count
+    leftIndex: 568
+    rightIndex: 585
+  - name: Object.Unregister
+    leftIndex: 569
+    rightIndex: 587
+  - name: GfxResource.Unregister
+    leftIndex: 570
+    rightIndex: 588
+  - name: Active Kinematic Bodies
+    leftIndex: 571
+    rightIndex: 636
+  - name: Static Colliders
+    leftIndex: 572
+    rightIndex: 637
+  - name: Dynamic Bodies
+    leftIndex: 573
+    rightIndex: 638
+  - name: Narrowphase Touches
+    leftIndex: 574
+    rightIndex: 620
+  - name: Broadphase Removes
+    leftIndex: 575
+    rightIndex: 621
+  - name: Broadphase Adds
+    leftIndex: 576
+    rightIndex: 622
+  - name: Broadphase Adds/Removes
+    leftIndex: 577
+    rightIndex: 623
+  - name: Physics Queries
+    leftIndex: 578
+    rightIndex: 624
+  - name: Rigidbodies Synced
+    leftIndex: 579
+    rightIndex: 625
+  - name: Colliders Synced
+    leftIndex: 580
+    rightIndex: 626
+  - name: Modified Overlaps
+    leftIndex: 581
+    rightIndex: 627
+  - name: Articulation Bodies
+    leftIndex: 582
+    rightIndex: 639
+  - name: Active Constraints
+    leftIndex: 583
+    rightIndex: 524
+  - name: Overlaps
+    leftIndex: 584
+    rightIndex: 599
+  - name: Continuous Overlaps
+    leftIndex: 585
+    rightIndex: 628
+  - name: Discreet Overlaps
+    leftIndex: 586
+    rightIndex: 631
+  - name: Mesh Count
+    leftIndex: 587
+    rightIndex: 579
+  - name: Mesh Memory
+    leftIndex: 588
+    rightIndex: 577
+  - name: Texture Count
+    leftIndex: 589
+    rightIndex: 576
+  - name: Texture Memory
+    leftIndex: 590
+    rightIndex: 575
+  - name: Active Dynamic Bodies
+    leftIndex: 591
+    rightIndex: 630
+  - name: Reads in Flight
+    leftIndex: 592
+    rightIndex: 598
+  - name: File Handles Open
+    leftIndex: 593
+    rightIndex: 615
+  - name: System Used Memory
+    leftIndex: 594
+    rightIndex: 600
+  - name: System Total Used Memory
+    leftIndex: 595
+    rightIndex: 601
+  - name: App Resident Memory
+    leftIndex: 596
+    rightIndex: 603
+  - name: App Committed Memory
+    leftIndex: 597
+    rightIndex: 613
+  - name: Total Used Memory
+    leftIndex: 598
+    rightIndex: 604
+  - name: Awake Shapes
+    leftIndex: 599
+    rightIndex: 595
+  - name: GC Used Memory
+    leftIndex: 600
+    rightIndex: 606
+  - name: GC Reserved Memory
+    leftIndex: 601
+    rightIndex: 607
+  - name: Profiler Used Memory
+    leftIndex: 602
+    rightIndex: 608
+  - name: Allocated Memory
+    leftIndex: 603
+    rightIndex: 596
+  - name: Profiler Reserved Memory
+    leftIndex: 604
+    rightIndex: 609
+  - name: Audio Reserved Memory
+    leftIndex: 605
+    rightIndex: 611
+  - name: Video Used Memory
+    leftIndex: 606
+    rightIndex: 612
+  - name: Video Reserved Memory
+    leftIndex: 607
+    rightIndex: 592
+  - name: Render Textures Count
+    leftIndex: 608
+    rightIndex: 602
+  - name: Render Textures Bytes
+    leftIndex: 609
+    rightIndex: 591
+  - name: Asset Count
+    leftIndex: 610
+    rightIndex: 578
+  - name: Scene Object Count
+    leftIndex: 611
+    rightIndex: 569
+  - name: Game Object Count
+    leftIndex: 612
+    rightIndex: 570
+  - name: GC Allocation In Frame Count
+    leftIndex: 613
+    rightIndex: 571
+  - name: GC Allocated In Frame
+    leftIndex: 614
+    rightIndex: 572
+  - name: Gfx Used Memory
+    leftIndex: 615
+    rightIndex: 573
+  - name: Gfx Reserved Memory
+    leftIndex: 616
+    rightIndex: 574
+  - name: Audio Used Memory
+    leftIndex: 617
+    rightIndex: 610
+  - name: Total Shapes
+    leftIndex: 618
+    rightIndex: 614
+  - name: Solver Discrete Islands
+    leftIndex: 619
+    rightIndex: 523
+  - name: Discrete Bodies
+    leftIndex: 620
+    rightIndex: 616
+  - name: Other Reads
+    leftIndex: 621
+    rightIndex: 663
+  - name: File Reads Finished
+    leftIndex: 622
+    rightIndex: 667
+  - name: File Reads Started
+    leftIndex: 623
+    rightIndex: 661
+  - name: File Bytes Read
+    leftIndex: 624
+    rightIndex: 659
+  - name: File Bytes Written
+    leftIndex: 625
+    rightIndex: 643
+  - name: Files Closed
+    leftIndex: 626
+    rightIndex: 668
+  - name: Files Opened
+    leftIndex: 627
+    rightIndex: 641
+  - name: Texture Reads
+    leftIndex: 628
+    rightIndex: 662
+  - name: File Seeks
+    leftIndex: 629
+    rightIndex: 640
+  - name: Physics Used Memory
+    leftIndex: 630
+    rightIndex: 629
+  - name: Narrowphase New Touches
+    leftIndex: 631
+    rightIndex: 619
+  - name: Narrowphase Lost Touches
+    leftIndex: 632
+    rightIndex: 618
+  - name: Continuous Bodies
+    leftIndex: 633
+    rightIndex: 632
+  - name: Object.SetName
+    leftIndex: 634
+    rightIndex: 634
+  - name: Object.Register
+    leftIndex: 635
+    rightIndex: 635
+  - name: GfxResource.Register
+    leftIndex: 636
+    rightIndex: 586
+  - name: Global Illumination Support
+    leftIndex: 637
+    rightIndex: 617
+  - name: Virtual Texture Reads
+    leftIndex: 638
+    rightIndex: 660
+  - name: Max Cache Mip Bias
+    leftIndex: 639
+    rightIndex: 664
+  - name: Audio Reads
+    leftIndex: 640
+    rightIndex: 654
+  - name: Static Bodies
+    leftIndex: 641
+    rightIndex: 665
+  - name: Total Bodies
+    leftIndex: 642
+    rightIndex: 647
+  - name: Kinematic Bodies
+    leftIndex: 643
+    rightIndex: 666
+  - name: Asleep Bodies
+    leftIndex: 644
+    rightIndex: 658
+  - name: Max Cache Demand
+    leftIndex: 645
+    rightIndex: 656
+  - name: Missing Streaming Tiles
+    leftIndex: 646
+    rightIndex: 653
+  - name: Mesh Reads
+    leftIndex: 647
+    rightIndex: 655
+  - name: Trigger Overlaps
+    leftIndex: 648
+    rightIndex: 633
+  - name: Awake Bodies
+    leftIndex: 649
+    rightIndex: 652
+  - name: Missing Disk Data
+    leftIndex: 650
+    rightIndex: 645
+  - name: Total GPU Cache Size
+    leftIndex: 651
+    rightIndex: 644
+  - name: Total CPU Cache Size
+    leftIndex: 652
+    rightIndex: 657
+  - name: Atlases
+    leftIndex: 653
+    rightIndex: 646
+  - name: Required Tiles
+    leftIndex: 654
+    rightIndex: 649
+  - name: Entities Reads
+    leftIndex: 655
+    rightIndex: 650
+  - name: Scripting Reads
+    leftIndex: 656
+    rightIndex: 651
+  - name: Read From Disk
+    leftIndex: 657
+    rightIndex: 648
+  - name: FixedUpdate.PhysicsClothFixedUpdate
+    leftIndex: 658
+    rightIndex: 403
+  - name: Physics2D.SyncTransformChanges
+    leftIndex: 659
+    rightIndex: 353
+  - name: Physics2D.Simulate
+    leftIndex: 660
+    rightIndex: 275
+  - name: FixedUpdate.Physics2DFixedUpdate
+    leftIndex: 661
+    rightIndex: 234
+  - name: FixedUpdate.NewInputFixedUpdate
+    leftIndex: 662
+    rightIndex: 287
+  - name: FixedUpdate.DirectorFixedUpdate
+    leftIndex: 663
+    rightIndex: 299
+  - name: FixedUpdate.ClearLines
+    leftIndex: 664
+    rightIndex: 499
+  - name: RenderLoop.Sort
+    leftIndex: 665
+    rightIndex: 485
+  - name: Default World Unity.Entities.BeginVariableRateSimulationEntityCommandBufferSystem
+    leftIndex: 666
+    rightIndex: 676
+  - name: FixedUpdate.ScriptRunBehaviourFixedUpdate
+    leftIndex: 667
+    rightIndex: 324
+  - name: FixedUpdate.AudioFixedUpdate
+    leftIndex: 668
+    rightIndex: 267
+  - name: Physics.Raycast
+    leftIndex: 669
+    rightIndex: -1
+  - name: Physics2D.GetRayIntersection
+    leftIndex: 670
+    rightIndex: -1
+  - name: AudioManager.FixedUpdate
+    leftIndex: 671
+    rightIndex: 278
+  - name: CompleteAllJobs
+    leftIndex: 672
+    rightIndex: 680
+  - name: AddNewChunks
+    leftIndex: 673
+    rightIndex: 723
+  - name: UpdateNewEntitiesGraphicsChunksJob (Burst)
+    leftIndex: 674
+    rightIndex: 724
+  - name: InvalidateArrays
+    leftIndex: 675
+    rightIndex: 710
+  - name: BatchRendererGroup.GetCacheDeltaWritable
+    leftIndex: 676
+    rightIndex: 725
+  - name: Profiler.SessionMetadata
+    leftIndex: 677
+    rightIndex: 709
+  - name: UpdateNewEntitiesGraphicsChunksJob (Cleanup)
+    leftIndex: 678
+    rightIndex: 703
+  - name: MeshRendererBaker
+    leftIndex: 679
+    rightIndex: 822
+  - name: Connections.Poll
+    leftIndex: 680
+    rightIndex: 500
+  - name: UploadBlitJob (Burst)
+    leftIndex: 681
+    rightIndex: 797
+  - name: UploadBlitJob (Cleanup)
+    leftIndex: 682
+    rightIndex: 823
+  - name: Baking.Bake
+    leftIndex: 683
+    rightIndex: 812
+  - name: EntityPatcher.ApplySetComponents
+    leftIndex: 684
+    rightIndex: 734
+  - name: BakedEntityData:ApplyActiveStaticStateJob (Cleanup)
+    leftIndex: 685
+    rightIndex: 828
+  - name: EntityPatcher.ApplySetManagedComponents
+    leftIndex: 686
+    rightIndex: 820
+  - name: BakedEntityData:ApplyActiveStaticStateJob (Burst)
+    leftIndex: 687
+    rightIndex: 827
+  - name: Baking.CreateBakerState
+    leftIndex: 688
+    rightIndex: 790
+  - name: DefaultGameObjectBaker
+    leftIndex: 689
+    rightIndex: 815
+  - name: EntityDiffer:GatherEntityChanges (Burst)
+    leftIndex: 690
+    rightIndex: 681
+  - name: Baking.RegisterDependencies
+    leftIndex: 691
+    rightIndex: 816
+  - name: Baker
+    leftIndex: 692
+    rightIndex: 817
+  - name: Baking.AdditionalEntitiesApplyStaticActiveState
+    leftIndex: 693
+    rightIndex: 826
+  - name: Unity.Collections.dll!Unity.Collections::NativeList`1..cctor()
+    leftIndex: 694
+    rightIndex: -1
+  - name: EntityDiffer:BuildEntityGuidToEntity (Burst)
+    leftIndex: 695
+    rightIndex: 506
+  - name: URPMaterialPropertyBaseColorBaker
+    leftIndex: 696
+    rightIndex: 835
+  - name: Baking.DestroyEntityForGameObject
+    leftIndex: 697
+    rightIndex: 781
+  - name: EntityCommandBuffer.Playback
+    leftIndex: 698
+    rightIndex: 722
+  - name: CarBaker
+    leftIndex: 699
+    rightIndex: 825
+  - name: EntityCommandBuffer.Dispose
+    leftIndex: 700
+    rightIndex: 721
+  - name: EntityDiffer:GatherEntityInChunkWithGuid (Burst)
+    leftIndex: 701
+    rightIndex: 803
+  - name: EntityDiffer:GatherEntityInChunkWithGuid (Cleanup)
+    leftIndex: 702
+    rightIndex: 686
+  - name: BuildAdditionalObjectsInstructions
+    leftIndex: 703
+    rightIndex: 821
+  - name: EntityDiffer:SortEntityInChunk (Burst)
+    leftIndex: 704
+    rightIndex: 685
+  - name: Baking.BuilderPlayback
+    leftIndex: 705
+    rightIndex: 789
+  - name: TransformAuthoringBaking:BakeToTransformAuthoringListJob (Cleanup)
+    leftIndex: 706
+    rightIndex: 726
+  - name: Baking.Rename
+    leftIndex: 707
+    rightIndex: 756
+  - name: EntityPatcher:BuildLinkedEntityGroupHashMap (Cleanup)
+    leftIndex: 708
+    rightIndex: 834
+  - name: EntityPatcher.ApplyLinkedEntityGroupRemovals
+    leftIndex: 709
+    rightIndex: 813
+  - name: EntityPatcher:BuildLinkedEntityGroupHashMap (Burst)
+    leftIndex: 710
+    rightIndex: 833
+  - name: EntityPatcher.BuildPrefabAndLinkedEntityGroupLookups
+    leftIndex: 711
+    rightIndex: 832
+  - name: EntityPatcher.ApplyLinkedEntityGroupAdditions
+    leftIndex: 712
+    rightIndex: 800
+  - name: EntityPatcher.ApplyEntityPatches
+    leftIndex: 713
+    rightIndex: 740
+  - name: EntityPatcher:CalculateLinkedEntityGroupEntitiesLengthJob (Burst)
+    leftIndex: 714
+    rightIndex: 831
+  - name: EntityPatcher:ApplyNamesJob (Burst)
+    leftIndex: 715
+    rightIndex: 830
+  - name: EntityPatcher.ApplyEntityNames
+    leftIndex: 716
+    rightIndex: 739
+  - name: EntityPatcher:ApplySetComponentsJob (Burst)
+    leftIndex: 717
+    rightIndex: 738
+  - name: Mono.JIT
+    leftIndex: 718
+    rightIndex: -1
+  - name: UnityEngine.CoreModule.dll!::TypeFlagsCache`1..cctor()
+    leftIndex: 719
+    rightIndex: -1
+  - name: new World()
+    leftIndex: 720
+    rightIndex: 771
+  - name: LiveConversion.Convert
+    leftIndex: 721
+    rightIndex: 702
+  - name: Baking.CreateEntityForGameObject
+    leftIndex: 722
+    rightIndex: 765
+  - name: BakingUtility.BakeScene
+    leftIndex: 723
+    rightIndex: 700
+  - name: GetAllSystems
+    leftIndex: 724
+    rightIndex: 779
+  - name: Unity.Burst.dll!::HashCode64`1..cctor()
+    leftIndex: 725
+    rightIndex: -1
+  - name: BakingUtility.PreBakingSystemGroup
+    leftIndex: 726
+    rightIndex: 788
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.PreBakingSystemGroup'
+    leftIndex: 727
+    rightIndex: 782
+  - name: mscorlib.dll!System::Delegate.get_Method() [Invoke]
+    leftIndex: 728
+    rightIndex: -1
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.Hybrid.Baking.LinkedEntityGroupBakingCleanUp'
+    leftIndex: 729
+    rightIndex: 783
+  - name: Baking.ClearCaches
+    leftIndex: 730
+    rightIndex: 767
+  - name: BuildInitialBakeInstructions
+    leftIndex: 731
+    rightIndex: 762
+  - name: TransformAccessArray.Sort
+    leftIndex: 732
+    rightIndex: 761
+  - name: SceneHierarchyExtensions:CollectHierarchyInstanceIdsAndIndicesJob (Burst)
+    leftIndex: 733
+    rightIndex: 728
+  - name: TransformAuthoringBaking:BakeToTransformAuthoringListJob (Burst)
+    leftIndex: 734
+    rightIndex: 727
+  - name: EntityPatcher:BuildComponentToEntityHashMap (Burst)
+    leftIndex: 735
+    rightIndex: 814
+  - name: Baking.Revert
+    leftIndex: 736
+    rightIndex: 766
+  - name: Burst.Compiler.IL.dll!Burst.Compiler.IL.Jit::JitCompilerService.CompileInternal()
+      [Invoke]
+    leftIndex: 737
+    rightIndex: -1
+  - name: UnityEngine.CoreModule.dll!::ExtractCompilerFlags.Invoke() [Invoke]
+    leftIndex: 738
+    rightIndex: -1
+  - name: EntityPatcher:BuildComponentToEntityHashMap (Cleanup)
+    leftIndex: 739
+    rightIndex: 824
+  - name: BakingUtility.BakingSystemGroup
+    leftIndex: 740
+    rightIndex: 687
+  - name: EntityManagerDebug:BuildInstanceIDToEntityIndex (Burst)
+    leftIndex: 741
+    rightIndex: 695
+  - name: AddLinkedEntityGroupBakingJob (Burst)
+    leftIndex: 742
+    rightIndex: 730
+  - name: NativeListDisposeJob (Burst)
+    leftIndex: 743
+    rightIndex: 505
+  - name: CreateEntityChangeSet
+    leftIndex: 744
+    rightIndex: 736
+  - name: GetChangedSharedComponents
+    leftIndex: 745
+    rightIndex: 760
+  - name: GetEntityNames
+    leftIndex: 746
+    rightIndex: 753
+  - name: EntityDiffer:GetEntityNamesJob (Burst)
+    leftIndex: 747
+    rightIndex: 759
+  - name: CopyAndReplaceChunks
+    leftIndex: 748
+    rightIndex: 748
+  - name: EntityDiffer:GatherBlobAssetChanges (Burst)
+    leftIndex: 749
+    rightIndex: 793
+  - name: DestroyChunks
+    leftIndex: 750
+    rightIndex: 778
+  - name: PlaybackManagedChanges
+    leftIndex: 751
+    rightIndex: 787
+  - name: CloneAndAddChunks
+    leftIndex: 752
+    rightIndex: 745
+  - name: EntityDiffer:CollectSharedComponentIndices (Burst)
+    leftIndex: 753
+    rightIndex: 772
+  - name: CopySharedComponents
+    leftIndex: 754
+    rightIndex: 744
+  - name: EntityDiffer:CreateNewChunks (Burst)
+    leftIndex: 755
+    rightIndex: 743
+  - name: EntityDiffer:CopyChunkBuffers (Burst)
+    leftIndex: 756
+    rightIndex: 742
+  - name: EntityDiffer:CopyChunkBuffers (Cleanup)
+    leftIndex: 757
+    rightIndex: 775
+  - name: EntityDiffer:DestroyChunksJob (Burst)
+    leftIndex: 758
+    rightIndex: 773
+  - name: CopyManagedComponents
+    leftIndex: 759
+    rightIndex: 776
+  - name: EntityDiffer:GatherCreatedAndDestroyedBlobAssets (Burst)
+    leftIndex: 760
+    rightIndex: 794
+  - name: EntityDiffer:GatherComponentChangesBuildPacked (Burst)
+    leftIndex: 761
+    rightIndex: 796
+  - name: AddLinkedEntityGroupBakingJob (Cleanup)
+    leftIndex: 762
+    rightIndex: 836
+  - name: BakingUtility.BakingCompanionComponentSystem
+    leftIndex: 763
+    rightIndex: 733
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.BakingCompanionComponentSystem'
+    leftIndex: 764
+    rightIndex: 754
+  - name: Create Companion GameObjects
+    leftIndex: 765
+    rightIndex: 751
+  - name: BakingUtility.PostBakingSystemGroup
+    leftIndex: 766
+    rightIndex: 750
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.PostBakingSystemGroup'
+    leftIndex: 767
+    rightIndex: 749
+  - name: BakingUtility.BakingStripSystem
+    leftIndex: 768
+    rightIndex: 732
+  - name: EntityDiffer:GatherComponentChangesJob (Burst)
+    leftIndex: 769
+    rightIndex: 795
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.BakingStripSystem'
+    leftIndex: 770
+    rightIndex: 752
+  - name: GetChanges
+    leftIndex: 771
+    rightIndex: 747
+  - name: UnityEngine.CoreModule.dll!UnityEngine.Experimental.Rendering::ScriptableRuntimeReflectionSystemSettings.get_Internal_ScriptableRuntimeReflectionSystemSettings_instance()
+      [Invoke]
+    leftIndex: 772
+    rightIndex: 777
+  - name: GatherChunksJob (Burst)
+    leftIndex: 773
+    rightIndex: 802
+  - name: EntityDiffer:ClearMissingReferencesJob (Cleanup)
+    leftIndex: 774
+    rightIndex: 811
+  - name: EntityDiffer:ClearMissingReferencesJob (Burst)
+    leftIndex: 775
+    rightIndex: 801
+  - name: GetBlobAssetsWithDistinctHash
+    leftIndex: 776
+    rightIndex: 799
+  - name: EntityDiffer:SortBlobAssetPtr (Burst)
+    leftIndex: 777
+    rightIndex: 798
+  - name: stripping baking types
+    leftIndex: 778
+    rightIndex: 804
+  - name: EntityDiffer:PatchAndAddClonedChunks (Burst)
+    leftIndex: 779
+    rightIndex: 741
+  - name: EntityDiffer:PatchAndAddClonedChunks (Cleanup)
+    leftIndex: 780
+    rightIndex: 784
+  - name: EntityPatcher.ApplyChangeSet
+    leftIndex: 781
+    rightIndex: 785
+  - name: GI.OnEnterPlaymode
+    leftIndex: 782
+    rightIndex: 770
+  - name: enterPlayModePostStart.Invoke
+    leftIndex: 783
+    rightIndex: 774
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.Hybrid.Baking.BakingOnlyEntityAuthoringBakingSystem'
+    leftIndex: 784
+    rightIndex: 808
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Rendering.RenderMeshPostProcessSystem'
+    leftIndex: 785
+    rightIndex: 731
+  - name: UnityEditor.CoreModule.dll!UnityEditor::EditorApplicationLayout.FinalizePlaymodeLayout()
+      [Invoke]
+    leftIndex: 786
+    rightIndex: 780
+  - name: MeshRendererBaking_110F9DCE_LambdaJob_1
+    leftIndex: 787
+    rightIndex: 807
+  - name: MeshRendererBaking_110F9DCE_LambdaJob_0
+    leftIndex: 788
+    rightIndex: 806
+  - name: BakedEntityData:UpdateReferencedEntitiesJob (Burst)
+    leftIndex: 789
+    rightIndex: 810
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Rendering.MeshRendererBaking'
+    leftIndex: 790
+    rightIndex: 689
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.BakingSystemGroup'
+    leftIndex: 791
+    rightIndex: 688
+  - name: TransformBakingSystem:BakedRuntimeTransformsJob (Cleanup)
+    leftIndex: 792
+    rightIndex: 684
+  - name: TransformBakingSystem:BakedRuntimeTransformsJob (Burst)
+    leftIndex: 793
+    rightIndex: 683
+  - name: 'Converted Scene: ''CarsSubScene'' TransformBakingSystem'
+    leftIndex: 794
+    rightIndex: 682
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.TransformBakingSystemGroup'
+    leftIndex: 795
+    rightIndex: 693
+  - name: BakingUtility.TransformBakingSystemGroup
+    leftIndex: 796
+    rightIndex: 720
+  - name: TransformHierarchyBaking.BakeToTransformAuthoring
+    leftIndex: 797
+    rightIndex: 829
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Rendering.AdditionalMeshRendererFilterBakingSystem'
+    leftIndex: 798
+    rightIndex: 805
+  - name: BakingUtility.LinkedEntityGroupBaking
+    leftIndex: 799
+    rightIndex: 690
+  - name: EntityDiffer:GatherArchetypeChunkChanges (Burst)
+    leftIndex: 800
+    rightIndex: 502
+  - name: EntityDiffer:BuildChunkSequenceNumberMap (Burst)
+    leftIndex: 801
+    rightIndex: 792
+  - name: EntityPatcher.BuildEntityLookups
+    leftIndex: 802
+    rightIndex: 786
+  - name: EntityPatcher.BuildPackedLookups
+    leftIndex: 803
+    rightIndex: 769
+  - name: EntityPatcher:BuildPackedTypeLookupJob
+    leftIndex: 804
+    rightIndex: 768
+  - name: EntityPatcher:BuildPackedTypeLookupJob (Cleanup)
+    leftIndex: 805
+    rightIndex: 764
+  - name: EntityPatcher.ApplyDestroyEntities
+    leftIndex: 806
+    rightIndex: 763
+  - name: EntityPatcher.ApplyCreateEntities
+    leftIndex: 807
+    rightIndex: 737
+  - name: EntityPatcher.ApplyRemoveComponents
+    leftIndex: 808
+    rightIndex: 758
+  - name: EntityPatcher.ApplyAddComponents
+    leftIndex: 809
+    rightIndex: 735
+  - name: EntityPatcher:ApplyAddComponentsJob (Burst)
+    leftIndex: 810
+    rightIndex: 755
+  - name: EntityPatcher:ApplyAddComponentsJob (Cleanup)
+    leftIndex: 811
+    rightIndex: 757
+  - name: EntityPatcher.ApplySetSharedComponents
+    leftIndex: 812
+    rightIndex: 746
+  - name: EntityPatcher:ApplySetSharedComponentsJob (Burst)
+    leftIndex: 813
+    rightIndex: 818
+  - name: EntityPatcher:ApplySetSharedComponentsJob (Cleanup)
+    leftIndex: 814
+    rightIndex: 819
+  - name: 'Converted Scene: ''CarsSubScene'' Unity.Entities.Hybrid.Baking.LinkedEntityGroupBaking'
+    leftIndex: 815
+    rightIndex: 719
+  - name: TransformAuthoringBaking:BakeToTransformAuthoringComponentJob (Burst)
+    leftIndex: 816
+    rightIndex: 504
+  - name: TransformAuthoringBaking:BakeToTransformAuthoringComponentJob (Cleanup)
+    leftIndex: 817
+    rightIndex: 503
+  - name: EntityDiffer:BuildChunkSequenceNumberMap (Cleanup)
+    leftIndex: 818
+    rightIndex: 791
+  - name: EntityManagerDebug:BuildInstanceIDToEntityIndex (Cleanup)
+    leftIndex: 819
+    rightIndex: 708
+  - name: BakingOnlyEntityAuthoringBakingSystem_553736FE_LambdaJob_0.ScheduleParallel
+    leftIndex: 820
+    rightIndex: 809
+  - name: UIR.Job.CopyClosingMesh
+    leftIndex: -1
+    rightIndex: 507
+  - name: LargeAllocation.Alloc
+    leftIndex: -1
+    rightIndex: 514
+  - name: LargeAllocation.Free
+    leftIndex: -1
+    rightIndex: 515
+  - name: Baking.DeletedEntitiesCheck
+    leftIndex: -1
+    rightIndex: 677
+  - name: BuildIncrementalBakeInstructions
+    leftIndex: -1
+    rightIndex: 678
+  - name: BakedEntityData:FindDeletedEntitiesJob (Burst)
+    leftIndex: -1
+    rightIndex: 679
+  - name: UpdateHierarchy
+    leftIndex: -1
+    rightIndex: 691
+  - name: Dependencies.CalculateDependencies
+    leftIndex: -1
+    rightIndex: 692
+  - name: Dependencies.CalculateAssetDependencies
+    leftIndex: -1
+    rightIndex: 694
+  - name: UIR.Job.ConvertMesh
+    leftIndex: -1
+    rightIndex: 696
+  - name: BakeDependencies:CalculateAssetDependenciesJob (Burst)
+    leftIndex: -1
+    rightIndex: 697
+  - name: BakeDependencies:CalculateAssetDependenciesJob (Cleanup)
+    leftIndex: -1
+    rightIndex: 698
+  - name: UnsafeDependencyStream`1:ResizeHashSetJob (Burst)
+    leftIndex: -1
+    rightIndex: 699
+  - name: BakeDependencies:PrepareAssetDataJob (Burst)
+    leftIndex: -1
+    rightIndex: 701
+  - name: UnsafeDependencyStream`1:ComposeHashSetJob (Cleanup)
+    leftIndex: -1
+    rightIndex: 704
+  - name: EntityPatcher:BuildComponentToEntityMultiHashMap (Cleanup)
+    leftIndex: -1
+    rightIndex: 705
+  - name: EntityPatcher:BuildPackedEntityLookupJob (Burst)
+    leftIndex: -1
+    rightIndex: 706
+  - name: EntityPatcher:BuildPackedEntityLookupJob (Cleanup)
+    leftIndex: -1
+    rightIndex: 707
+  - name: Dependencies.CalculateNonStructuralDependencies
+    leftIndex: -1
+    rightIndex: 711
+  - name: BakeDependencies:NonStructuralChangedAssetsJob (Cleanup)
+    leftIndex: -1
+    rightIndex: 712
+  - name: BakeDependencies:CalculateReversePropertyChangeDependencyJob (Burst)
+    leftIndex: -1
+    rightIndex: 713
+  - name: UnsafeDependencyStream`1:ComposeHashSetJob (Burst)
+    leftIndex: -1
+    rightIndex: 714
+  - name: ChangedComponentsIncludingDependencies
+    leftIndex: -1
+    rightIndex: 715
+  - name: EntityPatcher:BuildEntityToComponentHashMap (Burst)
+    leftIndex: -1
+    rightIndex: 716
+  - name: EntityPatcher:BuildEntityToComponentHashMap (Cleanup)
+    leftIndex: -1
+    rightIndex: 717
+  - name: EntityPatcher:BuildComponentToEntityMultiHashMap (Burst)
+    leftIndex: -1
+    rightIndex: 718
+  - name: BakeDependencies:NonStructuralChangedAssetsJob (Burst)
+    leftIndex: -1
+    rightIndex: 729
+  m_SelectedPairing: 1
+  m_ProfileTreeViewState:
+    scrollPos: {x: 0, y: 20}
+    m_SelectedIDs: 01000000
+    m_LastClickedID: 1
+    m_ExpandedIDs: ffffffff
+    m_RenameOverlay:
+      m_UserAcceptedRename: 0
+      m_Name: 
+      m_OriginalName: 
+      m_EditFieldRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_UserData: 0
+      m_IsWaitingForDelay: 0
+      m_IsRenaming: 0
+      m_OriginalEventType: 11
+      m_IsRenamingFilename: 0
+      m_ClientGUIView: {fileID: 0}
+    m_SearchString: 
+  m_ProfileMulticolumnHeaderState:
+    m_Columns:
+    - width: 300
+      sortedAscending: 1
+      headerContent:
+        m_Text: Marker Name
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker Name
+
+
+          Frame marker time is total of all instances
+          in frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 100
+      maxWidth: 1000000
+      autoResize: 0
+      allowToggleVisibility: 0
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Depth
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker depth in marker hierarchy
+
+
+          May appear at multiple
+          levels'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Median
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Central marker time over all selected frames
+
+
+          Always
+          present in data set
+
+          1st of 2 central values for even frame count'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Median Bar
+        m_Image: {fileID: 0}
+        m_Tooltip: Central marker time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Mean
+        m_Image: {fileID: 0}
+        m_Tooltip: Per frame marker time / number of non zero frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Min
+        m_Image: {fileID: 0}
+        m_Tooltip: Minimum marker time
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Max
+        m_Image: {fileID: 0}
+        m_Tooltip: Maximum marker time
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Range
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference between maximum and minimum
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker count over all selected frames
+
+
+          Multiple can
+          occur per frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Bar
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker count over all selected frames
+
+
+          Multiple can
+          occur per frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 70
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Average number of markers per frame
+
+
+          total count /
+          number of non zero frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 50
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 70
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Frame Bar
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Average number of markers per frame
+
+
+          total count /
+          number of non zero frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 50
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: 1st
+        m_Image: {fileID: 0}
+        m_Tooltip: First frame index that the marker appears on
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 90
+      sortedAscending: 0
+      headerContent:
+        m_Text: At Median Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker time on the median frame
+
+
+          I.e. Marker total
+          duration on the average frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 50
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total
+        m_Image: {fileID: 0}
+        m_Tooltip: Marker total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total Bar
+        m_Image: {fileID: 0}
+        m_Tooltip: Marker total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Threads
+        m_Image: {fileID: 0}
+        m_Tooltip: Threads the marker occurs on (with filtering applied)
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    m_VisibleColumns: 0000000001000000020000000300000004000000050000000600000007000000080000000a0000000d000000
+    m_SortedColumns: 02000000
+  m_ComparisonTreeViewState:
+    scrollPos: {x: 0, y: 20}
+    m_SelectedIDs: 01000000
+    m_LastClickedID: 1
+    m_ExpandedIDs: ffffffff
+    m_RenameOverlay:
+      m_UserAcceptedRename: 0
+      m_Name: 
+      m_OriginalName: 
+      m_EditFieldRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_UserData: 0
+      m_IsWaitingForDelay: 0
+      m_IsRenaming: 0
+      m_OriginalEventType: 11
+      m_IsRenamingFilename: 0
+      m_ClientGUIView: {fileID: 0}
+    m_SearchString: 
+  m_ComparisonMulticolumnHeaderState:
+    m_Columns:
+    - width: 300
+      sortedAscending: 1
+      headerContent:
+        m_Text: Marker Name
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker Name
+
+
+          Frame marker time is total of all instances
+          in frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 100
+      maxWidth: 1000000
+      autoResize: 0
+      allowToggleVisibility: 0
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Left Median
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Left median time
+
+
+          Central marker time over all selected
+          frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: <
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference if left data set is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: '>'
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference if right data set is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Right Median
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Right median time
+
+
+          Central marker time over all selected
+          frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Diff
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference between left and right times
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Diff Percent
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference between left and right times as percentage of left
+          marker time
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Abs Diff
+        m_Image: {fileID: 0}
+        m_Tooltip: Absolute difference between left and right times
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Left
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Left marker count over all selected frames
+
+
+          Multiple
+          can occur per frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: < Count
+        m_Image: {fileID: 0}
+        m_Tooltip: Count Difference if left data set count is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: '> Count'
+        m_Image: {fileID: 0}
+        m_Tooltip: Count Difference if right data set count is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Right
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Right marker count over all selected frames
+
+
+          Multiple
+          can occur per frame'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Delta
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in marker count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Delta Percent
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in marker count as percentage of left marker count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Abs Count
+        m_Image: {fileID: 0}
+        m_Tooltip: Absolute difference in marker count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Left Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Average number of markers per frame in left data set
+
+
+          total
+          count / number of non zero frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: < Frame Count
+        m_Image: {fileID: 0}
+        m_Tooltip: Per frame Count Difference if left data set count is a larger
+          value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: '> Frame Count'
+        m_Image: {fileID: 0}
+        m_Tooltip: Per frame Count Difference if right data set count is a larger
+          value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Right Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Average number of markers per frame in right data set
+
+
+          total
+          count / number of non zero frames'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Delta Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in per frame marker count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Count Delta Percent Frame
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in per frame marker count as percentage of left count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Abs Frame Count
+        m_Image: {fileID: 0}
+        m_Tooltip: Absolute difference in per frame marker count
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total Left
+        m_Image: {fileID: 0}
+        m_Tooltip: Left marker total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: < Total
+        m_Image: {fileID: 0}
+        m_Tooltip: Total Difference if left data set total is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: '> Total'
+        m_Image: {fileID: 0}
+        m_Tooltip: Total Difference if right data set total is a larger value
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total Right
+        m_Image: {fileID: 0}
+        m_Tooltip: Right marker total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total Delta
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Total Delta Percent
+        m_Image: {fileID: 0}
+        m_Tooltip: Difference in total time over all selected frames as percentage
+          of left marker total time
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Abs Total
+        m_Image: {fileID: 0}
+        m_Tooltip: Absolute difference in total time over all selected frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Depth Left
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker depth in marker hierarchy
+
+
+          May appear at multiple
+          levels'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Depth Right
+        m_Image: {fileID: 0}
+        m_Tooltip: 'Marker depth in marker hierarchy
+
+
+          May appear at multiple
+          levels'
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Depth Diff
+        m_Image: {fileID: 0}
+        m_Tooltip: Absolute difference in min marker depth total over all selected
+          frames
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Threads Left
+        m_Image: {fileID: 0}
+        m_Tooltip: Threads the marker occurs on in left data set (with filtering
+          applied)
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    - width: 50
+      sortedAscending: 0
+      headerContent:
+        m_Text: Threads Right
+        m_Image: {fileID: 0}
+        m_Tooltip: Threads the marker occurs on in right data set (with filtering
+          applied)
+      contextMenuText: 
+      headerTextAlignment: 0
+      sortingArrowAlignment: 0
+      minWidth: 30
+      maxWidth: 1000000
+      autoResize: 1
+      allowToggleVisibility: 1
+      canSort: 1
+      userData: 0
+    m_VisibleColumns: 00000000010000000200000003000000040000000500000007000000080000000b0000000c000000
+    m_SortedColumns: 07000000
+  m_ThreadRange: 1
+  m_TopNBars: 10
+--- !u!114 &20
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -628,10 +4027,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: -1
+    x: 0
     y: 97
-    width: 588
-    height: 485
+    width: 427.5
+    height: 560
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -724,7 +4123,7 @@ MonoBehaviour:
       floating: 0
       collapsed: 0
       displayed: 1
-      snapOffset: {x: 67.5, y: 86}
+      snapOffset: {x: 67.5, y: 37}
       snapOffsetDelta: {x: 0, y: 0}
       snapCorner: 0
       id: Orientation
@@ -937,9 +4336,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 1.5622643, y: 60.084045, z: 65.97354}
+    m_Target: {x: 69.10157, y: 43.773262, z: -51.897987}
     speed: 2
-    m_Value: {x: 1.5622643, y: 60.084045, z: 65.97354}
+    m_Value: {x: 69.10157, y: 43.773262, z: -51.897987}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -985,13 +4384,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.2111086, y: 0.78781044, z: -0.43172345, w: 0.38523155}
+    m_Target: {x: -0.16831592, y: 0.29426846, z: -0.05272978, w: -0.939307}
     speed: 2
-    m_Value: {x: 0.21110852, y: 0.78781015, z: -0.4317233, w: 0.3852314}
+    m_Value: {x: -0.16831574, y: 0.29426813, z: -0.052729726, w: -0.93930596}
   m_Size:
-    m_Target: 26.75058
+    m_Target: 10
     speed: 2
-    m_Value: 26.730532
+    m_Value: 10
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -1016,7 +4415,7 @@ MonoBehaviour:
   m_SceneVisActive: 1
   m_LastLockedObject: {fileID: 0}
   m_ViewIsLockedToObject: 0
---- !u!114 &19
+--- !u!114 &21
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1037,10 +4436,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 588
+    x: 428.5
     y: 97
-    width: 458.5
-    height: 485
+    width: 745
+    height: 560
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1056,7 +4455,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 458.5, y: 464}
+  m_TargetSize: {x: 745, y: 539}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -1069,17 +4468,17 @@ MonoBehaviour:
   m_VSyncEnabled: 0
   m_PlayFocused: 0
   m_Gizmos: 0
-  m_Stats: 0
+  m_Stats: 1
   m_SelectedSizes: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
   m_ZoomArea:
     m_HRangeLocked: 0
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -114.625
-    m_HBaseRangeMax: 114.625
-    m_VBaseRangeMin: -116
-    m_VBaseRangeMax: 116
+    m_HBaseRangeMin: -186.25
+    m_HBaseRangeMax: 186.25
+    m_VBaseRangeMin: -134.75
+    m_VBaseRangeMax: 134.75
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -1097,23 +4496,23 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 458.5
-      height: 464
+      width: 745
+      height: 539
     m_Scale: {x: 2, y: 2}
-    m_Translation: {x: 229.25, y: 232}
+    m_Translation: {x: 372.5, y: 269.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -114.625
-      y: -116
-      width: 229.25
-      height: 232
+      x: -186.25
+      y: -134.75
+      width: 372.5
+      height: 269.5
     m_MinimalGUI: 1
   m_defaultScale: 2
-  m_LastWindowPixelSize: {x: 917, y: 970}
+  m_LastWindowPixelSize: {x: 1490, y: 1120}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
@@ -1121,7 +4520,7 @@ MonoBehaviour:
   m_RenderTexture: {fileID: 0}
   m_showToolbar: 1
   m_showToolbarOnFullscreen: 0
---- !u!114 &20
+--- !u!114 &22
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1143,9 +4542,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 525
-    width: 1048.5
-    height: 389
+    y: 678
+    width: 1174.5
+    height: 314
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -1155,3 +4554,1118 @@ MonoBehaviour:
   m_OverlayCanvas:
     m_LastAppliedPresetName: Default
     m_SaveData: []
+--- !u!114 &23
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 12070, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 900, y: 216}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_TitleContent:
+    m_Text: Profiler
+    m_Image: {fileID: 2169972056302973491, guid: 0000000000000000d000000000000000,
+      type: 0}
+    m_Tooltip: 
+  m_Pos:
+    serializedVersion: 2
+    x: 0
+    y: 66
+    width: 1728
+    height: 966
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+  m_Recording: 1
+  m_ActiveNativePlatformSupportModuleName: 
+  m_AllModules:
+  - rid: 5332712795793784832
+  - rid: 5332712795793784833
+  - rid: 5332712795793784834
+  - rid: 5332712795793784835
+  - rid: 5332712795793784836
+  - rid: 5332712795793784837
+  - rid: 5332712795793784838
+  - rid: 5332712795793784839
+  - rid: 5332712795793784840
+  - rid: 5332712795793784841
+  - rid: 5332712795793784842
+  - rid: 5332712795793784843
+  - rid: 5332712795793784844
+  - rid: 5332712795793784845
+  - rid: 5332712795793784846
+  - rid: 5332712795793784847
+  - rid: 5332712795793784848
+  m_CallstackRecordMode: 1
+  m_ClearOnPlay: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5332712795793784832
+      type: {class: CPUProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.CPUProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+        m_ViewType: 1
+        updateViewLive: 0
+        m_CurrentFrameIndex: 140
+        m_HierarchyOverruledThreadFromSelection: 0
+        m_ProfilerViewFilteringOptions: 1
+        m_FrameDataHierarchyView:
+          m_Serialized: 0
+          m_TreeViewState:
+            scrollPos: {x: 0, y: 0}
+            m_SelectedIDs: 
+            m_LastClickedID: 0
+            m_ExpandedIDs: 
+            m_RenameOverlay:
+              m_UserAcceptedRename: 0
+              m_Name: 
+              m_OriginalName: 
+              m_EditFieldRect:
+                serializedVersion: 2
+                x: 0
+                y: 0
+                width: 0
+                height: 0
+              m_UserData: 0
+              m_IsWaitingForDelay: 0
+              m_IsRenaming: 0
+              m_OriginalEventType: 11
+              m_IsRenamingFilename: 0
+              m_ClientGUIView: {fileID: 0}
+            m_SearchString: 
+          m_MultiColumnHeaderState:
+            m_Columns: []
+            m_VisibleColumns: 
+            m_SortedColumns: 
+          m_ThreadIndexInThreadNames: 0
+          m_DetailedViewType: 0
+          m_DetailedViewSpliterState:
+            ID: 0
+            splitterInitialOffset: 0
+            currentActiveSplitter: 0
+            realSizes: []
+            relativeSizes: []
+            minSizes: []
+            maxSizes: []
+            lastTotalSize: 0
+            splitSize: 0
+            xOffset: 0
+            m_Version: 1
+            oldRealSizes: 
+            oldMinSizes: 
+            oldMaxSizes: 
+            oldSplitSize: 0
+          m_DetailedObjectsView:
+            m_SelectedID: 0
+            m_TreeViewState:
+              scrollPos: {x: 0, y: 0}
+              m_SelectedIDs: 
+              m_LastClickedID: 0
+              m_ExpandedIDs: 
+              m_RenameOverlay:
+                m_UserAcceptedRename: 0
+                m_Name: 
+                m_OriginalName: 
+                m_EditFieldRect:
+                  serializedVersion: 2
+                  x: 0
+                  y: 0
+                  width: 0
+                  height: 0
+                m_UserData: 0
+                m_IsWaitingForDelay: 0
+                m_IsRenaming: 0
+                m_OriginalEventType: 11
+                m_IsRenamingFilename: 0
+                m_ClientGUIView: {fileID: 0}
+              m_SearchString: 
+            m_MultiColumnHeaderState:
+              m_Columns: []
+              m_VisibleColumns: 
+              m_SortedColumns: 
+            m_VertSplit:
+              ID: 0
+              splitterInitialOffset: 0
+              currentActiveSplitter: 0
+              realSizes: []
+              relativeSizes: []
+              minSizes: []
+              maxSizes: []
+              lastTotalSize: 0
+              splitSize: 0
+              xOffset: 0
+              m_Version: 1
+              oldRealSizes: 
+              oldMinSizes: 
+              oldMaxSizes: 
+              oldSplitSize: 0
+          m_DetailedCallsView:
+            m_SelectedID: -1
+            m_VertSplit:
+              ID: 0
+              splitterInitialOffset: 0
+              currentActiveSplitter: 0
+              realSizes: []
+              relativeSizes: []
+              minSizes: []
+              maxSizes: []
+              lastTotalSize: 0
+              splitSize: 0
+              xOffset: 0
+              m_Version: 1
+              oldRealSizes: 
+              oldMinSizes: 
+              oldMaxSizes: 
+              oldSplitSize: 0
+            m_CalleesTreeView:
+              m_ViewState:
+                scrollPos: {x: 0, y: 0}
+                m_SelectedIDs: 
+                m_LastClickedID: 0
+                m_ExpandedIDs: 
+                m_RenameOverlay:
+                  m_UserAcceptedRename: 0
+                  m_Name: 
+                  m_OriginalName: 
+                  m_EditFieldRect:
+                    serializedVersion: 2
+                    x: 0
+                    y: 0
+                    width: 0
+                    height: 0
+                  m_UserData: 0
+                  m_IsWaitingForDelay: 0
+                  m_IsRenaming: 0
+                  m_OriginalEventType: 11
+                  m_IsRenamingFilename: 0
+                  m_ClientGUIView: {fileID: 0}
+                m_SearchString: 
+              m_ViewHeaderState:
+                m_Columns:
+                - width: 150
+                  sortedAscending: 1
+                  headerContent:
+                    m_Text: Called From
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 'Parents the selected function is called from
+
+
+                      (Press
+                      ''F'' for frame selection)'
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 150
+                  maxWidth: 1000000
+                  autoResize: 1
+                  allowToggleVisibility: 0
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Calls
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total number of calls in a selected frame
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: GC Alloc
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time ms
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total time the selected function spends within a parent
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time %
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Shows how often the selected function was called from
+                      the parent call
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                m_VisibleColumns: 0000000001000000020000000300000004000000
+                m_SortedColumns: 03000000
+            m_CallersTreeView:
+              m_ViewState:
+                scrollPos: {x: 0, y: 0}
+                m_SelectedIDs: 
+                m_LastClickedID: 0
+                m_ExpandedIDs: 
+                m_RenameOverlay:
+                  m_UserAcceptedRename: 0
+                  m_Name: 
+                  m_OriginalName: 
+                  m_EditFieldRect:
+                    serializedVersion: 2
+                    x: 0
+                    y: 0
+                    width: 0
+                    height: 0
+                  m_UserData: 0
+                  m_IsWaitingForDelay: 0
+                  m_IsRenaming: 0
+                  m_OriginalEventType: 11
+                  m_IsRenamingFilename: 0
+                  m_ClientGUIView: {fileID: 0}
+                m_SearchString: 
+              m_ViewHeaderState:
+                m_Columns:
+                - width: 150
+                  sortedAscending: 1
+                  headerContent:
+                    m_Text: Called From
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 'Parents the selected function is called from
+
+
+                      (Press
+                      ''F'' for frame selection)'
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 150
+                  maxWidth: 1000000
+                  autoResize: 1
+                  allowToggleVisibility: 0
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Calls
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total number of calls in a selected frame
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: GC Alloc
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time ms
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total time the selected function spends within a parent
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time %
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Shows how often the selected function was called from
+                      the parent call
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                m_VisibleColumns: 0000000001000000020000000300000004000000
+                m_SortedColumns: 03000000
+          m_FullThreadName: Main Thread
+          m_ThreadName: Main Thread
+          <threadId>k__BackingField: 0
+          <threadIndex>k__BackingField: -1
+          m_GroupName: 
+    - rid: 5332712795793784833
+      type: {class: GPUProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.GPUProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+        m_ViewType: 0
+        updateViewLive: 0
+        m_CurrentFrameIndex: -1
+        m_HierarchyOverruledThreadFromSelection: 0
+        m_ProfilerViewFilteringOptions: 1
+        m_FrameDataHierarchyView:
+          m_Serialized: 0
+          m_TreeViewState:
+            scrollPos: {x: 0, y: 0}
+            m_SelectedIDs: 
+            m_LastClickedID: 0
+            m_ExpandedIDs: 
+            m_RenameOverlay:
+              m_UserAcceptedRename: 0
+              m_Name: 
+              m_OriginalName: 
+              m_EditFieldRect:
+                serializedVersion: 2
+                x: 0
+                y: 0
+                width: 0
+                height: 0
+              m_UserData: 0
+              m_IsWaitingForDelay: 0
+              m_IsRenaming: 0
+              m_OriginalEventType: 11
+              m_IsRenamingFilename: 0
+              m_ClientGUIView: {fileID: 0}
+            m_SearchString: 
+          m_MultiColumnHeaderState:
+            m_Columns: []
+            m_VisibleColumns: 
+            m_SortedColumns: 
+          m_ThreadIndexInThreadNames: 0
+          m_DetailedViewType: 0
+          m_DetailedViewSpliterState:
+            ID: 0
+            splitterInitialOffset: 0
+            currentActiveSplitter: 0
+            realSizes: []
+            relativeSizes: []
+            minSizes: []
+            maxSizes: []
+            lastTotalSize: 0
+            splitSize: 0
+            xOffset: 0
+            m_Version: 1
+            oldRealSizes: 
+            oldMinSizes: 
+            oldMaxSizes: 
+            oldSplitSize: 0
+          m_DetailedObjectsView:
+            m_SelectedID: 0
+            m_TreeViewState:
+              scrollPos: {x: 0, y: 0}
+              m_SelectedIDs: 
+              m_LastClickedID: 0
+              m_ExpandedIDs: 
+              m_RenameOverlay:
+                m_UserAcceptedRename: 0
+                m_Name: 
+                m_OriginalName: 
+                m_EditFieldRect:
+                  serializedVersion: 2
+                  x: 0
+                  y: 0
+                  width: 0
+                  height: 0
+                m_UserData: 0
+                m_IsWaitingForDelay: 0
+                m_IsRenaming: 0
+                m_OriginalEventType: 11
+                m_IsRenamingFilename: 0
+                m_ClientGUIView: {fileID: 0}
+              m_SearchString: 
+            m_MultiColumnHeaderState:
+              m_Columns: []
+              m_VisibleColumns: 
+              m_SortedColumns: 
+            m_VertSplit:
+              ID: 0
+              splitterInitialOffset: 0
+              currentActiveSplitter: 0
+              realSizes: []
+              relativeSizes: []
+              minSizes: []
+              maxSizes: []
+              lastTotalSize: 0
+              splitSize: 0
+              xOffset: 0
+              m_Version: 1
+              oldRealSizes: 
+              oldMinSizes: 
+              oldMaxSizes: 
+              oldSplitSize: 0
+          m_DetailedCallsView:
+            m_SelectedID: -1
+            m_VertSplit:
+              ID: 0
+              splitterInitialOffset: 0
+              currentActiveSplitter: 0
+              realSizes: []
+              relativeSizes: []
+              minSizes: []
+              maxSizes: []
+              lastTotalSize: 0
+              splitSize: 0
+              xOffset: 0
+              m_Version: 1
+              oldRealSizes: 
+              oldMinSizes: 
+              oldMaxSizes: 
+              oldSplitSize: 0
+            m_CalleesTreeView:
+              m_ViewState:
+                scrollPos: {x: 0, y: 0}
+                m_SelectedIDs: 
+                m_LastClickedID: 0
+                m_ExpandedIDs: 
+                m_RenameOverlay:
+                  m_UserAcceptedRename: 0
+                  m_Name: 
+                  m_OriginalName: 
+                  m_EditFieldRect:
+                    serializedVersion: 2
+                    x: 0
+                    y: 0
+                    width: 0
+                    height: 0
+                  m_UserData: 0
+                  m_IsWaitingForDelay: 0
+                  m_IsRenaming: 0
+                  m_OriginalEventType: 11
+                  m_IsRenamingFilename: 0
+                  m_ClientGUIView: {fileID: 0}
+                m_SearchString: 
+              m_ViewHeaderState:
+                m_Columns:
+                - width: 150
+                  sortedAscending: 1
+                  headerContent:
+                    m_Text: Called From
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 'Parents the selected function is called from
+
+
+                      (Press
+                      ''F'' for frame selection)'
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 150
+                  maxWidth: 1000000
+                  autoResize: 1
+                  allowToggleVisibility: 0
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Calls
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total number of calls in a selected frame
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: GC Alloc
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time ms
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total time the selected function spends within a parent
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time %
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Shows how often the selected function was called from
+                      the parent call
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                m_VisibleColumns: 0000000001000000020000000300000004000000
+                m_SortedColumns: 03000000
+            m_CallersTreeView:
+              m_ViewState:
+                scrollPos: {x: 0, y: 0}
+                m_SelectedIDs: 
+                m_LastClickedID: 0
+                m_ExpandedIDs: 
+                m_RenameOverlay:
+                  m_UserAcceptedRename: 0
+                  m_Name: 
+                  m_OriginalName: 
+                  m_EditFieldRect:
+                    serializedVersion: 2
+                    x: 0
+                    y: 0
+                    width: 0
+                    height: 0
+                  m_UserData: 0
+                  m_IsWaitingForDelay: 0
+                  m_IsRenaming: 0
+                  m_OriginalEventType: 11
+                  m_IsRenamingFilename: 0
+                  m_ClientGUIView: {fileID: 0}
+                m_SearchString: 
+              m_ViewHeaderState:
+                m_Columns:
+                - width: 150
+                  sortedAscending: 1
+                  headerContent:
+                    m_Text: Called From
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 'Parents the selected function is called from
+
+
+                      (Press
+                      ''F'' for frame selection)'
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 150
+                  maxWidth: 1000000
+                  autoResize: 1
+                  allowToggleVisibility: 0
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Calls
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total number of calls in a selected frame
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: GC Alloc
+                    m_Image: {fileID: 0}
+                    m_Tooltip: 
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time ms
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Total time the selected function spends within a parent
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                - width: 60
+                  sortedAscending: 0
+                  headerContent:
+                    m_Text: Time %
+                    m_Image: {fileID: 0}
+                    m_Tooltip: Shows how often the selected function was called from
+                      the parent call
+                  contextMenuText: 
+                  headerTextAlignment: 0
+                  sortingArrowAlignment: 2
+                  minWidth: 60
+                  maxWidth: 1000000
+                  autoResize: 0
+                  allowToggleVisibility: 1
+                  canSort: 1
+                  userData: 0
+                m_VisibleColumns: 0000000001000000020000000300000004000000
+                m_SortedColumns: 03000000
+          m_FullThreadName: Main Thread
+          m_ThreadName: Main Thread
+          <threadId>k__BackingField: 0
+          <threadIndex>k__BackingField: -1
+          m_GroupName: 
+    - rid: 5332712795793784834
+      type: {class: RenderingProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.RenderingProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784835
+      type: {class: MemoryProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.MemoryProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+        m_ViewSplit:
+          ID: 0
+          splitterInitialOffset: 0
+          currentActiveSplitter: -1
+          realSizes:
+          - 0
+          - 0
+          relativeSizes:
+          - 0.7
+          - 0.3
+          minSizes:
+          - 450
+          - 50
+          maxSizes:
+          - 0
+          - 0
+          lastTotalSize: 0
+          splitSize: 6
+          xOffset: 0
+          m_Version: 1
+          oldRealSizes: 
+          oldMinSizes: 
+          oldMaxSizes: 
+          oldSplitSize: 0
+    - rid: 5332712795793784836
+      type: {class: AudioProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.AudioProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+        m_ShowInactiveDSPChains: 0
+        m_HighlightAudibleDSPChains: 1
+        m_DSPGraphZoomFactor: 1
+        m_DSPGraphHorizontalLayout: 0
+    - rid: 5332712795793784837
+      type: {class: VideoProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.VideoProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784838
+      type: {class: PhysicsProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.PhysicsProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784839
+      type: {class: Physics2DProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.Physics2DProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784840
+      type: {class: UIProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.UIProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784841
+      type: {class: UIDetailsProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.UIDetailsProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784842
+      type: {class: GlobalIlluminationProfilerModule, ns: UnityEditorInternal.Profiling,
+        asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.GlobalIlluminationProfilerModule,
+          UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784843
+      type: {class: VirtualTexturingProfilerModule, ns: UnityEditorInternal.Profiling,
+        asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.VirtualTexturingProfilerModule,
+          UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+        m_VTProfilerView:
+          rid: 5332712795793784849
+    - rid: 5332712795793784844
+      type: {class: MemoryProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: Unity.Entities.Editor.MemoryProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 5332712795793784845
+      type: {class: FileIOProfilerModule, ns: UnityEditorInternal.Profiling, asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.FileIOProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784846
+      type: {class: AssetLoadingProfilerModule, ns: UnityEditorInternal.Profiling,
+        asm: UnityEditor.CoreModule}
+      data:
+        m_Identifier: UnityEditorInternal.Profiling.AssetLoadingProfilerModule, UnityEditor.CoreModule,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+        m_PaneScroll: {x: 0, y: 0}
+    - rid: 5332712795793784847
+      type: {class: StructuralChangesProfilerModule, ns: Unity.Entities.Editor, asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: Unity.Entities.Editor.StructuralChangesProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 5332712795793784848
+      type: {class: RuntimeContentManagerProfilerModule, ns: , asm: Unity.Entities.Editor}
+      data:
+        m_Identifier: RuntimeContentManagerProfilerModule, Unity.Entities.Editor,
+          Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 5332712795793784849
+      type: {class: VirtualTexturingProfilerView, ns: UnityEditor, asm: UnityEditor.CoreModule}
+      data:
+        m_SortAscending: 0
+        m_SortedColumn: -1
+--- !u!114 &24
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 12061, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_TitleContent:
+    m_Text: Hierarchy
+    m_Image: {fileID: -3734745235275155857, guid: 0000000000000000d000000000000000,
+      type: 0}
+    m_Tooltip: 
+  m_Pos:
+    serializedVersion: 2
+    x: 1175.5
+    y: 97
+    width: 229
+    height: 296.5
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+  m_SceneHierarchy:
+    m_TreeViewState:
+      scrollPos: {x: 0, y: 0}
+      m_SelectedIDs: 7c7a0000
+      m_LastClickedID: 31356
+      m_ExpandedIDs: 92faffff94fafffff0780000
+      m_RenameOverlay:
+        m_UserAcceptedRename: 0
+        m_Name: 
+        m_OriginalName: 
+        m_EditFieldRect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        m_UserData: 0
+        m_IsWaitingForDelay: 0
+        m_IsRenaming: 0
+        m_OriginalEventType: 11
+        m_IsRenamingFilename: 0
+        m_ClientGUIView: {fileID: 0}
+      m_SearchString: 
+    m_ExpandedScenes: []
+    m_CurrenRootInstanceID: 0
+    m_LockTracker:
+      m_IsLocked: 0
+    m_CurrentSortingName: TransformSorting
+  m_WindowGUID: 4c969a2b90040154d917609493e03593
+--- !u!114 &25
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 12014, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 230, y: 250}
+  m_MaxSize: {x: 10000, y: 10000}
+  m_TitleContent:
+    m_Text: Project
+    m_Image: {fileID: -5179483145760003458, guid: 0000000000000000d000000000000000,
+      type: 0}
+    m_Tooltip: 
+  m_Pos:
+    serializedVersion: 2
+    x: 1175.5
+    y: 414.5
+    width: 229
+    height: 577.5
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+  m_SearchFilter:
+    m_NameFilter: 
+    m_ClassNames: []
+    m_AssetLabels: []
+    m_AssetBundleNames: []
+    m_VersionControlStates: []
+    m_SoftLockControlStates: []
+    m_ReferencingInstanceIDs: 
+    m_SceneHandles: 
+    m_ShowAllHits: 0
+    m_SkipHidden: 0
+    m_SearchArea: 1
+    m_Folders: []
+    m_Globs: []
+    m_OriginalText: 
+    m_ImportLogFlags: 0
+  m_ViewMode: 0
+  m_StartGridSize: 64
+  m_LastFolders: []
+  m_LastFoldersGridSize: -1
+  m_LastProjectPath: /Users/nathan.adara/Documents/DOTS_Training/DOTS-training-samples/Ported/HighwayRacers
+  m_LockTracker:
+    m_IsLocked: 0
+  m_FolderTreeState:
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: 1ea50000
+    m_LastClickedID: 42270
+    m_ExpandedIDs: ffffffff00000000bc7a0000
+    m_RenameOverlay:
+      m_UserAcceptedRename: 0
+      m_Name: 
+      m_OriginalName: 
+      m_EditFieldRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_UserData: 0
+      m_IsWaitingForDelay: 0
+      m_IsRenaming: 0
+      m_OriginalEventType: 11
+      m_IsRenamingFilename: 1
+      m_ClientGUIView: {fileID: 0}
+    m_SearchString: 
+    m_CreateAssetUtility:
+      m_EndAction: {fileID: 0}
+      m_InstanceID: 0
+      m_Path: 
+      m_Icon: {fileID: 0}
+      m_ResourceFile: 
+  m_AssetTreeState:
+    scrollPos: {x: 0, y: 0}
+    m_SelectedIDs: 
+    m_LastClickedID: 0
+    m_ExpandedIDs: ffffffff00000000bc7a0000
+    m_RenameOverlay:
+      m_UserAcceptedRename: 0
+      m_Name: 
+      m_OriginalName: 
+      m_EditFieldRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_UserData: 0
+      m_IsWaitingForDelay: 0
+      m_IsRenaming: 0
+      m_OriginalEventType: 11
+      m_IsRenamingFilename: 1
+      m_ClientGUIView: {fileID: 17}
+    m_SearchString: 
+    m_CreateAssetUtility:
+      m_EndAction: {fileID: 0}
+      m_InstanceID: 0
+      m_Path: 
+      m_Icon: {fileID: 0}
+      m_ResourceFile: 
+  m_ListAreaState:
+    m_SelectedInstanceIDs: 
+    m_LastClickedInstanceID: 0
+    m_HadKeyboardFocusLastEvent: 0
+    m_ExpandedInstanceIDs: c6230000
+    m_RenameOverlay:
+      m_UserAcceptedRename: 0
+      m_Name: 
+      m_OriginalName: 
+      m_EditFieldRect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 0
+        height: 0
+      m_UserData: 0
+      m_IsWaitingForDelay: 0
+      m_IsRenaming: 0
+      m_OriginalEventType: 11
+      m_IsRenamingFilename: 1
+      m_ClientGUIView: {fileID: 0}
+    m_CreateAssetUtility:
+      m_EndAction: {fileID: 0}
+      m_InstanceID: 0
+      m_Path: 
+      m_Icon: {fileID: 0}
+      m_ResourceFile: 
+    m_NewAssetIndexInList: -1
+    m_ScrollPosition: {x: 0, y: 0}
+    m_GridSize: 64
+  m_SkipHiddenPackages: 0
+  m_DirectoriesAreaWidth: 207
+--- !u!114 &26
+MonoBehaviour:
+  m_ObjectHideFlags: 52
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 12019, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MinSize: {x: 275, y: 50}
+  m_MaxSize: {x: 4000, y: 4000}
+  m_TitleContent:
+    m_Text: Inspector
+    m_Image: {fileID: -440750813802333266, guid: 0000000000000000d000000000000000,
+      type: 0}
+    m_Tooltip: 
+  m_Pos:
+    serializedVersion: 2
+    x: 1406.5
+    y: 97
+    width: 320.5
+    height: 895
+  m_SerializedDataModeController:
+    m_DataMode: 0
+    m_PreferredDataMode: 0
+    m_SupportedDataModes: 
+    isAutomatic: 1
+  m_ViewDataDictionary: {fileID: 0}
+  m_OverlayCanvas:
+    m_LastAppliedPresetName: Default
+    m_SaveData: []
+  m_ObjectsLockedBeforeSerialization: []
+  m_InstanceIDsLockedBeforeSerialization: 
+  m_PreviewResizer:
+    m_CachedPref: 160
+    m_ControlHash: -371814159
+    m_PrefName: Preview_InspectorPreview
+  m_LastInspectedObjectInstanceID: -1
+  m_LastVerticalScrollValue: 0
+  m_GlobalObjectId: 
+  m_InspectorMode: 0
+  m_LockTracker:
+    m_IsLocked: 0
+  m_PreviewWindow: {fileID: 0}

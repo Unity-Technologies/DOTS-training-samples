@@ -24,12 +24,15 @@ public partial struct CarSpawnerSystem : ISystem
         {
             InitialSpawn(ref spawner, ref state);
         }
+        
+        
     }
     
     private void InitialSpawn(ref GlobalSettings globalSettings, ref SystemState state)
     {
         var carEntities = new NativeArray<Entity>(globalSettings.amount, Allocator.Temp);
         state.EntityManager.Instantiate(globalSettings.carPrefab, carEntities);
+        
         
 
         for (var i = 0; i < carEntities.Length; i++)

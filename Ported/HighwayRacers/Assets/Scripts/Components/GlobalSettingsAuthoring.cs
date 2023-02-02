@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using UnityEngine;
 
@@ -29,4 +30,6 @@ public class GlobalSettingsAuthoring : MonoBehaviour
             });
         }
     }
+
+   
 }
