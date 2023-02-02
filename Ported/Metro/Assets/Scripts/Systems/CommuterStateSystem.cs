@@ -60,6 +60,7 @@ public partial struct CommuterStateSystem : ISystem
             ParentLookup = m_ParentLookupRO,
             StairsLookup = m_StairsLookupRO,
             PlatformStairsLookup = m_PlatformStairsLookupRO,
+            CarriageLookup = m_CarriageLookupRO,
             DeltaTime = SystemAPI.Time.DeltaTime
         };
         state.Dependency = updateCommuterStateParallelJob.ScheduleParallel(state.Dependency);
@@ -176,12 +177,13 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
     [ReadOnly] public ComponentLookup<Parent> ParentLookup;
     [ReadOnly] public ComponentLookup<Stair> StairsLookup;
     [ReadOnly] public BufferLookup<PlatformStairs> PlatformStairsLookup;
+    [ReadOnly] public ComponentLookup<Carriage> CarriageLookup;
 
     [ReadOnly] public float DeltaTime;
 
     [BurstCompile]
     public void Execute(ref Commuter commuter, ref LocalTransform commuterTransform, ref TargetDestination targetDestination,
-        ref SaschaMovementQueue movementQueue)
+        ref SaschaMovementQueue movementQueue, ref SeatReservation seatReservation)
     {
         switch (commuter.State)
         {
@@ -197,6 +199,37 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
             case CommuterState.Unboarding:
                 UpdateMoveToDestination(ref commuter, ref commuterTransform, ref targetDestination, ref movementQueue);
                 break;
+            case CommuterState.InTrainWaitingForDeparture:
+            {
+                if (CarriageLookup.TryGetComponent(seatReservation.TargetCarriage, out var carriage) &&
+                    carriage.CurrentPlatform == Entity.Null)
+                {
+                    commuter.State = CommuterState.InTrainMoving;
+                }
+
+                break;
+            }
+            case CommuterState.InTrainMoving:
+            {
+                // TODO: update commuter position to seat location on train that might have moved
+                
+                // Check if we have arrived at a platform
+                if (CarriageLookup.TryGetComponent(seatReservation.TargetCarriage, out var carriage) &&
+                    carriage.CurrentPlatform != Entity.Null)
+                {
+                    // Randomly pick between leaving train or staying on
+                    if (commuter.Random.NextBool())
+                    {
+                        commuter.State = CommuterState.InTrainReadyToUnboard;
+                    }
+                    else
+                    {
+                        commuter.State = CommuterState.InTrainWaitingForDeparture;
+                    }
+                }
+
+                break;
+            }
         }
     }
 
@@ -219,7 +252,7 @@ public partial struct UpdateCommuterStateParallelJob : IJobEntity
 
                 commuter.State = commuter.State switch
                 {
-                    CommuterState.Boarding => CommuterState.InTrain,
+                    CommuterState.Boarding => CommuterState.InTrainWaitingForDeparture,
                     CommuterState.Unboarding => CommuterState.Idle,
                     CommuterState.MoveToDestination => CommuterState.PickQueue
                 };
