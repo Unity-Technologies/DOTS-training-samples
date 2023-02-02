@@ -167,17 +167,3 @@ public partial struct TrainStateDecider : IJobEntity
             = Entity.Null;
     }
 }
-
-public partial struct InformStationsJob : IJobEntity
-{ 
-    //platformID, trainID
-    [ReadOnly] public NativeHashMap<Entity, int> trainsArrivedAtStation;
-
-    public void Execute(RefRW<Platform> platform)
-    {
-        if (trainsArrivedAtStation.ContainsKey(platform.ValueRO.Entity))
-        {
-            //platform.ValueRW.ParkedTrainID = trainsArrivedAtStation[platform.ValueRO.PlatformID];
-        }
-    }
-}

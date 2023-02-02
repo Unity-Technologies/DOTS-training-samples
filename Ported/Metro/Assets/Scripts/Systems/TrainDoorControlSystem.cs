@@ -18,19 +18,14 @@ public partial struct TrainDoorControlSystem : ISystem
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        NativeList<RefRO<Train>> trains = new NativeList<RefRO<Train>>(Allocator.TempJob);
-        foreach (RefRO<Train> train in SystemAPI.Query<RefRO<Train>>())
-        {
-            trains.Add(train);
-        }
-
-        new DoorJob()
-        {
-            trains = trains,
-            ecbp = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
-        }.ScheduleParallel();
+        // new DoorJob()
+        // {
+        //     trains = trains,
+        //     ecbp = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter()
+        // }.ScheduleParallel();
     }
 }
 
