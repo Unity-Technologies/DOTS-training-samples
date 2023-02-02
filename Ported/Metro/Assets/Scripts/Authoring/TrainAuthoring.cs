@@ -56,7 +56,7 @@ public struct Train : IComponentData
 {
     public Entity entity;
     public Entity Line;
-    public Entity currentStation;
+    public Entity currentPlatform;
     public TrainState State;
     public int trainID;
     public int nextStationIndex;

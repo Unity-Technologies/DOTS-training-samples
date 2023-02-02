@@ -13,6 +13,7 @@ public partial struct TrainDoorControlSystem : ISystem
     private ComponentLookup<Train> trains;
     private BufferLookup<DoorEntity> doorsInCarridges;
     private ComponentLookup<Door> doors;
+    private ComponentLookup<Platform> platforms;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -21,6 +22,7 @@ public partial struct TrainDoorControlSystem : ISystem
         trains = SystemAPI.GetComponentLookup<Train>();
         doors = SystemAPI.GetComponentLookup<Door>();
         worldTransforms = SystemAPI.GetComponentLookup<LocalTransform>();
+        platforms = SystemAPI.GetComponentLookup<Platform>();
     }
     
     [BurstCompile]
@@ -35,6 +37,7 @@ public partial struct TrainDoorControlSystem : ISystem
         doorsInCarridges.Update(ref state);
         doors.Update(ref state);
         trains.Update(ref state);
+        platforms.Update(ref state);
         
         new DoorJob()
         {
@@ -42,6 +45,7 @@ public partial struct TrainDoorControlSystem : ISystem
             localTransforms = worldTransforms,
             doorEntities = doorsInCarridges,
             doors = doors,
+            platforms = platforms,
             deltaTime = SystemAPI.Time.DeltaTime
         }.ScheduleParallel();
     }
@@ -54,6 +58,7 @@ public partial struct DoorJob : IJobEntity
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<LocalTransform> localTransforms;
     [ReadOnly] public BufferLookup<DoorEntity> doorEntities;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Door> doors;
+    [ReadOnly] public ComponentLookup<Platform> platforms;
     [ReadOnly] public float deltaTime;
     
     public void Execute(RefRW<Carriage> carriage)
@@ -74,42 +79,57 @@ public partial struct DoorJob : IJobEntity
         {
             return;
         }
+
+        if (train.ValueRO.currentPlatform == Entity.Null)
+        {
+            return;
+        }
+
+        DoorSide doorMoveSide = platforms[train.ValueRO.currentPlatform].TrainDoorOpenSide;
         
         var doors = doorEntities[carriage.ValueRO.Entity];
         
         switch (train.ValueRO.State)
         {
             case TrainState.DoorOpening:
-                OpenDoors(doors);
+                OpenDoors(doors, doorMoveSide);
                 break;
             case TrainState.DoorClosing:
-                CloseDoors(doors);
+                CloseDoors(doors, doorMoveSide);
                 break;
             default:
                 return;
         }
     }
 
-    private void OpenDoors(DynamicBuffer<DoorEntity> doors)
+    private void OpenDoors(DynamicBuffer<DoorEntity> doors, DoorSide side)
     {
         foreach (DoorEntity door in doors)
         {
             RefRW<Door> doorE = this.doors.GetRefRW(door.doorEntity, false);
-            doorE.ValueRW.elapsedMoveTime += deltaTime;
-            float3 newPos = math.lerp(DoorInfo.closePos, DoorInfo.openPos, this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
-            localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
+            if (doorE.ValueRO.DoorSide == side || side == DoorSide.Both)
+            {
+                doorE.ValueRW.elapsedMoveTime += deltaTime;
+                float3 newPos = math.lerp(DoorInfo.closePos, DoorInfo.openPos,
+                    this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
+                localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
+            }
         }
     }
     
-    private void CloseDoors(DynamicBuffer<DoorEntity> doors)
+    private void CloseDoors(DynamicBuffer<DoorEntity> doors, DoorSide side)
     {
         foreach (DoorEntity door in doors)
         {
             RefRW<Door> doorE = this.doors.GetRefRW(door.doorEntity, false);
-            //So we don't have to reset the elpased time we can just reverse the time to close the doors
-            doorE.ValueRW.elapsedMoveTime -= deltaTime;
-            float3 newPos = math.lerp(DoorInfo.closePos,DoorInfo.openPos, this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
-            localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
+            if (doorE.ValueRO.DoorSide == side || side == DoorSide.Both)
+            {
+                //So we don't have to reset the elpased time we can just reverse the time to close the doors
+                doorE.ValueRW.elapsedMoveTime -= deltaTime;
+                float3 newPos = math.lerp(DoorInfo.closePos, DoorInfo.openPos,
+                    this.doors.GetRefRW(door.doorEntity, false).ValueRO.elapsedMoveTime / 0.5f);
+                localTransforms.GetRefRW(door.doorEntity, false).ValueRW.Position = newPos;
+            }
         }
     }
 }

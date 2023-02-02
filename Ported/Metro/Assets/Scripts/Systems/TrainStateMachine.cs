@@ -93,7 +93,7 @@ public partial struct TrainStateDecider : IJobEntity
                 {
                     newState = TrainState.TrainMovement;
                     InformLeftStation(trainScheduling);
-                    trainScheduling.train.ValueRW.currentStation = Entity.Null;
+                    trainScheduling.train.ValueRW.currentPlatform = Entity.Null;
                 }
                 break;
             case TrainState.Boarding:
@@ -141,7 +141,7 @@ public partial struct TrainStateDecider : IJobEntity
         }
 
         DynamicBuffer<PlatformEntity> lineStations = allStations[trainScheduling.train.ValueRO.Line];
-        trainScheduling.train.ValueRW.currentStation = lineStations[currentStationIndex].Station;
+        trainScheduling.train.ValueRW.currentPlatform = lineStations[currentStationIndex].Station;
         
         int nextStationIndex = currentStationIndex + trainScheduling.train.ValueRO.direction;
         trainScheduling.train.ValueRW.nextStationIndex = nextStationIndex;
@@ -159,9 +159,9 @@ public partial struct TrainStateDecider : IJobEntity
 
     private void InformAtStation(TrainSchedulingAspect trainScheduling)
     {
-        var arrivalPlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false);
+        var arrivalPlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentPlatform, false);
         arrivalPlatform.ValueRW.ParkedTrain = trainScheduling.train.ValueRW.entity;
-        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentStation];
+        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentPlatform];
         foreach (var platformQueue in platformQueues)
         {
             allQueueStates.GetRefRW(platformQueue.Queue, false).ValueRW.IsOpen = true;
@@ -173,16 +173,16 @@ public partial struct TrainStateDecider : IJobEntity
             if (allCarriages.HasComponent(trainChild.Value))
             {
                 allCarriages.GetRefRW(trainChild.Value, false).ValueRW.CurrentPlatform =
-                    trainScheduling.train.ValueRW.currentStation;
+                    trainScheduling.train.ValueRW.currentPlatform;
             }
         }
     }
 
     private void InformLeftStation(TrainSchedulingAspect trainScheduling)
     {
-        var departurePlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentStation, false);
+        var departurePlatform = allPlatforms.GetRefRW(trainScheduling.train.ValueRW.currentPlatform, false);
         departurePlatform.ValueRW.ParkedTrain = Entity.Null;
-        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentStation];
+        var platformQueues = allPlatformQueues[trainScheduling.train.ValueRW.currentPlatform];
         foreach (var platformQueue in platformQueues)
         {
             allQueueStates.GetRefRW(platformQueue.Queue, false).ValueRW.IsOpen = false;
