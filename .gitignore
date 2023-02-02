@@ -46,5 +46,6 @@ sysinfo.txt
 
 *.DS_Store
 Ported/Captures/*
-Ported/HighwayRacers/UserSettings/Layouts/*.dwlt
+Ported/HighwayRacers/UserSettings/Layouts/**.dwlt
 Ported/HighwayRacers/ProfileAnalyzer/*.pdata
+Ported/HighwayRacers/UserSettings/Layouts/default-2022.dwlt

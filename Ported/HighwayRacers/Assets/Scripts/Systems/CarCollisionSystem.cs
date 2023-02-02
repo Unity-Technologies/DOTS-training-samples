@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
+using UnityEngine.Rendering;
 using Random = UnityEngine.Random;
 
 [assembly: RegisterGenericJobType(typeof(SortJob<CarEntity, CarEntityComparer>))]
@@ -18,6 +19,8 @@ public partial struct CarCollisionSystem : ISystem
     private ComponentLookup<CarIndex> carIndexLookup;
     private ComponentLookup<URPMaterialPropertyBaseColor> colorLookup;
 
+    private bool _hasInitiallySorted;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -26,6 +29,7 @@ public partial struct CarCollisionSystem : ISystem
         carVelocityLookup = SystemAPI.GetComponentLookup<CarVelocity>(true);
         carIndexLookup = SystemAPI.GetComponentLookup<CarIndex>();
         colorLookup = SystemAPI.GetComponentLookup<URPMaterialPropertyBaseColor>();
+        _hasInitiallySorted = false;
     }
 
     [BurstCompile]
@@ -54,8 +58,18 @@ public partial struct CarCollisionSystem : ISystem
         };
         state.Dependency = positionAssignmentJob.Schedule(entitiesLength, batchSize, state.Dependency);
 
-        var sortingJob = carEntities.SortJob(new CarEntityComparer());
-        state.Dependency = sortingJob.Schedule(state.Dependency);
+        //Initially sort with SortJob (Mergesort)
+        if (!_hasInitiallySorted)
+        {
+            _hasInitiallySorted = true;
+            var sortingJob = carEntities.SortJob(new CarEntityComparer());
+            state.Dependency = sortingJob.Schedule(state.Dependency);
+        }
+        else //then sort with incremental Insertion Sort (~O(n))
+        {
+            var sortingJob = new InsertionSortJob { CarEntities = carEntities, Comparer = new CarEntityComparer(), };
+            state.Dependency = sortingJob.Schedule(entitiesLength, state.Dependency);
+        }
 
         var indexAssignmentJob = new IndexAssignmentJob
             { CarEntities = carEntities, CarIndexLookup = carIndexLookup, ColorLookup = colorLookup };
@@ -94,6 +108,41 @@ partial struct PositionAssignmentJob : IJobParallelFor
         //     };
     }
 }
+
+
+/**
+ * TODO: Insertion sort ST
+ * TODO: later: Odd-Even (parallel) sort
+ */
+
+[BurstCompile]
+partial struct InsertionSortJob : IJobFor
+{
+    public NativeArray<CarEntity> CarEntities;
+    public CarEntityComparer Comparer;
+    public void Execute(int index)
+    {
+        if (index == 0) return;
+        //index determines sorted partition
+        int reverseIndex = index - 1;
+        
+        //search backwards through array, stop when current index is greater or equal
+        while (index > 0 && Comparer.Compare(CarEntities[index], CarEntities[reverseIndex]) < 0)
+        {
+            //swapping as we go
+            SwapCarEntites(index--, reverseIndex--);
+        }
+        
+    }
+
+    public void SwapCarEntites(int a, int b)
+    {
+        CarEntity temp = CarEntities[a];
+        CarEntities[a] = CarEntities[b];
+        CarEntities[b] = temp;
+    }
+}
+
 [BurstCompile]
 partial struct IndexAssignmentJob : IJobParallelFor
 {
