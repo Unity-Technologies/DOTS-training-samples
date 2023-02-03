@@ -91,26 +91,12 @@ partial struct LevelSpawningSystem : ISystem
             {
                 last = transform;
             }
-            
-                    
-            // foreach (var stationTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Station>())
-            // {
-            //     var wagonStationBuffer = SystemAPI.GetBuffer<StationWayPoints>(wagons[j]);
-            //     wagonStationBuffer.Add(new StationWayPoints{Value = stationTransform.ValueRO.Position});
-            // }
-            //Debug.Log($"First: {first.Position.x}");
         }
-
         
-
-        // This system should only run once at startup. So it disables itself after one update.
+        //rail spawning and streching
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         var railSpawn = state.EntityManager.Instantiate(config.RailPrefab);
-        
-        // need var distance /2 between first and last station in x value (for now)
-
         var railTransform = LocalTransform.FromPosition(first.Position.x + (last.Position.x - first.Position.x)/2, -1, 0);
-        
-        // need var distance to calculate scale value
 
         float stretch = last.Position.x - first.Position.x;
 
@@ -118,7 +104,7 @@ partial struct LevelSpawningSystem : ISystem
         state.EntityManager.SetComponentData(railSpawn, new RailStretchFactor{StretchFactor = new float2(stretch, 1)});
 
         state.EntityManager.SetComponentData(railSpawn, railTransform);
-        
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         
         var humans = CollectionHelper.CreateNativeArray<Entity>(config.HumanCount, Allocator.Temp);
         state.EntityManager.Instantiate(config.HumanPrefab, humans);
@@ -127,7 +113,6 @@ partial struct LevelSpawningSystem : ISystem
         
         foreach (var station in SystemAPI.Query<RefRW<Station>>())
         {
-           // Debug.Log("I have found some stations");
             stationSpawners.Add(station.ValueRO.HumanSpawnerLocation);
         }
 

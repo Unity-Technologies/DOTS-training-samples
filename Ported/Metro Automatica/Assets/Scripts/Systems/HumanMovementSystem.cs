@@ -34,22 +34,9 @@ partial struct HumanMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-       /* foreach (var (human, transform) in SystemAPI.Query<RefRO<Human>, RefRW<LocalTransform>>()
-                     .WithNone<HumanWaitForRouteTag, HumanInTrainTag>())
-        {
-            float3 finalDestination = human.ValueRO.QueuePoint;
-            float distCovered = (float)(SystemAPI.Time.ElapsedTime) * speed;
-            
-            float journeyLength = Vector3.Distance(transform.ValueRW.Position, finalDestination);
-            float fractionOfJourney = distCovered / journeyLength;
-
-            transform.ValueRW = LocalTransform.FromPosition(
-                Vector3.Lerp(transform.ValueRW.Position, finalDestination, fractionOfJourney));
-        }*/
-       var jobExecute = new HumanMovementJob();
+        var jobExecute = new HumanMovementJob();
        jobExecute.elapsedTime = (float)SystemAPI.Time.ElapsedTime;
        jobExecute.ScheduleParallel();
-       // state.Dependency = jobExecute.Schedule(state.Dependency);
     }
 }
 

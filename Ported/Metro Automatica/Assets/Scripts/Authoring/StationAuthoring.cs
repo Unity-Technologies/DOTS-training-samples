@@ -45,14 +45,7 @@ class StationAuthoring : MonoBehaviour
 
 struct Station : IComponentData
 {
-   // public Entity StationPrefab;
-   public WorldTransform HumanSpawnerLocation;
-   //public StationWaypoints StationWaypoints;
-
-   // public NativeArray<float3> QueuePoints1;
-   // public NativeArray<float3> QueuePoints2;
-   // public NativeArray<float3> BridgePathWays1;
-   // public NativeArray<float3> BridgePathWays2;
+    public WorldTransform HumanSpawnerLocation;
 }
 
 [InternalBufferCapacity(5)]

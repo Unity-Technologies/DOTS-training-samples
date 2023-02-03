@@ -35,7 +35,6 @@ partial struct HumanRoutingSystem : ISystem
 
         for (int i = 0; i < humanEntities.Length; i++)
         {
-            //Debug.Log("Human with tag found");
             Entity nearestStation = new Entity();
             float shortestDistance = float.MaxValue;
 
@@ -50,7 +49,6 @@ partial struct HumanRoutingSystem : ISystem
                     nearestStation = stationEntity;
                 }
             }
-            // Nusprest ar Queue ar Per Tilta
             if (Random.Range(1, 1).Equals(1))
             {
                 var queuePointsColl = SystemAPI.GetBuffer<QueueWaypointCollection>(nearestStation);

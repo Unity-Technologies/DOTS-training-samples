@@ -9,17 +9,9 @@ using UnityEngine.UI;
 [BurstCompile]
 partial struct WagonMovementSystem : ISystem
 {
-    //private float startTime;
-    //public float speed;
-    //public float stopTimer;
-    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        //startTime = Time.time;
-        //speed = 0.01f;
-        //stopTimer = 0f;
-
     }
 
     [BurstCompile]
@@ -30,46 +22,6 @@ partial struct WagonMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-       // var config = SystemAPI.GetSingleton<Config>();
-
-
-       // var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-       // var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        
-       /* foreach (var (wagon, transform, stationList) in SystemAPI.Query<RefRW<Wagon>, RefRW<LocalTransform>, DynamicBuffer<StationWayPoints>>())
-        {
-            float3 finalDestination = stationList[wagon.ValueRO.StationCounter].Value;
-            float distCovered = (Time.time - startTime) * speed;
-            float journeyLength = Vector3.Distance(transform.ValueRO.Position, finalDestination);
-            float fractionOfJourney = distCovered / journeyLength;
-            transform.ValueRW.Position = Vector3.Lerp(transform.ValueRO.Position, finalDestination, fractionOfJourney);
-            
-            if (journeyLength < 0.001f)
-            {
-                if (wagon.ValueRO.StationCounter == 0 && wagon.ValueRO.Direction > 0)
-                {
-                    wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
-                    Debug.Log($"Sending to next station");
-                }
-                else if(wagon.ValueRO.StationCounter > 0 && wagon.ValueRO.StationCounter < stationList.Length - 1)
-                {
-                    wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
-                    Debug.Log($"2");
-                }
-                else if (wagon.ValueRO.StationCounter == stationList.Length - 1)
-                {
-                    Debug.Log($"3");
-                    wagon.ValueRW.Direction = -1;
-                    wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
-                }
-                else if(wagon.ValueRO.StationCounter == 0 && wagon.ValueRO.Direction < 0)
-                {
-                    wagon.ValueRW.Direction = 1;
-                    wagon.ValueRW.StationCounter += wagon.ValueRO.Direction;
-                    Debug.Log($"Going back");
-                }
-            }
-        }*/
        var jobExecute = new WagonMovementJob();
        jobExecute.elapsedTime = (float)SystemAPI.Time.ElapsedTime;
        jobExecute.ScheduleParallel();
