@@ -181,7 +181,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: LineCount
-      value: 12
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: TrainPrefab
@@ -205,7 +205,7 @@ PrefabInstance:
       objectReference: {fileID: 8833507882376678990, guid: 17765fa508396084ea1a6912cba31810, type: 3}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: StationsPerLineCount
-      value: 6
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
