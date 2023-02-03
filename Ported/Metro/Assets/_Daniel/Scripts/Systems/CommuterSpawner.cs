@@ -62,6 +62,18 @@ partial struct CommuterSpawner : ISystem
         foreach (var commuter in commuters)
         {
             int randomIndex= Random.NextInt(0, platformsSize);
+            
+            
+
+            URPMaterialPropertyBaseColor RandomColor()
+            {
+                hue = (hue + 0.618034005f) % 1;
+                var color = UnityEngine.Color.HSVToRGB(hue, 1.0f, 1.0f);
+                return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
+            }
+
+            SystemAPI.SetComponent(commuter, RandomColor());
+            
             var platformEntity = platforms[randomIndex];
             Debug.Log("Ps: " + platformEntity.ToString());
 
@@ -82,12 +94,13 @@ partial struct CommuterSpawner : ISystem
             var station = state.EntityManager.GetComponentData<Parent>(platformEntity);
             //var stationTransformAspect = SystemAPI.GetAspectRW<TransformAspect>(station.Value);
             var stationComponent = state.EntityManager.GetComponentData<Station>(station.Value);
+            var stationTransform = state.EntityManager.GetComponentData<LocalTransform>(station.Value);
             //var stationTransform = stationTransformAspect.WorldPosition;
 
             var randomOffsetXMax = config.StationsOffset * stationComponent.Id;
-            var randomOffsetZMax = (platform.SystemId * config.LineOffset) - 50f;
+            var randomOffsetZMax = stationTransform.Position.z + (platform.Id * -50f);
             var randomOffsetX = Random.NextFloat(randomOffsetXMax - 30f, randomOffsetXMax + 30f); ;
-            var randomOffsetZ = Random.NextFloat(randomOffsetZMax - 40f, randomOffsetZMax + 40f); ;
+            var randomOffsetZ = Random.NextFloat(randomOffsetZMax - 5f, randomOffsetZMax + 5f); ;
 
             var randomOffset = new float3(randomOffsetX, 0, randomOffsetZ);
 

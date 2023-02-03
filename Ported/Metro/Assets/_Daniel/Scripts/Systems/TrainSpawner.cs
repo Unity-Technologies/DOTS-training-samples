@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(PlatformSpawner))]
@@ -34,13 +35,13 @@ public partial struct TrainSpawner : ISystem
             foreach (var (station, stationEntity) in SystemAPI.Query<Station>().WithEntityAccess())
             {
                 if (station.Id == 0 && station.SystemId == i)
-                    SpawnTrain(state, stationEntity, station, config, i);
+                    SpawnTrain(ref state, stationEntity, station, config, i);
             }
         }
         state.Enabled = false;
     }
 
-    private void SpawnTrain(SystemState state, Entity stationEntity, Station station, Config config, int systemId)
+    private void SpawnTrain(ref SystemState state, Entity stationEntity, Station station, Config config, int systemId)
     {
         
             foreach (var platformChild in SystemAPI.GetBuffer<Child>(stationEntity))
@@ -53,6 +54,8 @@ public partial struct TrainSpawner : ISystem
                     var platfomTransform = state.EntityManager.GetComponentData<WorldTransform>(platformChild.Value);
                     var lt = LocalTransform.FromPosition(new float3(-51f, 0, -14f) + new float3(config.StationsOffset * station.Id, 0, config.LineOffset * station.SystemId + platform.Id * -50f));
                     state.EntityManager.SetComponentData<WorldTransform>(train, new WorldTransform { Position = lt.Position, Scale = 1 });
+                    
+                    
 
                     var trainComponent = state.EntityManager.GetComponentData<Train>(train);
                     //trainComponent.Line = station.Line;
@@ -61,6 +64,8 @@ public partial struct TrainSpawner : ISystem
                         if (line.Id == platform.Id && line.SystemId == systemId)
                         {
                             trainComponent.Line = lineEntity;
+                            // TODO: colors need to be set on specific mesh entities that are nested children of train
+                            //SystemAPI.SetComponent(train, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)line.LineColor });
                         }
                     }
                     state.EntityManager.SetComponentData<Train>(train, trainComponent);
