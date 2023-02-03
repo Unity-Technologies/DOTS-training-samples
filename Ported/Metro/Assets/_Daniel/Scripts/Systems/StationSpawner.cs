@@ -5,18 +5,19 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(LineSpawner))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 [BurstCompile]
 public partial struct StationSpawner : ISystem
 {
     EntityQuery m_BaseColorQuery;
-    ComponentLookup<WorldTransform> m_WorldTransformLookup;
+    //ComponentLookup<WorldTransform> m_WorldTransformLookup;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         // This system should not run before the Config singleton has been loaded.
         state.RequireForUpdate<Config>();
-        m_WorldTransformLookup = state.GetComponentLookup<WorldTransform>(true);
+        //m_WorldTransformLookup = state.GetComponentLookup<WorldTransform>(true);
 
     }
 
@@ -28,7 +29,7 @@ public partial struct StationSpawner : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        m_WorldTransformLookup.Update(ref state);
+        //m_WorldTransformLookup.Update(ref state);
 
         var config = SystemAPI.GetSingleton<Config>();
 

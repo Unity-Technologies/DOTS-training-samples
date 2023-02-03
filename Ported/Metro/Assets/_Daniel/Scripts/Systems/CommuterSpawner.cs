@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(TrainSpawner))]
 [BurstCompile]
@@ -42,8 +43,9 @@ partial struct CommuterSpawner : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
-        var commuters = state.EntityManager.Instantiate(config.CommuterPrefab, config.CommuterCount, Allocator.Persistent);
+        var commuters = state.EntityManager.Instantiate(config.CommuterPrefab, config.CommuterCount, Allocator.Temp);
         NativeList<Entity> platforms = new NativeList<Entity>(Allocator.Temp);
+        //NativeList<Platform> platformsComponent = new NativeList<Platform>(Allocator.Persistent);
         foreach (var (platform, platformEntity) in SystemAPI.Query<Platform>().WithEntityAccess())
         {
             platforms.Add(platformEntity);
@@ -63,40 +65,37 @@ partial struct CommuterSpawner : ISystem
             var platformEntity = platforms[randomIndex];
             Debug.Log("Ps: " + platformEntity.ToString());
 
-            //var commuterComponent = state.EntityManager.GetComponentData<Commuter>(commuter);
-            //commuterComponent.CurrentPlatform = platformEntity;
-            //state.EntityManager.SetComponentData<Commuter>(commuter, commuterComponent);
-            state.EntityManager.SetComponentData<Commuter>(commuter, new Commuter { CurrentPlatform = platformEntity });
+            var commuterComponent = state.EntityManager.GetComponentData<Commuter>(commuter);
+            commuterComponent.CurrentPlatform = platformEntity;
+            commuterComponent.Random = Random.CreateFromIndex((uint)Random.NextInt());
+            state.EntityManager.SetComponentData<Commuter>(commuter, commuterComponent);
+            ////state.EntityManager.SetComponentData<Commuter>(commuter, new Commuter { CurrentPlatform = platformEntity });
 
-            Platform platform = state.EntityManager.GetComponentData<Platform>(platformEntity);
-            Line line = state.EntityManager.GetComponentData<Line>(platform.Line);
-            var platformTransform = state.EntityManager.GetComponentData<WorldTransform>(platform.PlatformFloor);
-            var platformFloorAspect = SystemAPI.GetAspectRW<TransformAspect>(platform.PlatformFloor);
+            var platform = state.EntityManager.GetComponentData<Platform>(platformEntity);
+            //Line line = state.EntityManager.GetComponentData<Line>(platform.Line);
+            //var platformTransform = state.EntityManager.GetComponentData<WorldTransform>(platform.PlatformFloor);
+            //var platformFloorAspect = SystemAPI.GetAspectRW<TransformAspect>(platform.PlatformFloor);
 
             var commuterTransforAspect = SystemAPI.GetAspectRW<TransformAspect>(commuter);
-            var platformTransfromAspect = SystemAPI.GetAspectRW<TransformAspect>(platform.PlatformFloor);
+            //var platformTransfromAspect = SystemAPI.GetAspectRW<TransformAspect>(platform.PlatformFloor);
 
             var station = state.EntityManager.GetComponentData<Parent>(platformEntity);
-            var stationTransformAspect = SystemAPI.GetAspectRW<TransformAspect>(station.Value);
+            //var stationTransformAspect = SystemAPI.GetAspectRW<TransformAspect>(station.Value);
             var stationComponent = state.EntityManager.GetComponentData<Station>(station.Value);
-            var stationTransform = stationTransformAspect.WorldPosition;
+            //var stationTransform = stationTransformAspect.WorldPosition;
 
             var randomOffsetXMax = config.StationsOffset * stationComponent.Id;
-            var randomOffsetZMax = (line.SystemId * config.LineOffset) - 50f;
-            var randomOffsetX =  Random.NextFloat(randomOffsetXMax - 30f, randomOffsetXMax + 30f);;
-            var randomOffsetZ =  Random.NextFloat(randomOffsetZMax - 40f, randomOffsetZMax + 40f);;
+            var randomOffsetZMax = (platform.SystemId * config.LineOffset) - 50f;
+            var randomOffsetX = Random.NextFloat(randomOffsetXMax - 30f, randomOffsetXMax + 30f); ;
+            var randomOffsetZ = Random.NextFloat(randomOffsetZMax - 40f, randomOffsetZMax + 40f); ;
 
-            var randomOffset  = new float3(randomOffsetX, 0 , randomOffsetZ);
+            var randomOffset = new float3(randomOffsetX, 0, randomOffsetZ);
 
-            //var stationTransform = LocalTransform.FromPosition(new float3(0, 0, 0) + new float3(config.StationsOffset * stationComponent.Id, 0, config.LineOffset * line.SystemId));
-
-            //commuterTransforAspect.WorldPosition = (platformTransform.Position);
-            //worldTransforms.GetRefRW(commuter, false).ValueRW.Position = stationTransformAspect.WorldPosition + randomOffet;
 
             commuterTransforAspect.WorldPosition = ( randomOffset);
-            //commuterTransforAspect.TranslateWorld (stationTransform + commuterTransforAspect.WorldPosition + randomOffet);
+            ////commuterTransforAspect.TranslateWorld (stationTransform + commuterTransforAspect.WorldPosition + randomOffet);
 
-            state.EntityManager.SetComponentData<WorldTransform>(commuter, new WorldTransform { Position = randomOffset, Scale = 1 });
+            //state.EntityManager.SetComponentData<WorldTransform>(commuter, new WorldTransform { Position = randomOffset, Scale = 1 });
 
         }
     }

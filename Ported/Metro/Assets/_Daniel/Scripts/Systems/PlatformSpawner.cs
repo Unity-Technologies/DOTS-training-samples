@@ -5,6 +5,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(StationSpawner))]
+[UpdateAfter(typeof(TransformSystemGroup))]
 [BurstCompile]
 public partial struct PlatformSpawner : ISystem
 {
@@ -53,6 +54,7 @@ public partial struct PlatformSpawner : ISystem
                     platform.Line = station.Line;
                     platform.StationId = station.Id;
                     platform.Id = platformId;
+                    platform.SystemId = i;
                     state.EntityManager.SetComponentData<Platform>(platfomChild.Value, platform);
 
                     //Overkill, but local to world transforms are not behaving

@@ -55,7 +55,7 @@ public struct Platform : IComponentData
     public DoorSide TrainDoorOpenSide;
     public int StationId;
     public int Id;
-
+    public int SystemId;
 }
 
 public struct PlatformQueue : IBufferElementData
