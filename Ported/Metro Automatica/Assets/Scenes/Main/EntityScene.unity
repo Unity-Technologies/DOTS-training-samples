@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StationPrefab: {fileID: 1546682016640038, guid: cb2a6a21a6d8a234da2489301ff94e19,
     type: 3}
-  StationCount: 1000
+  StationCount: 3
   SafeZoneRadius: 10
   RailPrefab: {fileID: 5013848022990113398, guid: b90e19afbdf4a564283a697b8fa6ac75,
     type: 3}
@@ -162,8 +162,8 @@ MonoBehaviour:
     type: 3}
   HumanPrefab: {fileID: 58631452150476252, guid: f68190fb13cbe4125a26c61fb25bc066,
     type: 3}
-  WagonCount: 10000
-  HumanCount: 100000
+  WagonCount: 5
+  HumanCount: 100
 --- !u!4 &754792382
 Transform:
   m_ObjectHideFlags: 0

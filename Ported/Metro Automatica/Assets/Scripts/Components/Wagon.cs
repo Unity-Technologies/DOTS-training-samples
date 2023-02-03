@@ -7,8 +7,9 @@ struct Wagon : IComponentData
     public int TrainID;
     public int Direction;
     // public float3 currentDestination;
-    public float TrainOffset;
+    public float WagonOffset;
     public int StationCounter;
+    public float StopTimer;
 }
 struct StationWayPoints : IBufferElementData
 {

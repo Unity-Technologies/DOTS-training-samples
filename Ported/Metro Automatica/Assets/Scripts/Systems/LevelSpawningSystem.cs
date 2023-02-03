@@ -72,11 +72,11 @@ partial struct LevelSpawningSystem : ISystem
                     wagonTransform.Rotation = quaternion.RotateY(math.radians(90));
                     state.EntityManager.SetComponentData(wagons[j], wagonTransform);
                     var tempWagon = SystemAPI.GetComponent<Wagon>(wagons[j]);
-                    tempWagon.TrainOffset = firstWagon.Position.x;
+                    tempWagon.WagonOffset = firstWagon.Position.x;
                     tempWagon.StationCounter = i;
                     tempWagon.Direction = 1;
                     SystemAPI.SetComponent(wagons[j], tempWagon);
-                    firstWagon.Position.x += 5.2f;
+                    firstWagon.Position.x -= 5.2f;
                 }
             }
 

@@ -9,14 +9,17 @@ using UnityEngine.UI;
 [BurstCompile]
 partial struct WagonMovementSystem : ISystem
 {
-    private float startTime;
-    public float speed;
+    //private float startTime;
+    //public float speed;
+    //public float stopTimer;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        startTime = Time.time;
-        speed = 0.01f;
+        //startTime = Time.time;
+        //speed = 0.01f;
+        //stopTimer = 0f;
+
     }
 
     [BurstCompile]
@@ -80,35 +83,54 @@ partial struct WagonMovementJob : IJobEntity
     public void Execute(ref Wagon wagon, ref LocalTransform transform, DynamicBuffer<StationWayPoints> stationList)
     {
         const float speed = 0.01f;
-        float3 finalDestination = stationList[wagon.StationCounter].Value;
+        const float waitTime = 50f;
+        float3 stationLocation = stationList[wagon.StationCounter].Value;
+        float3 finalDestination = new float3(stationLocation.x + wagon.WagonOffset, 0f, 0f);
         float distCovered = (elapsedTime) * speed;
         float journeyLength = Vector3.Distance(transform.Position, finalDestination);
-        float fractionOfJourney = distCovered / journeyLength;
-        transform.Position = Vector3.Lerp(transform.Position, finalDestination, fractionOfJourney);
-            
+        if (journeyLength > 0)
+        {
+            float fractionOfJourney = distCovered / journeyLength;
+            transform.Position = Vector3.Lerp(transform.Position, finalDestination, fractionOfJourney);
+        }
+
         if (journeyLength < 0.001f)
         {
+            wagon.StopTimer += 0.1f;
             if (wagon.StationCounter == 0 && wagon.Direction > 0)
             {
-                wagon.StationCounter += wagon.Direction;
-                Debug.Log($"Sending to next station");
+                if (wagon.StopTimer > waitTime)
+                {
+                    wagon.StationCounter += wagon.Direction;
+                    wagon.StopTimer = 0f;
+                }
             }
             else if(wagon.StationCounter > 0 && wagon.StationCounter < stationList.Length - 1)
             {
-                wagon.StationCounter += wagon.Direction;
-                Debug.Log($"2");
+                if (wagon.StopTimer > waitTime)
+                {
+                    wagon.StationCounter += wagon.Direction;
+                    wagon.StopTimer = 0f;
+                }
+                
             }
             else if (wagon.StationCounter == stationList.Length - 1)
             {
-                Debug.Log($"3");
-                wagon.Direction = -1;
-                wagon.StationCounter += wagon.Direction;
+                if (wagon.StopTimer > waitTime)
+                {
+                    wagon.Direction = -1;
+                    wagon.StationCounter += wagon.Direction;
+                    wagon.StopTimer = 0f;
+                }
             }
             else if(wagon.StationCounter == 0 && wagon.Direction < 0)
             {
-                wagon.Direction = 1;
-                wagon.StationCounter += wagon.Direction;
-                Debug.Log($"Going back");
+                if (wagon.StopTimer > waitTime)
+                {
+                    wagon.Direction = 1;
+                    wagon.StationCounter += wagon.Direction;
+                    wagon.StopTimer = 0f;
+                }
             }
         }
     }
