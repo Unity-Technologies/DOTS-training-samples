@@ -53,35 +53,40 @@ public partial struct PlatformSpawner : ISystem
                     var platform = state.EntityManager.GetComponentData<Platform>(platfomChild.Value);
                     platform.Line = station.Line;
                     platform.StationId = station.Id;
-                    //platform.Id = platformId;
+                    platformId = platform.Id;
                     platform.SystemId = i;
                     state.EntityManager.SetComponentData<Platform>(platfomChild.Value, platform);
 
                     //Overkill, but local to world transforms are not behaving
                     foreach (var (line, lineEntity) in SystemAPI.Query<Line>().WithEntityAccess())
+                    {
                         if (line.Id == platformId && line.SystemId == i && station.SystemId == i)
                         {
                             pe = new PlatformEntity
                             {
                                 Station = platfomChild.Value,
-                                StopPos = LocalTransform.FromPosition(new float3(-51, 0, -14) + new float3((config.StationsOffset * station.Id), 0, config.LineOffset * i + (platform.Id) * -50f)).Position
+                                StopPos = LocalTransform.FromPosition(new float3(-51, 0, -14) +
+                                                                      new float3((config.StationsOffset * station.Id),
+                                                                          0,
+                                                                          config.LineOffset * i + (platform.Id) * -50f))
+                                    .Position
                             };
                             state.EntityManager.GetBuffer<PlatformEntity>(lineEntity).Add(pe);
+                            
+                            var platformStairCases = SystemAPI.GetBuffer<PlatformStairs>(platfomChild.Value);
+
+                            var stationOffsetVector =
+                                new float3((config.StationsOffset * station.Id), 0, config.LineOffset * i);
+                            foreach (var platformStairs in platformStairCases)
+                            {
+                                var stair = SystemAPI.GetComponent<Stair>(platformStairs.Stairs);
+                                stair.BottomWaypoint += stationOffsetVector;
+                                stair.TopWaypoint += stationOffsetVector;
+                                stair.TopWalkwayWaypoint += stationOffsetVector;
+                                SystemAPI.SetComponent(platformStairs.Stairs, stair);
+                            }
                         }
-
-                    var platformStairCases = SystemAPI.GetBuffer<PlatformStairs>(platfomChild.Value);
-
-                    var stationOffsetVector = new float3((config.StationsOffset * station.Id), 0,config.LineOffset * i);
-                    foreach (var platformStairs in platformStairCases)
-                    {
-                        var stair = SystemAPI.GetComponent<Stair>(platformStairs.Stairs);
-                        stair.BottomWaypoint += stationOffsetVector;
-                        stair.TopWaypoint += stationOffsetVector;
-                        stair.TopWalkwayWaypoint += stationOffsetVector;
-                        SystemAPI.SetComponent(platformStairs.Stairs, stair);
                     }
-
-                    platformId++;
                 }
             }
         }
