@@ -19,6 +19,7 @@ public class TrainAuthoring : MonoBehaviour
     [Header("Train Info")] 
     public GameObject carridgePrefab;
     public float Speed;
+    public List<CarriageAuthoring> carriages;
 
     [Header("Timing Info")] 
     public float doorTransitionTime;
@@ -51,6 +52,16 @@ public class TrainAuthoring : MonoBehaviour
             AddComponent(new TargetDestination());
 
             AddComponent(train);
+
+            var carriageBuffer = AddBuffer<TrainCarriage>();
+            foreach (var carriageAuthoring in authoring.carriages)
+            {
+                carriageBuffer.Add(new TrainCarriage()
+                {
+                    CarriageNumber = carriageAuthoring.CarriageNumber,
+                    CarriageEntity = GetEntity(carriageAuthoring.gameObject)
+                });
+            }
         }
         
     }
@@ -78,4 +89,10 @@ public struct TrainScheduleInfo : IComponentData
     public float waitTimeRandomVariance;
     
     public float timeInState;
+}
+
+public struct TrainCarriage : IBufferElementData
+{
+    public int CarriageNumber;
+    public Entity CarriageEntity;
 }

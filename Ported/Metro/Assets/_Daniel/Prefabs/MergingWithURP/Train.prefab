@@ -51,8 +51,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   carridgePrefab: {fileID: 0}
   Speed: 100
+  carriages:
+  - {fileID: 6169126187426004211}
+  - {fileID: 6169126189407822758}
+  - {fileID: 6169126188462259109}
+  - {fileID: 6169126188209796028}
+  - {fileID: 6169126187897694408}
   doorTransitionTime: 0.5
   stationWaitTime: 5
+  stationWaitTimeVariance: 2
   line: {fileID: 0}
 --- !u!1001 &6169126187426004242
 PrefabInstance:

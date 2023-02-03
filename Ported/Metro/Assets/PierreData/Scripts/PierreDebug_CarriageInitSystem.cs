@@ -18,7 +18,7 @@ public partial struct PierreDebug_CarriageInitSystem : ISystem
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
-    {
+    {/*
         foreach (var (platform, platformEntity) in SystemAPI.Query<RefRO<Platform>>().WithEntityAccess())
         {
             var queues = SystemAPI.GetBuffer<PlatformQueue>(platformEntity);
@@ -38,7 +38,7 @@ public partial struct PierreDebug_CarriageInitSystem : ISystem
                     }
                 }
             }
-        }
+        }*/
 
         state.Enabled = false;
     }

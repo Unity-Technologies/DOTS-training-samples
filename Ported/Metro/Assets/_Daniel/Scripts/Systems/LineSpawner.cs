@@ -4,18 +4,19 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(/*BeginSimulationEntityCommandBufferSystem*/TransformSystemGroup))]
+//[UpdateAfter(typeof(/*BeginSimulationEntityCommandBufferSystem*/TransformSystemGroup))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 [BurstCompile]
 partial struct LineSpawner : ISystem
 {
     EntityQuery m_BaseColorQuery;
-    ComponentLookup<WorldTransform> m_WorldTransformLookup;
+    //ComponentLookup<WorldTransform> m_WorldTransformLookup;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        m_WorldTransformLookup = state.GetComponentLookup<WorldTransform>(true);
+        //m_WorldTransformLookup = state.GetComponentLookup<WorldTransform>(true);
     }
 
     [BurstCompile]
@@ -26,7 +27,7 @@ partial struct LineSpawner : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        m_WorldTransformLookup.Update(ref state);
+        //m_WorldTransformLookup.Update(ref state);
 
         var config = SystemAPI.GetSingleton<Config>();
         var random = Unity.Mathematics.Random.CreateFromIndex(1234);

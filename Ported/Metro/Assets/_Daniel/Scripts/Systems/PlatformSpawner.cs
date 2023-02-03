@@ -5,6 +5,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(StationSpawner))]
+[UpdateAfter(typeof(TransformSystemGroup))]
 [BurstCompile]
 public partial struct PlatformSpawner : ISystem
 {
