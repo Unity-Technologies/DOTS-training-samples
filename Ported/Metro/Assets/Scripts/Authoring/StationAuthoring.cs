@@ -41,7 +41,10 @@ public class StationAuthoring : MonoBehaviour
 
 struct Station : IComponentData
 {
-
+    public Entity Line;
+    public int Id;
+    public int LineId;
+    public int SystemId;
 }
 
 [InternalBufferCapacity(5)]

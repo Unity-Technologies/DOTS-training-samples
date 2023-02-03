@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateAfter(typeof(StationSpawner))]
 [BurstCompile]
@@ -17,8 +13,7 @@ public partial struct PlatformSpawner : ISystem
     private ComponentLookup<Stair> m_StairsLookupRO;
     private BufferLookup<PlatformStairs> m_PlatformStairsLookupRO;
 
-
-
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         // This system should not run before the Config singleton has been loaded.
@@ -28,10 +23,12 @@ public partial struct PlatformSpawner : ISystem
 
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         m_StairsLookupRO.Update(ref state);
@@ -40,12 +37,38 @@ public partial struct PlatformSpawner : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var random = Unity.Mathematics.Random.CreateFromIndex(1234);
 
-        NativeArray<Entity> stations = new NativeArray<Entity>();
-        foreach (var (station, stationEntity) in SystemAPI.Query<Station>().WithEntityAccess())
+        for (int i = 0; i < config.LineCount; i++)
         {
-            //Disabling steps color change as the original implementations depended on the Stairs entity in the Platform component, which doesn't exist now (using buffers instead)
-            //SetStepsColor(state, station, stationEntity, m_StairsLookupRO, m_PlatformStairsLookupRO);
+            foreach (var (station, stationEntity) in SystemAPI.Query<Station>().WithEntityAccess())
+            {
+                //Disabling steps color change as the original implementations depended on the Stairs entity in the Platform component, which doesn't exist now (using buffers instead)
+                //SetStepsColor(state, station, stationEntity, m_StairsLookupRO, m_PlatformStairsLookupRO);
 
+                var linePlatformBuffer = state.EntityManager.GetBuffer<PlatformEntity>(station.Line);
+                PlatformEntity pe = new PlatformEntity { };
+                int platformId = 0;
+                foreach (var platfomChild in SystemAPI.GetBuffer<Child>(stationEntity))
+                {
+                    var platform = state.EntityManager.GetComponentData<Platform>(platfomChild.Value);
+                    platform.Line = station.Line;
+                    platform.StationId = station.Id;
+                    platform.Id = platformId;
+                    state.EntityManager.SetComponentData<Platform>(platfomChild.Value, platform);
+
+                    //Overkill, but local to world transforms are not behaving
+                    foreach (var (line, lineEntity) in SystemAPI.Query<Line>().WithEntityAccess())
+                        if (line.Id == platformId && line.SystemId == i && station.SystemId == i)
+                        {
+                            pe = new PlatformEntity
+                            {
+                                Station = platfomChild.Value,
+                                StopPos = LocalTransform.FromPosition(new float3(-51, 0, -14) + new float3((config.StationsOffset * station.Id), 0, config.LineOffset * i + (platform.Id) * -50f)).Position
+                            };
+                            state.EntityManager.GetBuffer<PlatformEntity>(lineEntity).Add(pe);
+                        }
+                    platformId++;
+                }
+            }
         }
         state.Enabled = false;
     }
@@ -62,7 +85,7 @@ public partial struct PlatformSpawner : ISystem
         }
 
         int colorIndex = 0;
-        foreach (var platfomChild in /*station.Platforms*/ SystemAPI.GetBuffer<Child>(stationEntity))
+        foreach (var platfomChild in SystemAPI.GetBuffer<Child>(stationEntity))
         {
             var platfom = state.EntityManager.GetComponentData<Platform>(platfomChild.Value);
 
@@ -72,27 +95,27 @@ public partial struct PlatformSpawner : ISystem
             {
                 stairsLookupRO.TryGetComponent(currentPlatformStairsBuffer[i].Stairs, out var stairs);
 
-                ////////////////
-                //if (SystemAPI.HasBuffer<Child>(currentPlatformStairsBuffer[i].Stairs))
-                //{
-                //    foreach (var step in SystemAPI.GetBuffer<Child>(currentPlatformStairsBuffer[i].Stairs))
-                //    {
-                //        if (state.EntityManager.HasComponent<URPMaterialPropertyBaseColor>(step.Value))
-                //        {
-                //            state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>
-                //                (step.Value, RandomColor());
-                //                //new URPMaterialPropertyBaseColor
-                //                //{
-                //                //    Value = /*station.Colors[colorIndex]*/RandomColor()
-                //                //});
-                //        }
-                //    }
-                //}
+                //////////////
+                if (SystemAPI.HasBuffer<Child>(currentPlatformStairsBuffer[i].Stairs))
+                {
+                    foreach (var step in SystemAPI.GetBuffer<Child>(currentPlatformStairsBuffer[i].Stairs))
+                    {
+                        if (state.EntityManager.HasComponent<URPMaterialPropertyBaseColor>(step.Value))
+                        {
+                            state.EntityManager.SetComponentData<URPMaterialPropertyBaseColor>(step.Value, RandomColor());
+                        }
+                    }
+                }
             }
         }
     }
 }
-/*   private void SpawnPlatforms(SystemState state, Station station, Entity s, Entity e, Config config, ComponentLookup<WorldTransform> wt)
+           
+
+/*
+ * We are not spawning platforms directly atm
+ * 
+ * private void SpawnPlatforms(SystemState state, Station station, Entity s, Entity e, Config config, ComponentLookup<WorldTransform> wt)
    {
        int platformCount = 4 ;
        var platforms = state.EntityManager.Instantiate(config.PlatformPrefab, platformCount, Allocator.Temp);

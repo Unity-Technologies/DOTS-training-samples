@@ -123,7 +123,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &4695637452097394588
+--- !u!1001 &740943164
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -181,19 +181,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: LineCount
-      value: 3
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
-      propertyPath: LineOffset
-      value: 400
+      propertyPath: TrainPrefab
+      value: 
+      objectReference: {fileID: 6169126188406180749, guid: a5e33796cdf59cc439cbd9e6f5e09684, type: 3}
+    - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
+      propertyPath: CommuterCount
+      value: 50000
       objectReference: {fileID: 0}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
-      propertyPath: StationsOffset
-      value: 800
-      objectReference: {fileID: 0}
+      propertyPath: StationPrefab
+      value: 
+      objectReference: {fileID: 387415536645670287, guid: 35fb9abc087d25f48a8628229b4520a4, type: 3}
+    - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
+      propertyPath: CommuterPrefab
+      value: 
+      objectReference: {fileID: 2956426704895310502, guid: ed9affb683ab6f94fbd2d47aa9922e8b, type: 3}
+    - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
+      propertyPath: PlatformPrefab
+      value: 
+      objectReference: {fileID: 8833507882376678990, guid: 17765fa508396084ea1a6912cba31810, type: 3}
     - target: {fileID: 2442454891254820311, guid: c15c1cf797801f04389f4848b255b2b6, type: 3}
       propertyPath: StationsPerLineCount
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

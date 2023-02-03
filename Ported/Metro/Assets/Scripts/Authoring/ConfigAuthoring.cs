@@ -7,11 +7,11 @@ using UnityEngine;
 public class ConfigAuthoring : MonoBehaviour
 {
     public GameObject CarriagePrefab;
+    public GameObject TrainPrefab;
     public GameObject CommuterPrefab;
     public GameObject PlatformPrefab;
     public GameObject StationPrefab;
     public GameObject LinePrefab;
-
 
     public int CommuterCount;
     public int LineCount;
@@ -30,6 +30,7 @@ public class ConfigAuthoring : MonoBehaviour
                 CommuterPrefab = GetEntity(authoring.CommuterPrefab),
                 PlatformPrefab = GetEntity(authoring.PlatformPrefab),
                 StationPrefab = GetEntity(authoring.StationPrefab),
+                TrainPrefab = GetEntity(authoring.TrainPrefab),
                 LinePrefab = GetEntity(authoring.LinePrefab),
                 CommuterCount = authoring.CommuterCount,
                 LineCount = authoring.LineCount,
@@ -44,6 +45,7 @@ public class ConfigAuthoring : MonoBehaviour
 struct Config : IComponentData
 {
     public Entity CarriagePrefab;
+    public Entity TrainPrefab;
     public Entity CommuterPrefab;
     public Entity PlatformPrefab;
     public Entity StationPrefab;

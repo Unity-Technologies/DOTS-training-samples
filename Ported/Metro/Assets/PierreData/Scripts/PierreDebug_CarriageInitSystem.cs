@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
 
+//[UpdateAfter(typeof(CommuterSpawner))] 
 [BurstCompile]
 public partial struct PierreDebug_CarriageInitSystem : ISystem
 {

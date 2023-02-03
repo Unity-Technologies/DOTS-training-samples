@@ -50,9 +50,12 @@ public struct Platform : IComponentData
     public Entity Entity;
     public float3 TrainStopPosition;
     public Entity ParkedTrain;
-    public Line Line;
+    public Entity Line;
     public Entity PlatformFloor;
     public DoorSide TrainDoorOpenSide;
+    public int StationId;
+    public int Id;
+
 }
 
 public struct PlatformQueue : IBufferElementData

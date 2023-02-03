@@ -1,29 +1,29 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
-[UpdateAfter(typeof(TransformSystemGroup))]
+[UpdateAfter(typeof(/*BeginSimulationEntityCommandBufferSystem*/TransformSystemGroup))]
 [BurstCompile]
 partial struct LineSpawner : ISystem
 {
     EntityQuery m_BaseColorQuery;
     ComponentLookup<WorldTransform> m_WorldTransformLookup;
 
-
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
         m_WorldTransformLookup = state.GetComponentLookup<WorldTransform>(true);
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         m_WorldTransformLookup.Update(ref state);
@@ -39,19 +39,19 @@ partial struct LineSpawner : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
+        int systemCount = config.LineCount;
+        int realLinesPerSystem = 4;
+
         NativeArray<Entity> lines = new NativeArray<Entity>(config.LineCount, Allocator.Persistent);
-        for (int i = 0; i < config.LineCount; i++)
+        for (int i = 0; i < systemCount; i++)
         {
-            Entity e = state.EntityManager.Instantiate(config.LinePrefab);
-            state.EntityManager.AddComponent<Line>(e);
-            state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = i + 1 });
+            for (int j = 0; j < realLinesPerSystem; j++)
+            {
+                Entity e = state.EntityManager.Instantiate(config.LinePrefab);
+                state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = j, SystemId = i });
+            }
         }
-        //for (int i = 0; i < config.LineCount; i++)
-        //{
-        //    Entity e = state.EntityManager.Instantiate(config.LinePrefab,lines);
-        //    state.EntityManager.AddComponent<Line>(e);
-        //    state.EntityManager.SetComponentData<Line>(e, new Line { LineColor = RandomColor().Value, Id = i });
-        //}
+
         state.Enabled = false;
     }
 }

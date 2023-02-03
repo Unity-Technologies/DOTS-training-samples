@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(TrainSpawner))]
 [BurstCompile]
 public partial struct TrainStateMachine : ISystem
 {

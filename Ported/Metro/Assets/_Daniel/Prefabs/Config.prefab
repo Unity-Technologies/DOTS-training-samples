@@ -45,12 +45,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CarriagePrefab: {fileID: 1005656507454012, guid: 7913530af20624429bc67f560aa729fc, type: 3}
+  TrainPrefab: {fileID: 6169126188406180749, guid: f5b7a5d87b26e4643b069c70cd92a7f4, type: 3}
   CommuterPrefab: {fileID: 2956426704895310502, guid: 43ce6597590348b4789fbb3b9c6cfae5, type: 3}
   PlatformPrefab: {fileID: 8833507882376678990, guid: 4e292e20f0957224a8e29029d596317d, type: 3}
   StationPrefab: {fileID: 387415536645670287, guid: fb6302732f3b53c44a970a4c5504d498, type: 3}
   LinePrefab: {fileID: 8589533807101091989, guid: 8db537d71b129dd4c8171fbec270fa34, type: 3}
-  CommuterCount: 20
-  LineCount: 4
-  LineOffset: 70
-  StationsPerLineCount: 3
-  StationsOffset: 120
+  CommuterCount: 10
+  LineCount: 50
+  LineOffset: 300
+  StationsPerLineCount: 10
+  StationsOffset: 300

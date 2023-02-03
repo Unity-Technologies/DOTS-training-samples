@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateAfter(typeof(CommuterSpawner))]
 [BurstCompile]
 public partial struct TrainMovementSystem : ISystem
 {
