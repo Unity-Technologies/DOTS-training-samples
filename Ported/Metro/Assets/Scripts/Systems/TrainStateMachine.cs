@@ -44,6 +44,8 @@ public partial struct TrainStateMachine : ISystem
         allPlatforms.Update(ref state);
         platformBuffer.Update(ref state);
         
+        RefRW<RandomComponent> rand = SystemAPI.GetSingletonRW<RandomComponent>();
+        
                     //platformID, trainID
         //NativeHashMap<Entity, int> trainsArrivedAtStation = new NativeHashMap<int, int>(0, Allocator.TempJob);
         new TrainStateDecider
@@ -54,7 +56,8 @@ public partial struct TrainStateMachine : ISystem
             allPlatformQueues = allPlatformQueues,
             allQueueStates = allQueueStates,
             allChildren = allChildren,
-            allCarriages = allCarriages
+            allCarriages = allCarriages,
+            random = rand
         }.ScheduleParallel();
     }
 }
@@ -63,6 +66,8 @@ public partial struct TrainStateMachine : ISystem
 public partial struct TrainStateDecider : IJobEntity
 {
     public float deltaTime;
+
+    [NativeDisableUnsafePtrRestriction] public RefRW<RandomComponent> random;
     [NativeDisableContainerSafetyRestriction] public ComponentLookup<Platform> allPlatforms;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformEntity> allStations;
     [NativeDisableContainerSafetyRestriction] public BufferLookup<PlatformQueue> allPlatformQueues;
@@ -109,6 +114,7 @@ public partial struct TrainStateDecider : IJobEntity
                     newState = TrainState.DoorOpening;
                     SetNextStation(trainScheduling);
                     InformAtStation(trainScheduling);
+                    SetRandomWaitTime(trainScheduling);
                 }
                 break;
             default:
@@ -197,5 +203,20 @@ public partial struct TrainStateDecider : IJobEntity
                 allCarriages.GetRefRW(trainChild.Value, false).ValueRW.CurrentPlatform = Entity.Null;
             }
         }
+    }
+
+    private void SetRandomWaitTime(TrainSchedulingAspect trainScheduling)
+    {
+        if (this.random.IsValid == false)
+        {
+            Debug.Log("No Random Component Fonnd please add a object with RandomAuthoring to induce some randomness");
+            trainScheduling.schedule.ValueRW.stationWaitTime = trainScheduling.schedule.ValueRO.baseStationWaitTime;
+            return;
+        }
+        
+        float varianceLimit = trainScheduling.schedule.ValueRO.waitTimeRandomVariance;
+        float randomtime = this.random.ValueRW.random.NextFloat(-varianceLimit, varianceLimit);
+        float baseWaitTime = trainScheduling.schedule.ValueRO.baseStationWaitTime;
+        trainScheduling.schedule.ValueRW.stationWaitTime = baseWaitTime + randomtime;
     }
 }

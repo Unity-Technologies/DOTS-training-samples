@@ -40010,6 +40010,7 @@ MonoBehaviour:
   Speed: 100
   doorTransitionTime: 0.5
   stationWaitTime: 8
+  stationWaitTimeVariance: 2
   line: {fileID: 129172706}
 --- !u!4 &1685086016
 Transform:
@@ -41483,6 +41484,7 @@ MonoBehaviour:
   Speed: 100
   doorTransitionTime: 0.5
   stationWaitTime: 7
+  stationWaitTimeVariance: 2
   line: {fileID: 1965863920}
 --- !u!4 &1768091664
 Transform:
@@ -42948,8 +42950,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1825179359}
+  - component: {fileID: 1825179360}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Random
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42970,6 +42973,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1825179360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1825179358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f4261b4e9ac0e443ba5774ccf166368, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useRandomInitValue: 1
 --- !u!1 &1825379618
 GameObject:
   m_ObjectHideFlags: 0
@@ -43200,6 +43216,7 @@ MonoBehaviour:
   Speed: 100
   doorTransitionTime: 0.5
   stationWaitTime: 5
+  stationWaitTimeVariance: 2
   line: {fileID: 1384484862}
 --- !u!4 &1829391978
 Transform:
@@ -49277,6 +49294,7 @@ MonoBehaviour:
   Speed: 100
   doorTransitionTime: 0.5
   stationWaitTime: 6
+  stationWaitTimeVariance: 2
   line: {fileID: 1891181422}
 --- !u!4 &2041004024
 Transform:
