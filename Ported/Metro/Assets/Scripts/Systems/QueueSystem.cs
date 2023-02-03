@@ -8,12 +8,18 @@ using Random = Unity.Mathematics.Random;
 [UpdateAfter(typeof(CommuterStateSystem))]
 public partial struct QueueSystem : ISystem
 {
+    private ComponentLookup<WorldTransform> m_WorldTransformLookupRO;
+    private ComponentLookup<Queue> m_QueueLookupRO;
+
     Random m_Random;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         m_Random = Random.CreateFromIndex(1234);
+
+        m_WorldTransformLookupRO = state.GetComponentLookup<WorldTransform>(true);
+        m_QueueLookupRO = state.GetComponentLookup<Queue>(true);
     }
 
     [BurstCompile]
@@ -24,27 +30,24 @@ public partial struct QueueSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        NativeList<Entity> queuesToUpdate = new(Allocator.Temp);
+        m_WorldTransformLookupRO.Update(ref state);
+        m_QueueLookupRO.Update(ref state);
+
+        NativeList<Entity> queuesToUpdate = new(Allocator.TempJob);
+
+        var updateCommuterDestinationJob = new UpdateCommuterDestination()
+        {
+            WorldTransformLookupRO = m_WorldTransformLookupRO,
+            QueueLookupRO = m_QueueLookupRO
+        };
+        updateCommuterDestinationJob.ScheduleParallel(state.Dependency).Complete();
 
         foreach (var (queueingData, targetDestination, movementQueue, seatReservation, destinationAspect) in
                  SystemAPI.Query<RefRW<QueueingData>, RefRW<TargetDestination>, RefRW<SaschaMovementQueue>, RefRW<SeatReservation>, DestinationAspect>())
         {
             if (queueingData.ValueRO.TargetQueue != Entity.Null)
             {
-                var queue = SystemAPI.GetComponent<Queue>(queueingData.ValueRO.TargetQueue);
                 var queueState = SystemAPI.GetComponent<QueueState>(queueingData.ValueRO.TargetQueue);
-                var queueTransform = SystemAPI.GetComponent<WorldTransform>(queueingData.ValueRO.TargetQueue);
-
-                targetDestination.ValueRW.IsActive = true;
-                int maxSingleQueueLength = queue.QueueCapacity;
-                int queuePositionInDirection = queueingData.ValueRO.PositionInQueue % maxSingleQueueLength;
-                int queuePositionOrthogonalDirection = queueingData.ValueRO.PositionInQueue / maxSingleQueueLength;
-                if ((queuePositionOrthogonalDirection & 1) != 0)
-                {
-                    queuePositionInDirection = maxSingleQueueLength - queuePositionInDirection - 1;
-                }
-
-                targetDestination.ValueRW.TargetPosition = queueTransform.Position + (queuePositionInDirection * queue.QueueDirection) + (queuePositionOrthogonalDirection * queue.QueueDirectionOrthogonal);
 
                 if (queueState.IsOpen && queueingData.ValueRO.PositionInQueue == 0 && destinationAspect.IsAtDestination())
                 {
@@ -79,24 +82,21 @@ public partial struct QueueSystem : ISystem
             }
         }
 
-        foreach (var (queue, queueEntity) in SystemAPI.Query<RefRW<QueueState>>().WithEntityAccess())
+        var updateQueueSize = new UpdateQueueSize()
         {
-            if (queuesToUpdate.Contains(queueEntity))
-            {
-                --queue.ValueRW.QueueSize;
-            }
-        }
+            QueuesToUpdate = queuesToUpdate
+        };
+        state.Dependency = updateQueueSize.ScheduleParallel(state.Dependency);
 
-        foreach (var (queueingData, queueEntity) in SystemAPI.Query<RefRW<QueueingData>>().WithEntityAccess())
+        var updateCommuterQueuePosition = new UpdateCommuterQueuePosition()
         {
-            if (queuesToUpdate.Contains(queueingData.ValueRW.TargetQueue))
-            {
-                --queueingData.ValueRW.PositionInQueue;
-            }
-        }
+            QueuesToUpdate = queuesToUpdate
+        };
+        state.Dependency = updateCommuterQueuePosition.ScheduleParallel(state.Dependency);
 
     }
 
+    [BurstCompile]
     private Entity FindAvailableSeat(ref SystemState state, Entity carriage)
     {
         var seats = SystemAPI.GetBuffer<CarriageSeat>(carriage);
@@ -109,5 +109,63 @@ public partial struct QueueSystem : ISystem
             }
         }
         return Entity.Null;
+    }
+}
+
+[BurstCompile]
+public partial struct UpdateCommuterDestination : IJobEntity
+{
+    [ReadOnly] public ComponentLookup<WorldTransform> WorldTransformLookupRO;
+    [ReadOnly] public ComponentLookup<Queue> QueueLookupRO;
+
+    [BurstCompile]
+    public void Execute(ref QueueingData queueingData, ref TargetDestination targetDestination)
+    {
+        if (queueingData.TargetQueue != Entity.Null)
+        {
+            var queue = QueueLookupRO.GetRefRO(queueingData.TargetQueue);
+            var queueTransform = WorldTransformLookupRO.GetRefRO(queueingData.TargetQueue);
+
+            targetDestination.IsActive = true;
+            int maxSingleQueueLength = queue.ValueRO.QueueCapacity;
+            int queuePositionInDirection = queueingData.PositionInQueue % maxSingleQueueLength;
+            int queuePositionOrthogonalDirection = queueingData.PositionInQueue / maxSingleQueueLength;
+            if ((queuePositionOrthogonalDirection & 1) != 0)
+            {
+                queuePositionInDirection = maxSingleQueueLength - queuePositionInDirection - 1;
+            }
+
+            targetDestination.TargetPosition = queueTransform.ValueRO.Position + (queuePositionInDirection * queue.ValueRO.QueueDirection) + (queuePositionOrthogonalDirection * queue.ValueRO.QueueDirectionOrthogonal);
+        }
+    }
+}
+
+[BurstCompile]
+public partial struct UpdateQueueSize : IJobEntity
+{
+    [ReadOnly] public NativeList<Entity> QueuesToUpdate;
+
+    [BurstCompile]
+    public void Execute(ref QueueState queue, Entity queueEntity)
+    {
+        if (QueuesToUpdate.Contains(queueEntity))
+        {
+            --queue.QueueSize;
+        }
+    }
+}
+
+[BurstCompile]
+public partial struct UpdateCommuterQueuePosition : IJobEntity
+{
+    [ReadOnly] public NativeList<Entity> QueuesToUpdate;
+
+    [BurstCompile]
+    public void Execute(ref QueueingData queueingData)
+    {
+        if (QueuesToUpdate.Contains(queueingData.TargetQueue))
+        {
+            --queueingData.PositionInQueue;
+        }
     }
 }
