@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -58,6 +59,10 @@ public class Commuter : MonoBehaviour
     public CommuterNavPoint currentSeat;
     private Transform t;
 
+    
+    static readonly ProfilerMarker WalkUpdateMarker = new ProfilerMarker("Commuter Walk");
+    static readonly ProfilerMarker QueueUpdateMarker = new ProfilerMarker("Commuter Queue");
+    static readonly ProfilerMarker SetupRouteMarker = new ProfilerMarker("Commuter Setup Route");
 
     private void Awake()
     {
@@ -118,6 +123,7 @@ public class Commuter : MonoBehaviour
 
     void SetupRoute()
     {
+        SetupRouteMarker.Begin();
         route_TaskList = Metro.INSTANCE.ShortestRoute(currentPlatform, FinalDestination);
         CommuterTask[] _TEMP = route_TaskList.ToArray();
         for (int i = 0; i < route_TaskList.Count; i++)
@@ -143,8 +149,9 @@ public class Commuter : MonoBehaviour
                     _S += ", endPlatform: " + _T.endPlatform.GetFullName();
                     break;
             }
-            Debug.Log(_S);
+//            Debug.Log(_S);
         }
+        SetupRouteMarker.End();
         NextTask();
     }
 
@@ -154,6 +161,8 @@ public class Commuter : MonoBehaviour
         switch (currentTask.state)
         {
             case CommuterState.WALK:
+                WalkUpdateMarker.Begin();
+                
                 if (Approach.Apply(ref t, ref speed, currentTask.destinations[currentTask.destinationIndex],
                     acceleration,
                     ARRIVAL_THRESHOLD, FRICTION))
@@ -166,9 +175,10 @@ public class Commuter : MonoBehaviour
                     }
                 }
 
+                WalkUpdateMarker.End();
                 break;
             case CommuterState.QUEUE:
-
+                QueueUpdateMarker.Begin();
                 float offset = currentQueue.Count * QUEUE_PERSONAL_SPACE;
                 Vector3 queueOffset = currentPlatform.transform.forward * offset;
                 Vector3 _DEST = currentPlatform.queuePoints[carriageQueueIndex].transform.position + queueOffset;
@@ -189,8 +199,10 @@ public class Commuter : MonoBehaviour
                         }
                     }
                 };
+                QueueUpdateMarker.End();
                 break;
             case CommuterState.GET_ON_TRAIN:
+                WalkUpdateMarker.Begin();
                 // brief wait before boarding
                 if (Timer.TimerReachedZero(ref stateDelay))
                 {
@@ -208,11 +220,13 @@ public class Commuter : MonoBehaviour
                         }
                     }
                 }
-
+                WalkUpdateMarker.End();
                 break;
             case CommuterState.WAIT_FOR_STOP:
                 break;
             case CommuterState.GET_OFF_TRAIN:
+                WalkUpdateMarker.Begin();
+                
                 // walk to each destination in turn (door, platform)
                 if (Approach.Apply(ref t, ref speed, currentTask.destinations[currentTask.destinationIndex],
                     acceleration,
@@ -226,7 +240,7 @@ public class Commuter : MonoBehaviour
                         NextTask();
                     }
                 }
-
+                WalkUpdateMarker.End();
                 break;
         }
     }
@@ -239,7 +253,7 @@ public class Commuter : MonoBehaviour
             if (currentTask.startPlatform != null)
             {
                 currentPlatform = currentTask.startPlatform;
-                Debug.Log("Current platform is now: " + currentPlatform.GetFullName());
+//                Debug.Log("Current platform is now: " + currentPlatform.GetFullName());
             }
 
             if (currentTask.endPlatform != null)

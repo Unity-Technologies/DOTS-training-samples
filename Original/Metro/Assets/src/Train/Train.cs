@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Unity.Profiling;
 using UnityEngine;
 
 
@@ -38,6 +39,9 @@ public class Train
     public Platform nextPlatform;
     public Train trainAheadOfMe;
     public bool trainReadyToDepart = false;
+    
+    static readonly ProfilerMarker StateMachine = new ProfilerMarker("Train State Machine");
+    static readonly ProfilerMarker UpdateCarridges = new ProfilerMarker("Update Carridges");
 
     public Train(int _trainIndex, int _parentLineIndex, float _startPosition, int _totalCarriages)
     {
@@ -78,6 +82,7 @@ public class Train
     void ChangeState(TrainState _newState)
     {
         state = _newState;
+        StateMachine.Begin();
         switch (_newState)
         {
             case TrainState.EN_ROUTE:
@@ -115,6 +120,7 @@ public class Train
             case TrainState.EMERGENCY_STOP:
                 break;
         }
+        StateMachine.End();
     }
 
     public void Update()
@@ -252,6 +258,7 @@ public class Train
 
     void UpdateCarriages()
     {
+        UpdateCarridges.Begin();
         float _REAL_CARRIAGE_LENGTH = TrainCarriage.CARRIAGE_LENGTH + TrainCarriage.CARRIAGE_SPACING;
         carriages[0].UpdateCarriage(currentPosition, parentLine.Get_PositionOnRail(currentPosition),
             parentLine.Get_RotationOnRail(currentPosition));
@@ -286,6 +293,7 @@ public class Train
             _current.UpdateCarriage(carriageRailPosition, _current_POS,
                 parentLine.Get_RotationOnRail(carriageRailPosition));
         }
+        UpdateCarridges.End();
     }
 
     void Prepare_DISEMBARK()

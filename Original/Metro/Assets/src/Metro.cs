@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Profiling;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 public class Metro : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class Metro : MonoBehaviour
     public const float RAIL_SPACING = 0.5f;
     public static Metro INSTANCE;
 
+    static readonly ProfilerMarker TrainUpdateMarker = new ProfilerMarker("Train Update");
+    static readonly ProfilerMarker CommuterUpdateMarker = new ProfilerMarker("Commuter Update");
 
     // PUBLICS
     [Tooltip("prefabs/Carriage")]
@@ -105,8 +109,12 @@ public class Metro : MonoBehaviour
 
     private void Update()
     {
+        TrainUpdateMarker.Begin();
         Update_MetroLines();
+        TrainUpdateMarker.End();
+        CommuterUpdateMarker.Begin();
         Update_Commuters();
+        CommuterUpdateMarker.End();
     }
 
     void SetupMetroLines()
@@ -170,7 +178,7 @@ public class Metro : MonoBehaviour
         {
             foreach (Platform _ADJ in _P.adjacentPlatforms)
             {
-                Debug.Log(_P.GetFullName() + " -- " + _ADJ.GetFullName());
+//                Debug.Log(_P.GetFullName() + " -- " + _ADJ.GetFullName());
             }
         }
     }
@@ -193,6 +201,8 @@ public class Metro : MonoBehaviour
 
     void SetupTrains()
     {
+        int trains = 0;
+        
         // Add trains
         for (int i = 0; i < totalLines; i++)
         {
@@ -203,6 +213,7 @@ public class Metro : MonoBehaviour
                 for (int trainIndex = 0; trainIndex < _ML.maxTrains; trainIndex++)
                 {
                     _ML.AddTrain(trainIndex, trainIndex * trainSpacing);
+                    Debug.Log($"Trains {++trains}");
                 }
             }
         }
@@ -265,7 +276,21 @@ public class Metro : MonoBehaviour
     {
         commuters.Remove(_commuter);
         Destroy(_commuter.gameObject);
-        Debug.Log("COMMUTER ARRIVED, remaining: " + commuters.Count);
+//        Debug.Log("COMMUTER ARRIVED, remaining: " + commuters.Count);
+
+        //Add a new commuter to the sim so we always have the same amount
+        {
+            Platform _startPlatform = GetRandomPlatform();
+            Platform _endPlatform = GetRandomPlatform();
+            // TODO put route possibility check back in
+//            while (_endPlatform == _startPlatform || !RouteisPossible(_startPlatform, _endPlatform))
+            while (_endPlatform == _startPlatform)
+            {
+                _endPlatform = GetRandomPlatform();
+            }
+
+            AddCommuter(_startPlatform, _endPlatform);
+        }
     }
 
     public void Update_Commuters()
@@ -296,7 +321,7 @@ public class Metro : MonoBehaviour
 
     public Queue<CommuterTask> ShortestRoute(Platform _A, Platform _B)
     {
-        Debug.Log("Getting from "+_A.GetFullName()+" to "+_B.GetFullName());
+//        Debug.Log("Getting from "+_A.GetFullName()+" to "+_B.GetFullName());
         foreach (Platform _P in allPlatforms)
         {
             _P.temporary_routeDistance = 999;
@@ -329,7 +354,7 @@ public class Metro : MonoBehaviour
         {
             if (arrived)
             {
-                Debug.Log("Arrived at " + _B.GetFullName() + " after "+steps+" steps");
+//                Debug.Log("Arrived at " + _B.GetFullName() + " after "+steps+" steps");
                 break;
             }
 
@@ -343,7 +368,7 @@ public class Metro : MonoBehaviour
 
         Platform _CURRENT_PLATFORM = _B;
         Platform _PREV_PLATFORM = _B.temporary_accessedViaPlatform;
-        Debug.Log(commuters.Count +  ", start: " + _A.GetFullName() + "Dest: " + _B.GetFullName() + ",  b prev: ");
+//        Debug.Log(commuters.Count +  ", start: " + _A.GetFullName() + "Dest: " + _B.GetFullName() + ",  b prev: ");
         List<CommuterTask> _TASK_LIST = new List<CommuterTask>();
         while (_CURRENT_PLATFORM != _A)
         {
