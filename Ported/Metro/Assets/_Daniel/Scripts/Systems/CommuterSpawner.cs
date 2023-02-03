@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(TrainSpawner))]
 [BurstCompile]
@@ -66,6 +67,7 @@ partial struct CommuterSpawner : ISystem
 
             var commuterComponent = state.EntityManager.GetComponentData<Commuter>(commuter);
             commuterComponent.CurrentPlatform = platformEntity;
+            commuterComponent.Random = Random.CreateFromIndex((uint)Random.NextInt());
             state.EntityManager.SetComponentData<Commuter>(commuter, commuterComponent);
             ////state.EntityManager.SetComponentData<Commuter>(commuter, new Commuter { CurrentPlatform = platformEntity });
 

@@ -2,7 +2,6 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
-using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
 [UpdateAfter(typeof(CommuterStateSystem))]
@@ -11,12 +10,10 @@ public partial struct QueueSystem : ISystem
     private ComponentLookup<WorldTransform> m_WorldTransformLookupRO;
     private ComponentLookup<Queue> m_QueueLookupRO;
 
-    Random m_Random;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        m_Random = Random.CreateFromIndex(1234);
 
         m_WorldTransformLookupRO = state.GetComponentLookup<WorldTransform>(true);
         m_QueueLookupRO = state.GetComponentLookup<Queue>(true);
