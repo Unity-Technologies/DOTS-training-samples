@@ -13,6 +13,7 @@ class HumanAuthoring : UnityEngine.MonoBehaviour
             AddComponent<PostTransformScale>();
             AddComponent<URPMaterialPropertyBaseColor>();
             AddBuffer<BridgeRouteWaypoint>();
+            AddComponent<HumanWaitForRouteTag>();
         }
     }
 }

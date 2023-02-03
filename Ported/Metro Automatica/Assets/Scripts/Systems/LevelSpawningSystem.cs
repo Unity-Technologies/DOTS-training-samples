@@ -132,17 +132,15 @@ partial struct LevelSpawningSystem : ISystem
         }
 
         Unity.Mathematics.Random rng = new Unity.Mathematics.Random(123);
-        foreach (var human in humans)
+        foreach (var (transform, scale, color) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<PostTransformScale>, RefRW<URPMaterialPropertyBaseColor>>())
         {
             int randomStation = Random.Range(0, config.StationCount);
             var humanTransform = LocalTransform.FromPosition(stationSpawners[randomStation].Position);
             var height = rng.NextFloat(.4f, 0.6f);
             humanTransform.Position += new float3(Random.Range(0f, 2f), (1 - height)/-2, Random.Range(0f, 2f));
-            state.EntityManager.SetComponentData(human, humanTransform);
-            state.EntityManager.SetComponentData(human, new PostTransformScale{Value = float3x3.Scale(.25f,height,.25f)});
-            state.EntityManager.SetComponentData(human, new URPMaterialPropertyBaseColor{Value = new float4(rng.NextFloat3(), 1f),});
-            state.EntityManager.AddComponent<HumanWaitForRouteTag>(human);
-            //--Uncomment once Routing is done
+            transform.ValueRW = humanTransform;
+            scale.ValueRW = new PostTransformScale {Value = float3x3.Scale(.25f, height, .25f)};
+            color.ValueRW = new URPMaterialPropertyBaseColor {Value = new float4(rng.NextFloat3(), 1f),};
         }
     }
 }
