@@ -12,6 +12,7 @@ public class PlatformAuthoring : MonoBehaviour
     public GameObject PlatformFloor;
     public List<GameObject> Queues;
     public GameObject TrainStopPosition;
+    public int PlatformId;
     [FormerlySerializedAs("trainDoorOpenSide")] public DoorSide TrainDoorOpenSide = DoorSide.Both;
 
     class Baker : Baker<PlatformAuthoring>
@@ -23,7 +24,8 @@ public class PlatformAuthoring : MonoBehaviour
                 TrainStopPosition = authoring.TrainStopPosition.transform.position,
                 ParkedTrain = GetEntity(authoring.InitialParkedTrain),
                 PlatformFloor = GetEntity(authoring.PlatformFloor),
-                TrainDoorOpenSide = authoring.TrainDoorOpenSide
+                TrainDoorOpenSide = authoring.TrainDoorOpenSide,
+                Id = authoring.PlatformId
             });
 
             var queueBuffer = AddBuffer<PlatformQueue>();

@@ -53,7 +53,7 @@ public partial struct PlatformSpawner : ISystem
                     var platform = state.EntityManager.GetComponentData<Platform>(platfomChild.Value);
                     platform.Line = station.Line;
                     platform.StationId = station.Id;
-                    platform.Id = platformId;
+                    //platform.Id = platformId;
                     platform.SystemId = i;
                     state.EntityManager.SetComponentData<Platform>(platfomChild.Value, platform);
 
