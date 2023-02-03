@@ -49,7 +49,6 @@ public class PlatformAuthoring : MonoBehaviour
 
 public struct Platform : IComponentData
 {
-    public Entity Entity;
     public float3 TrainStopPosition;
     public Entity ParkedTrain;
     public Entity Line;
