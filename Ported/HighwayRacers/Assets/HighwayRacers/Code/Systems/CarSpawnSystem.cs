@@ -35,6 +35,9 @@ public partial class CarSpawnSystem : SystemBase
         myTimeAccumulation += World.Time.DeltaTime;
         // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
         var config = SystemAPI.GetSingleton<Config>();
+
+        var random = new Unity.Mathematics.Random(10101);
+
         if (myCurrentCarNumber < config.DesiredCarNumber)
         {
             int numberOfCarToSpawn = Mathf.Min(config.DesiredCarNumber - myCurrentCarNumber, config.MaxCarSpawnPerFrame);
@@ -63,6 +66,7 @@ public partial class CarSpawnSystem : SystemBase
                     Acceleration = config.Acceleration,
                     DesiredSpeed = defaultSpeed,
 
+                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                     Speed = defaultSpeed,
                     defaultSpeed = defaultSpeed,
                     overtakePercent = myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),

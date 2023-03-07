@@ -168,8 +168,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f9220677340ba8449cae3fbfe555772, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numCars: 100
   carPrefab: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b, type: 3}
+  SpeedRange:
+    x: 0
+    y: 0
   MaxNumCars: 100
   HighwayMaxSize: 500
   NumLanes: 4
