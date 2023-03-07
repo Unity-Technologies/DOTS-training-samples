@@ -23,11 +23,7 @@ namespace Jobs
         [BurstCompile]
         private void Execute(ref CarAspect car)
         {
-            if(car.Speed < car.DesiredSpeed)
-                car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
-            else
-                car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
-
+            float desiredSpeed = car.CruisingSpeed;
             if (car.Lane < car.DesiredLane)
             {
                 car.Lane = math.min(car.Lane + config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
@@ -36,7 +32,13 @@ namespace Jobs
             {
                 car.Lane = math.max(car.Lane - config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
             }
-            else if (car.TEMP_NextLaneChangeCountdown <= 0)
+            else if (car.OvertakeModeCountdown > 0)
+            {
+                // in overtake mode, move faster and tick down the timer
+                desiredSpeed = car.OvertakeSpeed;
+                car.OvertakeModeCountdown = math.max(car.OvertakeModeCountdown - DeltaTime, 0);
+            }
+            else if (car.TEMP_NextLaneChangeCountdown <= 0) // regular cruising mode, handle lane changes
             {
                 //randomly change lanes
                 if (frameCount % 2 == 1)
@@ -44,13 +46,19 @@ namespace Jobs
                 else
                     car.DesiredLane = math.max(car.Lane - 1, 0);
                 car.TEMP_NextLaneChangeCountdown = 3;
+                car.OvertakeModeCountdown = config.OvertakeMaxDuration;
             }
             else
             {
                 car.TEMP_NextLaneChangeCountdown -= DeltaTime;
             }
 
-            car.Distance += car.Speed * DeltaTime;
+            if (car.Speed < desiredSpeed)
+                car.Speed = math.min(car.Speed + car.Acceleration, desiredSpeed);
+            else
+                car.Speed = math.max(car.Speed - car.Acceleration, desiredSpeed);
+
+            car.Distance = (car.Distance + car.Speed * DeltaTime) % config.HighwayMaxSize;
             car.Position = new float3(car.Distance, 0, car.Lane);
         }
     }

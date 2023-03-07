@@ -20,7 +20,6 @@ public class CarAuthoring : MonoBehaviour
             AddComponent(new Car
             {
                 Speed = authoring.Speed,
-                DesiredSpeed = authoring.DesiredSpeed,
                 Acceleration = authoring.Acceleration,
                 Color = authoring.Color
             });
@@ -37,16 +36,18 @@ public struct Car : IComponentData
     public float Length;
 
     public float Speed;
-    public float DesiredSpeed;
     public float DesiredLane;
     public float Acceleration;
+
+    public float OvertakeSpeed;
+    public float OvertakeModeCountdown;
 
     public float TEMP_NextLaneChangeCountdown;
 
     public float4 Color;
 
     // immutable parameters
-    public float defaultSpeed;
+    public float CruisingSpeed;
     public float overtakePercent;
     public float leftMergeDistance;
     public float mergeSpace;

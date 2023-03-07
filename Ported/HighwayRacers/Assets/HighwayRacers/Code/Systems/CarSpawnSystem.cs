@@ -64,12 +64,11 @@ public partial class CarSpawnSystem : SystemBase
                     Lane = myRandom.NextInt(0, config.NumLanes),
 
                     Acceleration = config.Acceleration,
-                    DesiredSpeed = defaultSpeed,
 
                     TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                     Speed = defaultSpeed,
-                    defaultSpeed = defaultSpeed,
-                    overtakePercent = myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                    CruisingSpeed = defaultSpeed,
+                    OvertakeSpeed = defaultSpeed * myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
                     leftMergeDistance = myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
                     mergeSpace = myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
                     overtakeEagerness = myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
@@ -80,6 +79,7 @@ public partial class CarSpawnSystem : SystemBase
             myCurrentCarNumber += numberOfCarToSpawn;
         }
 
+        /*
         if (myTimeAccumulation > 4.0f)
         { 
             // Car Killer ;p 
@@ -96,6 +96,6 @@ public partial class CarSpawnSystem : SystemBase
                     i++; // advance i
                 }
             }           
-        }
+        }*/
     }
 }

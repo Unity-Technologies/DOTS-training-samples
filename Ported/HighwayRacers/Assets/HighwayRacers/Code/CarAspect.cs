@@ -54,6 +54,24 @@ namespace Aspects
             set => Car.ValueRW.Speed = value;
         }
 
+        public float CruisingSpeed
+        {
+            get => Car.ValueRO.CruisingSpeed;
+            set => Car.ValueRW.CruisingSpeed = value;
+        }
+        public float OvertakeSpeed
+        {
+            get => Car.ValueRO.OvertakeSpeed;
+            set => Car.ValueRW.OvertakeSpeed = value;
+        }
+
+
+        public float OvertakeModeCountdown
+        {
+            get => Car.ValueRO.OvertakeModeCountdown;
+            set => Car.ValueRW.OvertakeModeCountdown = value;
+        }
+
         public float TEMP_NextLaneChangeCountdown
         {
             get => Car.ValueRO.TEMP_NextLaneChangeCountdown;
@@ -61,7 +79,5 @@ namespace Aspects
         }
 
         public float Length { get => Car.ValueRO.Length; }
-
-        public float DesiredSpeed { get => Car.ValueRO.DesiredSpeed; }
     }
 }
