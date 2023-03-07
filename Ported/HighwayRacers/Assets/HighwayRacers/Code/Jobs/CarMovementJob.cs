@@ -21,7 +21,7 @@ namespace Jobs
             car.Distance += car.Speed * DeltaTime;
             
 
-            float3 moveAmount = new float3(DeltaTime, 0, 0);
+            float3 moveAmount = new float3(car.Distance, 0, 0);
             var newPos = car.Position + moveAmount;
             car.Position = newPos;
 

@@ -44,6 +44,10 @@ public partial struct CarSpawnSystem : ISystem
                 Scale = 1,  // If we didn't set Scale and Rotation, they would default to zero (which is bad!)
                 Rotation = quaternion.identity
             });
+
+            //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
+
+            //carAuthoring.Speed = 1.0f;
         }
     }
 }
