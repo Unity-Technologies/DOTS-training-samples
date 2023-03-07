@@ -32,15 +32,16 @@ public struct Car : IComponentData
 {
     public float Distance;
     public float Lane;
-
     public float Length;
-
     public float Speed;
-    public float DesiredLane;
-    public float Acceleration;
 
     public float OvertakeSpeed;
     public float OvertakeModeCountdown;
+
+    public float DesiredLane;
+    public float Acceleration;
+    public float DesiredSpeed;
+    public float PreviousDifferential;
 
     public float TEMP_NextLaneChangeCountdown;
 

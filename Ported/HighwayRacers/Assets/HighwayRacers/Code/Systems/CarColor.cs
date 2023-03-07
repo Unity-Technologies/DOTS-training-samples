@@ -25,11 +25,15 @@ public partial struct CarColorJob : IJobEntity
             color = new float4(1, 0, 0, 1);
         }
 
-        EntityParalleWriter.SetComponent(entityQueryIndex, Car.Self,
-        new URPMaterialPropertyBaseColor
+        if (Car.PreviousDifferential != speedDifferential)
         {
-            Value = color
-        });
+            EntityParalleWriter.SetComponent(entityQueryIndex, Car.Self,
+            new URPMaterialPropertyBaseColor
+            {
+                Value = color
+            });
+            Car.PreviousDifferential = speedDifferential;
+        }
     }
 }
 [BurstCompile]
