@@ -170,6 +170,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numCars: 100
   carPrefab: {fileID: 1999935204370666, guid: eb09540518ebb214aba8500b41634a1b, type: 3}
+  SpeedRange:
+    x: 0.01
+    y: 0.05
 --- !u!114 &1627463908
 MonoBehaviour:
   m_ObjectHideFlags: 0
