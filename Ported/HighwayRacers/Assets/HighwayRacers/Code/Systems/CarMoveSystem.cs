@@ -29,6 +29,21 @@ public partial struct CarMoveSystem : ISystem
             Profiler.EndSample();
         }
 
+        /*
+	       	CarMoveSystem
+			Query for all cars.
+			If car in front (tailgating)
+				ENABLE 'ChangeLaneState' with desired Lane if not already tagged
+				ENABLE 'OvertakeTimerState'
+			Else (no car in front)
+				DISABLE 'ChangeLaneState'
+				Move cars forward at desired speed.
+					If 'OvertakeTimerState' ENABLED
+						Move at Overtake speed
+					Else
+						Move at normal speed
+         */
+        
         var config = SystemAPI.GetSingleton<Config>();
         var testJob = new CarMovementJob
         {
