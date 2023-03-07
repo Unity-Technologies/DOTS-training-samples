@@ -19,7 +19,7 @@ namespace HighwayRacers
         public const float MIN_DIST_BETWEEN_CARS = .7f;
 
         [Header("Prefabs")]
-        public GameObject carPrefab;
+        //public GameObject carPrefab;
         public GameObject straightPiecePrefab;
         public GameObject curvePiecePrefab;
 
@@ -376,6 +376,7 @@ namespace HighwayRacers
 
 		}
 
+        /*
 		/// <summary>
 		/// Adds a car to the highway in a random lane.  Won't add car if all lanes are full (returns null).
 		/// </summary>
@@ -395,7 +396,9 @@ namespace HighwayRacers
 			return null;
 
 		}
+		*/
 
+        /*
         /// <summary>
         /// Adds a car to the highway in the given lane.  Checks to make sure it's not on top of other cars.  Returns null if a car couldn't be placed.
         /// </summary>
@@ -423,7 +426,9 @@ namespace HighwayRacers
             }
             return null;
         }
+        */
 
+        /*
         /// <summary>
         /// Adds a car to the highway, without checking if it would fit first.
         /// </summary>
@@ -438,6 +443,7 @@ namespace HighwayRacers
             car.UpdatePosition();
             return car;
         }
+        */
 
 		public void RemoveCar(Car car) {
 			cars.Remove(car);
@@ -453,8 +459,9 @@ namespace HighwayRacers
 			while (cars.Count > numCars) {
 				RemoveCar(cars.First.Value);
 			}
-			while (cars.Count < numCars) {
-				Car car = AddCar();
+			while (cars.Count < numCars)
+            {
+                Car car = null; //AddCar();
 				if (car == null)
 					return;
 			}
