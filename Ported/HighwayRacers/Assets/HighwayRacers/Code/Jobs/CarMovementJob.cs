@@ -24,6 +24,8 @@ namespace Jobs
         private void Execute(ref CarAspect car)
         {
             float desiredSpeed = car.CruisingSpeed;
+
+            // while changing lane, don't do anything else
             if (car.Lane < car.DesiredLane)
             {
                 car.Lane = math.min(car.Lane + config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
@@ -37,16 +39,25 @@ namespace Jobs
                 // in overtake mode, move faster and tick down the timer
                 desiredSpeed = car.OvertakeSpeed;
                 car.OvertakeModeCountdown = math.max(car.OvertakeModeCountdown - DeltaTime, 0);
+                if (car.OvertakeModeCountdown == 0)
+                {
+                    car.DesiredLane = car.OvertakeModeReturnToLane;
+                }
             }
-            else if (car.TEMP_NextLaneChangeCountdown <= 0) // regular cruising mode, handle lane changes
+            else if (car.TEMP_NextLaneChangeCountdown <= 0) 
             {
-                //randomly change lanes
+                // in regular cruising mode, randomly change lanes
                 if (frameCount % 2 == 1)
                     car.DesiredLane = math.min(car.Lane + 1, config.NumLanes - 1);
                 else
                     car.DesiredLane = math.max(car.Lane - 1, 0);
+
+                if (car.DesiredLane != car.Lane)
+                {
+                    car.OvertakeModeCountdown = config.OvertakeMaxDuration;
+                    car.OvertakeModeReturnToLane = car.Lane;
+                }
                 car.TEMP_NextLaneChangeCountdown = 3;
-                car.OvertakeModeCountdown = config.OvertakeMaxDuration;
             }
             else
             {

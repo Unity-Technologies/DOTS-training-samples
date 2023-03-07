@@ -56,12 +56,14 @@ public partial class CarSpawnSystem : SystemBase
 
                 myAliveCar.Add(carEntity);
                 float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
+                float lane = myRandom.NextInt(0, config.NumLanes);
 
                 // Set the new player's transform (a position offset from the obstacle).
                 EntityManager.SetComponentData(carEntity, new Car
                 {
                     Distance = myRandom.NextFloat(10),
-                    Lane = myRandom.NextInt(0, config.NumLanes),
+                    Lane = lane,
+                    DesiredLane = lane,
 
                     Acceleration = config.Acceleration,
 

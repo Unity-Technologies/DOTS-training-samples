@@ -35,8 +35,8 @@ public struct Car : IComponentData
     public float Length;
     public float Speed;
 
-    public float OvertakeSpeed;
     public float OvertakeModeCountdown;
+    public float OvertakeModeReturnToLane;
 
     public float DesiredLane;
     public float Acceleration;
@@ -49,7 +49,7 @@ public struct Car : IComponentData
 
     // immutable parameters
     public float CruisingSpeed;
-    public float overtakePercent;
+    public float OvertakeSpeed;
     public float leftMergeDistance;
     public float mergeSpace;
     public float overtakeEagerness;

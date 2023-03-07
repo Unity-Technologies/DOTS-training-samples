@@ -71,6 +71,11 @@ namespace Aspects
             get => Car.ValueRO.OvertakeSpeed;
             set => Car.ValueRW.OvertakeSpeed = value;
         }
+        public float OvertakeModeReturnToLane
+        {
+            get => Car.ValueRO.OvertakeModeReturnToLane;
+            set => Car.ValueRW.OvertakeModeReturnToLane = value;
+        }
 
 
         public float OvertakeModeCountdown
