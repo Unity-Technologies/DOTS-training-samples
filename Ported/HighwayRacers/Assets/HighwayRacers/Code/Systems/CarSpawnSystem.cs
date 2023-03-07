@@ -19,31 +19,19 @@ public partial class CarSpawnSystem : SystemBase
 
     protected override void OnCreate()
     {
-<<<<<<< HEAD
-        Debug.Log("Did spawn system create!");
         RequireForUpdate<ExecuteCarSpawn>();
         RequireForUpdate<Config>();
         myRandom = new Unity.Mathematics.Random(10101);
         myAliveCar = new List<Entity>();
         myTimeAccumulation = 0;
         myCurrentCarNumber  = 0;
-=======
-        state.RequireForUpdate<ExecuteCarSpawn>();
-        state.RequireForUpdate<Config>();
->>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
     }
     
     //public void OnUpdate(ref SystemState state)
     protected override void OnUpdate()
     {
-<<<<<<< HEAD
         myTimeAccumulation += World.Time.DeltaTime;
-        //Debug.Log("Did spawn system update!");
-=======
         // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
-        state.Enabled = false;
-
->>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
         var config = SystemAPI.GetSingleton<Config>();
         if (myCurrentCarNumber < config.DesiredCarNumber)
         {
@@ -53,59 +41,45 @@ public partial class CarSpawnSystem : SystemBase
                 
                 var car = EntityManager.Instantiate(config.CarPrefab);
                 myAliveCar.Add(car);
+                float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
                 // Set the new player's transform (a position offset from the obstacle).
-                EntityManager.SetComponentData(car, new LocalTransform
+                EntityManager.SetComponentData(car, new Car
                 {
-                    Position = new float3
-                    {
-                        x = myRandom.NextFloat(10),
-                        y = 1,
-                        z = myRandom.NextFloat(10),
-                    },
-                    Scale = 1,  // If we didn't set Scale and Rotation, they would default to zero (which is bad!)
-                    Rotation = quaternion.identity
+                    Distance = myRandom.NextFloat(10),
+                    Lane = myRandom.NextInt(0, config.NumLanes),
+
+                    Acceleration = config.Acceleration,
+                    DesiredSpeed = defaultSpeed,
+
+                    Speed = defaultSpeed,
+                    defaultSpeed = defaultSpeed,
+                    overtakePercent = myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                    leftMergeDistance = myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
+                    mergeSpace = myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
+                    overtakeEagerness = myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
+
+                    Color = float4.zero,
                 });
 
-<<<<<<< HEAD
-                //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
-
-                //carAuthoring.Speed = 1.0f;
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }
-        if (myTimeAccumulation > 10.0f)
+        if (myTimeAccumulation > 4.0f)
         { 
             // Car Killer ;p 
-            for (int i = 0; i < Mathf.Min(config.MaxCarSpawnPerFrame, myAliveCar.Count); i++)
+            for (int i = 0; i < Mathf.Min(config.MaxCarSpawnPerFrame, myAliveCar.Count); )
             {
-                if (myRandom.NextFloat(1.0f) > 0.8f)          // 20 % of chance to get killed
+                if (myRandom.NextFloat(1.0f) > 0.9f)          // 10 % of chance to get killed
                 {
-                    EntityManager.DestroyEntity(myAliveCar[0]);
-                    myAliveCar.RemoveAt(0);
-                    myCurrentCarNumber--;
+                    EntityManager.DestroyEntity(myAliveCar[i]);
+                    myAliveCar.RemoveAt(i);
+                    myCurrentCarNumber--; // We don't advance i if we just killed a car
                 }
-            }
-=======
-            float defaultSpeed = random.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
-
-            state.EntityManager.SetComponentData(car, new Car
-            {
-                Distance = random.NextFloat(10),
-                Lane = random.NextInt(0, config.NumLanes),
-
-                Acceleration = config.Acceleration,
-                DesiredSpeed = defaultSpeed,
-
-                Speed = defaultSpeed,
-                defaultSpeed = defaultSpeed,
-                overtakePercent = random.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
-                leftMergeDistance = random.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
-                mergeSpace = random.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
-                overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
-
-                Color = float4.zero,
-            });
->>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
+                else
+                {
+                    i++; // advance i
+                }
+            }           
         }
     }
 }

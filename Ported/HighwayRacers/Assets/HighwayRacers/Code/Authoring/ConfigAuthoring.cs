@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
-    public int numCars;
     public GameObject carPrefab;
     public float2 SpeedRange;
 
     [Header("Highway Bounds Properties")]
-    public int MaxNumCars = 100;
+    public int DesiredCarNumber = 100;
     public float HighwayMaxSize = 500;
+    public int MaxCarSpawnPerFrame = 10;
     public int NumLanes = 4;
 
     [Header("Car Properties")]
@@ -48,9 +48,10 @@ public class ConfigAuthoring : MonoBehaviour
             // Each authoring field corresponds to a component field of the same name.
             AddComponent(new Config
             {
-                NumCars = authoring.numCars,
+                DesiredCarNumber = authoring.DesiredCarNumber,
+                MaxCarSpawnPerFrame = authoring.MaxCarSpawnPerFrame,
                 CarPrefab = GetEntity(authoring.carPrefab),
-                MaxNumCars = authoring.MaxNumCars,
+                MaxNumCars = authoring.DesiredCarNumber,
                 NumLanes = authoring.NumLanes,
                 HighwayMaxSize = authoring.HighwayMaxSize,
                 Acceleration = authoring.Acceleration,
@@ -74,7 +75,9 @@ public class ConfigAuthoring : MonoBehaviour
 
 public struct Config : IComponentData
 {
-    public int NumCars;
+    public int DesiredCarNumber;
+    public int MaxCarSpawnPerFrame;
+
     public Entity CarPrefab;
     
     [Header("Highway Bounds Properties")]
