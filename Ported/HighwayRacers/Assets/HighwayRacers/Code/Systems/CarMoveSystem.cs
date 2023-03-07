@@ -2,7 +2,6 @@ using Unity.Burst;
 using Unity.Entities;
 using Jobs;
 using Unity.Jobs;
-using UnityEngine.Profiling;
 
 [BurstCompile]
 public partial struct CarMoveSystem : ISystem
@@ -20,13 +19,9 @@ public partial struct CarMoveSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        Profiler.BeginSample("Car Move System Update**********************");
-
         if (state.Dependency != null)
         {
-            Profiler.BeginSample("Waiting for previous frame jobs");
             state.Dependency.Complete();
-            Profiler.EndSample();
         }
 
         var config = SystemAPI.GetSingleton<Config>();
@@ -36,7 +31,5 @@ public partial struct CarMoveSystem : ISystem
         };
         JobHandle jobHandle = testJob.ScheduleParallel(state.Dependency);
         state.Dependency = jobHandle;        
-
-        Profiler.EndSample();
     }
 }

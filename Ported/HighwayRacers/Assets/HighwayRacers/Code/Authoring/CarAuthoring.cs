@@ -39,7 +39,7 @@ public struct Car : IComponentData
     public float Speed;
     public float DesiredSpeed;
     public float Acceleration;
-
+    public float PreviousDifferential;
     public float4 Color;
 
     // immutable parameters

@@ -11,6 +11,7 @@ public class ConfigAuthoring : MonoBehaviour
     public int DesiredCarNumber = 100;
     public float HighwayMaxSize = 500;
     public int MaxCarSpawnPerFrame = 10;
+    public bool AllowedToKillCar = false;
     public int NumLanes = 4;
 
     [Header("Car Properties")]
@@ -50,6 +51,7 @@ public class ConfigAuthoring : MonoBehaviour
             {
                 DesiredCarNumber = authoring.DesiredCarNumber,
                 MaxCarSpawnPerFrame = authoring.MaxCarSpawnPerFrame,
+                AllowedToKillCar = authoring.AllowedToKillCar,
                 CarPrefab = GetEntity(authoring.carPrefab),
                 MaxNumCars = authoring.DesiredCarNumber,
                 NumLanes = authoring.NumLanes,
@@ -77,7 +79,7 @@ public struct Config : IComponentData
 {
     public int DesiredCarNumber;
     public int MaxCarSpawnPerFrame;
-
+    public bool AllowedToKillCar;
     public Entity CarPrefab;
     
     [Header("Highway Bounds Properties")]

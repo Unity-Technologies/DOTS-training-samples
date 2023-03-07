@@ -1,3 +1,4 @@
+using System.Drawing;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -11,6 +12,12 @@ namespace Aspects
         public readonly RefRW<Car> Car;
 
         readonly TransformAspect Transform;
+
+        public float PreviousDifferential
+        {
+            get => Car.ValueRO.PreviousDifferential;
+            set => Car.ValueRW.PreviousDifferential = value;
+        }
 
         public float Distance
         {

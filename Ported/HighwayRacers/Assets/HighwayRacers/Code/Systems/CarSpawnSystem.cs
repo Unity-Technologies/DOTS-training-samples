@@ -75,7 +75,7 @@ public partial class CarSpawnSystem : SystemBase
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }
-        if (myTimeAccumulation > 4.0f)
+        if (myTimeAccumulation > 4.0f && config.AllowedToKillCar)
         { 
             // Car Killer ;p 
             for (int i = 0; i < Mathf.Min(config.MaxCarSpawnPerFrame, myAliveCar.Count); )
