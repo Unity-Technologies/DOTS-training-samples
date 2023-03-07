@@ -17,11 +17,9 @@ namespace Jobs
         [BurstCompile]
         private void Execute(ref CarAspect car)
         {
+            car.Speed = car.DesiredSpeed - car.Acceleration * DeltaTime;
 
-            car.Speed = car.DesiredSpeed;
-            car.Distance += car.Speed * DeltaTime;
-            
-            float3 moveAmount = new float3(car.Distance, 0, 0);
+            float3 moveAmount = new float3(car.Speed, 0, 0);
             var newPos = car.Position + moveAmount;
             car.Position = newPos;
 

@@ -47,10 +47,8 @@ public partial struct CarSpawnSystem : ISystem
 
             state.EntityManager.SetComponentData(car, new Car()
             {
-                Distance = 0.0f,
-                Length = 1.0f,
-                Speed = 0.01f,
-                DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
+                Speed = random.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax),
+                DesiredSpeed = random.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax),
                 Color = float4.zero,
                 
             });

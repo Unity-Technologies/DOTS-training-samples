@@ -13,14 +13,6 @@ namespace HighwayRacers
         public float distanceToFront = 1;
         [Tooltip("Distance from center of car to the back.")]
         public float distanceToBack = 1;
-
-		public Color defaultColor = Color.gray;
-		public Color maxSpeedColor = Color.green;
-		public Color minSpeedColor = Color.red;
-
-
-
-
 		#endregion
 
 		public float defaultSpeed { get; set; }
@@ -39,39 +31,7 @@ namespace HighwayRacers
 
 
         [Header("Children")]
-		public MeshRenderer topRenderer;
-        public MeshRenderer baseRenderer;
 		public Transform cameraPos;
-
-        public Color color
-        {
-            get
-            {
-                return topRenderer.material.color;
-            }
-            set
-            {
-				topRenderer.material.color = value;
-                baseRenderer.material.color = value;
-            }
-        }
-
-		public void Show() {
-			if (!hidden)
-				return;
-			topRenderer.enabled = true;
-			baseRenderer.enabled = true;
-			hidden = false;
-		}
-
-		public void Hide() {
-			if (hidden)
-				return;
-			topRenderer.enabled = false;
-			baseRenderer.enabled = false;
-			hidden = true;
-
-		}
 
 		public void SetRandomPropeties()
 		{
@@ -316,21 +276,7 @@ namespace HighwayRacers
 			distance += velocityPosition * dt;
 			ChangeLane(lane + velocityLane * dt);
             UpdatePosition();
-
-			UpdateColor();
         }
-
-		private void UpdateColor() {
-
-			if (velocityPosition > defaultSpeed) {
-				color = Color.Lerp (defaultColor, maxSpeedColor, (velocityPosition - defaultSpeed) / (maxSpeed - defaultSpeed));
-			} else if (velocityPosition < defaultSpeed) {
-				color = Color.Lerp (minSpeedColor, defaultColor, velocityPosition / defaultSpeed);
-			} else {
-				color = defaultColor;
-			}
-
-		}
 
 		private float targetLane = 0;
 
