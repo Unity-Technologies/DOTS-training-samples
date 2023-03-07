@@ -1,12 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.Transforms;
 using Jobs;
-using Unity.Collections;
-using UnityEngine;
+using Unity.Jobs;
+using UnityEngine.Profiling;
 
 [BurstCompile]
 public partial struct CarMoveSystem : ISystem
@@ -24,25 +20,23 @@ public partial struct CarMoveSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<Config>();
+        Profiler.BeginSample("Car Move System Update**********************");
 
+        if (state.Dependency != null)
+        {
+            Profiler.BeginSample("Waiting for previous frame jobs");
+            state.Dependency.Complete();
+            Profiler.EndSample();
+        }
+
+        var config = SystemAPI.GetSingleton<Config>();
         var testJob = new CarMovementJob
         {
             DeltaTime = SystemAPI.Time.DeltaTime
         };
+        JobHandle jobHandle = testJob.ScheduleParallel(state.Dependency);
+        state.Dependency = jobHandle;        
 
-        var jobHandle = testJob.ScheduleParallel(state.Dependency);
-        state.Dependency = jobHandle;
-        jobHandle.Complete();
-        
-        /*float3 moveAmount = new float3(Time.deltaTime, 0, 0);
-       
-        foreach (var playerTransform in
-                 SystemAPI.Query<RefRW<LocalTransform>>()
-                     .WithAll<Car>())
-        {
-            var newPos = playerTransform.ValueRO.Position + moveAmount;
-            playerTransform.ValueRW.Position = newPos;
-        }*/
+        Profiler.EndSample();
     }
 }
