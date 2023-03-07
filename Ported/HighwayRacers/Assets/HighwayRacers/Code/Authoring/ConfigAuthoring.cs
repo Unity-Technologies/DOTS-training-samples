@@ -1,10 +1,12 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
     public int numCars;
     public GameObject carPrefab;
+    public float2 SpeedRange;
 
     class Baker : Baker<ConfigAuthoring>
     {
@@ -14,7 +16,8 @@ public class ConfigAuthoring : MonoBehaviour
             AddComponent(new Config
             {
                 NumCars = authoring.numCars,
-                CarPrefab = GetEntity(authoring.carPrefab)
+                CarPrefab = GetEntity(authoring.carPrefab),
+                SpeedRange = authoring.SpeedRange
             });
         }
     }
@@ -24,4 +27,5 @@ public struct Config : IComponentData
 {
     public int NumCars;
     public Entity CarPrefab;
+    public float2 SpeedRange;
 }

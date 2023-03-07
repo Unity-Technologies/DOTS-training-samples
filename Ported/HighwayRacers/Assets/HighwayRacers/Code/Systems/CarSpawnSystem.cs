@@ -45,9 +45,14 @@ public partial struct CarSpawnSystem : ISystem
                 Rotation = quaternion.identity
             });
 
-            //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
-
-            //carAuthoring.Speed = 1.0f;
+            state.EntityManager.SetComponentData(car, new Car()
+            {
+                Distance = 0.0f,
+                Length = 1.0f,
+                Speed = 0.01f,
+                DesiredSpeed = random.NextFloat(0.01f, 0.05f),
+                Color = float4.zero,
+            });
         }
     }
 }
