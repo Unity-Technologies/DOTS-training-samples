@@ -49,7 +49,7 @@ public partial struct CarMoveSystem : ISystem
         {
             DeltaTime = SystemAPI.Time.DeltaTime,
             config = config,
-            frameCount = Time.frameCount
+            frameCount = UnityEngine.Time.frameCount
         };
         JobHandle jobHandle = testJob.ScheduleParallel(state.Dependency);
         state.Dependency = jobHandle;        
