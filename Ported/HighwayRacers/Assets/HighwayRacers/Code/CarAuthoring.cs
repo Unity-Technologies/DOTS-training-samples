@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
-public class PlayerAuthoring : MonoBehaviour
+public class CarAuthoring : MonoBehaviour
 {
-    class Baker : Baker<PlayerAuthoring>
+    class Baker : Baker<CarAuthoring>
     {
-        public override void Bake(PlayerAuthoring authoring)
+        public override void Bake(CarAuthoring authoring)
         {
-            AddComponent<Player>();
+            AddComponent<Car>();
         }
     }
 }
 
-public struct Player : IComponentData
+public struct Car : IComponentData
 {
 }

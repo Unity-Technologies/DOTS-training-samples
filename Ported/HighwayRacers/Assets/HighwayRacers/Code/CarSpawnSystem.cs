@@ -8,18 +8,20 @@ using UnityEngine;
 
 //[UpdateAfter(typeof(ObstacleSpawnerSystem))]
 //[UpdateBefore(typeof(TransformSystemGroup))]
-public partial struct PlayerSpawnerSystem : ISystem
+public partial struct CarSpawnSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        //state.RequireForUpdate<ExecutePlayerSpawner>();
+        Debug.Log("Did spawn system create!");
+        state.RequireForUpdate<ExecuteCarSpawn>();
         state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        Debug.Log("Did spawn system update!");
         // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
         state.Enabled = false;
 
