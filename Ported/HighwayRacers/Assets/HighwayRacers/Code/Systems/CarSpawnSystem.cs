@@ -13,7 +13,6 @@ public partial struct CarSpawnSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        Debug.Log("Did spawn system create!");
         state.RequireForUpdate<ExecuteCarSpawn>();
         state.RequireForUpdate<Config>();
     }
@@ -21,7 +20,6 @@ public partial struct CarSpawnSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        Debug.Log("Did spawn system update!");
         // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
         state.Enabled = false;
 
@@ -43,6 +41,23 @@ public partial struct CarSpawnSystem : ISystem
                 },
                 Scale = 1,  // If we didn't set Scale and Rotation, they would default to zero (which is bad!)
                 Rotation = quaternion.identity
+            });
+
+            float defaultSpeed = random.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
+
+            state.EntityManager.SetComponentData(car, new Car
+            {
+                Distance = random.NextFloat(10),
+                Lane = random.NextInt(0, config.NumLanes),
+
+                Acceleration = config.Acceleration,
+                DesiredSpeed = defaultSpeed,
+
+                defaultSpeed = defaultSpeed,
+                overtakePercent = random.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                leftMergeDistance = random.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
+                mergeSpace = random.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
+                overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax)
             });
 
             //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();

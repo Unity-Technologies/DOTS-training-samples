@@ -9,6 +9,7 @@ public class ConfigAuthoring : MonoBehaviour
     [Header("Highway Bounds Properties")]
     public int MaxNumCars = 100;
     public float HighwayMaxSize = 500;
+    public int NumLanes = 4;
 
     [Header("Car Properties")]
     public float Acceleration = 15;
@@ -48,6 +49,7 @@ public class ConfigAuthoring : MonoBehaviour
                 NumCars = authoring.numCars,
                 CarPrefab = GetEntity(authoring.carPrefab),
                 MaxNumCars = authoring.MaxNumCars,
+                NumLanes = authoring.NumLanes,
                 HighwayMaxSize = authoring.HighwayMaxSize,
                 Acceleration = authoring.Acceleration,
                 BrakeDeceleration = authoring.BrakeDeceleration,
@@ -76,6 +78,7 @@ public struct Config : IComponentData
     [Header("Highway Bounds Properties")]
     public int MaxNumCars;
     public float HighwayMaxSize;
+    public int NumLanes;
 
     //Car Properties
     public float Acceleration;

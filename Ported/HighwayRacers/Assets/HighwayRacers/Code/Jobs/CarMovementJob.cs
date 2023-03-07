@@ -17,14 +17,13 @@ namespace Jobs
         [BurstCompile]
         private void Execute(ref CarAspect car)
         {
+            if(car.Speed < car.DesiredSpeed)
+                car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
+            else
+                car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
 
             car.Distance += car.Speed * DeltaTime;
-            
-
-            float3 moveAmount = new float3(car.Distance, 0, 0);
-            var newPos = car.Position + moveAmount;
-            car.Position = newPos;
-
+            car.Position = new float3(car.Distance, 0, car.Lane);
         }
     }
 }
