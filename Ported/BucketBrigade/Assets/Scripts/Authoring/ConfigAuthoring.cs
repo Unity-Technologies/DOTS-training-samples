@@ -58,7 +58,6 @@ public class ConfigAuthoring : MonoBehaviour
     
     [Range(0.0001f, 2f)]
     public float fireSimUpdateRate = 0.5f;
-
     public Color fireNeutralColor;
     public Color fireCoolColor;
     public Color fireHotColor;
@@ -148,6 +147,7 @@ public class ConfigAuthoring : MonoBehaviour
                 simulationWidth =  authoring.numRows * authoring.cellSize,
                 simulationDepth = authoring.numColumns * authoring.cellSize
             });
+            AddBuffer<FlameHeat>();
         }
     }
 
@@ -192,5 +192,11 @@ public class ConfigAuthoring : MonoBehaviour
         public float4 bucketFullColor;
         public float simulationWidth;
         public float simulationDepth;
+
+    }
+    
+    public struct FlameHeat : IBufferElementData
+    {
+        public float Value;
     }
 }

@@ -17,7 +17,6 @@ public class WaterAuthoring : MonoBehaviour
         {
             AddComponent(new Water
                 {
-                    volume = waterAuthoring.volume,
                     capacity = waterAuthoring.capacity,
                     waterRemoved = waterAuthoring.waterRemoved
                 }
@@ -30,7 +29,6 @@ public class WaterAuthoring : MonoBehaviour
 
     public struct Water : IComponentData
     {
-        public float volume;
         public float capacity;
         public float waterRemoved;
     }
