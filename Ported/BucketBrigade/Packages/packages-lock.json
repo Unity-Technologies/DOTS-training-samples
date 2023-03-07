@@ -112,6 +112,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.performance.profile-analyzer": {
+      "version": "1.2.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
     "com.unity.physics": {
       "version": "1.0.0-pre.44",
       "depth": 0,

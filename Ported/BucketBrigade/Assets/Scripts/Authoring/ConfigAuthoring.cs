@@ -2,20 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public class ConfigAuthoring : MonoBehaviour
 {
     #region Prefabs
-    
+
+    [Header("Prefabs")]
+
     public GameObject bucketPrefab;
     public GameObject botPrefab;
     public GameObject flameCellPrefab;
     public GameObject waterPrefab;
-    
+
     #endregion
-    
+
     #region Bot Params
-    
+
+    [Header("Bot Params")]
+
     [Range(0.0001f,1f)]
     public float botSpeed = 0.1f;
     
@@ -23,11 +28,17 @@ public class ConfigAuthoring : MonoBehaviour
     public float waterCarryEffect = 0.5f;
 
     public int numOmnibots = 0;
-    
-    #endregion
-    
-    #region Fire Params
 
+    public Color botScoopColor;
+    public Color botFullColor;
+    public Color botEmptyColor;
+    public Color botThrowColor;
+    public Color botOmniColor;
+
+    #endregion
+
+    #region Fire Params
+    [Header("Fire Params")]
     [Tooltip("How many random fires do you want to battle?")]
     public int startingFireCount = 1;
     [Tooltip("How high the flames reach at max temperature")]
@@ -48,17 +59,27 @@ public class ConfigAuthoring : MonoBehaviour
     [Range(0.0001f, 2f)]
     public float fireSimUpdateRate = 0.5f;
 
+    public Color fireNeutralColor;
+    public Color fireCoolColor;
+    public Color fireHotColor;
+
     #endregion
 
     #region Water Params
-    
+
+    [Header("Water Params")]
+
     [Tooltip("Water sources will refill by this amount per second")]
     public float refillRate = 0.0001f;
-    
+
+    public Color waterColor;
+
     #endregion
 
     #region Bucket Params
-    
+
+    [Header("Bucket Params")]
+
     [Range(1,5)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
@@ -76,10 +97,11 @@ public class ConfigAuthoring : MonoBehaviour
     public float bucketSizeEmpty = 0.2f;
     [Tooltip("Visual scale of bucket when FULL (no effect on water capacity)")]
     public float bucketSizeFull = 0.4f;
-    
+    public Color bucketEmptyColor;
+    public Color bucketFullColor;
+
     #endregion
-    
-    
+
     class Baker : Baker <ConfigAuthoring> 
     {
 
@@ -94,6 +116,11 @@ public class ConfigAuthoring : MonoBehaviour
                 botSpeed =  authoring.botSpeed,
                 waterCarryEffect = authoring.waterCarryEffect,
                 numOmnibots = authoring.numOmnibots,
+                botScoopColor = authoring.botScoopColor.ToFloat4(),
+                botFullColor = authoring.botFullColor.ToFloat4(),
+                botEmptyColor = authoring.botEmptyColor.ToFloat4(),
+                botThrowColor = authoring.botThrowColor.ToFloat4(),
+                botOmniColor = authoring.botOmniColor.ToFloat4(),
                 startingFireCount = authoring.startingFireCount,
                 maxFlameHeight = authoring.maxFlameHeight,
                 cellSize = authoring.cellSize,
@@ -103,15 +130,21 @@ public class ConfigAuthoring : MonoBehaviour
                 heatRadius = authoring.heatRadius,
                 heatTransferRate = authoring.heatTransferRate,
                 fireSimUpdateRate = authoring.fireSimUpdateRate,
+                fireNeutralColor = authoring.fireNeutralColor.ToFloat4(),
+                fireCoolColor = authoring.fireCoolColor.ToFloat4(),
+                fireHotColor = authoring.fireHotColor.ToFloat4(),
                 splashRadius = authoring.splashRadius,
                 coolingStrength = authoring.coolingStrength,
                 coolingStrengthFalloff = authoring.coolingStrengthFalloff,
                 refillRate = authoring.refillRate,
+                waterColor = authoring.waterColor.ToFloat4(),
                 totalBuckets = authoring.totalBuckets,
                 bucketCapacity = authoring.bucketCapacity,
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSizeEmpty = authoring.bucketSizeEmpty,
                 bucketSizeFull = authoring.bucketSizeFull,
+                bucketEmptyColor = authoring.waterColor.ToFloat4(),
+                bucketFullColor = authoring.waterColor.ToFloat4(),
                 simulationWidth =  authoring.numRows * authoring.cellSize,
                 simulationDepth = authoring.numColumns * authoring.cellSize
             });
@@ -128,6 +161,11 @@ public class ConfigAuthoring : MonoBehaviour
         public float botSpeed;
         public float waterCarryEffect;
         public int numOmnibots;
+        public float4 botScoopColor;
+        public float4 botFullColor;
+        public float4 botEmptyColor;
+        public float4 botThrowColor;
+        public float4 botOmniColor;
         public int startingFireCount;
         public float maxFlameHeight;
         public float cellSize;
@@ -137,15 +175,21 @@ public class ConfigAuthoring : MonoBehaviour
         public int heatRadius;
         public float heatTransferRate;
         public float fireSimUpdateRate;
+        public float4 fireNeutralColor;
+        public float4 fireCoolColor;
+        public float4 fireHotColor;
         public int splashRadius;
         public float coolingStrength;
         public float coolingStrengthFalloff;
         public float refillRate;
+        public float4 waterColor;
         public int totalBuckets;
         public float bucketCapacity;
         public float bucketFillRate;
         public float bucketSizeEmpty;
         public float bucketSizeFull;
+        public float4 bucketEmptyColor;
+        public float4 bucketFullColor;
         public float simulationWidth;
         public float simulationDepth;
     }
