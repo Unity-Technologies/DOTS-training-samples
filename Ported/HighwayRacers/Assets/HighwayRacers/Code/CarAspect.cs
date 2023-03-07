@@ -18,6 +18,12 @@ namespace Aspects
             set => Car.ValueRW.Distance = value;
         }
 
+        public float Lane
+        {
+            get => Car.ValueRO.Lane;
+            set => Car.ValueRW.Lane = value;
+        }
+
         public float3 Position
         {
             get => Transform.LocalPosition;
@@ -30,14 +36,20 @@ namespace Aspects
             set => Transform.LocalRotation = value;
         }
 
+        public float Acceleration
+        {
+            get => Car.ValueRO.Acceleration;
+            set => Car.ValueRW.Acceleration = value;
+        }
+
         public float Speed
         {
             get => Car.ValueRO.Speed;
             set => Car.ValueRW.Speed = value;
         }
 
-       
         public float Length { get => Car.ValueRO.Length; }
+
         public float DesiredSpeed { get => Car.ValueRO.DesiredSpeed; }
     }
 }

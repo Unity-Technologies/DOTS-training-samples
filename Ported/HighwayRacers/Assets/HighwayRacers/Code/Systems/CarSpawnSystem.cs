@@ -19,6 +19,7 @@ public partial class CarSpawnSystem : SystemBase
 
     protected override void OnCreate()
     {
+<<<<<<< HEAD
         Debug.Log("Did spawn system create!");
         RequireForUpdate<ExecuteCarSpawn>();
         RequireForUpdate<Config>();
@@ -26,13 +27,23 @@ public partial class CarSpawnSystem : SystemBase
         myAliveCar = new List<Entity>();
         myTimeAccumulation = 0;
         myCurrentCarNumber  = 0;
+=======
+        state.RequireForUpdate<ExecuteCarSpawn>();
+        state.RequireForUpdate<Config>();
+>>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
     }
     
     //public void OnUpdate(ref SystemState state)
     protected override void OnUpdate()
     {
+<<<<<<< HEAD
         myTimeAccumulation += World.Time.DeltaTime;
         //Debug.Log("Did spawn system update!");
+=======
+        // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
+        state.Enabled = false;
+
+>>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
         var config = SystemAPI.GetSingleton<Config>();
         if (myCurrentCarNumber < config.DesiredCarNumber)
         {
@@ -55,6 +66,7 @@ public partial class CarSpawnSystem : SystemBase
                     Rotation = quaternion.identity
                 });
 
+<<<<<<< HEAD
                 //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
 
                 //carAuthoring.Speed = 1.0f;
@@ -73,6 +85,27 @@ public partial class CarSpawnSystem : SystemBase
                     myCurrentCarNumber--;
                 }
             }
+=======
+            float defaultSpeed = random.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
+
+            state.EntityManager.SetComponentData(car, new Car
+            {
+                Distance = random.NextFloat(10),
+                Lane = random.NextInt(0, config.NumLanes),
+
+                Acceleration = config.Acceleration,
+                DesiredSpeed = defaultSpeed,
+
+                Speed = defaultSpeed,
+                defaultSpeed = defaultSpeed,
+                overtakePercent = random.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                leftMergeDistance = random.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
+                mergeSpace = random.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
+                overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
+
+                Color = float4.zero,
+            });
+>>>>>>> 0b61f031b2f7138e590d0c3aed0b94778d50c595
         }
     }
 }
