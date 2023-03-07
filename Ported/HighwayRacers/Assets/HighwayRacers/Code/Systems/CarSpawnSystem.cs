@@ -13,6 +13,7 @@ public partial class CarSpawnSystem : SystemBase
 {
     Unity.Mathematics.Random myRandom;
     List<Entity> myAliveCar;
+    List<Entity> myFreeCar;
     float myTimeAccumulation;
     // Runtime    
     int myCurrentCarNumber;
@@ -23,6 +24,7 @@ public partial class CarSpawnSystem : SystemBase
         RequireForUpdate<Config>();
         myRandom = new Unity.Mathematics.Random(10101);
         myAliveCar = new List<Entity>();
+        myFreeCar = new List<Entity>();
         myTimeAccumulation = 0;
         myCurrentCarNumber  = 0;
     }
@@ -38,12 +40,22 @@ public partial class CarSpawnSystem : SystemBase
             int numberOfCarToSpawn = Mathf.Min(config.DesiredCarNumber - myCurrentCarNumber, config.MaxCarSpawnPerFrame);
             for (int Idx = 0; Idx < numberOfCarToSpawn; ++Idx)
             {
-                
-                var car = EntityManager.Instantiate(config.CarPrefab);
-                myAliveCar.Add(car);
+                Entity carEntity;
+                if (myFreeCar.Count > 0)
+                {
+                    carEntity = myFreeCar[0];
+                    myFreeCar.RemoveAt(0);
+                }
+                else
+                {
+                    carEntity = EntityManager.Instantiate(config.CarPrefab);
+                }
+
+                myAliveCar.Add(carEntity);
                 float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
+
                 // Set the new player's transform (a position offset from the obstacle).
-                EntityManager.SetComponentData(car, new Car
+                EntityManager.SetComponentData(carEntity, new Car
                 {
                     Distance = myRandom.NextFloat(10),
                     Lane = myRandom.NextInt(0, config.NumLanes),
@@ -60,7 +72,6 @@ public partial class CarSpawnSystem : SystemBase
 
                     Color = float4.zero,
                 });
-
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }
@@ -71,7 +82,7 @@ public partial class CarSpawnSystem : SystemBase
             {
                 if (myRandom.NextFloat(1.0f) > 0.9f)          // 10 % of chance to get killed
                 {
-                    EntityManager.DestroyEntity(myAliveCar[i]);
+                    myFreeCar.Add(myAliveCar[i]);
                     myAliveCar.RemoveAt(i);
                     myCurrentCarNumber--; // We don't advance i if we just killed a car
                 }
