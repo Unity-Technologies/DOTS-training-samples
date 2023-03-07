@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
-    public int numCars;
+    public int DesiredCarNumber = 1000;
     public GameObject carPrefab;
+    public int MaxCarSpawnPerFrame = 10;
 
     class Baker : Baker<ConfigAuthoring>
     {
@@ -13,8 +14,9 @@ public class ConfigAuthoring : MonoBehaviour
             // Each authoring field corresponds to a component field of the same name.
             AddComponent(new Config
             {
-                NumCars = authoring.numCars,
-                CarPrefab = GetEntity(authoring.carPrefab)
+                DesiredCarNumber = authoring.DesiredCarNumber,
+                CarPrefab = GetEntity(authoring.carPrefab),
+                MaxCarSpawnPerFrame = authoring.MaxCarSpawnPerFrame
             });
         }
     }
@@ -22,6 +24,7 @@ public class ConfigAuthoring : MonoBehaviour
 
 public struct Config : IComponentData
 {
-    public int NumCars;
+    public int DesiredCarNumber;
     public Entity CarPrefab;
+    public int MaxCarSpawnPerFrame;
 }

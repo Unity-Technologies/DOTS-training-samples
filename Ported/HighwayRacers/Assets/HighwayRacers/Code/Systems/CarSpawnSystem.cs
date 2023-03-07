@@ -8,46 +8,71 @@ using UnityEngine;
 
 //[UpdateAfter(typeof(ObstacleSpawnerSystem))]
 //[UpdateBefore(typeof(TransformSystemGroup))]
-public partial struct CarSpawnSystem : ISystem
+
+public partial class CarSpawnSystem : SystemBase
 {
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
+    Unity.Mathematics.Random myRandom;
+    List<Entity> myAliveCar;
+    float myTimeAccumulation;
+    // Runtime    
+    int myCurrentCarNumber;
+
+    protected override void OnCreate()
     {
         Debug.Log("Did spawn system create!");
-        state.RequireForUpdate<ExecuteCarSpawn>();
-        state.RequireForUpdate<Config>();
+        RequireForUpdate<ExecuteCarSpawn>();
+        RequireForUpdate<Config>();
+        myRandom = new Unity.Mathematics.Random(10101);
+        myAliveCar = new List<Entity>();
+        myTimeAccumulation = 0;
+        myCurrentCarNumber  = 0;
     }
-
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    
+    //public void OnUpdate(ref SystemState state)
+    protected override void OnUpdate()
     {
-        Debug.Log("Did spawn system update!");
-        // We only want to spawn cars in one frame. Disabling the system stops it from updating again after this one time.
-        state.Enabled = false;
-
+        myTimeAccumulation += World.Time.DeltaTime;
+        //Debug.Log("Did spawn system update!");
         var config = SystemAPI.GetSingleton<Config>();
-        var random = new Unity.Mathematics.Random(10101);
-
-        for (int Idx = 0; Idx < config.NumCars; ++Idx)
+        if (myCurrentCarNumber < config.DesiredCarNumber)
         {
-            var car = state.EntityManager.Instantiate(config.CarPrefab);
-
-            // Set the new player's transform (a position offset from the obstacle).
-            state.EntityManager.SetComponentData(car, new LocalTransform
+            int numberOfCarToSpawn = Mathf.Min(config.DesiredCarNumber - myCurrentCarNumber, config.MaxCarSpawnPerFrame);
+            for (int Idx = 0; Idx < numberOfCarToSpawn; ++Idx)
             {
-                Position = new float3
+                
+                var car = EntityManager.Instantiate(config.CarPrefab);
+                myAliveCar.Add(car);
+                // Set the new player's transform (a position offset from the obstacle).
+                EntityManager.SetComponentData(car, new LocalTransform
                 {
-                    x = random.NextFloat(10),
-                    y = 1,
-                    z = random.NextFloat(10),
-                },
-                Scale = 1,  // If we didn't set Scale and Rotation, they would default to zero (which is bad!)
-                Rotation = quaternion.identity
-            });
+                    Position = new float3
+                    {
+                        x = myRandom.NextFloat(10),
+                        y = 1,
+                        z = myRandom.NextFloat(10),
+                    },
+                    Scale = 1,  // If we didn't set Scale and Rotation, they would default to zero (which is bad!)
+                    Rotation = quaternion.identity
+                });
 
-            //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
+                //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
 
-            //carAuthoring.Speed = 1.0f;
+                //carAuthoring.Speed = 1.0f;
+            }
+            myCurrentCarNumber += numberOfCarToSpawn;
+        }
+        if (myTimeAccumulation > 10.0f)
+        { 
+            // Car Killer ;p 
+            for (int i = 0; i < Mathf.Min(config.MaxCarSpawnPerFrame, myAliveCar.Count); i++)
+            {
+                if (myRandom.NextFloat(1.0f) > 0.8f)          // 20 % of chance to get killed
+                {
+                    EntityManager.DestroyEntity(myAliveCar[0]);
+                    myAliveCar.RemoveAt(0);
+                    myCurrentCarNumber--;
+                }
+            }
         }
     }
 }

@@ -16,7 +16,6 @@ public partial struct CarMoveSystem : ISystem
         state.RequireForUpdate<Config>();
     }
 
-    [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
      
