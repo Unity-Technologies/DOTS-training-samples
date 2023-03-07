@@ -29,7 +29,9 @@ public partial struct CarMoveSystem : ISystem
 
         var testJob = new CarMovementJob
         {
-            DeltaTime = SystemAPI.Time.DeltaTime
+            DeltaTime = SystemAPI.Time.DeltaTime,
+            config = config,
+            frameCount = Time.frameCount
         };
 
         var jobHandle = testJob.ScheduleParallel(state.Dependency);

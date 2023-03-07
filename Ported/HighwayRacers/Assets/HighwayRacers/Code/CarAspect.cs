@@ -24,6 +24,12 @@ namespace Aspects
             set => Car.ValueRW.Lane = value;
         }
 
+        public float DesiredLane
+        {
+            get => Car.ValueRO.DesiredLane;
+            set => Car.ValueRW.DesiredLane = value;
+        }
+
         public float3 Position
         {
             get => Transform.LocalPosition;
@@ -46,6 +52,12 @@ namespace Aspects
         {
             get => Car.ValueRO.Speed;
             set => Car.ValueRW.Speed = value;
+        }
+
+        public float TEMP_NextLaneChangeCountdown
+        {
+            get => Car.ValueRO.TEMP_NextLaneChangeCountdown;
+            set => Car.ValueRW.TEMP_NextLaneChangeCountdown = value;
         }
 
         public float Length { get => Car.ValueRO.Length; }

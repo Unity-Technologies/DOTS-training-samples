@@ -26,7 +26,7 @@ public partial struct CarSpawnSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var random = new Unity.Mathematics.Random(10101);
 
-        for (int Idx = 0; Idx < config.NumCars; ++Idx)
+        for (int Idx = 0; Idx < config.MaxNumCars; ++Idx)
         {
             var car = state.EntityManager.Instantiate(config.CarPrefab);
 
@@ -53,6 +53,7 @@ public partial struct CarSpawnSystem : ISystem
                 Acceleration = config.Acceleration,
                 DesiredSpeed = defaultSpeed,
 
+                TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                 Speed = defaultSpeed,
                 defaultSpeed = defaultSpeed,
                 overtakePercent = random.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
@@ -61,7 +62,7 @@ public partial struct CarSpawnSystem : ISystem
                 overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
 
                 Color = float4.zero,
-            });
+            }); ;
         }
     }
 }

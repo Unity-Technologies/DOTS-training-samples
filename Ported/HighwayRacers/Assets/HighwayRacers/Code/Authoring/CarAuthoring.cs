@@ -38,7 +38,10 @@ public struct Car : IComponentData
 
     public float Speed;
     public float DesiredSpeed;
+    public float DesiredLane;
     public float Acceleration;
+
+    public float TEMP_NextLaneChangeCountdown;
 
     public float4 Color;
 
