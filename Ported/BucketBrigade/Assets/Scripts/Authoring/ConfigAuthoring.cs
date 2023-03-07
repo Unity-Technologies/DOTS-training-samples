@@ -51,7 +51,14 @@ public class ConfigAuthoring : MonoBehaviour
     #endregion
 
     #region Water Params
+    
+    [Tooltip("Water sources will refill by this amount per second")]
+    public float refillRate = 0.0001f;
+    
+    #endregion
 
+    #region Bucket Params
+    
     [Range(1,5)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
@@ -59,8 +66,6 @@ public class ConfigAuthoring : MonoBehaviour
     public float coolingStrength = 1f;
     [Tooltip("Splash damage of water bucket. (1 = no loss of power over distance)")]
     public float coolingStrengthFalloff = 0.75f;
-    [Tooltip("Water sources will refill by this amount per second")]
-    public float refillRate = 0.0001f;
     [Range(0, 100)]
     public int totalBuckets = 3;
     [Tooltip("How much water does a bucket hold?")]
@@ -106,7 +111,9 @@ public class ConfigAuthoring : MonoBehaviour
                 bucketCapacity = authoring.bucketCapacity,
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSizeEmpty = authoring.bucketSizeEmpty,
-                bucketSizeFull = authoring.bucketSizeFull
+                bucketSizeFull = authoring.bucketSizeFull,
+                simulationWidth =  authoring.numRows * authoring.cellSize,
+                simulationDepth = authoring.numColumns * authoring.cellSize
             });
         }
     }
@@ -139,5 +146,7 @@ public class ConfigAuthoring : MonoBehaviour
         public float bucketFillRate;
         public float bucketSizeEmpty;
         public float bucketSizeFull;
+        public float simulationWidth;
+        public float simulationDepth;
     }
 }
