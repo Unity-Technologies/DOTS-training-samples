@@ -53,16 +53,15 @@ public partial struct CarSpawnSystem : ISystem
                 Acceleration = config.Acceleration,
                 DesiredSpeed = defaultSpeed,
 
+                Speed = defaultSpeed,
                 defaultSpeed = defaultSpeed,
                 overtakePercent = random.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
                 leftMergeDistance = random.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
                 mergeSpace = random.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
-                overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax)
+                overtakeEagerness = random.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
+
+                Color = float4.zero,
             });
-
-            //var carAuthoring = config.CarPrefab.GetComponent<CarAuthoring>();
-
-            //carAuthoring.Speed = 1.0f;
         }
     }
 }

@@ -42,7 +42,6 @@ namespace HighwayRacers {
 				return;
 			state = State.TO_TOP_DOWN;
 			time = 0;
-			carRef.Show();
 			carRef = null;
 		}
 
@@ -107,7 +106,6 @@ namespace HighwayRacers {
 				if (time >= transitionDuration || state == State.CAR) {
 					if (state == State.TO_CAR) {
 						state = State.CAR;
-						carRef.Hide();
 					}
 					transform.position = carPosition;
 					transform.rotation = carRotation;

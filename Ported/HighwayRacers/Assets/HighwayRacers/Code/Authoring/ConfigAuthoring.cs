@@ -1,10 +1,12 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
     public int numCars;
     public GameObject carPrefab;
+    public float2 SpeedRange;
 
     [Header("Highway Bounds Properties")]
     public int MaxNumCars = 100;
