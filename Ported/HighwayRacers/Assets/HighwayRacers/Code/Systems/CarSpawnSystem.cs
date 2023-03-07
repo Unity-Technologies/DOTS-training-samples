@@ -50,8 +50,9 @@ public partial struct CarSpawnSystem : ISystem
                 Distance = 0.0f,
                 Length = 1.0f,
                 Speed = 0.01f,
-                DesiredSpeed = random.NextFloat(0.01f, 0.05f),
+                DesiredSpeed = random.NextFloat(config.SpeedRange.x, config.SpeedRange.y),
                 Color = float4.zero,
+                
             });
         }
     }
