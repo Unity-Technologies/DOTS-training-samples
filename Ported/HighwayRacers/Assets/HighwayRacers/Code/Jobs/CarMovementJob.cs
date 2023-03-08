@@ -35,32 +35,12 @@ namespace Jobs
             CarData nearestFrontCar = default;
 
             float distanceToFrontCar = float.MaxValue;
+            float desiredSpeed = car.CruisingSpeed;
 
             if (car.Speed < car.DesiredSpeed)
                 car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
             else
                 car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
-
-            for (int i = 0; i < allCars.Length; i++)
-            {
-               other = allCars[i];
-               if (other.CurrentLane == car.CurrentLane)
-               {
-                    var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
-
-                    if (distToOtherCarInLane < distanceToFrontCar)
-                    {
-                        distanceToFrontCar = distToOtherCarInLane;
-                        nearestFrontCar = other;
-                    }
-                 }
-             }
-
-            float desiredSpeed = car.CruisingSpeed;
-            if (distanceToFrontCar < (100.0f + (car.Length + nearestFrontCar.Length) / 2))
-            {
-                desiredSpeed = nearestFrontCar.Speed - 2.0f;
-            }
 
 
             // while changing lane, don't do anything else
@@ -102,11 +82,39 @@ namespace Jobs
                 car.TEMP_NextLaneChangeCountdown -= DeltaTime;
             }
 
+           
+            for (int i = 0; i < allCars.Length; i++)
+            {
+                other = allCars[i];
+
+                float angle = Vector3.Angle(Vector3.forward, car.Position - allCarTransforms[i].Position);
+                if (Mathf.Abs(angle) < 90)
+                //if (other.CurrentLane == car.CurrentLane)
+                {
+                    var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
+
+                    if (distToOtherCarInLane < distanceToFrontCar)
+                    {
+                        distanceToFrontCar = distToOtherCarInLane;
+                        nearestFrontCar = other;
+                    }
+                }
+            }
+
+           
+            float minDistance = (0.0f + (car.Length + nearestFrontCar.Length) / 2);
+            if (distanceToFrontCar < minDistance)
+            {
+                desiredSpeed = car.Speed = nearestFrontCar.Speed;
+            }
+
             if (car.Speed < desiredSpeed)
                 car.Speed = math.min(car.Speed + car.Acceleration, desiredSpeed);
             else
                 car.Speed = math.max(car.Speed - car.Acceleration, desiredSpeed);
-            
+
+
+
             car.Distance = (car.Distance + car.Speed * DeltaTime) % config.HighwayMaxSize;
             car.Position = new float3(car.Distance, 0, car.CurrentLane);
         }
