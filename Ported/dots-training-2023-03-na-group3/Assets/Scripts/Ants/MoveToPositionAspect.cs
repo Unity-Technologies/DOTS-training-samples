@@ -25,8 +25,8 @@ public readonly partial struct MoveToPositionAspect : IAspect
     public float3 GetRandomPosition(RefRW<Random> randomSeed)
     {
         return new float3(
-            randomSeed.ValueRW.randomSeed.NextFloat(-15f, 15f), 
+            randomSeed.ValueRW.randomSeed.NextFloat(-5f, 5f), 
             0, 
-            randomSeed.ValueRW.randomSeed.NextFloat(-15f, 15f));
+            randomSeed.ValueRW.randomSeed.NextFloat(-5f, 5f));
     }
 }
