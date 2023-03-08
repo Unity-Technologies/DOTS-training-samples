@@ -44,7 +44,7 @@ namespace Systems
                         {
                             LocalTransform bucketTransform = state.EntityManager.GetComponentData<LocalTransform>(targetBucket.value);
 
-                            if (Utils.MoveTowards(ref botTransform.ValueRW, bucketTransform.Position, config.botSpeed, config.botArriveThreshold))
+                            if (Utils.MoveTowards( botTransform, bucketTransform.Position, config.botSpeed, config.botArriveThreshold))
                             {
                                 botCount++;
                                 state.EntityManager.SetComponentEnabled<BucketActive>(targetBucket.value, true);
