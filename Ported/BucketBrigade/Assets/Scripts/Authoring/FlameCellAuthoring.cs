@@ -17,6 +17,5 @@ public class FlameCellAuthoring : MonoBehaviour
 
 public struct FlameCell : IComponentData
 {
-    
 }
 

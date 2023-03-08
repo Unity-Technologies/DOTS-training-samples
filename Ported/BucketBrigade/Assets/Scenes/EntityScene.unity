@@ -650,17 +650,17 @@ MonoBehaviour:
   botEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
   botThrowColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
   botOmniColor: {r: 0, g: 0, b: 0, a: 0}
-  startingFireCount: 10
+  startingFireCount: 5
   maxFlameHeight: 1
-  flickerRate: 0.1
-  flickerRange: 0.1
+  flickerRate: 0.7
+  flickerRange: 0.19
   cellSize: 0.3
   numRows: 50
   numColumns: 50
   flashpoint: 0.5
   heatRadius: 1
-  heatTransferRate: 0.7
-  fireSimUpdateRate: 0.5
+  heatTransferRate: 0.0075
+  fireSimUpdateRate: 0.01
   fireNeutralColor: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 0}
   fireCoolColor: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
   fireHotColor: {r: 1, g: 0, b: 0, a: 0}
