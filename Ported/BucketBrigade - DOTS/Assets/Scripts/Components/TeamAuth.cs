@@ -3,8 +3,7 @@
 
 class TeamAuth : UnityEngine.MonoBehaviour
 {
-    public float baseHealth;
-    class TeamAuthBaker : Baker<TeamAuth>
+    class TeamBaker : Baker<TeamAuth>
     {
         public override void Bake(TeamAuth authoring)
         {

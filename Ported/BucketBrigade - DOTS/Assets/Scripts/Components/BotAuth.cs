@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class BotAuth : MonoBehaviour
 {
-   public class BotAuthBaker : Baker<BotAuth>
+   public class BotBaker : Baker<BotAuth>
    {
       public override void Bake(BotAuth authoring)
       {
