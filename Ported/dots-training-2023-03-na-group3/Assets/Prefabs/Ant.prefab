@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5178710497582670925}
-  - component: {fileID: 6144364647318485934}
   - component: {fileID: 5802234196311361740}
   m_Layer: 0
   m_Name: Ant
@@ -34,7 +33,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6144364647318485934
+--- !u!114 &5802234196311361740
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,23 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 867339350628483394ff438b55c3d81b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  value: 1
---- !u!114 &5802234196311361740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8790556732412743923}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 907acaaa3c105d24598d2f58eec12b2a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  value:
-    x: 0.01
+  speed: 1
+  pos:
+    x: 0.1
     y: 0
-    z: 0.01
+    z: 0.1
 --- !u!1 &9173567611812890044
 GameObject:
   m_ObjectHideFlags: 0

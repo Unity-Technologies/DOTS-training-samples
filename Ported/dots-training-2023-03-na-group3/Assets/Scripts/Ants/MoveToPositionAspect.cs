@@ -8,20 +8,18 @@ using UnityEngine;
 public readonly partial struct MoveToPositionAspect : IAspect
 {
     private readonly Entity entity;
-
     private readonly TransformAspect transformAspect;
-    private readonly RefRO<Speed> speed;
-    private readonly RefRW<TargetPosition> targetPosition;
+    private readonly RefRW<AntMovement> antMovement;
 
     public void Move(float deltaTime, RefRW<Random> random)
     {
-        float3 direction = math.normalize(targetPosition.ValueRW.value - transformAspect.LocalPosition);
-        transformAspect.LocalPosition += direction * deltaTime * speed.ValueRO.value;
+        float3 direction = math.normalize(antMovement.ValueRW.pos - transformAspect.LocalPosition);
+        transformAspect.LocalPosition += direction * deltaTime * antMovement.ValueRO.speed;
         
         float targetDistance = 0.1f;
-        if (math.distance(transformAspect.LocalPosition, targetPosition.ValueRW.value) < targetDistance)
+        if (math.distance(transformAspect.LocalPosition, antMovement.ValueRW.pos) < targetDistance)
         {
-            targetPosition.ValueRW.value = GetRandomPosition(random);
+            antMovement.ValueRW.pos = GetRandomPosition(random);
         }
     }
 
