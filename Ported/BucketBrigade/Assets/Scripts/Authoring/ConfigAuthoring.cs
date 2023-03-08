@@ -44,6 +44,10 @@ public class ConfigAuthoring : MonoBehaviour
     [Tooltip("How high the flames reach at max temperature")]
     public float maxFlameHeight = 0.1f;
     [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
+    [Range(0.001f, 10f)]
+    public float flickerRate = 0.1f;
+    [Range(0f, 1f)]
+    public float flickerRange = 0.1f;
     public float cellSize = 0.05f;
     [Tooltip("How many cells WIDE the simulation will be")]
     public int numRows = 20;
@@ -122,6 +126,8 @@ public class ConfigAuthoring : MonoBehaviour
                 botOmniColor = authoring.botOmniColor.ToFloat4(),
                 startingFireCount = authoring.startingFireCount,
                 maxFlameHeight = authoring.maxFlameHeight,
+                flickerRate = authoring.flickerRate,
+                flickerRange = authoring.flickerRange,
                 cellSize = authoring.cellSize,
                 numRows = authoring.numRows,
                 numColumns = authoring.numColumns,
@@ -168,6 +174,8 @@ public class ConfigAuthoring : MonoBehaviour
         public float4 botOmniColor;
         public int startingFireCount;
         public float maxFlameHeight;
+        public float flickerRate;
+        public float flickerRange;
         public float cellSize;
         public int numRows;
         public int numColumns;
