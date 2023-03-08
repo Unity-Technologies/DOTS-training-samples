@@ -4,10 +4,11 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine.Profiling;
 
 namespace Jobs
 {
-    
+    [WithAll(typeof(CarData))]
     [BurstCompile]
     public partial struct CarMovementJob : IJobEntity
     {

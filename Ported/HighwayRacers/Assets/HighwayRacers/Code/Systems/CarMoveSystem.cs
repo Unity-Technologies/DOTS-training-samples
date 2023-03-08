@@ -3,6 +3,7 @@ using Unity.Entities;
 using Jobs;
 using Unity.Jobs;
 
+
 [BurstCompile]
 public partial struct CarMoveSystem : ISystem
 {
@@ -15,7 +16,7 @@ public partial struct CarMoveSystem : ISystem
     {
      
     }
-
+    
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

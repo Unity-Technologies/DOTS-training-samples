@@ -5,14 +5,14 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 
-[WithAll(typeof(Car))]
+[WithAll(typeof(CarColor))]
 [BurstCompile]
 public partial struct CarColorJob : IJobEntity
 {
 
     public EntityCommandBuffer.ParallelWriter EntityParalleWriter;
     [BurstCompile]
-    private void Execute([ChunkIndexInQuery] int entityQueryIndex, ref CarAspect Car)
+    private void Execute([ChunkIndexInQuery] int entityQueryIndex, ref CarColorAspect Car)
     {
         var speedDifferential = Car.Speed;
         float4 color = new float4(0.5f, 0.5f, 0.5f, 1f);
@@ -24,8 +24,7 @@ public partial struct CarColorJob : IJobEntity
         {
             color = new float4(1, 0, 0, 1);
         }
-
-        if (Car.PreviousDifferential != speedDifferential)
+        if (Car.PreviousDifferential != speedDifferential)  // Don't change color that don't need change
         {
             EntityParalleWriter.SetComponent(entityQueryIndex, Car.Self,
             new URPMaterialPropertyBaseColor
@@ -37,7 +36,7 @@ public partial struct CarColorJob : IJobEntity
     }
 }
 [BurstCompile]
-public partial struct CarColor : ISystem
+public partial struct CarColorSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)

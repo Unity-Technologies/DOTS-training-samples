@@ -9,32 +9,26 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        public readonly RefRW<Car> Car;
-
+        public readonly RefRW<CarParameters> CarParameters;
+        public readonly RefRW<CarData> CarData;
         readonly TransformAspect Transform;
-
-        public float PreviousDifferential
-        {
-            get => Car.ValueRO.PreviousDifferential;
-            set => Car.ValueRW.PreviousDifferential = value;
-        }
 
         public float Distance
         {
-            get => Car.ValueRO.Distance;
-            set => Car.ValueRW.Distance = value;
+            get => CarData.ValueRO.Distance;
+            set => CarData.ValueRW.Distance = value;
         }
 
         public float Lane
         {
-            get => Car.ValueRO.Lane;
-            set => Car.ValueRW.Lane = value;
+            get => CarData.ValueRO.Lane;
+            set => CarData.ValueRW.Lane = value;
         }
 
         public float DesiredLane
         {
-            get => Car.ValueRO.DesiredLane;
-            set => Car.ValueRW.DesiredLane = value;
+            get => CarData.ValueRO.DesiredLane;
+            set => CarData.ValueRW.DesiredLane = value;
         }
 
         public float3 Position
@@ -43,32 +37,43 @@ namespace Aspects
             set => Transform.LocalPosition = value;
         }
 
-        public quaternion Rotation
-        {
-            get => Transform.LocalRotation;
-            set => Transform.LocalRotation = value;
-        }
+        public readonly quaternion Rotation => Transform.LocalRotation;
 
-        public float Acceleration
-        {
-            get => Car.ValueRO.Acceleration;
-            set => Car.ValueRW.Acceleration = value;
-        }
+        public readonly float Acceleration => CarParameters.ValueRO.Acceleration;
 
         public float Speed
         {
-            get => Car.ValueRO.Speed;
-            set => Car.ValueRW.Speed = value;
+            get => CarData.ValueRO.Speed;
+            set => CarData.ValueRW.Speed = value;
         }
 
         public float TEMP_NextLaneChangeCountdown
         {
-            get => Car.ValueRO.TEMP_NextLaneChangeCountdown;
-            set => Car.ValueRW.TEMP_NextLaneChangeCountdown = value;
+            get => CarData.ValueRO.TEMP_NextLaneChangeCountdown;
+            set => CarData.ValueRW.TEMP_NextLaneChangeCountdown = value;
         }
 
-        public float Length { get => Car.ValueRO.Length; }
+        public readonly float Length { get => CarParameters.ValueRO.Length; }
 
-        public float DesiredSpeed { get => Car.ValueRO.DesiredSpeed; }
+        public readonly float DesiredSpeed { get => CarParameters.ValueRO.DesiredSpeed; }
+    }
+    public readonly partial struct CarColorAspect : IAspect
+    {
+        public readonly Entity Self;
+
+        public readonly RefRW<CarData> CarData;
+        public readonly RefRW<CarColor> CarColor;
+
+        public float PreviousDifferential
+        {
+            get => CarColor.ValueRO.PreviousDifferential;
+            set => CarColor.ValueRW.PreviousDifferential = value;
+        }
+
+        public readonly float Speed
+        {
+            get => CarData.ValueRO.Speed;
+            set => CarData.ValueRW.Speed = value;
+        }
     }
 }

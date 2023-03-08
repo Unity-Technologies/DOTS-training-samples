@@ -58,24 +58,26 @@ public partial class CarSpawnSystem : SystemBase
                 float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
 
                 // Set the new player's transform (a position offset from the obstacle).
-                EntityManager.SetComponentData(carEntity, new Car
+                EntityManager.SetComponentData(carEntity, new CarData
                 {
                     Distance = myRandom.NextFloat(10),
                     Lane = myRandom.NextInt(0, config.NumLanes),
-
-                    Acceleration = config.Acceleration,
-                    DesiredSpeed = defaultSpeed,
-
                     TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
-                    Speed = defaultSpeed,
-                    defaultSpeed = defaultSpeed,
-                    overtakePercent = myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
-                    leftMergeDistance = myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
-                    mergeSpace = myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
-                    overtakeEagerness = myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
-
-                    Color = float4.zero,
+                    Speed = defaultSpeed
                 });
+                EntityManager.SetComponentData(carEntity, new CarColor());
+                EntityManager.SetComponentData(carEntity, new CarParameters
+                (
+                    defaultSpeed,
+                    myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                    myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
+                    myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
+                    myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
+                    1.0f,// car lenght ?
+                    defaultSpeed,
+                    config.Acceleration
+                    
+                ));
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }
