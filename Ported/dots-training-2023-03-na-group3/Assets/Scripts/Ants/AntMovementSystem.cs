@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
@@ -9,6 +10,7 @@ using Unity.Transforms;
 
 public partial struct AntMovementSystem : ISystem
 {
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         RefRW<Random> random = SystemAPI.GetSingletonRW<Random>();

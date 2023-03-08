@@ -7,27 +7,26 @@ using UnityEngine;
 
 public readonly partial struct MoveToPositionAspect : IAspect
 {
-    private readonly Entity entity;
-    private readonly TransformAspect transformAspect;
-    private readonly RefRW<AntMovement> antMovement;
+    private readonly TransformAspect _transformAspect;
+    private readonly RefRW<AntMovement> _antMovement;
 
     public void Move(float deltaTime, RefRW<Random> random)
     {
-        float3 direction = math.normalize(antMovement.ValueRW.pos - transformAspect.LocalPosition);
-        transformAspect.LocalPosition += direction * deltaTime * antMovement.ValueRO.speed;
+        float3 direction = math.normalize(_antMovement.ValueRW.pos - _transformAspect.LocalPosition);
+        _transformAspect.LocalPosition += direction * deltaTime * _antMovement.ValueRO.speed;
         
         float targetDistance = 0.1f;
-        if (math.distance(transformAspect.LocalPosition, antMovement.ValueRW.pos) < targetDistance)
+        if (math.distance(_transformAspect.LocalPosition, _antMovement.ValueRW.pos) < targetDistance)
         {
-            antMovement.ValueRW.pos = GetRandomPosition(random);
+            _antMovement.ValueRW.pos = GetRandomPosition(random);
         }
     }
 
-    public float3 GetRandomPosition(RefRW<Random> randomComponent)
+    public float3 GetRandomPosition(RefRW<Random> randomSeed)
     {
         return new float3(
-            randomComponent.ValueRW.random.NextFloat(-15f, 15f), 
+            randomSeed.ValueRW.randomSeed.NextFloat(-15f, 15f), 
             0, 
-            randomComponent.ValueRW.random.NextFloat(-15f, 15f));
+            randomSeed.ValueRW.randomSeed.NextFloat(-15f, 15f));
     }
 }

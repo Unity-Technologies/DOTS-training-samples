@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 public struct AntSpawner : IComponentData
@@ -9,11 +10,16 @@ public struct AntSpawner : IComponentData
     public Entity antPrefab;
     public int antAmount;
 }
+public struct Random : IComponentData
+{
+    public Unity.Mathematics.Random randomSeed;
+}
 
 public class AntSpawnerAuthoring : MonoBehaviour
 {
     public GameObject antPrefab;
     public int antAmount;
+    public uint randomSeed;
 }
 
 public class AntSpawnerBaker : Baker<AntSpawnerAuthoring>
@@ -24,6 +30,10 @@ public class AntSpawnerBaker : Baker<AntSpawnerAuthoring>
         {
             antPrefab = GetEntity(authoring.antPrefab),
             antAmount = authoring.antAmount
+        });
+        AddComponent(new Random
+        {
+            randomSeed = Unity.Mathematics.Random.CreateFromIndex(authoring.randomSeed)
         });
     }
 }

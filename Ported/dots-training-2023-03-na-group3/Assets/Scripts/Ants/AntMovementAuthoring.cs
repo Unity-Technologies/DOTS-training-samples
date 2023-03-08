@@ -20,6 +20,9 @@ public class AntMovementBaker : Baker<AntMovementAuthoring>
 {
     public override void Bake(AntMovementAuthoring authoring)
     {
-        AddComponent(new AntMovement{speed = authoring.speed, pos = authoring.pos});
+        AddComponent(new AntMovement
+        {
+            speed = authoring.speed, pos = authoring.pos
+        });
     }
 }
