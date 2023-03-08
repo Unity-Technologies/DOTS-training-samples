@@ -18,7 +18,7 @@ public readonly partial struct MoveToPositionAspect : IAspect
         float3 direction = math.normalize(targetPosition.ValueRW.value - transformAspect.LocalPosition);
         transformAspect.LocalPosition += direction * deltaTime * speed.ValueRO.value;
         
-        float targetDistance = 0.001f;
+        float targetDistance = 0.1f;
         if (math.distance(transformAspect.LocalPosition, targetPosition.ValueRW.value) < targetDistance)
         {
             targetPosition.ValueRW.value = GetRandomPosition(random);

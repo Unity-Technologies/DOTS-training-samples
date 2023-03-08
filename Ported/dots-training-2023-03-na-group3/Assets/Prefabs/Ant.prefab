@@ -60,9 +60,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value:
-    x: 1
+    x: 0.01
     y: 0
-    z: 1
+    z: 0.01
 --- !u!1 &9173567611812890044
 GameObject:
   m_ObjectHideFlags: 0
