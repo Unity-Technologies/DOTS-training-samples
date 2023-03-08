@@ -1,6 +1,7 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 namespace Systems
@@ -29,6 +30,10 @@ namespace Systems
                 
                 state.EntityManager.SetComponentData(bucket, 
                     LocalTransform.FromPosition(x, 0.5f, z));
+
+                state.EntityManager.SetComponentData(bucket,
+                   new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
+
             }
         }
     }

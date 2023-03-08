@@ -11,9 +11,7 @@ public class BotAuthoring : MonoBehaviour
     {
         public override void Bake(BotAuthoring bucketAuthoring)
         {
-            AddComponent<Position>();
             AddComponent<BotRole>();
-            AddComponent<Components.Color>();
             AddComponent<URPMaterialPropertyBaseColor>();
             AddComponent<BotCommand>();
             AddComponent<CommandCompleted>();
