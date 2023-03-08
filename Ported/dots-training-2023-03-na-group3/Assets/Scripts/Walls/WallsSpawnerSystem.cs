@@ -61,7 +61,7 @@ public partial struct WallsSpawnerSystem : ISystem
             {
                 Position = position,
                 Rotation = quaternion.identity,
-                Scale = 1
+                Scale = 0.2f
             });
         }
     }
