@@ -21,8 +21,6 @@ public class WaterAuthoring : MonoBehaviour
                     waterRemoved = waterAuthoring.waterRemoved
                 }
             );
-            AddComponent<Position>();
-            AddComponent<Color>();
             AddComponent<Volume>();
         }
     }

@@ -11,56 +11,49 @@ public class BotAuthoring : MonoBehaviour
     {
         public override void Bake(BotAuthoring bucketAuthoring)
         {
-            AddComponent<BotRole>();
+            AddComponent<BotOmni>();
             AddComponent<URPMaterialPropertyBaseColor>();
             AddComponent<BotCommand>();
-            AddComponent<CommandCompleted>();
-            SetComponentEnabled<CommandCompleted>(false);
             AddComponent<DecisionTimer>();
             AddComponent<TargetBucket>();
-            SetComponentEnabled<TargetBucket>(false);
             AddComponent<TargetWater>();
-            SetComponentEnabled<TargetWater>(false);
             AddComponent<TargetFlame>();
-            SetComponentEnabled<TargetFlame>(false);
             AddComponent<ArriveThreshold>();
         }
     }
 }
 
-public struct BotRole : IComponentData
-{
-    public BotType value;
-}
+public struct BotOmni : IComponentData { }
+public struct BotScooper : IComponentData { }
+public struct BotThrower : IComponentData { }
+public struct BotPasser : IComponentData { }
 
 public struct BotCommand : IComponentData
 {
-    public BotAction value;
+    public BotAction Value;
 }
-
-public struct CommandCompleted : IComponentData, IEnableableComponent { }
 
 public struct DecisionTimer : IComponentData 
 { 
     public float value;
 }
 
-public struct CarryingBucket : IComponentData, IEnableableComponent
+public struct CarryingBucket : IComponentData
 {
     public Entity value;
 }
 
-public struct TargetBucket : IComponentData, IEnableableComponent
+public struct TargetBucket : IComponentData
 {
     public Entity value;
 }
 
-public struct TargetWater : IComponentData, IEnableableComponent
+public struct TargetWater : IComponentData
 {
     public Entity value;
 }
 
-public struct TargetFlame : IComponentData, IEnableableComponent
+public struct TargetFlame : IComponentData
 {
     public Entity value;
 }

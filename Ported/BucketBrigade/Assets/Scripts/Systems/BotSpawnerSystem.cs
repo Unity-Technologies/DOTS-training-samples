@@ -38,14 +38,10 @@ namespace Systems
                     LocalTransform.FromPosition(x, 0.5f, z));
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new BotRole() { value = Enums.BotType.OMNIBOT });
+                    new BotCommand() { Value = Enums.BotAction.GET_BUCKET });
 
-                // TODO: Use configuration colors for roles
                 state.EntityManager.SetComponentData(omniBot,
                     new URPMaterialPropertyBaseColor() { Value = config.botOmniColor });
-
-                state.EntityManager.SetComponentData(omniBot,
-                    new BotCommand { value = Enums.BotAction.GET_BUCKET });
 
                 state.EntityManager.SetComponentData(omniBot,
                     new DecisionTimer { value = 0.0f });

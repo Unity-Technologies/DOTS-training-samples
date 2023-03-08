@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Systems
 {
@@ -13,6 +14,7 @@ namespace Systems
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<ConfigAuthoring.Config>();
+            state.RequireForUpdate<WaterAuthoring.Water>();
         }
 
         [BurstCompile]
@@ -21,7 +23,7 @@ namespace Systems
             state.Enabled = false;
             var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
 
-            var rand = new Random(123);
+            var rand = new Unity.Mathematics.Random(123);
             for (int i = 0; i < config.totalBuckets; i++)
             {
                 var bucket = state.EntityManager.Instantiate(config.bucketPrefab);
@@ -34,6 +36,13 @@ namespace Systems
                 state.EntityManager.SetComponentData(bucket,
                    new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
+            }
+
+            int index = 0;
+            foreach (var transform in
+               SystemAPI.Query<RefRW<LocalTransform>>().WithAll<WaterAuthoring.Water>())
+            {
+                //Debug.Log($"Water {index++} - {transform.ValueRO}");
             }
         }
     }

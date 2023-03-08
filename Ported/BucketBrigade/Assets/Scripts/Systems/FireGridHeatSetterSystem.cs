@@ -23,8 +23,8 @@ namespace Systems
             var heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
 
             var index = 0;
-            
-            foreach (var (transform, color) in 
+
+            foreach (var (transform, color) in
                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<FlameCell>())
             {
                 var heat = heatMap[index];
