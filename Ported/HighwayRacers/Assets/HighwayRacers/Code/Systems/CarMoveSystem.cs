@@ -2,11 +2,14 @@ using Unity.Burst;
 using Unity.Entities;
 using Jobs;
 using Unity.Jobs;
-
+using Unity.Transforms;
 
 [BurstCompile]
+[UpdateAfter(typeof(CarSpawnSystem))]
 public partial struct CarMoveSystem : ISystem
 {
+
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -39,13 +42,19 @@ public partial struct CarMoveSystem : ISystem
 					Else
 						Move at normal speed
          */
-        
+
+        var carquery = SystemAPI.QueryBuilder().WithAll<CarData, LocalTransform>().Build();
+        var cars = carquery.ToComponentDataArray<CarData>(state.WorldUpdateAllocator);
+        var carTransforms = carquery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+
         var config = SystemAPI.GetSingleton<Config>();
         var testJob = new CarMovementJob
         {
             DeltaTime = SystemAPI.Time.DeltaTime,
             config = config,
-            frameCount = UnityEngine.Time.frameCount
+            frameCount = UnityEngine.Time.frameCount,
+            allCars = cars,
+            allCarTransforms = carTransforms,
         };
         JobHandle jobHandle = testJob.ScheduleParallel(state.Dependency);
         state.Dependency = jobHandle;        

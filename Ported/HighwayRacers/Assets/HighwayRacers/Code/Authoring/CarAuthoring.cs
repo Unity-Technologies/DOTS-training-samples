@@ -24,8 +24,9 @@ public class CarAuthoring : MonoBehaviour
 
 public struct CarData : IComponentData
 {
+    public float Length;
     public float Distance;
-    public float Lane;
+    public float CurrentLane;
     public float Speed;
     public float OvertakeModeCountdown;
     public float OvertakeModeReturnToLane;

@@ -19,10 +19,10 @@ namespace Aspects
             set => CarData.ValueRW.Distance = value;
         }
 
-        public float Lane
+        public float CurrentLane
         {
-            get => CarData.ValueRO.Lane;
-            set => CarData.ValueRW.Lane = value;
+            get => CarData.ValueRO.CurrentLane;
+            set => CarData.ValueRW.CurrentLane = value;
         }
 
         public float DesiredLane
@@ -40,6 +40,8 @@ namespace Aspects
         public readonly quaternion Rotation => Transform.LocalRotation;
 
         public readonly float Acceleration => CarParameters.ValueRO.Acceleration;
+
+        public readonly float Length => CarParameters.ValueRO.Length;
 
         public float Speed
         {
@@ -60,7 +62,6 @@ namespace Aspects
             get => CarData.ValueRO.OvertakeModeReturnToLane;
             set => CarData.ValueRW.OvertakeModeReturnToLane = value;
         }
-
 
         public float OvertakeModeCountdown
         {

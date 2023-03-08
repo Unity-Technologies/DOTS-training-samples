@@ -61,8 +61,9 @@ public partial class CarSpawnSystem : SystemBase
                 // Set the new player's transform (a position offset from the obstacle).
                 EntityManager.SetComponentData(carEntity, new CarData
                 {
+                    Length = 1.0f,
                     Distance = myRandom.NextFloat(10),
-                    Lane = lane,
+                    CurrentLane = lane,
                     TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                     Speed = defaultSpeed,
                     DesiredLane = lane,

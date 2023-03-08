@@ -5,6 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.Profiling;
+using UnityEngine;
 
 namespace Jobs
 {
@@ -21,19 +22,55 @@ namespace Jobs
         [ReadOnly]
         public Config config;
 
+        [ReadOnly]
+        public NativeArray<CarData> allCars;
+
+        [ReadOnly]
+        public NativeArray<LocalTransform> allCarTransforms;
+
         [BurstCompile]
         private void Execute(ref CarAspect car)
         {
+            CarData other;
+            CarData nearestFrontCar = default;
+
+            float distanceToFrontCar = float.MaxValue;
+
+            if (car.Speed < car.DesiredSpeed)
+                car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
+            else
+                car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
+
+            for (int i = 0; i < allCars.Length; i++)
+            {
+               other = allCars[i];
+               if (other.CurrentLane == car.CurrentLane)
+               {
+                    var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
+
+                    if (distToOtherCarInLane < distanceToFrontCar)
+                    {
+                        distanceToFrontCar = distToOtherCarInLane;
+                        nearestFrontCar = other;
+                    }
+                 }
+             }
+
             float desiredSpeed = car.CruisingSpeed;
+            if (distanceToFrontCar < (100.0f + (car.Length + nearestFrontCar.Length) / 2))
+            {
+                desiredSpeed = nearestFrontCar.Speed - 2.0f;
+            }
+
 
             // while changing lane, don't do anything else
-            if (car.Lane < car.DesiredLane)
+            if (car.CurrentLane < car.DesiredLane)
             {
-                car.Lane = math.min(car.Lane + config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
+                car.CurrentLane = math.min(car.CurrentLane + config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
             }
-            else if (car.Lane > car.DesiredLane)
+            else if (car.CurrentLane > car.DesiredLane)
             {
-                car.Lane = math.max(car.Lane - config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
+                car.CurrentLane = math.max(car.CurrentLane - config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
             }
             else if (car.OvertakeModeCountdown > 0)
             {
@@ -45,18 +82,18 @@ namespace Jobs
                     car.DesiredLane = car.OvertakeModeReturnToLane;
                 }
             }
-            else if (car.TEMP_NextLaneChangeCountdown <= 0) 
+            else if (car.TEMP_NextLaneChangeCountdown <= 0)
             {
                 // in regular cruising mode, randomly change lanes
                 if (frameCount % 2 == 1)
-                    car.DesiredLane = math.min(car.Lane + 1, config.NumLanes - 1);
+                    car.DesiredLane = math.min(car.CurrentLane + 1, config.NumLanes - 1);
                 else
-                    car.DesiredLane = math.max(car.Lane - 1, 0);
+                    car.DesiredLane = math.max(car.CurrentLane - 1, 0);
 
-                if (car.DesiredLane != car.Lane)
+                if (car.DesiredLane != car.CurrentLane)
                 {
                     car.OvertakeModeCountdown = config.OvertakeMaxDuration;
-                    car.OvertakeModeReturnToLane = car.Lane;
+                    car.OvertakeModeReturnToLane = car.CurrentLane;
                 }
                 car.TEMP_NextLaneChangeCountdown = 3;
             }
@@ -69,9 +106,9 @@ namespace Jobs
                 car.Speed = math.min(car.Speed + car.Acceleration, desiredSpeed);
             else
                 car.Speed = math.max(car.Speed - car.Acceleration, desiredSpeed);
-
+            
             car.Distance = (car.Distance + car.Speed * DeltaTime) % config.HighwayMaxSize;
-            car.Position = new float3(car.Distance, 0, car.Lane);
+            car.Position = new float3(car.Distance, 0, car.CurrentLane);
         }
     }
 }
