@@ -37,7 +37,7 @@ public partial struct GridTilesSpawningSystem : ISystem
                     Position = new float3
                     {
                         x = i,
-                        y = 0f,
+                        y = -3f,
                         z = j
                     },
                     Scale = 1f,
