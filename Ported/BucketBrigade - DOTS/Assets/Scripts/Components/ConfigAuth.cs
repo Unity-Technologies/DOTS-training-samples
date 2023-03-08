@@ -4,6 +4,7 @@ using UnityEngine;
 public class ConfigAuth : MonoBehaviour
 {
     [Header("WATER")]
+    public GameObject Water;
     [Range(1,5)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
@@ -73,7 +74,8 @@ public class ConfigAuth : MonoBehaviour
                 Bot = GetEntity(authoring.Bot),
                 Bucket = GetEntity(authoring.Bucket),
                 FlameCell = GetEntity(authoring.FlameCell),
-                Ground = GetEntity(authoring.Ground)
+                Ground = GetEntity(authoring.Ground),
+                Water = GetEntity(authoring.Water)
 
             });
         }
@@ -106,4 +108,5 @@ public struct Config : IComponentData
     public Entity Bucket;
     public Entity FlameCell;
     public Entity Ground;
+    public Entity Water;
 }
