@@ -89,7 +89,6 @@ namespace Jobs
 
                 float angle = Vector3.Angle(Vector3.forward, car.Position - allCarTransforms[i].Position);
                 if (Mathf.Abs(angle) < 90)
-                //if (other.CurrentLane == car.CurrentLane)
                 {
                     var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
 
@@ -101,11 +100,10 @@ namespace Jobs
                 }
             }
 
-           
             float minDistance = (0.0f + (car.Length + nearestFrontCar.Length) / 2);
             if (distanceToFrontCar < minDistance)
             {
-                desiredSpeed = car.Speed = nearestFrontCar.Speed;
+                desiredSpeed = nearestFrontCar.Speed;
             }
 
             if (car.Speed < desiredSpeed)
