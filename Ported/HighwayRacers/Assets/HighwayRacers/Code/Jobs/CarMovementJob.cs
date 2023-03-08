@@ -37,12 +37,6 @@ namespace Jobs
             float distanceToFrontCar = float.MaxValue;
             float desiredSpeed = car.CruisingSpeed;
 
-            if (car.Speed < car.DesiredSpeed)
-                car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
-            else
-                car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
-
-
             // while changing lane, don't do anything else
             if (car.CurrentLane < car.DesiredLane)
             {
@@ -103,7 +97,7 @@ namespace Jobs
             float minDistance = (0.0f + (car.Length + nearestFrontCar.Length) / 2);
             if (distanceToFrontCar < minDistance)
             {
-                desiredSpeed = nearestFrontCar.Speed;
+                desiredSpeed = car.Speed = nearestFrontCar.Speed;
             }
 
             if (car.Speed < desiredSpeed)
