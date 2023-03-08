@@ -24,6 +24,9 @@ public class ConfigAuthoring : MonoBehaviour
     [Range(0.0001f,1f)]
     public float botSpeed = 0.1f;
     
+    [Range(0.0001f,1f)]
+    public float botArriveThreshold = 0.1f;
+    
     [Range(0.001f,1f)]
     public float waterCarryEffect = 0.5f;
 
@@ -117,6 +120,7 @@ public class ConfigAuthoring : MonoBehaviour
                 flameCellPrefab = GetEntity(authoring.flameCellPrefab),
                 waterPrefab = GetEntity(authoring.waterPrefab),
                 botSpeed =  authoring.botSpeed,
+                botArriveThreshold = authoring.botArriveThreshold,
                 waterCarryEffect = authoring.waterCarryEffect,
                 numOmnibots = authoring.numOmnibots,
                 botScoopColor = authoring.botScoopColor.ToFloat4(),
@@ -165,6 +169,7 @@ public class ConfigAuthoring : MonoBehaviour
         public Entity flameCellPrefab;
         public Entity waterPrefab;
         public float botSpeed;
+        public float botArriveThreshold;
         public float waterCarryEffect;
         public int numOmnibots;
         public float4 botScoopColor;

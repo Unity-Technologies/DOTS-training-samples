@@ -641,9 +641,10 @@ MonoBehaviour:
     type: 3}
   waterPrefab: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314,
     type: 3}
-  botSpeed: 0.075
+  botSpeed: 0.02
+  botArriveThreshold: 0.1
   waterCarryEffect: 0.5
-  numOmnibots: 30
+  numOmnibots: 3
   botScoopColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   botFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   botEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
@@ -651,6 +652,8 @@ MonoBehaviour:
   botOmniColor: {r: 0, g: 0, b: 0, a: 0}
   startingFireCount: 10
   maxFlameHeight: 1
+  flickerRate: 0.1
+  flickerRange: 0.1
   cellSize: 0.3
   numRows: 50
   numColumns: 50
@@ -666,7 +669,7 @@ MonoBehaviour:
   splashRadius: 5
   coolingStrength: 1
   coolingStrengthFalloff: 0.75
-  totalBuckets: 6
+  totalBuckets: 3
   bucketCapacity: 3
   bucketFillRate: 0.01
   bucketSizeEmpty: 0.2

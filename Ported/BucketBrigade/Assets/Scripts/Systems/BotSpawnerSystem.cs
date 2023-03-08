@@ -1,8 +1,10 @@
+using Enums;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine.Rendering;
 using static ConfigAuthoring;
 
 namespace Systems
@@ -27,7 +29,7 @@ namespace Systems
 
         public static void CreateOmniBots(ref SystemState state, ref ConfigAuthoring.Config config)
         {
-            var rand = new Random(123);
+            var rand = new Random(234);
             for (int i = 0; i < config.numOmnibots; i++)
             {
                 var omniBot = state.EntityManager.Instantiate(config.botPrefab);
@@ -51,6 +53,8 @@ namespace Systems
 
                 state.EntityManager.SetComponentData(omniBot,
                     new ArriveThreshold { value = 1.0f });
+                
+                state.EntityManager.SetComponentData(omniBot, new BotCommand{Value = BotAction.GET_BUCKET});
             }
         }
     }

@@ -29,9 +29,12 @@ namespace Systems
                 var bucket = state.EntityManager.Instantiate(config.bucketPrefab);
                 var x = rand.NextFloat(0f, config.simulationWidth);
                 var z = rand.NextFloat(0f, config.simulationDepth);
+
+                var transform = state.EntityManager.GetComponentData<LocalTransform>(bucket);
+                transform.Position = new float3(x, 0.5f, z);
                 
                 state.EntityManager.SetComponentData(bucket, 
-                    LocalTransform.FromPosition(x, 0.5f, z));
+                    transform);
 
                 state.EntityManager.SetComponentData(bucket,
                    new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });

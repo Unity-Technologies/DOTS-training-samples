@@ -13,23 +13,23 @@ namespace Systems
 {
     public partial struct GetBucketSystem : ISystem
     {
-        [BurstCompile]
-        public void OnCreate(ref SystemState state)
-        {
-            state.RequireForUpdate<ConfigAuthoring.Config>();
-        }
-
-        [BurstCompile]
-        public void OnUpdate(ref SystemState state)
-        {
-            var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
-
-            FindBucket(ref state);
-
-            MoveToBucket(ref state, ref config);
-
-            
-        }
+        // [BurstCompile]
+        // public void OnCreate(ref SystemState state)
+        // {
+        //     state.RequireForUpdate<ConfigAuthoring.Config>();
+        // }
+        //
+        // [BurstCompile]
+        // public void OnUpdate(ref SystemState state)
+        // {
+        //     var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
+        //
+        //     FindBucket(ref state);
+        //
+        //     MoveToBucket(ref state, ref config);
+        //
+        //     
+        // }
 
         public void FindBucket(ref SystemState state)
         {
