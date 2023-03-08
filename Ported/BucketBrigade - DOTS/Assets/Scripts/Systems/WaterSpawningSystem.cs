@@ -20,21 +20,72 @@ public partial struct WaterSpawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
+        var random = SystemAPI.GetSingleton<Random>();
 
         {
             var waterTile = ecb.Instantiate(config.Water);
-            ecb.SetComponent(waterTile, new LocalTransform
+            if (random.Value.NextBool())//vert or horizontal
             {
-                Position = new float3
+                if (random.Value.NextBool())//top or bottom
                 {
-                    x = 10 + config.rows,
-                    y = 0,
-                    z = 10 + config.columns
-                },
-                Scale = 10f,
-                Rotation = quaternion.identity
-            });
-            
+                    ecb.SetComponent(waterTile, new LocalTransform
+                    {
+                        Position = new float3
+                        {
+                            x = 5 + config.columns,
+                            y = 0,
+                            z = random.Value.NextInt(-5,5 + config.rows)
+                        },
+                        Scale = 5f,
+                        Rotation = quaternion.identity
+                    });
+                }
+                else
+                {
+                    ecb.SetComponent(waterTile, new LocalTransform
+                    {
+                        Position = new float3
+                        {
+                            x = -5,
+                            y = 0,
+                            z = random.Value.NextInt(-5,5 + config.rows)
+                        },
+                        Scale = 5f,
+                        Rotation = quaternion.identity
+                    });
+                } 
+            }
+            else
+            {
+                if (random.Value.NextBool())//right or left
+                {
+                    ecb.SetComponent(waterTile, new LocalTransform
+                    {
+                        Position = new float3
+                        {
+                            x = random.Value.NextInt(-5,5 + config.columns),
+                            y = 0,
+                            z = 5 + config.rows
+                        },
+                        Scale = 5f,
+                        Rotation = quaternion.identity
+                    });
+                }
+                else
+                {
+                    ecb.SetComponent(waterTile, new LocalTransform
+                    {
+                        Position = new float3
+                        {
+                            x = random.Value.NextInt(-5,5 + config.columns),
+                            y = 0,
+                            z = -5
+                        },
+                        Scale = 5f,
+                        Rotation = quaternion.identity
+                    });
+                }
+            }
         }
     }
 }
