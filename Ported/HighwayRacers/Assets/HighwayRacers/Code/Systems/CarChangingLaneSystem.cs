@@ -1,15 +1,38 @@
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 
+[BurstCompile]
 [UpdateAfter(typeof(CarChangeLaneSystem))]
-public partial class CarChangingLaneSystem : SystemBase
+public partial struct CarChangingLaneSystem : ISystem
 {
-    protected override void OnCreate()
-    {
-        
-    }
+	// We need type handles to access a chunk's
+	// component arrays and entity ID array.
+	// It's generally good practice to cache queries and type handles
+	// rather than re-retrieving them every update.
+	private EntityQuery carChangingLangeStateQuery;
+	private ComponentTypeHandle<ChangingLaneState> changingLaneStateHandle;
+	
+	[BurstCompile]
+	public void OnCreate(ref SystemState state)
+	{
+		var builder = new EntityQueryBuilder(Allocator.Temp);
+		builder.WithAll<ChangingLaneState>();
+		carChangingLangeStateQuery = state.GetEntityQuery(builder);
 
-    protected override void OnUpdate()
-    {
+		changingLaneStateHandle = state.GetComponentTypeHandle<ChangingLaneState>();
+	}
+
+	[BurstCompile]
+	public void OnDestroy(ref SystemState state) { }
+
+	
+	[BurstCompile]
+	public void OnUpdate(ref SystemState state)
+	{
+		// Type handles must be updated before use in each update.
+		changingLaneStateHandle.Update(ref state);
+
         /*
         CarChangingLaneSystem
 		Query all cars in 'ChangingLaneState'

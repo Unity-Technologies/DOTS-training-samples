@@ -47,6 +47,29 @@ namespace Aspects
             set => CarData.ValueRW.Speed = value;
         }
 
+        public float CruisingSpeed
+        {
+            get => CarData.ValueRO.CruisingSpeed;
+            set => CarData.ValueRW.CruisingSpeed = value;
+        }
+        public float OvertakeSpeed
+        {
+            get => CarData.ValueRO.OvertakeSpeed;
+            set => CarData.ValueRW.OvertakeSpeed = value;
+        }
+        public float OvertakeModeReturnToLane
+        {
+            get => CarData.ValueRO.OvertakeModeReturnToLane;
+            set => CarData.ValueRW.OvertakeModeReturnToLane = value;
+        }
+
+
+        public float OvertakeModeCountdown
+        {
+            get => CarData.ValueRO.OvertakeModeCountdown;
+            set => CarData.ValueRW.OvertakeModeCountdown = value;
+        }
+
         public float TEMP_NextLaneChangeCountdown
         {
             get => CarData.ValueRO.TEMP_NextLaneChangeCountdown;
@@ -56,6 +79,7 @@ namespace Aspects
         public readonly float Length { get => CarParameters.ValueRO.Length; }
 
         public readonly float DesiredSpeed { get => CarParameters.ValueRO.DesiredSpeed; }
+        public float Length { get => Car.CarParameters.Length; }
     }
     public readonly partial struct CarColorAspect : IAspect
     {

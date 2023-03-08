@@ -56,14 +56,29 @@ public partial class CarSpawnSystem : SystemBase
 
                 myAliveCar.Add(carEntity);
                 float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);
+                float lane = myRandom.NextInt(0, config.NumLanes);
 
                 // Set the new player's transform (a position offset from the obstacle).
                 EntityManager.SetComponentData(carEntity, new CarData
                 {
                     Distance = myRandom.NextFloat(10),
-                    Lane = myRandom.NextInt(0, config.NumLanes),
+                    Lane = lane,
                     TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                     Speed = defaultSpeed
+                    Lane = lane,
+                    DesiredLane = lane,
+
+                    Acceleration = config.Acceleration,
+
+                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
+                    Speed = defaultSpeed,
+                    CruisingSpeed = defaultSpeed,
+                    OvertakeSpeed = defaultSpeed * myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
+                    leftMergeDistance = myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
+                    mergeSpace = myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
+                    overtakeEagerness = myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
+
+                    Color = float4.zero,
                 });
                 EntityManager.SetComponentData(carEntity, new CarColor());
                 EntityManager.SetComponentData(carEntity, new CarParameters
@@ -81,6 +96,7 @@ public partial class CarSpawnSystem : SystemBase
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }
+
         if (myTimeAccumulation > 4.0f && config.AllowedToKillCar)
         { 
             // Car Killer ;p 

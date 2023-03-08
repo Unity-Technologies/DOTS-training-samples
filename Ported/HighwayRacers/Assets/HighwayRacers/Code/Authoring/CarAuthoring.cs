@@ -7,12 +7,6 @@ using Unity.Mathematics;
 
 public class CarAuthoring : MonoBehaviour
 {
-   
-//    public float Speed;
-  //  public float DesiredSpeed;
-   // public float Acceleration;
-    //public float4 Color;
-
     class Baker : Baker<CarAuthoring>
     {
         public override void Bake(CarAuthoring authoring)
@@ -33,7 +27,12 @@ public struct CarData : IComponentData
     public float Distance;
     public float Lane;
     public float Speed;
+    public float OvertakeModeCountdown;
+    public float OvertakeModeReturnToLane;
     public float DesiredLane;
+    public float Acceleration;
+    public float DesiredSpeed;
+    public float PreviousDifferential;
 
     public float TEMP_NextLaneChangeCountdown;
 
@@ -46,7 +45,6 @@ public struct CarColor : IComponentData
 
 public readonly struct CarParameters : IComponentData
 {
-    // immutable parameters
     public readonly float defaultSpeed;
     public readonly float overtakePercent;
     public readonly float leftMergeDistance;
@@ -67,4 +65,9 @@ public readonly struct CarParameters : IComponentData
         DesiredSpeed = aDesiredSpeed;
         Acceleration = anAcceleration;
     }
+    public float CruisingSpeed;
+    public float OvertakeSpeed;
+    public float leftMergeDistance;
+    public float mergeSpace;
+    public float overtakeEagerness;
 }
