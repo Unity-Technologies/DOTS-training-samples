@@ -64,21 +64,10 @@ public partial class CarSpawnSystem : SystemBase
                     Distance = myRandom.NextFloat(10),
                     Lane = lane,
                     TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
-                    Speed = defaultSpeed
-                    Lane = lane,
-                    DesiredLane = lane,
-
-                    Acceleration = config.Acceleration,
-
-                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                     Speed = defaultSpeed,
-                    CruisingSpeed = defaultSpeed,
-                    OvertakeSpeed = defaultSpeed * myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax),
-                    leftMergeDistance = myRandom.NextFloat(config.LeftMergeDistanceMin, config.LeftMergeDistanceMax),
-                    mergeSpace = myRandom.NextFloat(config.MergeSpaceMin, config.MergeSpaceMax),
-                    overtakeEagerness = myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
-
-                    Color = float4.zero,
+                    DesiredLane = lane,
+                    Acceleration = config.Acceleration,
+//                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
                 });
                 EntityManager.SetComponentData(carEntity, new CarColor());
                 EntityManager.SetComponentData(carEntity, new CarParameters
@@ -90,8 +79,9 @@ public partial class CarSpawnSystem : SystemBase
                     myRandom.NextFloat(config.OvertakeEagernessMin, config.OvertakeEagernessMax),
                     1.0f,// car lenght ?
                     defaultSpeed,
-                    config.Acceleration
-                    
+                    config.Acceleration,
+                    defaultSpeed,
+                    defaultSpeed * myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax)
                 ));
             }
             myCurrentCarNumber += numberOfCarToSpawn;

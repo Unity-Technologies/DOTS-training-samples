@@ -33,11 +33,9 @@ public struct CarData : IComponentData
     public float Acceleration;
     public float DesiredSpeed;
     public float PreviousDifferential;
-
-    public float TEMP_NextLaneChangeCountdown;
-
-    
+    public float TEMP_NextLaneChangeCountdown;    
 }
+
 public struct CarColor : IComponentData
 {
     public float PreviousDifferential;
@@ -53,8 +51,10 @@ public readonly struct CarParameters : IComponentData
     public readonly float Length;
     public readonly float DesiredSpeed;
     public readonly float Acceleration;
+    public readonly float CruisingSpeed;
+    public readonly float OvertakeSpeed;
 
-    public CarParameters(float aDefaultSpeed, float anOvertakePercent, float aLeftMergeDistance, float aMergeSpace, float anOvertakeEagernessv4,float aLenght,float aDesiredSpeed,float anAcceleration) 
+    public CarParameters(float aDefaultSpeed, float anOvertakePercent, float aLeftMergeDistance, float aMergeSpace, float anOvertakeEagernessv4,float aLenght,float aDesiredSpeed,float anAcceleration,float aCruisingSpeed,float anOvertakeSpeed) 
     {
         defaultSpeed = aDefaultSpeed;
         overtakePercent = anOvertakePercent;
@@ -64,10 +64,7 @@ public readonly struct CarParameters : IComponentData
         Length = aLenght;
         DesiredSpeed = aDesiredSpeed;
         Acceleration = anAcceleration;
+        CruisingSpeed = aCruisingSpeed;
+        OvertakeSpeed =anOvertakeSpeed;
     }
-    public float CruisingSpeed;
-    public float OvertakeSpeed;
-    public float leftMergeDistance;
-    public float mergeSpace;
-    public float overtakeEagerness;
 }
