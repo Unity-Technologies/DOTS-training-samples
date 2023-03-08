@@ -26,19 +26,20 @@ namespace Systems
 
             FindBucket(ref state);
 
-            MoveToBucket(ref state);
+            MoveToBucket(ref state, ref config);
+
+            
         }
 
         public void FindBucket(ref SystemState state)
         {
-            foreach (var (transform, command, botEntity)
-                in SystemAPI.Query<RefRW<WorldTransform>, RefRO<BotCommand>>()
+            foreach (var (transform, command, targetBucket, botEntity)
+                in SystemAPI.Query<RefRW<WorldTransform>, RefRO<BotCommand>, RefRW<TargetBucket>>()
                 .WithEntityAccess())
             {
-                if (command.ValueRO.Value != BotAction.GET_BUCKET) continue;
+                if (command.ValueRO.Value != BotAction.GET_BUCKET || targetBucket.ValueRO.value != Entity.Null) continue;
 
                 var minDistance = float.PositiveInfinity;
-                var minPosition = float3.zero;
                 var closestBucket = Entity.Null;
 
                 foreach (var (bucket, entity)
@@ -53,25 +54,84 @@ namespace Systems
                     {
                         closestBucket = entity;
                         minDistance = distance;
-                        minPosition = bucket.ValueRO.Position;
                     }
                 }
 
                 if (closestBucket != null)
                 {
-                    state.EntityManager.SetComponentData(botEntity, new TargetBucket { value = closestBucket });
+                    targetBucket.ValueRW.value = closestBucket;
                     Debug.Log($"Closest distance {minDistance}");
                 }
             }
         }
 
-        public void MoveToBucket(ref SystemState state)
+        public void MoveToBucket(ref SystemState state, ref ConfigAuthoring.Config config)
         {
-            foreach (var (transform, botEntity)
-                in SystemAPI.Query<RefRW<WorldTransform>>()
+            foreach (var (transform, command, targetBucket, botEntity)
+                in SystemAPI.Query<RefRW<WorldTransform>, RefRW<BotCommand>, RefRW<TargetBucket>>()
                 .WithEntityAccess())
             {
+                if (command.ValueRO.Value != BotAction.GET_BUCKET) continue;
 
+                if (state.EntityManager.IsComponentEnabled<BucketActive>(targetBucket.ValueRO.value) == false)
+                {
+                    var destination = state.EntityManager.GetComponentData<WorldTransform>(targetBucket.ValueRO.value);
+                    if (MoveTowards(ref transform.ValueRW.Position, destination.Position, config.botSpeed, .01f))
+                    {
+                        state.EntityManager.SetComponentEnabled<BucketActive>(targetBucket.ValueRO.value, true);
+                        command.ValueRW.Value = BotAction.GOTO_WATER;
+                    }
+                }
+                else
+                {
+                    targetBucket.ValueRW.value = Entity.Null;
+                }
+            }
+        }
+
+        private bool MoveTowards(ref float3 pos, float3 dest, float speed, float arriveThreshold)
+        {
+            float3 currPos = pos;
+            bool arrivedX = false;
+            bool arrivedZ = false;
+            float movementSpeed = speed;
+           
+            // X POSITION
+            if (currPos.x < dest.x - arriveThreshold)
+            {
+                currPos.x += movementSpeed;
+            }
+            else if (currPos.x > dest.x + arriveThreshold)
+            {
+                currPos.x -= movementSpeed;
+            }
+            else
+            {
+                arrivedX = true;
+            }
+
+            // Z POSITION
+            if (currPos.z < dest.z - arriveThreshold)
+            {
+                currPos.z += movementSpeed;
+            }
+            else if (currPos.z > dest.z + arriveThreshold)
+            {
+                currPos.z -= movementSpeed;
+            }
+            else
+            {
+                arrivedZ = true;
+            }
+
+            if (arrivedX && arrivedZ)
+            {
+                return true;
+            }
+            else
+            {
+                pos = dest;
+                return false;
             }
         }
     }
