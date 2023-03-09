@@ -69,13 +69,6 @@ namespace Systems
                 };
      
             state.Dependency = flameRenderJob.Schedule(state.Dependency);
-            
-            // flameRenderJob.Schedule();
-            // return;
-            //loop through heat map, propagate flames
-            //parallel for job
-            //use previousHeatMap and heatMap
-            
         }
     }
 
@@ -147,10 +140,6 @@ namespace Systems
             {
                 localTransform.Position.y = -(maxFlameHeight * 0.5f) + random.NextFloat(0.01f,0.02f);
                 color.Value = neutralColor;
-                // if(flameCell.ValueRW.isOnFire)
-                // {
-                //     flameCell.ValueRW.isOnFire = false;
-                // }
             }
             else
             {
@@ -160,11 +149,6 @@ namespace Systems
                 localTransform.Position.y = yPos;
                 color.Value =
                     math.lerp(coolColor, hotColor, heat.Value);
-
-                // if (!flameCell.ValueRW.isOnFire)
-                // {
-                //     flameCell.ValueRW.isOnFire = true;
-                // }
             }
         }
     }

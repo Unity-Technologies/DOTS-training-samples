@@ -34,13 +34,9 @@ namespace Systems
                 for (int j = 0; j < config.numColumns; j++)
                 {
                     var flameCellEntity = ecb.Instantiate(config.flameCellPrefab);
-                    //var flameCellEntity = state.EntityManager.Instantiate(config.flameCellPrefab);
-                    //state.EntityManager.SetComponentData(fireCell, new FireCell{ cellIndex = index});
                     ecb.AddComponent(flameCellEntity, new URPMaterialPropertyBaseColor {Value = config.fireNeutralColor});
-                    //state.EntityManager.AddComponentData(flameCellEntity, new URPMaterialPropertyBaseColor {Value = config.colourFireCellNeutral});
-                    //buffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
                     buffer[index] = new ConfigAuthoring.FlameHeat{ Value = 0f};
-                    ecb.SetComponent(flameCellEntity, new FlameCell { isOnFire = false, heatMapIndex = -1 });
+                    ecb.SetComponent(flameCellEntity, new FlameCell { heatMapIndex = -1 });
                     index++;
                 }
             }

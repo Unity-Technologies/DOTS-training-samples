@@ -14,6 +14,5 @@ public class FlameCellAuthoring : MonoBehaviour
 
 public struct FlameCell : IComponentData
 {
-    public bool isOnFire;
     public int heatMapIndex;
 }
