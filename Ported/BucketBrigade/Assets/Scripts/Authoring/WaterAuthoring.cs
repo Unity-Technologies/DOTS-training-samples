@@ -10,25 +10,15 @@ public class WaterAuthoring : MonoBehaviour
     public float volume;
     public float capacity;
     public float waterRemoved;
-    
+
     class Baker : Baker<WaterAuthoring>
     {
         public override void Bake(WaterAuthoring waterAuthoring)
         {
-            AddComponent(new Water
-                {
-                    capacity = waterAuthoring.capacity,
-                    waterRemoved = waterAuthoring.waterRemoved
-                }
-            );
+            AddComponent<Water>();
             AddComponent<Volume>();
         }
     }
 
-    public struct Water : IComponentData
-    {
-        public float capacity;
-        public float waterRemoved;
-    }
-
+    public struct Water : IComponentData { }
 }

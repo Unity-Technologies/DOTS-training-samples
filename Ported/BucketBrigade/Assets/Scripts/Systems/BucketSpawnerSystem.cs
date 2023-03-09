@@ -1,3 +1,4 @@
+using Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -37,15 +38,14 @@ namespace Systems
                     transform);
 
                 state.EntityManager.SetComponentData(bucket,
+                   new Bucket() { isActive = false, isFull = false });
+
+                state.EntityManager.SetComponentData(bucket,
                    new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
-            }
+                state.EntityManager.SetComponentData(bucket,
+                   new Volume() { value = 0.0f });
 
-            int index = 0;
-            foreach (var transform in
-               SystemAPI.Query<RefRW<LocalTransform>>().WithAll<WaterAuthoring.Water>())
-            {
-                //Debug.Log($"Water {index++} - {transform.ValueRO}");
             }
         }
     }

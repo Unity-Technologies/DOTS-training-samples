@@ -1,11 +1,8 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
-using Color = Components.Color;
 using Random = Unity.Mathematics.Random;
 
 namespace Systems
@@ -42,6 +39,7 @@ namespace Systems
                     //state.EntityManager.AddComponentData(flameCellEntity, new URPMaterialPropertyBaseColor {Value = config.colourFireCellNeutral});
                     //buffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
                     buffer[index] = new ConfigAuthoring.FlameHeat{ Value = 0f};
+                    ecb.SetComponent(flameCellEntity, new FlameCell { isOnFire = false, heatMapIndex = -1 });
                     index++;
                 }
             }
@@ -50,7 +48,8 @@ namespace Systems
 
             var row = 0;
             var col = 0;
-            foreach (var transform in SystemAPI.Query<RefRW<LocalTransform>>().WithAll<FlameCell>())
+            index = 0;
+            foreach (var (transform, flameCell) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<FlameCell>>().WithAll<FlameCell>())
             {
                 transform.ValueRW = LocalTransform.FromPosition(row * config.cellSize, -0.49f, col * config.cellSize);
                 if (++col >= config.numColumns)
@@ -58,6 +57,8 @@ namespace Systems
                     row++;
                     col = 0;
                 }
+
+                flameCell.ValueRW.heatMapIndex = index++;
             }
             
             var rand = new Random( 123);

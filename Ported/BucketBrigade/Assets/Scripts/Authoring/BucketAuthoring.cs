@@ -14,27 +14,14 @@ public class BucketAuthoring : MonoBehaviour
         public override void Bake(BucketAuthoring bucketAuthoring)
         {
             AddComponent<Bucket>();
-            AddComponent<BucketActive>();
-            AddComponent<BucketFull>();
             AddComponent<Volume>();
             AddComponent<URPMaterialPropertyBaseColor>();
-
-            SetComponentEnabled<BucketActive>(false);
-            SetComponentEnabled<BucketFull>(false);
         }
     }
 }
 
 public struct Bucket : IComponentData
 {
-}
-
-public struct BucketActive : IComponentData, IEnableableComponent
-{
-    
-}
-
-public struct BucketFull : IComponentData, IEnableableComponent
-{
-    
+    public bool isActive;
+    public bool isFull;
 }

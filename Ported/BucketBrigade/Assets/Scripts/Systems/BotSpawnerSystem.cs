@@ -49,7 +49,13 @@ namespace Systems
                     new DecisionTimer { value = 0.0f });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new DecisionTimer { value = 0.0f });
+                    new TargetBucket { value = Entity.Null });
+
+                state.EntityManager.SetComponentData(omniBot,
+                    new TargetWater { value = Entity.Null });
+
+                state.EntityManager.SetComponentData(omniBot,
+                    new TargetFlame { value = Entity.Null });
 
                 state.EntityManager.SetComponentData(omniBot,
                     new ArriveThreshold { value = 1.0f });

@@ -78,6 +78,9 @@ public class ConfigAuthoring : MonoBehaviour
     [Tooltip("Water sources will refill by this amount per second")]
     public float refillRate = 0.0001f;
 
+    [Range(3f, 10000f)]
+    public float maxCapacity = 5f;
+
     public Color waterColor;
 
     #endregion
@@ -146,14 +149,15 @@ public class ConfigAuthoring : MonoBehaviour
                 coolingStrength = authoring.coolingStrength,
                 coolingStrengthFalloff = authoring.coolingStrengthFalloff,
                 refillRate = authoring.refillRate,
+                maxCapacity = authoring.maxCapacity,
                 waterColor = authoring.waterColor.ToFloat4(),
                 totalBuckets = authoring.totalBuckets,
                 bucketCapacity = authoring.bucketCapacity,
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSizeEmpty = authoring.bucketSizeEmpty,
                 bucketSizeFull = authoring.bucketSizeFull,
-                bucketEmptyColor = authoring.waterColor.ToFloat4(),
-                bucketFullColor = authoring.waterColor.ToFloat4(),
+                bucketEmptyColor = authoring.bucketEmptyColor.ToFloat4(),
+                bucketFullColor = authoring.bucketFullColor.ToFloat4(),
                 simulationWidth =  authoring.numRows * authoring.cellSize,
                 simulationDepth = authoring.numColumns * authoring.cellSize
             });
@@ -195,6 +199,7 @@ public class ConfigAuthoring : MonoBehaviour
         public float coolingStrength;
         public float coolingStrengthFalloff;
         public float refillRate;
+        public float maxCapacity;
         public float4 waterColor;
         public int totalBuckets;
         public float bucketCapacity;

@@ -641,7 +641,7 @@ MonoBehaviour:
     type: 3}
   waterPrefab: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314,
     type: 3}
-  botSpeed: 0.02
+  botSpeed: 0.075
   botArriveThreshold: 0.1
   waterCarryEffect: 0.5
   numOmnibots: 3
@@ -665,6 +665,7 @@ MonoBehaviour:
   fireCoolColor: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
   fireHotColor: {r: 1, g: 0, b: 0, a: 0}
   refillRate: 0.0001
+  maxCapacity: 5
   waterColor: {r: 0.089058906, g: 0.26184204, b: 0.745283, a: 0}
   splashRadius: 5
   coolingStrength: 1

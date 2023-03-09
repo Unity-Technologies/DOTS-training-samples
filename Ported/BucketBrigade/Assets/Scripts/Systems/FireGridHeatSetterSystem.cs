@@ -45,15 +45,13 @@ namespace Systems
             //     }
             // }    
             // Debug.Log($"Count Fire {countFire}");
-            var index = 0;
-
             Random random = new Random(123);
-            foreach (var (transform, color) in 
-                SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<FlameCell>())
+            foreach (var (transform, color, flameCell) in 
+                SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>, RefRW<FlameCell>>())
             {
                 
                 //setting colour based on heat
-                var heat = previousHeatMap[index];
+                var heat = previousHeatMap[flameCell.ValueRO.heatMapIndex];
                 /*if (heat.Value != 0f && heat.Value != 1f)
                 {
                     Debug.Log($"heat {heat.Value}");
@@ -63,16 +61,25 @@ namespace Systems
                 {
                     transform.ValueRW.Position.y = -(config.maxFlameHeight * 0.5f) + random.NextFloat(0.01f,0.02f);
                     color.ValueRW.Value = config.fireNeutralColor;
+                    if(flameCell.ValueRW.isOnFire)
+                    {
+                        flameCell.ValueRW.isOnFire = false;
+                    }
                 }
                 else
                 {
                     float yPos = (-config.maxFlameHeight*0.5f + (heat.Value * config.maxFlameHeight)) - config.flickerRange;
-                    yPos += (config.flickerRange * 0.5f) + noise.cnoise(new float2(((float)SystemAPI.Time.ElapsedTime - index) * config.flickerRate - heat.Value, heat.Value)) * config.flickerRange;
+                    yPos += (config.flickerRange * 0.5f) + noise.cnoise(new float2(((float)SystemAPI.Time.ElapsedTime - flameCell.ValueRO.heatMapIndex) * config.flickerRate - heat.Value, heat.Value)) * config.flickerRange;
                     
                     // float noiseValue = noise.cnoise(new float2(Time.time - index * config.flickerRate - heat.Value, heat.Value));
                     transform.ValueRW.Position.y = yPos;//-(config.maxFlameHeight * 0.5f) + heat.Value + noiseValue;
                     color.ValueRW.Value =
                         math.lerp(config.fireCoolColor, config.fireHotColor, heat.Value);
+
+                    if (!flameCell.ValueRW.isOnFire)
+                    {
+                        flameCell.ValueRW.isOnFire = true;
+                    }
                 }
                 
                 //updating fire
@@ -80,8 +87,8 @@ namespace Systems
                 {
                     float tempChange = 0f;
 
-                    int cellRowIndex = Mathf.FloorToInt((float) index / config.numColumns);
-                    int cellColumnIndex = index % config.numColumns;
+                    int cellRowIndex = Mathf.FloorToInt((float)flameCell.ValueRO.heatMapIndex / config.numColumns);
+                    int cellColumnIndex = flameCell.ValueRO.heatMapIndex % config.numColumns;
                     int heatRadius = config.heatRadius;
                     
                     // Debug.Log($"Cell {cellRowIndex} {cellColumnIndex}");
@@ -116,18 +123,15 @@ namespace Systems
                         }
                     }
 
-                    float newHeat = math.clamp(previousHeatMap[index].Value + tempChange,-1f,1f);
+                    float newHeat = math.clamp(previousHeatMap[flameCell.ValueRO.heatMapIndex].Value + tempChange,-1f,1f);
                     heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
-                    heatMap[index] = new ConfigAuthoring.FlameHeat {Value = newHeat};
+                    heatMap[flameCell.ValueRO.heatMapIndex] = new ConfigAuthoring.FlameHeat {Value = newHeat};
 
                     // if (previousHeatMap[index].Value < config.flashpoint && heatMap[index].Value > config.flashpoint)
                     // {
                     //     Debug.Log($"Burn!! {index}");
                     // }
                 }
-                
-                
-                index++;
             }
 
             if (timeUntilFireUpdate < 0)
