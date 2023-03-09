@@ -9,6 +9,34 @@ public partial struct WallsSpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var food = SystemAPI.GetSingleton<Food>();
+        var home = SystemAPI.GetSingleton<Home>();
+        
+        var foodEntity = state.EntityManager.Instantiate(food.foodPrefab);
+        var homeEntity = state.EntityManager.Instantiate(home.homePrefab);
+
+        var positions = new[]
+        {
+            new float3(3.5f, 0, 3.5f),
+            new float3(-3.5f, 0, 3.5f),
+            new float3(-3.5f, 0, -3.5f),
+            new float3(3.5f, 0, -3.5f)
+        };
+        
+        state.EntityManager.SetComponentData(foodEntity, new LocalTransform
+        {
+            Position = positions[UnityEngine.Random.Range(0,4)],
+            Rotation = quaternion.identity,
+            Scale = 0.4f
+        });
+        
+        state.EntityManager.SetComponentData(homeEntity, new LocalTransform
+        {
+            Position = float3.zero,
+            Rotation = quaternion.identity,
+            Scale = 0.4f
+        });
+
         foreach (WallsSpawner spawner in SystemAPI.Query<WallsSpawner>())
         {
             var numOpenings = UnityEngine.Random.Range(1, 3);

@@ -14,6 +14,28 @@ public partial struct WallCollisionSystem : ISystem
         foreach ((MoveToPositionAspect moveToPositionAspect, TransformAspect transformAspect) in SystemAPI
                      .Query<MoveToPositionAspect, TransformAspect>())
         {
+            foreach (var food in
+                     SystemAPI.Query<RefRO<LocalTransform>>()
+                         .WithAll<Food>())
+            {
+                if (math.distance(food.ValueRO.Position, transformAspect.WorldPosition) < 0.2f)
+                {
+                    var direction = food.ValueRO.Position - transformAspect.WorldPosition;
+                    moveToPositionAspect.Move(SystemAPI.Time.DeltaTime, random,Helper.GetPosition(direction));
+                }
+            }
+            
+            foreach (var home in
+                     SystemAPI.Query<RefRO<LocalTransform>>()
+                         .WithAll<Home>())
+            {
+                if (math.distance(home.ValueRO.Position, transformAspect.WorldPosition) < 0.2f)
+                {
+                    var direction = home.ValueRO.Position - transformAspect.WorldPosition;
+                    moveToPositionAspect.Move(SystemAPI.Time.DeltaTime, random,Helper.GetPosition(direction));
+                }
+            }
+            
             foreach (var wall in
                      SystemAPI.Query<RefRO<LocalTransform>>()
                          .WithAll<Walls>())
