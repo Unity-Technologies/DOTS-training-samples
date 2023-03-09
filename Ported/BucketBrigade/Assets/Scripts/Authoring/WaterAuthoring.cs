@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Components;
 using Unity.Entities;
 using UnityEngine;
-using Color = Components.Color;
 
 public class WaterAuthoring : MonoBehaviour
 {

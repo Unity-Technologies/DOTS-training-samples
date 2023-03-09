@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
-using Color = Components.Color;
 
 public class FlameCellAuthoring : MonoBehaviour
 {
@@ -20,4 +17,3 @@ public struct FlameCell : IComponentData
     public bool isOnFire;
     public int heatMapIndex;
 }
-

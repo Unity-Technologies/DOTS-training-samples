@@ -1,11 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using Components;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
-using Color = Components.Color;
 
 public class BucketAuthoring : MonoBehaviour
 {

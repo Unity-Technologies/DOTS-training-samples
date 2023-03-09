@@ -15,10 +15,4 @@ namespace Components
     {
         public float value;
     }
-
-    public struct Color : IComponentData
-    {
-        public float4 value;
-    }
-    
 }
