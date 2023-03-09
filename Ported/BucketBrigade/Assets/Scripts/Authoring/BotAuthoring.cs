@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BotAuthoring : MonoBehaviour
 {
@@ -11,7 +12,6 @@ public class BotAuthoring : MonoBehaviour
     {
         public override void Bake(BotAuthoring bucketAuthoring)
         {
-            AddComponent<BotOmni>();
             AddComponent<URPMaterialPropertyBaseColor>();
             AddComponent<BotCommand>();
             AddComponent<DecisionTimer>();
@@ -33,42 +33,47 @@ public struct BotCommand : IComponentData
     public BotAction Value;
 }
 
+public struct BucketProvider : IComponentData
+{
+    public Entity Value;
+}
+
 public struct DecisionTimer : IComponentData 
 { 
-    public float value;
+    public float Value;
 }
 
 public struct CarryingBucket : IComponentData
 {
-    public Entity value;
+    public Entity Value;
 }
 
 public struct TargetBucket : IComponentData
 {
-    public Entity value;
+    public Entity Value;
 }
 
 public struct TargetWater : IComponentData
 {
-    public Entity value;
+    public Entity Value;
 }
 
 public struct TargetFlame : IComponentData
 {
-    public Entity value;
+    public Entity Value;
 }
 
 public struct LocationPickup : IComponentData
 {
-    public float3 value;
+    public float3 Value;
 }
 
 public struct LocationDropoff : IComponentData
 {
-    public float3 value;
+    public float3 Value;
 }
 
 public struct ArriveThreshold : IComponentData
 {
-    public float value;
+    public float Value;
 }

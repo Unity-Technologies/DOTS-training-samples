@@ -1,3 +1,4 @@
+using Authoring;
 using Enums;
 using Unity.Burst;
 using Unity.Entities;
@@ -5,12 +6,12 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine.Rendering;
-using static ConfigAuthoring;
+using static Authoring.ConfigAuthoring;
 
 namespace Systems
 {
     [UpdateBefore(typeof(TransformSystemGroup))]
-    public partial struct BotSpawnerSystem : ISystem
+    public partial struct OmniBotSpawnerSystem : ISystem
     {
         [BurstCompile]
         public void OnCreate(ref SystemState state)
@@ -36,6 +37,8 @@ namespace Systems
                 var x = rand.NextFloat(0f, config.simulationWidth);
                 var z = rand.NextFloat(0f, config.simulationDepth);
 
+                state.EntityManager.AddComponent<BotOmni>(omniBot);
+
                 state.EntityManager.SetComponentData(omniBot,
                     LocalTransform.FromPosition(x, 0.5f, z));
 
@@ -46,19 +49,19 @@ namespace Systems
                     new URPMaterialPropertyBaseColor() { Value = config.botOmniColor });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new DecisionTimer { value = 0.0f });
+                    new DecisionTimer { Value = 0.0f });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new TargetBucket { value = Entity.Null });
+                    new TargetBucket { Value = Entity.Null });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new TargetWater { value = Entity.Null });
+                    new TargetWater { Value = Entity.Null });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new TargetFlame { value = Entity.Null });
+                    new TargetFlame { Value = Entity.Null });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new ArriveThreshold { value = 1.0f });
+                    new ArriveThreshold { Value = 1.0f });
                 
                 state.EntityManager.SetComponentData(omniBot, new BotCommand{Value = BotAction.GET_BUCKET});
             }

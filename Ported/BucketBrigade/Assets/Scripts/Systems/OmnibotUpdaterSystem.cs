@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Authoring;
 using Components;
 using Enums;
 using Unity.Burst;
@@ -14,7 +15,7 @@ namespace Systems
 {
     [UpdateBefore(typeof(TransformSystemGroup))]
     [UpdateAfter(typeof(BucketSpawnerSystem))]
-    [UpdateAfter(typeof(BotSpawnerSystem))]
+    [UpdateAfter(typeof(OmniBotSpawnerSystem))]
     public partial struct OmnibotUpdaterSystem : ISystem
     {
         [BurstCompile]
@@ -42,7 +43,7 @@ namespace Systems
                     case BotAction.GET_BUCKET:
                         {
                             var foundBucket = FindBucket(ref state, in botTransform.ValueRO.Position);
-                            state.EntityManager.SetComponentData(botEntity, new TargetBucket { value = foundBucket });
+                            state.EntityManager.SetComponentData(botEntity, new TargetBucket { Value = foundBucket });
                             
                             if (foundBucket != Entity.Null)
                             {
@@ -59,7 +60,7 @@ namespace Systems
                     case BotAction.GOTO_WATER:
                         {
                             var foundWater = FindWater(ref state, in botTransform.ValueRO.Position);
-                            state.EntityManager.SetComponentData(botEntity, new TargetWater { value = foundWater });
+                            state.EntityManager.SetComponentData(botEntity, new TargetWater { Value = foundWater });
                             
                             if (foundWater != Entity.Null)
                             {
@@ -71,36 +72,36 @@ namespace Systems
                                 }
                             }
 
-                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW);
+                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW);
                             break;
                         }
                     case BotAction.FILL_BUCKET:
                         {
-                            var bucketVolume = state.EntityManager.GetComponentData<Volume>(targetBucket.value);
+                            var bucketVolume = state.EntityManager.GetComponentData<Volume>(targetBucket.Value);
                             bucketVolume.value = Mathf.Clamp(bucketVolume.value + config.bucketFillRate, 0f, config.bucketCapacity);
-                            state.EntityManager.SetComponentData(targetBucket.value, new Volume { value = bucketVolume.value });
+                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { value = bucketVolume.value });
 
                             var targetWater = state.EntityManager.GetComponentData<TargetWater>(botEntity);
-                            var waterVolume = state.EntityManager.GetComponentData<Volume>(targetWater.value);
+                            var waterVolume = state.EntityManager.GetComponentData<Volume>(targetWater.Value);
 
                             waterVolume.value -= config.bucketFillRate;
-                            state.EntityManager.SetComponentData(targetWater.value, new Volume { value = waterVolume.value });
+                            state.EntityManager.SetComponentData(targetWater.Value, new Volume { value = waterVolume.value });
                             
                             if (bucketVolume.value >= config.bucketCapacity)
                             {
-                                state.EntityManager.SetComponentData(targetBucket.value, new Bucket { isActive = true, isFull = true });
-                                state.EntityManager.SetComponentData(botEntity, new TargetWater { value = Entity.Null });
+                                state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = true });
+                                state.EntityManager.SetComponentData(botEntity, new TargetWater { Value = Entity.Null });
                                 command.ValueRW.Value = BotAction.GOTO_FIRE;
                             }
 
-                            Utils.UpdateFillBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW, bucketVolume.value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
+                            Utils.UpdateFillBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW, bucketVolume.value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
                             
                             break;
                         }
                     case BotAction.GOTO_FIRE:
                         {
                             var foundFire = FindFire(ref state, in botTransform.ValueRO.Position);
-                            state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = foundFire });
+                            state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = foundFire });
                             
                             if (foundFire != Entity.Null)
                             {
@@ -110,25 +111,25 @@ namespace Systems
                                     command.ValueRW.Value = BotAction.THROW_BUCKET;
                                 }
                             }
-                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW);
+                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW);
 
                             break;
                         }
                     case BotAction.THROW_BUCKET:
                         {
-                            var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.value);
+                            var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.Value);
 
                             Utils.DowseFlameCell(ref heatMap, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
                
                             if (heatMap[flameCell.heatMapIndex].Value < config.flashpoint)
-                                state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = Entity.Null });
+                                state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = Entity.Null });
 
-                            state.EntityManager.SetComponentData(targetBucket.value, new Bucket { isActive = true, isFull = false });
-                            state.EntityManager.SetComponentData(targetBucket.value, new Volume { value = 0 });
-                            state.EntityManager.SetComponentData(targetBucket.value, new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
+                            state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = false });
+                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { value = 0 });
+                            state.EntityManager.SetComponentData(targetBucket.Value, new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
                             command.ValueRW.Value = BotAction.GOTO_WATER;
-                            Utils.UpdateEmptyBucket(ref state, ref targetBucket.value, config.bucketSizeEmpty, config.bucketEmptyColor);
+                            Utils.UpdateEmptyBucket(ref state, ref targetBucket.Value, config.bucketSizeEmpty, config.bucketEmptyColor);
 
                             break;
                         }

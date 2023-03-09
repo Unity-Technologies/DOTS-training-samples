@@ -1,4 +1,5 @@
 using System;
+using Authoring;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;

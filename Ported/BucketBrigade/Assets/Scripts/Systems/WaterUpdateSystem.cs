@@ -1,5 +1,6 @@
 using Components;
 using System;
+using Authoring;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
