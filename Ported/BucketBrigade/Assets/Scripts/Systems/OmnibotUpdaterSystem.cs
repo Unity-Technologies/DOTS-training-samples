@@ -89,7 +89,6 @@ namespace Systems
                             if (bucketVolume.value >= config.bucketCapacity)
                             {
                                 state.EntityManager.SetComponentData(targetBucket.value, new Bucket { isActive = true, isFull = true });
-                                // state.EntityManager.SetComponentData(targetBucket.value, new URPMaterialPropertyBaseColor() { Value = config.bucketFullColor });
                                 state.EntityManager.SetComponentData(botEntity, new TargetWater { value = Entity.Null });
                                 command.ValueRW.Value = BotAction.GOTO_FIRE;
                             }
@@ -100,7 +99,6 @@ namespace Systems
                         }
                     case BotAction.GOTO_FIRE:
                         {
-                            Debug.Log($"Finding fire");
                             var foundFire = FindFire(ref state, in botTransform.ValueRO.Position);
                             state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = foundFire });
                             
@@ -119,8 +117,9 @@ namespace Systems
                     case BotAction.THROW_BUCKET:
                         {
                             var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.value);
-                            heatMap[flameCell.heatMapIndex] = new ConfigAuthoring.FlameHeat { Value = heatMap[flameCell.heatMapIndex].Value - config.coolingStrength };
 
+                            Utils.DowseFlameCell(ref heatMap, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
+               
                             if (heatMap[flameCell.heatMapIndex].Value < config.flashpoint)
                                 state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = Entity.Null });
 

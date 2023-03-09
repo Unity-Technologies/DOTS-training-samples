@@ -65,7 +65,7 @@ namespace Utilities
                 return false;
             }
         }
-        
+       
         //Update Filling Bucket
         public static void UpdateFillBucket(ref SystemState state, ref Entity targetBucket, ref LocalTransform botTransform, float waterVolume, float bucketCapacity, float bucketSizeEmpty, float bucketSizeFull, float4 bucketEmptyColor, float4 bucketFullColor)
         {
@@ -105,6 +105,32 @@ namespace Utilities
             bucketTransform.Scale = bucketSizeEmpty;
             bucketTransform.Position.y -= 0.5f;
             state.EntityManager.SetComponentData(targetBucket, bucketTransform);
+        }
+        
+        //Dowse Flame Cell
+        public static void DowseFlameCell(ref DynamicBuffer<ConfigAuthoring.FlameHeat> heatMap,int heatMapIndex, int numRows, int numColumns, float coolingStrength, float coolingStrengthFalloff, int splashRadius, float bucketCapacity)
+        {
+            int targetRow = Mathf.FloorToInt(heatMapIndex / numColumns);
+            int targetColumn = heatMapIndex % numColumns;
+            heatMap[heatMapIndex] = new ConfigAuthoring.FlameHeat { Value = heatMap[heatMapIndex].Value - coolingStrength };
+                            
+            for (int rowIndex = -splashRadius; rowIndex <= splashRadius; rowIndex++)
+            {
+                int currentRow = targetRow - rowIndex;
+                if (currentRow >= 0 && currentRow < numRows)
+                {
+                    for (int columnIndex = -splashRadius; columnIndex <= splashRadius; columnIndex++)
+                    {
+                        int currentColumn = targetColumn + columnIndex;
+                        if (currentColumn >= 0 && currentColumn < numColumns)
+                        {
+                            float dowseCellStrength = 1f / (Mathf.Abs(rowIndex * coolingStrengthFalloff) + Mathf.Abs(columnIndex * coolingStrengthFalloff));
+                            int neighbourIndex = (currentRow * numColumns) + currentColumn;
+                            heatMap[neighbourIndex] = new ConfigAuthoring.FlameHeat { Value = heatMap[neighbourIndex].Value - (coolingStrength * dowseCellStrength) * bucketCapacity };
+                        }
+                    }
+                }
+            }
         }
     }
 }
