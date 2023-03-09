@@ -28,7 +28,9 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
-            var heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
+            var flameBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
+            var waterBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.WaterNode>();
+            var bucketBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.BucketNode>();
 
             foreach (var (botTransform, command, botEntity) in
                      SystemAPI.Query<RefRW<LocalTransform>, RefRW<BotCommand>>()
@@ -42,7 +44,7 @@ namespace Systems
                 {
                     case BotAction.GET_BUCKET:
                         {
-                            var foundBucket = FindBucket(ref state, in botTransform.ValueRO.Position);
+                            var foundBucket = Utils.FindBucket(ref state, in botTransform.ValueRO.Position, ref bucketBuffer, false);
                             state.EntityManager.SetComponentData(botEntity, new TargetBucket { Value = foundBucket });
                             
                             if (foundBucket != Entity.Null)
@@ -59,7 +61,7 @@ namespace Systems
                         }
                     case BotAction.GOTO_WATER:
                         {
-                            var foundWater = FindWater(ref state, in botTransform.ValueRO.Position);
+                            var foundWater = Utils.FindWater(in botTransform.ValueRO.Position, ref waterBuffer);
                             state.EntityManager.SetComponentData(botEntity, new TargetWater { Value = foundWater });
                             
                             if (foundWater != Entity.Null)
@@ -119,9 +121,9 @@ namespace Systems
                         {
                             var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.Value);
 
-                            Utils.DowseFlameCell(ref heatMap, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
+                            Utils.DowseFlameCell(ref flameBuffer, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
                
-                            if (heatMap[flameCell.heatMapIndex].Value < config.flashpoint)
+                            if (flameBuffer[flameCell.heatMapIndex].Value < config.flashpoint)
                                 state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = Entity.Null });
 
                             state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = false });
@@ -135,52 +137,6 @@ namespace Systems
                         }
                 }
             }
-        }
-
-
-        public Entity FindBucket(ref SystemState state, in float3 botPos, bool wantsFull = false)
-        {
-            var minDistance = float.PositiveInfinity;
-            var closestBucket = Entity.Null;
-
-            foreach (var (bucketTransform, bucket, bucketEntity)
-                     in SystemAPI.Query<RefRO<LocalTransform>, RefRO<Bucket>>()
-                         .WithEntityAccess())
-            {
-                if (bucket.ValueRO.isActive == true) continue;
-
-                var distance = math.distancesq(botPos, bucketTransform.ValueRO.Position);
-
-                if (distance < minDistance)
-                {
-                    closestBucket = bucketEntity;
-                    minDistance = distance;
-                }
-            }
-
-            return closestBucket;
-        }
-
-        public Entity FindWater(ref SystemState state, in float3 botPos)
-        {
-            var minDistance = float.PositiveInfinity;
-            var closestWater = Entity.Null;
-
-            foreach (var (waterTransform, waterEntity)
-                     in SystemAPI.Query<RefRO<WorldTransform>>()
-                         .WithAll<WaterAuthoring.Water>()
-                         .WithEntityAccess())
-            {
-                var distance = math.distancesq(botPos, waterTransform.ValueRO.Position);
-
-                if (distance < minDistance)
-                {
-                    closestWater = waterEntity;
-                    minDistance = distance;
-                }
-            }
-
-            return closestWater;
         }
 
         public Entity FindFire(ref SystemState state, in float3 botPos)
@@ -202,8 +158,6 @@ namespace Systems
                     minDistance = distance;
                 }
             }
-
-            if (closestFire != null) Debug.Log("Fire Found");
 
             return closestFire;
         }

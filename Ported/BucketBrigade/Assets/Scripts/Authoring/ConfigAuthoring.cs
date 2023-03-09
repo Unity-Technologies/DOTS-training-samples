@@ -177,6 +177,8 @@ namespace Authoring
                     totalBucketChains = authoring.totalBucketChains
                 });
                 AddBuffer<FlameHeat>();
+                AddBuffer<WaterNode>();
+                AddBuffer<BucketNode>();
             }
         }
 
@@ -234,6 +236,17 @@ namespace Authoring
         public struct FlameHeat : IBufferElementData
         {
             public float Value;
+        }
+
+        public struct WaterNode : IBufferElementData
+        {
+            public float3 Position;
+            public Entity Node;
+        }
+
+        public struct BucketNode : IBufferElementData
+        {
+            public Entity Value;
         }
     }
 }

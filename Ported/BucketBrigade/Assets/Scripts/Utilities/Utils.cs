@@ -133,5 +133,50 @@ namespace Utilities
                 }
             }
         }
+
+        // Find Bucket
+        public static Entity FindBucket(ref SystemState state, in float3 position, ref DynamicBuffer<ConfigAuthoring.BucketNode> bucketBuffer, bool wantsFull = false)
+        {
+            var minDistance = float.PositiveInfinity;
+            var closestEntity = Entity.Null;
+
+            foreach (var bucket in bucketBuffer)
+            {
+                var bucketState = state.EntityManager.GetComponentData<Bucket>(bucket.Value);
+
+                if (bucketState.isActive == true) continue;
+
+                var destination = state.EntityManager.GetComponentData<LocalTransform>(bucket.Value);
+                var distance = math.distancesq(position, destination.Position);
+
+                if (distance < minDistance)
+                {
+                    closestEntity = bucket.Value;
+                    minDistance = distance;
+                }
+            }
+
+            return closestEntity;
+        }
+
+        // Find Water
+        public static Entity FindWater(in float3 position, ref DynamicBuffer<ConfigAuthoring.WaterNode> waterBuffer)
+        {
+            var minDistance = float.PositiveInfinity;
+            var closestEntity = Entity.Null;
+
+            foreach (var water in waterBuffer)
+            {
+                var distance = math.distancesq(position, water.Position);
+
+                if (distance < minDistance)
+                {
+                    closestEntity = water.Node;
+                    minDistance = distance;
+                }
+            }
+
+            return closestEntity;
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Authoring;
 using Components;
+using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -25,6 +26,9 @@ namespace Systems
             state.Enabled = false;
             var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
 
+            var buffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.BucketNode>();
+            buffer.Length = config.totalBuckets;
+
             var rand = new Unity.Mathematics.Random(123);
             for (int i = 0; i < config.totalBuckets; i++)
             {
@@ -47,6 +51,7 @@ namespace Systems
                 state.EntityManager.SetComponentData(bucket,
                    new Volume() { value = 0.0f });
 
+                buffer[i] = new ConfigAuthoring.BucketNode { Value = bucket };
             }
         }
     }
