@@ -614,6 +614,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 882601198}
+  - component: {fileID: 882601199}
   - component: {fileID: 882601197}
   m_Layer: 0
   m_Name: Config
@@ -644,22 +645,22 @@ MonoBehaviour:
   botSpeed: 0.075
   botArriveThreshold: 0.1
   waterCarryEffect: 0.5
-  numOmnibots: 3
+  numOmnibots: 0
   botScoopColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   botFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   botEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
   botThrowColor: {r: 1, g: 0.4745098, b: 0.9372549, a: 0}
   botOmniColor: {r: 0, g: 0, b: 0, a: 0}
-  startingFireCount: 5
+  startingFireCount: 10
   maxFlameHeight: 1
   flickerRate: 0.7
   flickerRange: 0.19
-  cellSize: 0.3
-  numRows: 50
-  numColumns: 50
-  flashpoint: 0.5
-  heatRadius: 1
-  heatTransferRate: 0.00075
+  cellSize: 0.1
+  numRows: 200
+  numColumns: 200
+  flashpoint: 0.2
+  heatRadius: 2
+  heatTransferRate: 0.01
   fireSimUpdateRate: 0.01
   fireNeutralColor: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 0}
   fireCoolColor: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
@@ -667,16 +668,20 @@ MonoBehaviour:
   refillRate: 0.0001
   maxCapacity: 5
   waterColor: {r: 0.089058906, g: 0.26184204, b: 0.745283, a: 0}
-  splashRadius: 5
-  coolingStrength: 1
-  coolingStrengthFalloff: 0.75
-  totalBuckets: 3
+  splashRadius: 4
+  coolingStrength: 2
+  coolingStrengthFalloff: 4
+  totalBuckets: 0
   bucketCapacity: 3
-  bucketFillRate: 0.01
+  bucketFillRate: 0.1
   bucketSizeEmpty: 0.2
   bucketSizeFull: 0.4
   bucketEmptyColor: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
   bucketFullColor: {r: 0, g: 0.98039216, b: 1, a: 0}
+  rateAssessChain: 2
+  totalPassersEmpty: 15
+  totalPassersFull: 15
+  totalBucketChains: 2
 --- !u!4 &882601198
 Transform:
   m_ObjectHideFlags: 0
@@ -692,6 +697,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &882601199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 882601196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed7722549b0294f50aa2db2526c2afbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Instructions: Use the context menu ^ to switch templates
 --- !u!1 &937584116 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6917244071728251917, guid: b7c3a95ed6bff4eb193a9d25a85aa75a,

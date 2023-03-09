@@ -3,6 +3,7 @@ using Authoring;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -23,7 +24,7 @@ namespace Systems
             state.RequireForUpdate<ConfigAuthoring.FlameHeat>();
             timeUntilFireUpdate = 0;
         }
-
+        
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
@@ -31,114 +32,142 @@ namespace Systems
             
             var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
             var heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
-            
-            var previousHeatMap = new NativeList<ConfigAuthoring.FlameHeat> (heatMap.Length, Allocator.Temp);
-            previousHeatMap.AddRange(heatMap.AsNativeArray());
-            
-            // Debug.Log($"Prev Heat Map Length {previousHeatMap.Length}");
-            // int countFire = 0;
-            // for (int i = 0; i < previousHeatMap.Length; i++)
-            // {
-            //     if (previousHeatMap[i].Value != 0)
-            //     {
-            //         Debug.Log($"Valid Heat Map {i}");
-            //         countFire++;
-            //     }
-            // }    
-            // Debug.Log($"Count Fire {countFire}");
-            Random random = new Random(123);
-            foreach (var (transform, color, flameCell) in 
-                SystemAPI.Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>, RefRW<FlameCell>>())
-            {
-                
-                //setting colour based on heat
-                var heat = previousHeatMap[flameCell.ValueRO.heatMapIndex];
-                /*if (heat.Value != 0f && heat.Value != 1f)
-                {
-                    Debug.Log($"heat {heat.Value}");
-                }*/
-
-                if (heat.Value < config.flashpoint)
-                {
-                    transform.ValueRW.Position.y = -(config.maxFlameHeight * 0.5f) + random.NextFloat(0.01f,0.02f);
-                    color.ValueRW.Value = config.fireNeutralColor;
-                    if(flameCell.ValueRW.isOnFire)
-                    {
-                        flameCell.ValueRW.isOnFire = false;
-                    }
-                }
-                else
-                {
-                    float yPos = (-config.maxFlameHeight*0.5f + (heat.Value * config.maxFlameHeight)) - config.flickerRange;
-                    yPos += (config.flickerRange * 0.5f) + noise.cnoise(new float2(((float)SystemAPI.Time.ElapsedTime - flameCell.ValueRO.heatMapIndex) * config.flickerRate - heat.Value, heat.Value)) * config.flickerRange;
-                    
-                    // float noiseValue = noise.cnoise(new float2(Time.time - index * config.flickerRate - heat.Value, heat.Value));
-                    transform.ValueRW.Position.y = yPos;//-(config.maxFlameHeight * 0.5f) + heat.Value + noiseValue;
-                    color.ValueRW.Value =
-                        math.lerp(config.fireCoolColor, config.fireHotColor, heat.Value);
-
-                    if (!flameCell.ValueRW.isOnFire)
-                    {
-                        flameCell.ValueRW.isOnFire = true;
-                    }
-                }
-                
-                //updating fire
-                if (timeUntilFireUpdate < 0)
-                {
-                    float tempChange = 0f;
-
-                    int cellRowIndex = Mathf.FloorToInt((float)flameCell.ValueRO.heatMapIndex / config.numColumns);
-                    int cellColumnIndex = flameCell.ValueRO.heatMapIndex % config.numColumns;
-                    int heatRadius = config.heatRadius;
-                    
-                    // Debug.Log($"Cell {cellRowIndex} {cellColumnIndex}");
-                    
-                    for (int rowIndex = -heatRadius; rowIndex <= heatRadius; rowIndex++)
-                    {
-                        int currentRow = cellRowIndex - rowIndex;
-                        if (currentRow >= 0 && currentRow < config.numRows)
-                        {
-                            for (int columnIndex = -heatRadius; columnIndex <= heatRadius; columnIndex++)
-                            {
-                                int currentColumn = cellColumnIndex + columnIndex;
-                                if (currentColumn >= 0 && currentColumn < config.numColumns)
-                                {
-                                    int neighbourIndex = currentRow * config.numColumns + currentColumn;
-                                    float neighbourHeat = previousHeatMap[neighbourIndex].Value;
-                                    // Debug.Log($"neighbourHeat {neighbourHeat}");
-                                    if (neighbourHeat > config.flashpoint)
-                                    {
-                                        tempChange += neighbourHeat * config.heatTransferRate;
-                                        // Debug.Log($"Changing temp {tempChange}");
-                                    }
-
-                                    // FlameCell _neighbour = flameCells[(currentRow * columns) + currentColumn];
-                                    // if (_neighbour.onFire)
-                                    // {
-                                    //     currentCell.neighbourOnFire = true;
-                                    //     tempChange += _neighbour.temperature * heatTransferRate;
-                                    // }
-                                }
-                            }
-                        }
-                    }
-
-                    float newHeat = math.clamp(previousHeatMap[flameCell.ValueRO.heatMapIndex].Value + tempChange,-1f,1f);
-                    heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
-                    heatMap[flameCell.ValueRO.heatMapIndex] = new ConfigAuthoring.FlameHeat {Value = newHeat};
-
-                    // if (previousHeatMap[index].Value < config.flashpoint && heatMap[index].Value > config.flashpoint)
-                    // {
-                    //     Debug.Log($"Burn!! {index}");
-                    // }
-                }
-            }
 
             if (timeUntilFireUpdate < 0)
             {
+                //can't use Allocator.Temp with a job
+                var previousHeatMap = CollectionHelper.CreateNativeArray<ConfigAuthoring.FlameHeat>(heatMap.Length, state.WorldUpdateAllocator);
+                previousHeatMap.CopyFrom(heatMap.AsNativeArray());
+
+                var flamePropagationJob = new FlamePropagationJob
+                {
+                    readHeat = previousHeatMap,
+                    writeHeat = heatMap.AsNativeArray(),
+                    flashPoint = config.flashpoint,
+                    heatRadius = config.heatRadius,
+                    heatTransferRate = config.heatTransferRate,
+                    numColumns = config.numColumns,
+                    numRows = config.numRows
+                };
+
+                state.Dependency = flamePropagationJob.Schedule(heatMap.Length, 100, state.Dependency);
                 timeUntilFireUpdate = config.fireSimUpdateRate;
+            }
+
+            Random random = new Random(123);
+            var flameRenderJob = new FlameRenderJob 
+                { heatMap = heatMap,
+                    coolColor = config.fireCoolColor, 
+                    flashPoint = config.flashpoint,
+                    flickerRange = config.flickerRange,
+                    flickerRate = config.flickerRate,
+                    hotColor = config.fireHotColor,
+                    maxFlameHeight = config.maxFlameHeight,
+                    neutralColor = config.fireNeutralColor,
+                    elapsedTime = (float)SystemAPI.Time.ElapsedTime,
+                    random = random
+                };
+     
+            state.Dependency = flameRenderJob.Schedule(state.Dependency);
+            
+            // flameRenderJob.Schedule();
+            // return;
+            //loop through heat map, propagate flames
+            //parallel for job
+            //use previousHeatMap and heatMap
+            
+        }
+    }
+
+    [BurstCompile]
+    public struct FlamePropagationJob : IJobParallelFor
+    {
+        [ReadOnly] public NativeArray<ConfigAuthoring.FlameHeat> readHeat;
+        public NativeArray<ConfigAuthoring.FlameHeat> writeHeat;
+        public int numColumns;
+        public int numRows;
+        public int heatRadius;
+        public float flashPoint;
+        public float heatTransferRate;
+        
+        public void Execute(int index)
+        {
+            //update one cell  
+            float tempChange = 0f;
+            int cellRowIndex = Mathf.FloorToInt((float)index / numColumns);
+            int cellColumnIndex = index % numColumns;
+            
+            for (int rowIndex = -heatRadius; rowIndex <= heatRadius; rowIndex++)
+            {
+                int currentRow = cellRowIndex - rowIndex;
+                if (currentRow >= 0 && currentRow < numRows)
+                {
+                    for (int columnIndex = -heatRadius; columnIndex <= heatRadius; columnIndex++)
+                    {
+                        int currentColumn = cellColumnIndex + columnIndex;
+                        if (currentColumn >= 0 && currentColumn < numColumns)
+                        {
+                            int neighbourIndex = currentRow * numColumns + currentColumn;
+                            float neighbourHeat = readHeat[neighbourIndex].Value;
+                            if (neighbourHeat > flashPoint)
+                            {
+                                tempChange += neighbourHeat * heatTransferRate;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            float newHeat = math.clamp(readHeat[index].Value + tempChange,-1f,1f);
+            writeHeat[index] = new ConfigAuthoring.FlameHeat {Value = newHeat};
+        }
+    }
+
+    [BurstCompile]
+    [WithAll(typeof(FlameCell))]
+    public partial struct FlameRenderJob : IJobEntity
+    {
+        [ReadOnly] public DynamicBuffer<ConfigAuthoring.FlameHeat> heatMap;
+        public float flashPoint;
+        public float maxFlameHeight;
+        public float flickerRange;
+        public float flickerRate;
+        public float4 neutralColor;
+        public float4 coolColor;
+        public float4 hotColor;
+        public float elapsedTime;
+        public Unity.Mathematics.Random random;
+        
+        public void Execute(ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor color, [EntityIndexInQuery] int index)
+        {
+            //setting colour based on heat
+            var heat = heatMap[index];
+  
+            if (heat.Value < flashPoint)
+            {
+                localTransform.Position.y = -(maxFlameHeight * 0.5f) + random.NextFloat(0.01f,0.02f);
+                color.Value = neutralColor;
+                // if(flameCell.ValueRW.isOnFire)
+                // {
+                //     flameCell.ValueRW.isOnFire = false;
+                // }
+            }
+            else
+            {
+                float yPos = (-maxFlameHeight*0.5f + (heat.Value * maxFlameHeight)) - flickerRange;
+                yPos += (flickerRange * 0.5f) + noise.cnoise(new float2((elapsedTime - index) * flickerRate - heat.Value, heat.Value)) * flickerRange;
+                
+                localTransform.Position.y = yPos;
+                color.Value =
+                    math.lerp(coolColor, hotColor, heat.Value);
+
+                // if (!flameCell.ValueRW.isOnFire)
+                // {
+                //     flameCell.ValueRW.isOnFire = true;
+                // }
             }
         }
     }
 }
+
+

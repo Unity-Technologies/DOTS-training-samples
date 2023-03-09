@@ -28,7 +28,7 @@ namespace Systems
         public void OnUpdate(ref SystemState state)
         {
             var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
-            var flameBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
+            var heatMap = SystemAPI.GetSingletonBuffer<ConfigAuthoring.FlameHeat>();
             var waterBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.WaterNode>();
             var bucketBuffer = SystemAPI.GetSingletonBuffer<ConfigAuthoring.BucketNode>();
 
@@ -102,7 +102,7 @@ namespace Systems
                         }
                     case BotAction.GOTO_FIRE:
                         {
-                            var foundFire = FindFire(ref state, in botTransform.ValueRO.Position);
+                            var foundFire = FindFire(ref state, ref heatMap, in botTransform.ValueRO.Position, config.flashpoint);
                             state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = foundFire });
                             
                             if (foundFire != Entity.Null)
@@ -121,9 +121,9 @@ namespace Systems
                         {
                             var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.Value);
 
-                            Utils.DowseFlameCell(ref flameBuffer, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
+                            Utils.DowseFlameCell(ref heatMap, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
                
-                            if (flameBuffer[flameCell.heatMapIndex].Value < config.flashpoint)
+                            if (heatMap[flameCell.heatMapIndex].Value < config.flashpoint)
                                 state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = Entity.Null });
 
                             state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = false });
@@ -139,16 +139,17 @@ namespace Systems
             }
         }
 
-        public Entity FindFire(ref SystemState state, in float3 botPos)
+        public Entity FindFire(ref SystemState state, ref DynamicBuffer<ConfigAuthoring.FlameHeat> heatMap, in float3 botPos, in float flashPoint)
         {
             var minDistance = float.PositiveInfinity;
             var closestFire = Entity.Null;
 
+            int index = 0;
             foreach (var (fireTransform, flameCell, fireEntity)
                      in SystemAPI.Query<RefRO<LocalTransform>, RefRO<FlameCell>>()
                          .WithEntityAccess())
             {
-                if (flameCell.ValueRO.isOnFire == false) continue;
+                if (heatMap[index++].Value < flashPoint) continue;
 
                 var distance = math.distancesq(botPos, fireTransform.ValueRO.Position);
 
