@@ -24,7 +24,6 @@ public class CarAuthoring : MonoBehaviour
 
 public struct CarData : IComponentData
 {
-    public float Length;
     public float Distance;
     public float CurrentLane;
     public float Speed;
@@ -34,11 +33,13 @@ public struct CarData : IComponentData
     public float Acceleration;
     public float DesiredSpeed;
     public float PreviousDifferential;
+    public float CurrentDifferential;
     public float TEMP_NextLaneChangeCountdown;    
 }
 
 public struct CarColor : IComponentData
 {
+    public float CurrentDifferential;
     public float PreviousDifferential;
 }
 

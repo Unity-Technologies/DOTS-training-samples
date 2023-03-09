@@ -33,6 +33,7 @@ namespace Jobs
         {
             CarData other;
             CarData nearestFrontCar = default;
+            bool foundFrontCar = false;
 
             float distanceToFrontCar = float.MaxValue;
             float desiredSpeed = car.CruisingSpeed;
@@ -80,24 +81,28 @@ namespace Jobs
             for (int i = 0; i < allCars.Length; i++)
             {
                 other = allCars[i];
-
-                float angle = Vector3.Angle(Vector3.forward, car.Position - allCarTransforms[i].Position);
-                if (Mathf.Abs(angle) < 90)
+                
+                if(car.CurrentLane == other.CurrentLane && other.DesiredLane == other.CurrentLane) ;
                 {
-                    var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
+                    var distToOtherCarInLane = other.Distance - car.Distance;
 
-                    if (distToOtherCarInLane < distanceToFrontCar)
+                    if (distToOtherCarInLane > 0.0f && distToOtherCarInLane < distanceToFrontCar)
                     {
                         distanceToFrontCar = distToOtherCarInLane;
                         nearestFrontCar = other;
+                        foundFrontCar = true;
                     }
                 }
             }
 
-            float minDistance = (0.0f + (car.Length + nearestFrontCar.Length) / 2);
-            if (distanceToFrontCar < minDistance)
+            float minDistance = nearestFrontCar.Distance - car.Distance;
+
+            if (foundFrontCar && minDistance < car.Length)
             {
-                desiredSpeed = car.Speed = nearestFrontCar.Speed;
+                if (minDistance > 0.0f)
+                    desiredSpeed = nearestFrontCar.Speed;
+                else
+                    desiredSpeed = 0.0f;
             }
 
             if (car.Speed < desiredSpeed)
@@ -105,7 +110,18 @@ namespace Jobs
             else
                 car.Speed = math.max(car.Speed - car.Acceleration, desiredSpeed);
 
-
+            if (desiredSpeed > car.OvertakeSpeed)
+            {
+                car.DesiredSpeed = 1.0f;
+            }
+            else
+            {
+                if (desiredSpeed == car.CruisingSpeed)
+                    car.DesiredSpeed = 0.0f;
+                else
+                    car.DesiredSpeed = -1.0f;
+                
+            }
 
             car.Distance = (car.Distance + car.Speed * DeltaTime) % config.HighwayMaxSize;
             car.Position = new float3(car.Distance, 0, car.CurrentLane);

@@ -63,6 +63,7 @@ namespace Aspects
             set => CarData.ValueRW.OvertakeModeReturnToLane = value;
         }
 
+
         public float OvertakeModeCountdown
         {
             get => CarData.ValueRO.OvertakeModeCountdown;
@@ -75,7 +76,11 @@ namespace Aspects
             set => CarData.ValueRW.TEMP_NextLaneChangeCountdown = value;
         }
 
-        public readonly float DesiredSpeed { get => CarParameters.ValueRO.DesiredSpeed; }
+        public readonly float DesiredSpeed
+        {
+            get => CarData.ValueRO.DesiredSpeed;
+            set => CarData.ValueRW.DesiredSpeed = value;
+        }
 
     }
     public readonly partial struct CarColorAspect : IAspect
@@ -94,7 +99,11 @@ namespace Aspects
         public readonly float Speed
         {
             get => CarData.ValueRO.Speed;
-            set => CarData.ValueRW.Speed = value;
+        }
+
+        public readonly float DesiredSpeed
+        {
+            get => CarData.ValueRO.DesiredSpeed;
         }
     }
 }
