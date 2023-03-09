@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class PheromoneRenderer : MonoBehaviour
 {
-    public const int MAP_WIDTH = 128;
-    public const int MAP_HEIGHT = 128;
+    public const int MAP_WIDTH = 256;
+    public const int MAP_HEIGHT = 256;
     
     private Material material;
     private MeshRenderer meshRenderer;
@@ -22,7 +22,12 @@ public class PheromoneRenderer : MonoBehaviour
     
     public void SetTextureData(NativeArray<float> data)
     {
-        texture.SetPixelData(data, 0);
+        Color[] pixels = texture.GetPixels();
+        for (int i = 0; i < data.Length; i++)
+        {
+            pixels[i] = new Color(data[i], 0.5f,0.5f);
+        }
+        texture.SetPixels(pixels);
         texture.Apply(true);
     }
 }

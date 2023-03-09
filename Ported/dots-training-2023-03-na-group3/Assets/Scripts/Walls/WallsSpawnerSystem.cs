@@ -45,7 +45,7 @@ public partial struct WallsSpawnerSystem : ISystem
                 case 1:
                 {
                     var r = UnityEngine.Random.Range(0, 360);
-                    var arcLength = 270;
+                    var arcLength = UnityEngine.Random.Range(220,270);
                     var startAngle = r; 
                     var endAngle = r+arcLength;
                     DrawArc(startAngle,endAngle,spawner,state);

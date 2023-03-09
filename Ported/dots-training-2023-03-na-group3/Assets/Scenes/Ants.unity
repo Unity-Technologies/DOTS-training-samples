@@ -313,9 +313,9 @@ MonoBehaviour:
   Extents:
     x: 10
     y: 10
-  resolution: 128
-  DropRate: 0.1
-  FadeRate: 0.01
+  resolution: 256
+  DropRate: 2
+  FadeRate: 0.05
 --- !u!4 &812643694
 Transform:
   m_ObjectHideFlags: 0
