@@ -478,7 +478,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   antPrefab: {fileID: 8790556732412743923, guid: 1c36f2f5711799b4dbb0df7f793873fd, type: 3}
-  antAmount: 1
+  antAmount: 1000
   randomSeed: 100
 --- !u!1 &1097501085
 GameObject:
