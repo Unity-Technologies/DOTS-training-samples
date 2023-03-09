@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -30,6 +31,7 @@ public partial struct PheromoneSystem : ISystem
         if (pheromoneData.Length == 0)
         {
             pheromoneData.Length = environmentData.resolution * environmentData.resolution;
+            
 
             for (var i = 0; i < pheromoneData.Length; i++)
             {

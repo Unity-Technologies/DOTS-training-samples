@@ -6,6 +6,11 @@ using UnityEngine;
 
 public partial struct WallCollisionSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Random>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

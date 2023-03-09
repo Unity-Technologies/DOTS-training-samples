@@ -9,24 +9,35 @@ using UnityEngine;
 
 using Unity.Collections.LowLevel.Unsafe;
 
-public partial class pheromoneRendereSystem : SystemBase
+public partial struct pheromoneRendereSystem : ISystem
 {
-    private PheromoneRenderer map;
+    
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<PheromoneData>();
+    }
 
-    protected override void OnUpdate()
+    public void OnUpdate(ref SystemState state)
     {
         var pheromoneData = SystemAPI.GetSingletonBuffer<PheromoneData>();
-        
-        if (map == null)
-        {
-            map = GameObject.Find("Map").GetComponent<PheromoneRenderer>();
-        }
 
-        NativeArray<float> data = new NativeArray<float>(pheromoneData.Length, Allocator.Temp);
-        for (var i = 0; i < pheromoneData.Length; i++)
+        if (!state.EntityManager.HasComponent<PheromoneRenderer>(state.SystemHandle))
         {
-            data[i] = pheromoneData[i].value;
+            var pheromonerenderer = GameObject.Find("Map").GetComponent<PheromoneRenderer>();
+            state.EntityManager.AddComponentObject(state.SystemHandle, pheromonerenderer);
+
         }
-        map.SetTextureData(data);
+        else
+        {
+            var pheromonerenderer = state.EntityManager.GetComponentObject<PheromoneRenderer>(state.SystemHandle);
+            
+            NativeArray<float> data = new NativeArray<float>(pheromoneData.Length, Allocator.Temp);
+            for (var i = 0; i < pheromoneData.Length; i++)
+            {
+                data[i] = pheromoneData[i].value;
+            }
+            pheromonerenderer.SetTextureData(data);
+        }
+        
     }
 }

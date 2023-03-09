@@ -6,6 +6,12 @@ using Unity.Transforms;
 
 public partial struct WallsSpawnerSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Food>();
+        state.RequireForUpdate<Home>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
