@@ -20,18 +20,29 @@ public partial struct WallCollisionSystem : ISystem
             {
                 if (math.distance(wall.ValueRO.Position, transformAspect.WorldPosition) < 0.1f)
                 {
-                    moveToPositionAspect.Move(SystemAPI.Time.DeltaTime, random,GetRandomPosition(random));
+                    var direction = wall.ValueRO.Position - transformAspect.WorldPosition;
+                    moveToPositionAspect.Move(SystemAPI.Time.DeltaTime, random,Helper.GetPosition(direction));
                 }
             }
         }
     }
-    
+}
+
+public static class Helper
+{
     [BurstCompile]
-    public float3 GetRandomPosition(RefRW<Random> randomSeed)
+    public static float3 GetPosition(float3 direction)
     {
-        return new float3(
-            randomSeed.ValueRW.randomSeed.NextFloat(-5f, 5f), 
-            0, 
-            randomSeed.ValueRW.randomSeed.NextFloat(-5f, 5f));
+        float signX = direction.x < 0f ? 1f : -1f;
+        float signZ= direction.z < 0f ? 1f : -1f;
+        
+        float radians = Mathf.Deg2Rad * UnityEngine.Random.Range(-60,60);
+        float x = signX * Mathf.Cos(radians) - signZ * Mathf.Sin(radians);
+        float z = signX * Mathf.Sin(radians) + signZ * Mathf.Cos(radians);
+
+        Vector3 offsetNormalized = new Vector3(x, 0f, z).normalized;
+
+        float3 position = new float3(offsetNormalized.x * 5f, 0, offsetNormalized.z * 5f);
+        return position;
     }
 }

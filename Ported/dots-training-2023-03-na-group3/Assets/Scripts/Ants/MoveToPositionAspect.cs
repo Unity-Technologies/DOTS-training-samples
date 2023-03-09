@@ -21,6 +21,13 @@ public readonly partial struct MoveToPositionAspect : IAspect
             _antMovement.ValueRW.pos = GetRandomPosition(random);
         }
     }
+    
+    public void Move(float deltaTime, RefRW<Random> random, float3 newPos)
+    {
+        _antMovement.ValueRW.pos = newPos;
+        float3 direction = math.normalize(_antMovement.ValueRW.pos - _transformAspect.LocalPosition);
+        _transformAspect.LocalPosition += direction * deltaTime * _antMovement.ValueRO.speed;
+    }
 
     public float3 GetRandomPosition(RefRW<Random> randomSeed)
     {
