@@ -29,7 +29,7 @@ namespace Systems
                      in SystemAPI.Query<RefRW<Volume>>()
                      .WithAll<WaterAuthoring.Water>())
             {
-                waterVolume.ValueRW.value = config.maxCapacity;
+                waterVolume.ValueRW.Value = config.maxCapacity;
                 count++;
             }
 

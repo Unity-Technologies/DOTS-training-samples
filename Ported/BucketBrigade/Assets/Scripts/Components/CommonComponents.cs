@@ -13,6 +13,6 @@ namespace Components
 
     public struct Volume : IComponentData
     {
-        public float value;
+        public float Value;
     }
 }

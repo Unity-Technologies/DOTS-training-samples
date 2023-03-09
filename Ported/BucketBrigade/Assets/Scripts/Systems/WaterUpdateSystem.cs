@@ -27,8 +27,8 @@ namespace Systems
                      SystemAPI.Query<RefRW<LocalTransform>, RefRW<Volume>>()
                      .WithAll<WaterAuthoring.Water>())
             {
-                volume.ValueRW.value = math.clamp(volume.ValueRO.value + config.refillRate, 0, config.maxCapacity);
-                transform.ValueRW.Scale = math.lerp(0, 1, volume.ValueRO.value / config.maxCapacity);
+                volume.ValueRW.Value = math.clamp(volume.ValueRO.Value + config.refillRate, 0, config.maxCapacity);
+                transform.ValueRW.Scale = math.lerp(0, 1, volume.ValueRO.Value / config.maxCapacity);
             }
         }
     }

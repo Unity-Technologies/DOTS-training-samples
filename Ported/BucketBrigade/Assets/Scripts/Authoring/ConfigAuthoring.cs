@@ -112,8 +112,9 @@ namespace Authoring
         #endregion
 
         #region Bucket Chain Params
-
-        public float rateAssessChain = 2f;
+        [Header("Bucket Chain Params")]
+        
+        public float assessChainRate = 2f;
         [Tooltip("Total Passers Empty Bots per chain")]
         public int totalPassersEmpty = 15;
         [Tooltip("Total Passers Full Bots per chain")]
@@ -173,7 +174,7 @@ namespace Authoring
                     simulationDepth = authoring.numColumns * authoring.cellSize,
                     totalPassersEmpty = authoring.totalPassersEmpty,
                     totalPassersFull = authoring.totalPassersFull,
-                    rateAssessChain = authoring.rateAssessChain,
+                    assessChainRate = authoring.assessChainRate,
                     totalBucketChains = authoring.totalBucketChains
                 });
                 AddBuffer<FlameHeat>();
@@ -229,7 +230,7 @@ namespace Authoring
             public float simulationDepth;
             public int totalPassersEmpty;
             public int totalPassersFull;
-            public float rateAssessChain;
+            public float assessChainRate;
             public int totalBucketChains;
         }
     

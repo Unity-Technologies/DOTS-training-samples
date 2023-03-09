@@ -49,7 +49,7 @@ namespace Systems
                    new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
                 state.EntityManager.SetComponentData(bucket,
-                   new Volume() { value = 0.0f });
+                   new Volume() { Value = 0.0f });
 
                 buffer[i] = new ConfigAuthoring.BucketNode { Value = bucket };
             }

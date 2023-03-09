@@ -80,23 +80,23 @@ namespace Systems
                     case BotAction.FILL_BUCKET:
                         {
                             var bucketVolume = state.EntityManager.GetComponentData<Volume>(targetBucket.Value);
-                            bucketVolume.value = Mathf.Clamp(bucketVolume.value + config.bucketFillRate, 0f, config.bucketCapacity);
-                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { value = bucketVolume.value });
+                            bucketVolume.Value = Mathf.Clamp(bucketVolume.Value + config.bucketFillRate, 0f, config.bucketCapacity);
+                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { Value = bucketVolume.Value });
 
                             var targetWater = state.EntityManager.GetComponentData<TargetWater>(botEntity);
                             var waterVolume = state.EntityManager.GetComponentData<Volume>(targetWater.Value);
 
-                            waterVolume.value -= config.bucketFillRate;
-                            state.EntityManager.SetComponentData(targetWater.Value, new Volume { value = waterVolume.value });
+                            waterVolume.Value -= config.bucketFillRate;
+                            state.EntityManager.SetComponentData(targetWater.Value, new Volume { Value = waterVolume.Value });
                             
-                            if (bucketVolume.value >= config.bucketCapacity)
+                            if (bucketVolume.Value >= config.bucketCapacity)
                             {
                                 state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = true });
                                 state.EntityManager.SetComponentData(botEntity, new TargetWater { Value = Entity.Null });
                                 command.ValueRW.Value = BotAction.GOTO_FIRE;
                             }
 
-                            Utils.UpdateFillBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW, bucketVolume.value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
+                            Utils.UpdateFillBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW, bucketVolume.Value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
                             
                             break;
                         }
@@ -127,7 +127,7 @@ namespace Systems
                                 state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = Entity.Null });
 
                             state.EntityManager.SetComponentData(targetBucket.Value, new Bucket { isActive = true, isFull = false });
-                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { value = 0 });
+                            state.EntityManager.SetComponentData(targetBucket.Value, new Volume { Value = 0 });
                             state.EntityManager.SetComponentData(targetBucket.Value, new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
                             command.ValueRW.Value = BotAction.GOTO_WATER;
