@@ -659,7 +659,7 @@ MonoBehaviour:
   numColumns: 50
   flashpoint: 0.5
   heatRadius: 1
-  heatTransferRate: 0.0075
+  heatTransferRate: 0.00075
   fireSimUpdateRate: 0.01
   fireNeutralColor: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 0}
   fireCoolColor: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
