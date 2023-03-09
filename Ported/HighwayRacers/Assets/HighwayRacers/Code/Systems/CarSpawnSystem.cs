@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -53,6 +54,10 @@ public partial class CarSpawnSystem : SystemBase
                 {
                     carEntity = EntityManager.Instantiate(config.CarPrefab);
                 }
+                EntityManager.RemoveComponent<WorldToLocal_Tag>(carEntity);
+                EntityManager.RemoveComponent<Parent>(carEntity);
+                //EntityManager.RemoveComponent<LocalTransform>(carEntity);                
+                EntityManager.RemoveComponent<RenderBounds>(carEntity);
 
                 myAliveCar.Add(carEntity);
                 float defaultSpeed = myRandom.NextFloat(config.DefaultSpeedMin, config.DefaultSpeedMax);

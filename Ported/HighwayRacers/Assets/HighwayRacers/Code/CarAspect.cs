@@ -9,7 +9,7 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        public readonly RefRW<CarParameters> CarParameters;
+        public readonly RefRO<CarParameters> CarParameters;
         public readonly RefRW<CarData> CarData;
         readonly TransformAspect Transform;
 
@@ -33,8 +33,8 @@ namespace Aspects
 
         public float3 Position
         {
-            get => Transform.LocalPosition;
-            set => Transform.LocalPosition = value;
+            get => Transform.WorldPosition;
+            set => Transform.WorldPosition = value;
         }
 
         public readonly quaternion Rotation => Transform.LocalRotation;
@@ -87,7 +87,7 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        public readonly RefRW<CarData> CarData;
+        public readonly RefRO<CarData> CarData;
         public readonly RefRW<CarColor> CarColor;
 
         public float PreviousDifferential
