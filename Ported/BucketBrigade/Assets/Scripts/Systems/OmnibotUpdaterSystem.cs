@@ -41,19 +41,16 @@ namespace Systems
                 {
                     case BotAction.GET_BUCKET:
                         {
-                            if (targetBucket.value == Entity.Null)
+                            var foundBucket = FindBucket(ref state, in botTransform.ValueRO.Position);
+                            state.EntityManager.SetComponentData(botEntity, new TargetBucket { value = foundBucket });
+                            
+                            if (foundBucket != Entity.Null)
                             {
-                                Debug.Log($"Finding bucket");
-                                targetBucket.value = FindBucket(ref state, in botTransform.ValueRO.Position);
-                                state.EntityManager.SetComponentData(botEntity, new TargetBucket { value = targetBucket.value });
-                            }
-                            else
-                            {
-                                LocalTransform bucketTransform = state.EntityManager.GetComponentData<LocalTransform>(targetBucket.value);
+                                LocalTransform bucketTransform = state.EntityManager.GetComponentData<LocalTransform>(foundBucket);
 
                                 if (Utils.MoveTowards(ref botTransform.ValueRW, bucketTransform.Position, config.botSpeed, config.botArriveThreshold))
                                 {
-                                    state.EntityManager.SetComponentData(targetBucket.value, new Bucket { isActive = true, isFull = false });
+                                    state.EntityManager.SetComponentData(foundBucket, new Bucket { isActive = true, isFull = false });
                                     command.ValueRW.Value = BotAction.GOTO_WATER;
                                 }
                             }
@@ -61,22 +58,20 @@ namespace Systems
                         }
                     case BotAction.GOTO_WATER:
                         {
-                            var targetWater = state.EntityManager.GetComponentData<TargetWater>(botEntity);
-                            if (targetWater.value == Entity.Null)
+                            var foundWater = FindWater(ref state, in botTransform.ValueRO.Position);
+                            state.EntityManager.SetComponentData(botEntity, new TargetWater { value = foundWater });
+                            
+                            if (foundWater != Entity.Null)
                             {
-                                Debug.Log($"Finding water");
-                                targetWater.value = FindWater(ref state, in botTransform.ValueRO.Position);
-                                state.EntityManager.SetComponentData(botEntity, new TargetWater { value = targetWater.value });
-                            }
-                            else
-                            {
-                                WorldTransform waterTransform = state.EntityManager.GetComponentData<WorldTransform>(targetWater.value);
+                                WorldTransform waterTransform = state.EntityManager.GetComponentData<WorldTransform>(foundWater);
 
                                 if (Utils.MoveTowards(ref botTransform.ValueRW, waterTransform.Position, config.botSpeed, config.botArriveThreshold))
                                 {
                                     command.ValueRW.Value = BotAction.FILL_BUCKET;
                                 }
                             }
+
+                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW);
                             break;
                         }
                     case BotAction.FILL_BUCKET:
@@ -90,38 +85,35 @@ namespace Systems
 
                             waterVolume.value -= config.bucketFillRate;
                             state.EntityManager.SetComponentData(targetWater.value, new Volume { value = waterVolume.value });
-
+                            
                             if (bucketVolume.value >= config.bucketCapacity)
                             {
                                 state.EntityManager.SetComponentData(targetBucket.value, new Bucket { isActive = true, isFull = true });
-                                state.EntityManager.SetComponentData(targetBucket.value, new URPMaterialPropertyBaseColor() { Value = config.bucketFullColor });
+                                // state.EntityManager.SetComponentData(targetBucket.value, new URPMaterialPropertyBaseColor() { Value = config.bucketFullColor });
                                 state.EntityManager.SetComponentData(botEntity, new TargetWater { value = Entity.Null });
                                 command.ValueRW.Value = BotAction.GOTO_FIRE;
                             }
 
-                            //// Update bucket Scale (reparenting trick to preserve scale)
-                            //carrying.transform.SetParent(fireSim.transform, true);
-                            //carrying.UpdateBucket();
-                            //carrying.transform.SetParent(t, true);
-
+                            Utils.UpdateFillBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW, bucketVolume.value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
+                            
                             break;
                         }
                     case BotAction.GOTO_FIRE:
                         {
-                            if (targetFire.value == Entity.Null)
+                            Debug.Log($"Finding fire");
+                            var foundFire = FindFire(ref state, in botTransform.ValueRO.Position);
+                            state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = foundFire });
+                            
+                            if (foundFire != Entity.Null)
                             {
-                                Debug.Log($"Finding fire");
-                                var foundFire = FindFire(ref state, in botTransform.ValueRO.Position);
-                                state.EntityManager.SetComponentData(botEntity, new TargetFlame { value = foundFire });
-                            }
-                            else
-                            {
-                                LocalTransform fireTransform = state.EntityManager.GetComponentData<LocalTransform>(targetFire.value);
+                                LocalTransform fireTransform = state.EntityManager.GetComponentData<LocalTransform>(foundFire);
                                 if (Utils.MoveTowards(ref botTransform.ValueRW, fireTransform.Position, config.botSpeed, config.botArriveThreshold))
                                 {
                                     command.ValueRW.Value = BotAction.THROW_BUCKET;
                                 }
                             }
+                            Utils.UpdateCarriedBucket(ref state, ref targetBucket.value, ref botTransform.ValueRW);
+
                             break;
                         }
                     case BotAction.THROW_BUCKET:
@@ -137,6 +129,8 @@ namespace Systems
                             state.EntityManager.SetComponentData(targetBucket.value, new URPMaterialPropertyBaseColor() { Value = config.bucketEmptyColor });
 
                             command.ValueRW.Value = BotAction.GOTO_WATER;
+                            Utils.UpdateEmptyBucket(ref state, ref targetBucket.value, config.bucketSizeEmpty, config.bucketEmptyColor);
+
                             break;
                         }
                 }
