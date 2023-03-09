@@ -8,3 +8,6 @@ public struct WallsSpawner : IComponentData
     public float3 position;
     public Entity environmentPrefab;
 }
+public struct Walls : IComponentData
+{
+}
