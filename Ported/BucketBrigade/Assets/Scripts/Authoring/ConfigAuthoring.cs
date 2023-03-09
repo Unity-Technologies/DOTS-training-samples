@@ -89,7 +89,7 @@ public class ConfigAuthoring : MonoBehaviour
 
     [Header("Bucket Params")]
 
-    [Range(1,5)]
+    [Range(1,20)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
     [Tooltip("Water bucket reduces fire temperature by this amount")]
