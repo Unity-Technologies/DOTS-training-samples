@@ -6,6 +6,7 @@ using Enums;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;

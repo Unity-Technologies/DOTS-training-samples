@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Authoring;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
@@ -11,6 +12,12 @@ namespace Utilities
 {
     public static class Utils 
     {
+        
+        static readonly ProfilerMarker findWaterMarker = new ProfilerMarker("Utils.FindWater");
+        // static readonly ProfilerMarker findFireMarker = new ProfilerMarker("Utils.FindFire");
+        static readonly ProfilerMarker findBucketMarker = new ProfilerMarker("Utils.FindBucket");
+        static readonly ProfilerMarker dowseFireMarker = new ProfilerMarker("Utils.DowseFire");
+        
         public static bool MoveTowards(ref LocalTransform srcTransform, float3 dest, float speed, float arriveThreshold)
         {
             float3 currPos = srcTransform.Position;
@@ -111,6 +118,7 @@ namespace Utilities
         //Dowse Flame Cell
         public static void DowseFlameCell(ref DynamicBuffer<ConfigAuthoring.FlameHeat> heatMap,int heatMapIndex, int numRows, int numColumns, float coolingStrength, float coolingStrengthFalloff, int splashRadius, float bucketCapacity)
         {
+            dowseFireMarker.Begin();
             int targetRow = Mathf.FloorToInt(heatMapIndex / numColumns);
             int targetColumn = heatMapIndex % numColumns;
             heatMap[heatMapIndex] = new ConfigAuthoring.FlameHeat { Value = heatMap[heatMapIndex].Value - coolingStrength };
@@ -132,11 +140,13 @@ namespace Utilities
                     }
                 }
             }
+            dowseFireMarker.End();
         }
 
         // Find Bucket
         public static Entity FindBucket(ref SystemState state, in float3 position, ref DynamicBuffer<ConfigAuthoring.BucketNode> bucketBuffer, bool wantsFull = false)
         {
+            findBucketMarker.Begin();
             var minDistance = float.PositiveInfinity;
             var closestEntity = Entity.Null;
 
@@ -155,13 +165,14 @@ namespace Utilities
                     minDistance = distance;
                 }
             }
-
+            findBucketMarker.End();
             return closestEntity;
         }
 
         // Find Water
         public static Entity FindWater(in float3 position, ref DynamicBuffer<ConfigAuthoring.WaterNode> waterBuffer)
         {
+            findWaterMarker.Begin();
             var minDistance = float.PositiveInfinity;
             var closestEntity = Entity.Null;
 
@@ -175,7 +186,7 @@ namespace Utilities
                     minDistance = distance;
                 }
             }
-
+            findWaterMarker.End();
             return closestEntity;
         }
     }
