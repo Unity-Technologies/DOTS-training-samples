@@ -58,7 +58,7 @@ namespace Systems
                     new TargetWater { Value = Entity.Null });
 
                 state.EntityManager.SetComponentData(omniBot,
-                    new TargetFlame { Value = Entity.Null });
+                    new TargetFlame { Value = -1 });
 
                 state.EntityManager.SetComponentData(omniBot,
                     new ArriveThreshold { Value = 1.0f });

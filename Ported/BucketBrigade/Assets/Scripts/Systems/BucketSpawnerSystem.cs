@@ -1,12 +1,10 @@
 using Authoring;
 using Components;
-using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Systems
 {

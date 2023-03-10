@@ -96,7 +96,7 @@ namespace Authoring
         public float coolingStrength = 1f;
         [Tooltip("Splash damage of water bucket. (1 = no loss of power over distance)")]
         public float coolingStrengthFalloff = 0.75f;
-        [Range(0, 100)]
+        //[Range(0, 10000)]
         public int totalBuckets = 3;
         [Tooltip("How much water does a bucket hold?")]
         public float bucketCapacity = 3f;

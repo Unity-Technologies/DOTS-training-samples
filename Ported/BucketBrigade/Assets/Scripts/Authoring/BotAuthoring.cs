@@ -60,7 +60,8 @@ public struct TargetWater : IComponentData
 
 public struct TargetFlame : IComponentData
 {
-    public Entity Value;
+    public int Value;
+    //public Entity Value;
 }
 
 public struct LocationPickup : IComponentData

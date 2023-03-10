@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using Authoring;
+using NUnit.Framework.Internal;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Profiling;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+using static Authoring.ConfigAuthoring;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace Utilities
 {
@@ -73,7 +77,47 @@ namespace Utilities
                 return false;
             }
         }
-       
+
+        public static float3 MoveTowards2(in float3 pos, in float3 dest, float speed, float arriveThreshold)
+        {
+            float3 currPos = pos;
+
+            if (currPos.x < dest.x - arriveThreshold)
+            {
+                currPos.x += speed;
+            }
+            else if (currPos.x > dest.x + arriveThreshold)
+            {
+                currPos.x -= speed;
+            }
+            else
+            {
+            }
+
+            // Z POSITION
+            if (currPos.z < dest.z - arriveThreshold)
+            {
+                currPos.z += speed;
+            }
+            else if (currPos.z > dest.z + arriveThreshold)
+            {
+                currPos.z -= speed;
+            }
+            else
+            {
+            }
+
+            return currPos;
+        }
+
+        public static bool IsClose(in float3 pos, in float3 dest, float arriveThreshold)
+        {
+            bool xClose = math.distance(pos.x, dest.x) <= arriveThreshold;
+            bool zClose = math.distance(pos.z, dest.z) <= arriveThreshold;
+            return xClose && zClose;
+        }
+
+
         //Update Filling Bucket
         public static void UpdateFillBucket(ref SystemState state, ref Entity targetBucket, ref LocalTransform botTransform, float waterVolume, float bucketCapacity, float bucketSizeEmpty, float bucketSizeFull, float4 bucketEmptyColor, float4 bucketFullColor)
         {
@@ -188,6 +232,56 @@ namespace Utilities
             }
             findWaterMarker.End();
             return closestEntity;
+        }
+
+        public static int FindWaterIndex(in float3 position, ref NativeArray<ConfigAuthoring.WaterNode> waterBuffer)
+        {
+            var minDistance = float.PositiveInfinity;
+            var closestIndex = -1;
+
+            int index = 0;
+            foreach (var water in waterBuffer)
+            {
+                var distance = math.distancesq(position, water.Position);
+
+                if (distance < minDistance)
+                {
+                    closestIndex = index;
+                    minDistance = distance;
+                }
+
+                ++index;
+            }
+
+            return closestIndex;
+        }
+
+        public static (int, float3) FindFireIndex(in float3 position, in NativeArray<ConfigAuthoring.FlameHeat> fireBuffer, in float flashPoint, float cellSize, int numCols, int numRows)
+        {
+            var minDistance = float.PositiveInfinity;
+            var closestIndex = -1;
+            float3 closestPos = new();
+
+            for (int index = 0; index < fireBuffer.Length; ++index)
+            {
+                if (fireBuffer[index].Value < flashPoint) continue;
+
+                int cellRowIndex = (int)math.floor((float)index / numCols);
+                int cellColumnIndex = index % numCols;
+
+                var dest = new float3(cellRowIndex * cellSize, position.y, cellColumnIndex * cellSize);
+                
+                var distance = math.distancesq(position, dest);
+                if (distance < minDistance)
+                {
+                    closestIndex = index;
+                    minDistance = distance;
+                    closestPos = dest;
+                }
+                ++index;
+            }
+
+            return (closestIndex, closestPos);
         }
     }
 }

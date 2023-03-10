@@ -68,7 +68,7 @@ namespace Systems
                     random = random
                 };
      
-            state.Dependency = flameRenderJob.Schedule(state.Dependency);
+            state.Dependency = flameRenderJob.ScheduleParallel(state.Dependency);
         }
     }
 

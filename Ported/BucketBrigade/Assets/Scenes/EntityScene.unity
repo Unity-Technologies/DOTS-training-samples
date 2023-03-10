@@ -643,9 +643,9 @@ MonoBehaviour:
   waterPrefab: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314,
     type: 3}
   botSpeed: 0.075
-  botArriveThreshold: 0.1
+  botArriveThreshold: 0.308
   waterCarryEffect: 0.5
-  numOmnibots: 0
+  numOmnibots: 5000
   botScoopColor: {r: 0, g: 1, b: 0.15294118, a: 0}
   botFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 0}
   botEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 0}
@@ -671,14 +671,14 @@ MonoBehaviour:
   splashRadius: 4
   coolingStrength: 2
   coolingStrengthFalloff: 4
-  totalBuckets: 0
+  totalBuckets: 5000
   bucketCapacity: 3
   bucketFillRate: 0.1
   bucketSizeEmpty: 0.2
   bucketSizeFull: 0.4
   bucketEmptyColor: {r: 1, g: 0.4117647, b: 0.45882353, a: 0}
   bucketFullColor: {r: 0, g: 0.98039216, b: 1, a: 0}
-  rateAssessChain: 2
+  assessChainRate: 2
   totalPassersEmpty: 15
   totalPassersFull: 15
   totalBucketChains: 2

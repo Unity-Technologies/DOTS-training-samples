@@ -59,7 +59,7 @@ namespace Systems
 
                         // pick closest fire to SCOOPER
                         var nearestFlame = FindFire(ref state, ref heatMap, in scooperTransform.Position, config.flashpoint);
-                        state.EntityManager.SetComponentData(bucketEntityChain.Thrower, new TargetFlame{Value = nearestFlame});
+                        //state.EntityManager.SetComponentData(bucketEntityChain.Thrower, new TargetFlame{Value = nearestFlame});
                         var targetFlame = state.EntityManager.GetComponentData<TargetFlame>(bucketEntityChain.Thrower);
 
                         if (targetFlame.Value != null)
