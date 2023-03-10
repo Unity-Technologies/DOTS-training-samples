@@ -11,6 +11,9 @@ public class CarAuthoring : MonoBehaviour
     {
         public override void Bake(CarAuthoring authoring)
         {
+            AddComponent(new CarPosition
+            {
+            });
             AddComponent(new CarData
             {
             });
@@ -18,23 +21,25 @@ public class CarAuthoring : MonoBehaviour
             {
             });
             AddComponent(new CarParameters());
+            AddComponent(new LaneChangeState());
         }
     }
 }
 
-public struct CarData : IComponentData
+public struct CarPosition : IComponentData
 {
-    public float Length;
     public float Distance;
     public float CurrentLane;
     public float Speed;
+}
+
+public struct CarData : IComponentData
+{
     public float OvertakeModeCountdown;
     public float OvertakeModeReturnToLane;
     public float DesiredLane;
     public float Acceleration;
-    public float DesiredSpeed;
-    public float PreviousDifferential;
-    public float TEMP_NextLaneChangeCountdown;    
+    public float PreviousDifferential; 
 }
 
 public struct CarColor : IComponentData

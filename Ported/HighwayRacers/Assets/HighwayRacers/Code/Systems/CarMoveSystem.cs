@@ -43,9 +43,9 @@ public partial struct CarMoveSystem : ISystem
 						Move at normal speed
          */
 
-        var carquery = SystemAPI.QueryBuilder().WithAll<CarData, LocalTransform>().Build();
-        var cars = carquery.ToComponentDataArray<CarData>(state.WorldUpdateAllocator);
-        var carTransforms = carquery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+        //var carquery = SystemAPI.QueryBuilder().WithAll<CarPosition, CarData, LocalTransform>().Build();
+        //var cars = carquery.ToComponentDataArray<CarPosition>(state.WorldUpdateAllocator);
+        //var carTransforms = carquery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
 
         var config = SystemAPI.GetSingleton<Config>();
         var testJob = new CarMovementJob
@@ -53,8 +53,8 @@ public partial struct CarMoveSystem : ISystem
             DeltaTime = SystemAPI.Time.DeltaTime,
             config = config,
             frameCount = UnityEngine.Time.frameCount,
-            allCars = cars,
-            allCarTransforms = carTransforms,
+            //allCars = cars,
+            //allCarTransforms = carTransforms,
         };
         JobHandle jobHandle = testJob.ScheduleParallel(state.Dependency);
         state.Dependency = jobHandle;        

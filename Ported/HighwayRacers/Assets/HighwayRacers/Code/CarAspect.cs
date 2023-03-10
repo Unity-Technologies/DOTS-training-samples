@@ -9,20 +9,21 @@ namespace Aspects
     {
         public readonly Entity Self;
 
+        public readonly RefRW<CarPosition> CarPosition;
         public readonly RefRW<CarParameters> CarParameters;
         public readonly RefRW<CarData> CarData;
         readonly TransformAspect Transform;
 
         public float Distance
         {
-            get => CarData.ValueRO.Distance;
-            set => CarData.ValueRW.Distance = value;
+            get => CarPosition.ValueRO.Distance;
+            set => CarPosition.ValueRW.Distance = value;
         }
 
         public float CurrentLane
         {
-            get => CarData.ValueRO.CurrentLane;
-            set => CarData.ValueRW.CurrentLane = value;
+            get => CarPosition.ValueRO.CurrentLane;
+            set => CarPosition.ValueRW.CurrentLane = value;
         }
 
         public float DesiredLane
@@ -45,8 +46,8 @@ namespace Aspects
 
         public float Speed
         {
-            get => CarData.ValueRO.Speed;
-            set => CarData.ValueRW.Speed = value;
+            get => CarPosition.ValueRO.Speed;
+            set => CarPosition.ValueRW.Speed = value;
         }
 
         public readonly float CruisingSpeed
@@ -69,12 +70,6 @@ namespace Aspects
             set => CarData.ValueRW.OvertakeModeCountdown = value;
         }
 
-        public float TEMP_NextLaneChangeCountdown
-        {
-            get => CarData.ValueRO.TEMP_NextLaneChangeCountdown;
-            set => CarData.ValueRW.TEMP_NextLaneChangeCountdown = value;
-        }
-
         public readonly float DesiredSpeed { get => CarParameters.ValueRO.DesiredSpeed; }
 
     }
@@ -82,7 +77,9 @@ namespace Aspects
     {
         public readonly Entity Self;
 
-        public readonly RefRW<CarData> CarData;
+        public readonly RefRW<CarPosition> CarPosition;
+        public readonly RefRW<CarParameters> CarParameters;
+        public readonly RefRW<LaneChangeState> LaneChangeState;
         public readonly RefRW<CarColor> CarColor;
 
         public float PreviousDifferential
@@ -93,8 +90,17 @@ namespace Aspects
 
         public readonly float Speed
         {
-            get => CarData.ValueRO.Speed;
-            set => CarData.ValueRW.Speed = value;
+            get => CarPosition.ValueRO.Speed;
+        }
+
+        public readonly float CruisingSpeed
+        {
+            get => CarParameters.ValueRO.CruisingSpeed;
+        }
+
+        public readonly float DistFromCarInFront
+        {
+            get => LaneChangeState.ValueRO.distFromCarInFront;
         }
     }
 }

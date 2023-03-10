@@ -16,13 +16,18 @@ public partial struct CarColorJob : IJobEntity
     {
         var speedDifferential = Car.Speed;
         float4 color = new float4(0.5f, 0.5f, 0.5f, 1f);
-        if (speedDifferential > 0.03f)
+        //color = new float4(Car.DistFromCarInFront * 0.03f, Car.DistFromCarInFront*0.1f, 10.0f - Car.DistFromCarInFront,1);
+        if (Car.Speed > Car.CruisingSpeed)
         {
             color = new float4(0, 1, 0, 1);
         }
-        else if (speedDifferential < 0.02f)
+        else if (Car.Speed < Car.CruisingSpeed)
         {
             color = new float4(1, 0, 0, 1);
+        }
+        else
+        {
+            color = new float4(1, 1, 0, 1);
         }
         if (Car.PreviousDifferential != speedDifferential)  // Don't change color that don't need change
         {

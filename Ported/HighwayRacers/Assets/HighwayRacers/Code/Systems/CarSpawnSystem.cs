@@ -59,13 +59,14 @@ public partial class CarSpawnSystem : SystemBase
                 float lane = myRandom.NextInt(0, config.NumLanes);
 
                 // Set the new player's transform (a position offset from the obstacle).
+                EntityManager.SetComponentData(carEntity, new CarPosition
+                {
+                    Distance = myRandom.NextFloat(config.HighwayMaxSize),
+                    CurrentLane = lane,
+                    Speed = defaultSpeed,
+                });
                 EntityManager.SetComponentData(carEntity, new CarData
                 {
-                    Length = 1.0f,
-                    Distance = myRandom.NextFloat(10),
-                    CurrentLane = lane,
-                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
-                    Speed = defaultSpeed,
                     DesiredLane = lane,
                     Acceleration = config.Acceleration,
 //                    TEMP_NextLaneChangeCountdown = random.NextFloat(0, 3),
@@ -84,6 +85,7 @@ public partial class CarSpawnSystem : SystemBase
                     defaultSpeed,
                     defaultSpeed * myRandom.NextFloat(config.OvertakePercentMin, config.OvertakePercentMax)
                 ));
+                EntityManager.SetComponentData(carEntity, new LaneChangeState());
             }
             myCurrentCarNumber += numberOfCarToSpawn;
         }

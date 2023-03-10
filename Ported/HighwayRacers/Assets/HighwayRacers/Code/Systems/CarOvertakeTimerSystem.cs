@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-[UpdateAfter(typeof(CarChangingLaneSystem))]
+//[UpdateAfter(typeof(LaneChangeSystem))]
 public partial class CarOvertakeTimerSystem : SystemBase
 {
     protected override void OnCreate()

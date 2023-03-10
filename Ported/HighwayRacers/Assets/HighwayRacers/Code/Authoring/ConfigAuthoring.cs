@@ -10,9 +10,11 @@ public class ConfigAuthoring : MonoBehaviour
     [Header("Highway Bounds Properties")]
     public int DesiredCarNumber = 100;
     public float HighwayMaxSize = 500;
+    public int HighwaySliceSize = 5;
     public int MaxCarSpawnPerFrame = 10;
     public bool AllowedToKillCar = false;
     public int NumLanes = 4;
+    public float CarLength = 1;
 
     [Header("Car Properties")]
     public float Acceleration = 15;
@@ -55,7 +57,9 @@ public class ConfigAuthoring : MonoBehaviour
                 CarPrefab = GetEntity(authoring.carPrefab),
                 MaxNumCars = authoring.DesiredCarNumber,
                 NumLanes = authoring.NumLanes,
+                CarLength = authoring.CarLength,
                 HighwayMaxSize = authoring.HighwayMaxSize,
+                HighwaySliceSize = authoring.HighwaySliceSize,
                 Acceleration = authoring.Acceleration,
                 BrakeDeceleration = authoring.BrakeDeceleration,
                 SwitchLanesSpeed = authoring.SwitchLanesSpeed,
@@ -85,7 +89,9 @@ public struct Config : IComponentData
     [Header("Highway Bounds Properties")]
     public int MaxNumCars;
     public float HighwayMaxSize;
+    public int HighwaySliceSize;
     public int NumLanes;
+    public float CarLength;
 
     //Car Properties
     public float Acceleration;
@@ -115,4 +121,5 @@ public struct Config : IComponentData
     //Max bound for eagerness; If eagerness > (car in front's speed) / (this car's speed), then this car will attempt to overtake the car in front.
     public float OvertakeEagernessMax;
 
+    public DynamicBuffer<Entity> AllCarsSorted;
 }

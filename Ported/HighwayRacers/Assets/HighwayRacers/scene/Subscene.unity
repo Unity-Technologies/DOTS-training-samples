@@ -172,11 +172,13 @@ MonoBehaviour:
   SpeedRange:
     x: 0
     y: 0
-  DesiredCarNumber: 16
-  HighwayMaxSize: 100
+  DesiredCarNumber: 200000
+  HighwayMaxSize: 15000
+  HighwaySliceSize: 6
   MaxCarSpawnPerFrame: 10
   AllowedToKillCar: 0
   NumLanes: 4
+  CarLength: 1
   Acceleration: 15
   BrakeDeceleration: 20
   SwitchLanesSpeed: 3

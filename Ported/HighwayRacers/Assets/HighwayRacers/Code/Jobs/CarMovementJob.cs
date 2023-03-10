@@ -22,93 +22,94 @@ namespace Jobs
         [ReadOnly]
         public Config config;
 
-        [ReadOnly]
-        public NativeArray<CarData> allCars;
+        //[ReadOnly]
+        //public NativeArray<CarPosition> allCars;
 
-        [ReadOnly]
-        public NativeArray<LocalTransform> allCarTransforms;
+        //[ReadOnly]
+        //public NativeArray<LocalTransform> allCarTransforms;
 
         [BurstCompile]
-        private void Execute(ref CarAspect car)
+        private void Execute(ref CarPosition carPos, ref CarData carData, ref CarParameters carParameters, ref LaneChangeState laneChange, ref LocalTransform transform)
         {
-            CarData other;
-            CarData nearestFrontCar = default;
+            laneChange.requestChangeUp = false;
+            laneChange.requestChangeDown = false;
 
-            float distanceToFrontCar = float.MaxValue;
-
-            if (car.Speed < car.DesiredSpeed)
-                car.Speed = math.min(car.Speed+ car.Acceleration, car.DesiredSpeed);
-            else
-                car.Speed = math.max(car.Speed - car.Acceleration, car.DesiredSpeed);
-
-            for (int i = 0; i < allCars.Length; i++)
+            float desiredSpeed = carParameters.CruisingSpeed;
+            if (laneChange.distFromCarInFront < 10.0f)
             {
-               other = allCars[i];
-               if (other.CurrentLane == car.CurrentLane)
-               {
-                    var distToOtherCarInLane = Vector3.Distance(allCarTransforms[i].Position, car.Position);
-
-                    if (distToOtherCarInLane < distanceToFrontCar)
-                    {
-                        distanceToFrontCar = distToOtherCarInLane;
-                        nearestFrontCar = other;
-                    }
-                 }
-             }
-
-            float desiredSpeed = car.CruisingSpeed;
-            if (distanceToFrontCar < (100.0f + (car.Length + nearestFrontCar.Length) / 2))
-            {
-                desiredSpeed = nearestFrontCar.Speed - 2.0f;
+                float tailgatingSpeed = (laneChange.distFromCarInFront - config.CarLength)*10;
+                if (tailgatingSpeed < desiredSpeed)
+                {
+                    desiredSpeed = tailgatingSpeed;
+                    carData.OvertakeModeCountdown = 0;
+                }
             }
-
 
             // while changing lane, don't do anything else
-            if (car.CurrentLane < car.DesiredLane)
+            if (carPos.CurrentLane < carData.DesiredLane)
             {
-                car.CurrentLane = math.min(car.CurrentLane + config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
+                carPos.CurrentLane = math.min(carPos.CurrentLane + config.SwitchLanesSpeed * DeltaTime, carData.DesiredLane);
             }
-            else if (car.CurrentLane > car.DesiredLane)
+            else if (carPos.CurrentLane > carData.DesiredLane)
             {
-                car.CurrentLane = math.max(car.CurrentLane - config.SwitchLanesSpeed * DeltaTime, car.DesiredLane);
-            }
-            else if (car.OvertakeModeCountdown > 0)
-            {
-                // in overtake mode, move faster and tick down the timer
-                desiredSpeed = car.OvertakeSpeed;
-                car.OvertakeModeCountdown = math.max(car.OvertakeModeCountdown - DeltaTime, 0);
-                if (car.OvertakeModeCountdown == 0)
-                {
-                    car.DesiredLane = car.OvertakeModeReturnToLane;
-                }
-            }
-            else if (car.TEMP_NextLaneChangeCountdown <= 0)
-            {
-                // in regular cruising mode, randomly change lanes
-                if (frameCount % 2 == 1)
-                    car.DesiredLane = math.min(car.CurrentLane + 1, config.NumLanes - 1);
-                else
-                    car.DesiredLane = math.max(car.CurrentLane - 1, 0);
-
-                if (car.DesiredLane != car.CurrentLane)
-                {
-                    car.OvertakeModeCountdown = config.OvertakeMaxDuration;
-                    car.OvertakeModeReturnToLane = car.CurrentLane;
-                }
-                car.TEMP_NextLaneChangeCountdown = 3;
+                carPos.CurrentLane = math.max(carPos.CurrentLane - config.SwitchLanesSpeed * DeltaTime, carData.DesiredLane);
             }
             else
             {
-                car.TEMP_NextLaneChangeCountdown -= DeltaTime;
+                if (laneChange.approveChangeUp)
+                {
+                    carData.DesiredLane = carPos.CurrentLane + 1;
+
+                    if (carData.OvertakeModeCountdown > 0)
+                        carData.OvertakeModeCountdown = 0; // if I was overtaking, this lane change is a merge back: stop overtaking
+                    else
+                        carData.OvertakeModeCountdown = config.OvertakeMaxDuration; // if I wasn't overtaking, this lane change is an overtake
+                }
+                else if (laneChange.approveChangeDown)
+                {
+                    carData.DesiredLane = carPos.CurrentLane - 1;
+
+                    if (carData.OvertakeModeCountdown > 0)
+                        carData.OvertakeModeCountdown = 0;
+                    else
+                        carData.OvertakeModeCountdown = config.OvertakeMaxDuration;
+                }
+                else if (desiredSpeed < carParameters.CruisingSpeed)
+                {
+                    // if I'm being slowed down, try to change lanes
+                    laneChange.requestChangeUp = (carPos.CurrentLane < config.NumLanes);
+                    laneChange.requestChangeDown = (carPos.CurrentLane > 0);
+                    carData.OvertakeModeCountdown = 0;
+                }
+                else if (carData.OvertakeModeCountdown > 0)
+                {
+                    // in overtake mode, move faster and tick down the timer
+                    if (desiredSpeed == carParameters.CruisingSpeed)
+                        desiredSpeed = carParameters.OvertakeSpeed;
+
+                    // in the last second of overtake mode, try to merge back
+                    if (carData.OvertakeModeCountdown < 1.0f)
+                    {
+                        if (carPos.CurrentLane > carData.OvertakeModeReturnToLane)
+                            laneChange.requestChangeDown = true;
+                        else
+                            laneChange.requestChangeUp = true;
+                    }
+
+                    carData.OvertakeModeCountdown = math.max(carData.OvertakeModeCountdown - DeltaTime, 0);
+                }
             }
 
-            if (car.Speed < desiredSpeed)
-                car.Speed = math.min(car.Speed + car.Acceleration, desiredSpeed);
+            if (carPos.Speed < desiredSpeed)
+                carPos.Speed = math.min(carPos.Speed + carData.Acceleration, desiredSpeed);
             else
-                car.Speed = math.max(car.Speed - car.Acceleration, desiredSpeed);
-            
-            car.Distance = (car.Distance + car.Speed * DeltaTime) % config.HighwayMaxSize;
-            car.Position = new float3(car.Distance, 0, car.CurrentLane);
+                carPos.Speed = math.max(carPos.Speed - carData.Acceleration, desiredSpeed);
+
+            carPos.Distance = (carPos.Distance + carPos.Speed * DeltaTime) % config.HighwayMaxSize;
+            transform.Position = new float3(carPos.Distance, 0, carPos.CurrentLane);
+
+            laneChange.approveChangeUp = false;
+            laneChange.approveChangeDown = false;
         }
     }
 }
