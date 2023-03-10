@@ -1,7 +1,9 @@
 using System.Drawing;
+using HighwayRacers;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Aspects
 {
@@ -36,8 +38,12 @@ namespace Aspects
             get => Transform.WorldPosition;
             set => Transform.WorldPosition = value;
         }
-
-        public readonly quaternion Rotation => Transform.LocalRotation;
+        
+        public quaternion Rotation
+        {
+            get => Transform.LocalRotation;
+            set => Transform.LocalRotation = value;
+        }
 
         public readonly float Acceleration => CarParameters.ValueRO.Acceleration;
 

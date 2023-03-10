@@ -52,4 +52,18 @@ namespace HighwayRacers
         
     }
 
+    public struct HighwayPieceStruct
+    {
+        public float startX;
+        public float startZ;
+        public float startRotation;
+
+        public HighwayPieceStruct(float startX, float startZ, float startRotation)
+        {
+            this.startX = startX;
+            this.startZ = startZ;
+            this.startRotation = startRotation;
+        }
+    }
+
 }

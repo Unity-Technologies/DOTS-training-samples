@@ -175,7 +175,10 @@ namespace HighwayRacers
 
         public void CreateHighway(float lane0Length)
         {
-			
+#if USE_HIGHWAY
+            Debug.LogFormat("CreateHighway( lan0Length={0} )", lane0Length);
+#endif
+            
             if (lane0Length < MIN_HIGHWAY_LANE0_LENGTH)
             {
                 Debug.LogError("Highway length must be longer than " + MIN_HIGHWAY_LANE0_LENGTH);
@@ -222,12 +225,18 @@ namespace HighwayRacers
                     pos += curvePiece.startRotationQ * new Vector3(MID_RADIUS, 0, MID_RADIUS);
                     rot = Mathf.PI / 2 * (i / 2 + 1);
                 }
+#if USE_HIGHWAY
+                // Print out highway to mock in CarMoveSystem
+                Debug.LogFormat("highwayPieces[{0}] = new float3()  x = {1}, z = {2}, y = {3}  ;", i, pieces[i].startX, pieces[i].startZ, pieces[i].startRotation);
+#endif                
             }
 
+#if USE_HIGHWAY
+            Debug.LogFormat("lane0Length={0}", lane0Length);
+#endif
             this.lane0Length = lane0Length;
-
+          
 			SetNumCars(tempNumCars);
-
         }
 
         /// <summary>

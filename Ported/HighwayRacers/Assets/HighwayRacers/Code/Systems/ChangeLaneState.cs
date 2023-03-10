@@ -1,7 +1,7 @@
 using Unity.Entities;
 
-// Enableable component type
-public struct ChangeLaneState : IComponentData, IEnableableComponent
+// TAG
+public struct ChangeLaneState : IComponentData
 {
-    public float Value;
+
 }

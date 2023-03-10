@@ -1,7 +1,7 @@
 using Unity.Entities;
 
-// Enableable component type
-public struct OvertakeTimerState : IComponentData, IEnableableComponent
+// TAG
+public struct OvertakeTimerState : IComponentData
 {
-    public float Value;
+
 }
