@@ -19,6 +19,12 @@ namespace Systems
     [UpdateAfter(typeof(OmniBotSpawnerSystem))]
     public partial struct OmnibotUpdaterSystem : ISystem
     {
+        static readonly ProfilerMarker getBucketMarker = new ProfilerMarker("Omnibot.GetBucket");
+        static readonly ProfilerMarker goToWaterMarker = new ProfilerMarker("Omnibot.GoToWater");
+        static readonly ProfilerMarker fillBucketMarker = new ProfilerMarker("Omnibot.FillBucket");
+        static readonly ProfilerMarker goToFireMarker = new ProfilerMarker("Omnibot.GoToFire");
+        static readonly ProfilerMarker throwBucketMarker = new ProfilerMarker("Omnibot.ThrowBucket");
+        
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
@@ -45,6 +51,7 @@ namespace Systems
                 {
                     case BotAction.GET_BUCKET:
                         {
+                            getBucketMarker.Begin();
                             var foundBucket = Utils.FindBucket(ref state, in botTransform.ValueRO.Position, ref bucketBuffer, false);
                             state.EntityManager.SetComponentData(botEntity, new TargetBucket { Value = foundBucket });
                             
@@ -58,10 +65,12 @@ namespace Systems
                                     command.ValueRW.Value = BotAction.GOTO_WATER;
                                 }
                             }
+                            getBucketMarker.End();
                             break;
                         }
                     case BotAction.GOTO_WATER:
                         {
+                            goToWaterMarker.Begin();
                             var foundWater = Utils.FindWater(in botTransform.ValueRO.Position, ref waterBuffer);
                             state.EntityManager.SetComponentData(botEntity, new TargetWater { Value = foundWater });
                             
@@ -76,10 +85,12 @@ namespace Systems
                             }
 
                             Utils.UpdateCarriedBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW);
+                            goToWaterMarker.End();
                             break;
                         }
                     case BotAction.FILL_BUCKET:
                         {
+                            fillBucketMarker.Begin();
                             var bucketVolume = state.EntityManager.GetComponentData<Volume>(targetBucket.Value);
                             bucketVolume.Value = Mathf.Clamp(bucketVolume.Value + config.bucketFillRate, 0f, config.bucketCapacity);
                             state.EntityManager.SetComponentData(targetBucket.Value, new Volume { Value = bucketVolume.Value });
@@ -98,11 +109,12 @@ namespace Systems
                             }
 
                             Utils.UpdateFillBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW, bucketVolume.Value, config.bucketCapacity, config.bucketSizeEmpty, config.bucketSizeFull, config.bucketEmptyColor, config.bucketFullColor);
-                            
+                            fillBucketMarker.End();
                             break;
                         }
                     case BotAction.GOTO_FIRE:
                         {
+                            goToFireMarker.Begin();
                             var foundFire = FindFire(ref state, ref heatMap, in botTransform.ValueRO.Position, config.flashpoint);
                             state.EntityManager.SetComponentData(botEntity, new TargetFlame { Value = foundFire });
                             
@@ -115,11 +127,12 @@ namespace Systems
                                 }
                             }
                             Utils.UpdateCarriedBucket(ref state, ref targetBucket.Value, ref botTransform.ValueRW);
-
+                            goToFireMarker.End();
                             break;
                         }
                     case BotAction.THROW_BUCKET:
                         {
+                            throwBucketMarker.Begin();
                             var flameCell = state.EntityManager.GetComponentData<FlameCell>(targetFire.Value);
 
                             Utils.DowseFlameCell(ref heatMap, flameCell.heatMapIndex, config.numRows, config.numColumns, config.coolingStrength, config.coolingStrengthFalloff, config.splashRadius, config.bucketCapacity);
@@ -133,7 +146,7 @@ namespace Systems
 
                             command.ValueRW.Value = BotAction.GOTO_WATER;
                             Utils.UpdateEmptyBucket(ref state, ref targetBucket.Value, config.bucketSizeEmpty, config.bucketEmptyColor);
-
+                            throwBucketMarker.End();
                             break;
                         }
                 }
