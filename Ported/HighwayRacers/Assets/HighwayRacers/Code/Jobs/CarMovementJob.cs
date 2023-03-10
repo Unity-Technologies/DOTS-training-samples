@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.Profiling;
 using UnityEngine;
+using System;
 
 namespace Jobs
 {
@@ -25,8 +26,8 @@ namespace Jobs
         [ReadOnly]
         public NativeArray<CarData> allCars;
 
-        [ReadOnly]
-        public NativeArray<LocalTransform> allCarTransforms;
+       // [ReadOnly]
+        //public NativeArray<LocalTransform> allCarTransforms;
 
         [BurstCompile]
         private void Execute(ref CarAspect car)
@@ -76,25 +77,32 @@ namespace Jobs
             {
                 car.TEMP_NextLaneChangeCountdown -= DeltaTime;
             }
-
-           
-            for (int i = 0; i < allCars.Length; i++)
+            int start = Math.Max(0, car.DistanceIndexCache-3); // Check 3 cars overall before the on last frame
+            for (int i = start; i < allCars.Length+10; i++) // we iterate more to loop, in case you are the last one following the third
             {
-                other = allCars[i];
-                
-                if(car.CurrentLane == other.CurrentLane && other.DesiredLane == other.CurrentLane) ;
-                {
-                    var distToOtherCarInLane = other.Distance - car.Distance;
+                int realIndex = i % allCars.Length;
+                other = allCars[realIndex];
 
-                    if (distToOtherCarInLane > 0.0f && distToOtherCarInLane < distanceToFrontCar)
+                var distToOtherCarInLane = other.Distance - car.Distance;
+
+                if (distToOtherCarInLane > 0.0f)    // so in front
+                {
+                    car.DistanceIndexCache = realIndex; // last checked car
+                    if (car.CurrentLane == other.CurrentLane /*&& other.DesiredLane == other.CurrentLane*/)
                     {
-                        distanceToFrontCar = distToOtherCarInLane;
-                        nearestFrontCar = other;
-                        foundFrontCar = true;
+                        if (distToOtherCarInLane < distanceToFrontCar)
+                        {
+                            distanceToFrontCar = distToOtherCarInLane;
+                            nearestFrontCar = other;
+                            foundFrontCar = true;
+                        }
                     }
                 }
+                else
+                {
+                    break; // we overpass car in the same lane
+                }
             }
-
             float minDistance = nearestFrontCar.Distance - car.Distance;
 
             if (foundFrontCar && minDistance < car.Length)

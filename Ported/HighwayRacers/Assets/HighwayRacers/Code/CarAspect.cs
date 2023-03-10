@@ -81,7 +81,13 @@ namespace Aspects
             get => CarData.ValueRO.DesiredSpeed;
             set => CarData.ValueRW.DesiredSpeed = value;
         }
+        public int DistanceIndexCache
+        {
+            get => CarData.ValueRO.DistanceIndexCache;
+            set => CarData.ValueRW.DistanceIndexCache = value;
+        }
 
+        
     }
     public readonly partial struct CarColorAspect : IAspect
     {

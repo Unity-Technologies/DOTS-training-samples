@@ -4,6 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 using System;
 using Unity.Mathematics;
+using Unity.Burst;
 
 public class CarAuthoring : MonoBehaviour
 {
@@ -22,7 +23,8 @@ public class CarAuthoring : MonoBehaviour
     }
 }
 
-public struct CarData : IComponentData
+[BurstCompile]
+public struct CarData : IComponentData , IComparable<CarData>
 {
     public float Distance;
     public float CurrentLane;
@@ -34,7 +36,13 @@ public struct CarData : IComponentData
     public float DesiredSpeed;
     public float PreviousDifferential;
     public float CurrentDifferential;
-    public float TEMP_NextLaneChangeCountdown;    
+    public float TEMP_NextLaneChangeCountdown;
+    public int   DistanceIndexCache;
+    [BurstCompile]
+    public int CompareTo(CarData other)
+    {        
+        return Distance.CompareTo(other.Distance);
+    }
 }
 
 public struct CarColor : IComponentData
