@@ -13,12 +13,12 @@ public partial struct WallCollisionSystem : ISystem
         // Enable if using Default instead of Jobs
        // state.RequireForUpdate<Random>();
     }
-
+    
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         #region USING JOBS (TEST)
-        NativeArray<float3> wallArray = new NativeArray<float3>(1000,Allocator.TempJob);
+        NativeArray<float3> wallArray = CollectionHelper.CreateNativeArray<float3>(1000,state.WorldUpdateAllocator);
         int i = 0;
         foreach (var wall in
                  SystemAPI.Query<RefRO<LocalTransform>>()
@@ -28,19 +28,17 @@ public partial struct WallCollisionSystem : ISystem
             i++;
         }
         
-        var dt = (uint) SystemAPI.Time.ElapsedTime;
-        Unity.Mathematics.Random r = new Unity.Mathematics.Random(dt);
-      
         CollisionJob job = new CollisionJob
         {
             wallArray=wallArray,
             dt=SystemAPI.Time.DeltaTime,
-            rand = r.NextInt(-60,60)
         };
         job.ScheduleParallel();
+
         #endregion
-        
+
         #region DEFAULT
+
         //RefRW<Random> random = SystemAPI.GetSingletonRW<Random>();
         // foreach ((MoveToPositionAspect moveToPositionAspect, TransformAspect transformAspect) in SystemAPI
         //              .Query<MoveToPositionAspect, TransformAspect>())
@@ -78,6 +76,7 @@ public partial struct WallCollisionSystem : ISystem
         //         }
         //     }
         // }
+
         #endregion
     }
 }
@@ -85,20 +84,17 @@ public partial struct WallCollisionSystem : ISystem
 [BurstCompile]
 public partial struct CollisionJob : IJobEntity
 {
-    [NativeDisableParallelForRestriction]
-    public NativeArray<float3> wallArray;
+    [ReadOnly] public NativeArray<float3> wallArray;
     public float dt;
-    public int rand;
-    
-    [BurstCompile]
-    public void Execute(MoveToPositionAspect moveToPositionAspect)
+
+    public void Execute(MoveToPositionAspect moveToPositionAspect,[EntityIndexInQuery] int index)
     {
         for (int i=0;i<wallArray.Length;i++)
         {
             if (math.distance(wallArray[i], moveToPositionAspect.GetPosition()) < 0.1f)
             {
                 var direction = wallArray[i] - moveToPositionAspect.GetPosition();
-                moveToPositionAspect.Move(dt,Helper.GetPosition(direction,rand));
+                moveToPositionAspect.Move(dt,Helper.GetPosition(direction,index));
             }
         }
     }
@@ -107,13 +103,13 @@ public partial struct CollisionJob : IJobEntity
 [BurstCompile]
 public static class Helper
 {
-    [BurstCompile]
-    public static float3 GetPosition(float3 direction,int random)
+    public static float3 GetPosition(float3 direction,int index)
     {
         float signX = direction.x < 0f ? 1f : -1f;
         float signZ= direction.z < 0f ? 1f : -1f;
-        
-        float radians = Mathf.Deg2Rad * 45;
+        int random = Unity.Mathematics.Random.CreateFromIndex((uint)index).NextInt(-60,60);
+
+        float radians = Mathf.Deg2Rad * random;
         float x = signX * Mathf.Cos(radians) - signZ * Mathf.Sin(radians);
         float z = signX * Mathf.Sin(radians) + signZ * Mathf.Cos(radians);
 

@@ -11,8 +11,7 @@ public partial struct WallsSpawnerSystem : ISystem
         state.RequireForUpdate<Food>();
         state.RequireForUpdate<Home>();
     }
-
-    [BurstCompile]
+    
     public void OnUpdate(ref SystemState state)
     {
         var food = SystemAPI.GetSingleton<Food>();
