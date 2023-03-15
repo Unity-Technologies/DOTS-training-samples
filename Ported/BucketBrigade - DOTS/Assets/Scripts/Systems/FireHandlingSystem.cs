@@ -2,7 +2,8 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
 
-//[BurstCompile]
+[BurstCompile]
+[UpdateAfter(typeof(GridTilesSpawningSystem))]
 public partial struct FireHandlingSystem : ISystem
 {
     public ComponentLookup<OnFire> m_OnFireActive;
@@ -15,13 +16,13 @@ public partial struct FireHandlingSystem : ISystem
         state.RequireForUpdate<Config>();
 
         m_OnFireActive = state.GetComponentLookup<OnFire>();
-        UnityEngine.Debug.Log("OnCreate");
+        //UnityEngine.Debug.Log("OnCreate");
     }
 
-    //[BurstCompile]
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        UnityEngine.Debug.Log("Update");
+        //UnityEngine.Debug.Log("Update");
 
         var config = SystemAPI.GetSingleton<Config>();
 
@@ -38,7 +39,7 @@ public partial struct FireHandlingSystem : ISystem
     }
 }
 
-//[BurstCompile]
+[BurstCompile]
 public partial struct IgnitionTestJob : IJobEntity
 {
     [Unity.Collections.NativeDisableParallelForRestriction] public ComponentLookup<OnFire> OnFireActive;
@@ -48,7 +49,7 @@ public partial struct IgnitionTestJob : IJobEntity
     {
         
         var isOnFire = tile.Temperature >= flashpoint;
-        UnityEngine.Debug.LogFormat("Is on fire: {0}", isOnFire);
+        //UnityEngine.Debug.LogFormat("Is on fire: {0}", isOnFire);
         OnFireActive.SetComponentEnabled(entity, isOnFire);
     }
 }
