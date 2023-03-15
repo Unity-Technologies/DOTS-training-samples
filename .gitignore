@@ -12,7 +12,7 @@ p?
 **/Assets/Plugins/
 **/Assets/Plugins.meta
 Assets/AssetStoreTools*
-
+**/UserSettings/*
 # Visual Studio cache directory
 .vs/
 
