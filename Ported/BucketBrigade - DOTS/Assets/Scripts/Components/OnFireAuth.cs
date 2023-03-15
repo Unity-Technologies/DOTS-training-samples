@@ -1,6 +1,7 @@
 using Unity.Entities;
+using Unity.Rendering;
 
-
+// Probably not needed 
 class OnFireAuth : UnityEngine.MonoBehaviour
 {
     class OnFireBaker : Baker<OnFireAuth>
@@ -8,12 +9,9 @@ class OnFireAuth : UnityEngine.MonoBehaviour
         public override void Bake(OnFireAuth authoring)
         {
             AddComponent<OnFire>();
+
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
    
-}
-
-
-struct OnFire : IComponentData, IEnableableComponent
-{
 }
