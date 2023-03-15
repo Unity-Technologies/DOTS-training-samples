@@ -20,7 +20,7 @@ public partial struct BotSpawningSystem : ISystem
         config = SystemAPI.GetSingleton<Config>();
         
         //Get the total amount of bots
-        totalBots = 10;
+        totalBots = config.TotalBots;
         Debug.Log(totalBots);
         //Get the bot prefab
         botPrefab = config.Bot;
@@ -49,11 +49,27 @@ public partial struct BotSpawningSystem : ISystem
                 randomComponent.Value.NextFloat(1, numCol-1));
             
             bucketTransform.Scale = 1f; //This is the scale of the bot pls change this
-            
             ECB.SetComponent(instance,bucketTransform);
+            if (i != 0) //If it is not the first one
+            {
+                ECB.SetComponentEnabled<FrontBotTag>(instance, false); 
+            } 
+            if (i != totalBots - 1)//If it is not the last one
+            {
+                ECB.SetComponentEnabled<BackBotTag>(instance, false);
+            }
+            if (i < totalBots / 2 || i ==  totalBots - 1)//If it is part of the first half
+            {
+                ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
+            }
+            if (i >= totalBots / 2 || i == 0)//If it is part of the last half
+            {
+                ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false); 
+            }
             
+            //This is not really useful yet
+            ECB.SetComponentEnabled<OmniworkerBotTag>(instance, false);
         }
-        
         
         
         //Disable state after spawning for now 

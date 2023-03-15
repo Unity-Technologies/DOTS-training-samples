@@ -5,7 +5,7 @@
 
     class BucketAuth : UnityEngine.MonoBehaviour
     {
-        public float Capacity;
+        public float Volume;
         
         class BucketAuthBaker : Baker<BucketAuth>
         {
@@ -13,7 +13,7 @@
             {
                 AddComponent(new Bucket
                 {
-                    Capacity = authoring.Capacity 
+                    Volume = authoring.Volume 
                 });
             }
         }
@@ -23,7 +23,6 @@
     //Capacity used to subtract from water source(Maybe not needed if the capacity is predefined)
     struct Bucket : IComponentData
     {
-        
-        public float Capacity;
+        public float Volume;
     }
 }

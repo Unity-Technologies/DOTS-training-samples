@@ -44,9 +44,12 @@ public class ConfigAuth : MonoBehaviour
     public GameObject Ground;
     [Range(0.0001f, 1f)]
     public float botSpeed = 0.1f;
+    [Range(1, 100)]
+    public int totalBots = 10;
     [Range(0.001f, 1f)]
     public float waterCarryAffect = 0.5f;
 
+    public float arriveThreshold= 0.2f;
 
 
     class Baker : Baker<ConfigAuth>
@@ -71,7 +74,9 @@ public class ConfigAuth : MonoBehaviour
                 heatRadius = authoring.heatRadius,
                 botSpeed = authoring.botSpeed,
                 waterCarryAffect = authoring.waterCarryAffect,
+                arriveThreshold = authoring.arriveThreshold,
                 Bot = GetEntity(authoring.Bot),
+                TotalBots = authoring.totalBots,
                 Bucket = GetEntity(authoring.Bucket),
                 FlameCell = GetEntity(authoring.FlameCell),
                 Ground = GetEntity(authoring.Ground),
@@ -99,9 +104,12 @@ public struct Config : IComponentData
     public int rows;
     public int columns;
     public int heatRadius;
+    
+    public int TotalBots;
 
     public float botSpeed;
     public float waterCarryAffect;
+    public float arriveThreshold;
 
 
     public Entity Bot;
