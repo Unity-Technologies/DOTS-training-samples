@@ -23,8 +23,8 @@ public class ConfigAuth : MonoBehaviour
     public int gridSize;
     
     [Header("FIRE")]
-    [Tooltip("Prefabs / FlameCell")]
-    public GameObject FlameCell;
+    [Tooltip("Prefabs / GroundTile")]
+    public GameObject Ground;
     [Tooltip("How many random fires do you want to battle?")]
     public int startingFireCount = 1;
     [Tooltip("How high the flames reach at max temperature")]
@@ -35,13 +35,19 @@ public class ConfigAuth : MonoBehaviour
     public int rows = 20;
     [Tooltip("How many cells DEEP the simulation will be")]
     public int columns = 20;
+    [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
+    public float flashpoint = 0.5f;
     [Tooltip("How far does heat travel? Note: Higher heat radius significantly increases CPU usafge")]
     public int heatRadius = 1;
-    
+    [Tooltip("How fast will adjascent cells heat up?")]
+    public float heatTransferRate = 0.7f;
+    [Range(0.0001f, 2f)]
+    [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
+    public float fireSimUpdateRate = 0.5f;
+
     [Header("BOTS")]
     public GameObject Bot;
     public GameObject Bucket;
-    public GameObject Ground;
     [Range(0.0001f, 1f)]
     public float botSpeed = 0.1f;
     [Range(1, 100)]
@@ -50,6 +56,11 @@ public class ConfigAuth : MonoBehaviour
     public float waterCarryAffect = 0.5f;
 
     public float arriveThreshold= 0.2f;
+    [Header("Colours")]
+    // cell colours
+    public Color colour_fireCell_neutral;
+    public Color colour_fireCell_cool;
+    public Color colour_fireCell_hot;
 
 
     class Baker : Baker<ConfigAuth>
@@ -58,6 +69,7 @@ public class ConfigAuth : MonoBehaviour
         {
             AddComponent(new Config
             {
+                // Water related unmanaged fields
                 splashRadius = authoring.splashRadius,
                 refillRate = authoring.refillRate,
                 totalBuckets = authoring.totalBuckets,
@@ -66,21 +78,33 @@ public class ConfigAuth : MonoBehaviour
                 bucketSize_EMPTY = authoring.bucketSize_EMPTY,
                 bucketSize_FULL = authoring.bucketSize_FULL,
                 gridSize = authoring.gridSize,
+
+                // Fire related unmanaged fields
                 startingFireCount = authoring.startingFireCount,
                 maxFlameHeight = authoring.maxFlameHeight,
                 cellSize = authoring.cellSize,
                 rows = authoring.rows,
                 columns = authoring.columns,
                 heatRadius = authoring.heatRadius,
+                flashpoint = authoring.flashpoint,
+
+                // Bot related unmanaged fields
                 botSpeed = authoring.botSpeed,
                 waterCarryAffect = authoring.waterCarryAffect,
                 arriveThreshold = authoring.arriveThreshold,
+
+
+                // Game objects
                 Bot = GetEntity(authoring.Bot),
                 TotalBots = authoring.totalBots,
                 Bucket = GetEntity(authoring.Bucket),
-                FlameCell = GetEntity(authoring.FlameCell),
                 Ground = GetEntity(authoring.Ground),
-                Water = GetEntity(authoring.Water)
+                Water = GetEntity(authoring.Water),
+
+                //colour_fireCell_neutral = GetEntity(authoring.colour_fireCell_neutral),
+                //colour_fireCell_cool = GetEntity(authoring.colour_fireCell_cool),
+                //colour_fireCell_hot = GetEntity(authoring.colour_fireCell_hot),
+
 
             });
         }
@@ -104,17 +128,25 @@ public struct Config : IComponentData
     public int rows;
     public int columns;
     public int heatRadius;
-    
+
     public int TotalBots;
+
+    public float heatTransferRate;
+    public float fireSimUpdateRate;
+    public float flashpoint;
 
     public float botSpeed;
     public float waterCarryAffect;
     public float arriveThreshold;
-
 
     public Entity Bot;
     public Entity Bucket;
     public Entity FlameCell;
     public Entity Ground;
     public Entity Water;
+
+    public Color colour_fireCell_neutral;
+    public Color colour_fireCell_cool;
+    public Color colour_fireCell_hot;
+
 }

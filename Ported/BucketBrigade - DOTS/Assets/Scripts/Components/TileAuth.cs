@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class TileAuth : MonoBehaviour
 {
-    public float Temperature;
+    public float Temperature = 0.5f;
     public class TileBaker : Baker<TileAuth>
     {
        
@@ -15,6 +15,7 @@ public class TileAuth : MonoBehaviour
             {
                 Temperature = authoring.Temperature
             });
+            AddComponent<OnFire>();
         }
     }
 }
@@ -24,3 +25,10 @@ public struct Tile : IComponentData
 {   
     public float Temperature;
 }
+
+// This is a tag component that is also an "enableable component".
+// Such components can be toggled on and off while remaining present on the entity.
+// Doing so is a lot more efficient than adding and removing the component.
+// An Enableable component is initially enabled.
+public struct OnFire : IComponentData, IEnableableComponent
+{}

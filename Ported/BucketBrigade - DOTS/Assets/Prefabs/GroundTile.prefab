@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4613193884611984}
   - component: {fileID: 33151782116667444}
   - component: {fileID: 23842405736443206}
-  - component: {fileID: 7115136795208537383}
+  - component: {fileID: 5069154129736595987}
   m_Layer: 0
   m_Name: GroundTile
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7115136795208537383
+--- !u!114 &5069154129736595987
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1068854535243822}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df6a99e79e7044f4e8dc298f3671d862, type: 3}
+  m_Script: {fileID: 11500000, guid: a209ac24976eec745a997e4cec78db49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Temperature: 0.3
