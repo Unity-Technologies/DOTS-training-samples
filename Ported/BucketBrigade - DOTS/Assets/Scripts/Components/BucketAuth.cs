@@ -1,4 +1,5 @@
 ﻿using Unity.Entities;
+using Unity.Rendering;
 
 
 class BucketAuth : UnityEngine.MonoBehaviour
@@ -17,6 +18,7 @@ class BucketAuth : UnityEngine.MonoBehaviour
             AddComponent<FillingTag>();
             AddComponent<EmptyTag>();
             AddComponent<FullTag>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 

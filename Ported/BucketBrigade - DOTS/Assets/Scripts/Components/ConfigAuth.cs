@@ -61,6 +61,8 @@ public class ConfigAuth : MonoBehaviour
     public Color colour_fireCell_neutral;
     public Color colour_fireCell_cool;
     public Color colour_fireCell_hot;
+    public Color colour_bucket_empty;
+    public Color colour_bucket_full;
 
 
     class Baker : Baker<ConfigAuth>
@@ -101,11 +103,12 @@ public class ConfigAuth : MonoBehaviour
                 Ground = GetEntity(authoring.Ground),
                 Water = GetEntity(authoring.Water),
 
-                //colour_fireCell_neutral = GetEntity(authoring.colour_fireCell_neutral),
-                //colour_fireCell_cool = GetEntity(authoring.colour_fireCell_cool),
-                //colour_fireCell_hot = GetEntity(authoring.colour_fireCell_hot),
-
-
+                colour_fireCell_neutral = authoring.colour_fireCell_neutral,
+                colour_fireCell_cool = authoring.colour_fireCell_cool,
+                colour_fireCell_hot = authoring.colour_fireCell_hot,
+                
+                colour_bucket_empty = authoring.colour_bucket_empty,
+                colour_bucket_full = authoring.colour_bucket_full,
             });
         }
     }
@@ -148,5 +151,7 @@ public struct Config : IComponentData
     public Color colour_fireCell_neutral;
     public Color colour_fireCell_cool;
     public Color colour_fireCell_hot;
+    public Color colour_bucket_empty;
+    public Color colour_bucket_full;
 
 }

@@ -1,4 +1,5 @@
 
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -56,8 +57,9 @@ public partial struct BucketSpawningSystem : ISystem
             bucketTransform.Scale = 0.2f; //This is the scale of the bucket
             
             ECB.SetComponent(instance,bucketTransform);
+            ECB.SetName(instance, new FixedString64Bytes("bucket_" + i));
             
-            ECB.SetComponentEnabled<FillingTag>(instance, false); 
+            ECB.SetComponentEnabled<FillingTag>(instance, true); 
             ECB.SetComponentEnabled<EmptyTag>(instance, true); 
             ECB.SetComponentEnabled<FullTag>(instance, false);
         }

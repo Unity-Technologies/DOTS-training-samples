@@ -2,9 +2,8 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
+[UpdateAfter(typeof(BucketFillingSystem))]
 [BurstCompile]
 public partial struct WaterRefillSystem : ISystem
 {
@@ -34,10 +33,10 @@ partial struct RefillWaterJob : IJobEntity
     [BurstCompile]
     private void Execute(RefRW<LocalTransform> transform, RefRW<Water> water)
     {
-        if(water.ValueRO.CurrCapacity<water.ValueRO.MaxCapacity){
+        if(water.ValueRO.CurrCapacity < water.ValueRO.MaxCapacity){
             water.ValueRW.CurrCapacity += config.refillRate;
-            float3 newWaterScale= math.lerp(float3.zero, math.float3(1,0.01f,1), water.ValueRO.CurrCapacity/water.ValueRO.MaxCapacity);
-            transform.ValueRW.Scale = newWaterScale.x;
         }
+        float3 newWaterScale= math.lerp(float3.zero, math.float3(1,0.01f,1), water.ValueRO.CurrCapacity/water.ValueRO.MaxCapacity);
+        transform.ValueRW.Scale = newWaterScale.x;
     }
 }
