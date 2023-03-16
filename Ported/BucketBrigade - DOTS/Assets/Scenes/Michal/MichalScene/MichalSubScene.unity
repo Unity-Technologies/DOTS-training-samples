@@ -199,7 +199,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
   splashRadius: 3
-  refillRate: 1
+  refillRate: 0.005
   totalBuckets: 10
   bucketCapacity: 1
   bucketFillRate: 0.01

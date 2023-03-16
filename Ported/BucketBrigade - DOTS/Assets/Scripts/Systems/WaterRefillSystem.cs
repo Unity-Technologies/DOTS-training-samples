@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-//[UpdateAfter(typeof(BucketFillingSystem))]
+[UpdateAfter(typeof(BucketFillingSystem))]
 [BurstCompile]
 public partial struct WaterRefillSystem : ISystem
 {
@@ -37,6 +37,6 @@ partial struct RefillWaterJob : IJobEntity
             water.ValueRW.CurrCapacity += config.refillRate;
         }
         float3 newWaterScale= math.lerp(float3.zero, math.float3(1,0.01f,1), water.ValueRO.CurrCapacity/water.ValueRO.MaxCapacity);
-        transform.ValueRW.Scale = newWaterScale.x;
+        transform.ValueRW.Scale = 5*newWaterScale.x; //times 5 because of the original scale in spawner
     }
 }
