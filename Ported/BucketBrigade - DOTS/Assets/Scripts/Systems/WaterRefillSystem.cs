@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(BucketFillingSystem))]
+//[UpdateAfter(typeof(BucketFillingSystem))]
 [BurstCompile]
 public partial struct WaterRefillSystem : ISystem
 {
