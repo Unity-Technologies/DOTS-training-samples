@@ -1,44 +1,41 @@
-﻿namespace Components
+﻿using Unity.Entities;
+
+
+class BucketAuth : UnityEngine.MonoBehaviour
 {
-    using Unity.Entities;
-
-
-    class BucketAuth : UnityEngine.MonoBehaviour
-    {
-        public float MaxCapacity;
+    public float MaxCapacity;
         
-        class BucketAuthBaker : Baker<BucketAuth>
+    class BucketAuthBaker : Baker<BucketAuth>
+    {
+        public override void Bake(BucketAuth authoring)
         {
-            public override void Bake(BucketAuth authoring)
+            AddComponent(new Bucket
             {
-                AddComponent(new Bucket
-                {
-                    MaxCapacity = authoring.MaxCapacity,
-                    CurrCapacity = 0
-                });
-                AddComponent<Filling>();
-                AddComponent<Empty>();
-                AddComponent<Full>();
-            }
+                MaxCapacity = authoring.MaxCapacity,
+                CurrCapacity = 0
+            });
+            AddComponent<FillingTag>();
+            AddComponent<EmptyTag>();
+            AddComponent<FullTag>();
         }
+    }
 
-    }
+}
     
-    struct Bucket : IComponentData
-    {
-        public float MaxCapacity;
-        public float CurrCapacity;
-    }
+public struct Bucket : IComponentData
+{
+    public float MaxCapacity;
+    public float CurrCapacity;
+}
     
-    struct Filling : IComponentData, IEnableableComponent
-    {
-    }
+public struct FillingTag : IComponentData, IEnableableComponent
+{
+}
     
-    struct Empty : IComponentData, IEnableableComponent
-    {
-    }
+public struct EmptyTag : IComponentData, IEnableableComponent
+{
+}
     
-    struct Full : IComponentData, IEnableableComponent
-    {
-    }
+public struct FullTag : IComponentData, IEnableableComponent
+{
 }

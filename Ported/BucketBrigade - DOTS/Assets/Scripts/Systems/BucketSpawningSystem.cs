@@ -17,8 +17,6 @@ public partial struct BucketSpawningSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        
-        
     }
 
 
@@ -59,6 +57,9 @@ public partial struct BucketSpawningSystem : ISystem
             
             ECB.SetComponent(instance,bucketTransform);
             
+            ECB.SetComponentEnabled<FillingTag>(instance, false); 
+            ECB.SetComponentEnabled<EmptyTag>(instance, true); 
+            ECB.SetComponentEnabled<FullTag>(instance, false);
         }
         
         
