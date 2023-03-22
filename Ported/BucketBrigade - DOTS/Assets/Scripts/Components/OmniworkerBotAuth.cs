@@ -16,7 +16,7 @@ public class OmniworkerBotAuth : MonoBehaviour
     }
 }
 
-public struct OmniworkerBotTag : IComponentData, IEnableableComponent{
+public struct OmniworkerBotTag : IComponentData{
 }
 public struct OmniworkerGoForBucketTag : IComponentData, IEnableableComponent{
 }

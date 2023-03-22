@@ -61,9 +61,6 @@ public partial struct BotSpawningSystem : ISystem
             {
                 ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false); 
             }
-            
-            //This is not really useful yet
-            ECB.SetComponentEnabled<OmniworkerBotTag>(instance, false);
         }
         
         //Loop for omniworkers
@@ -78,10 +75,9 @@ public partial struct BotSpawningSystem : ISystem
             
             botTransform.Scale = 1f;
             ECB.SetComponent(instance,botTransform);
-            ECB.SetComponentEnabled<FrontBotTag>(instance, false); 
-            ECB.SetComponentEnabled<BackBotTag>(instance, false);
-            ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
-            ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
+            ECB.SetComponentEnabled<OmniworkerGoForBucketTag>(instance, true); 
+            ECB.SetComponentEnabled<OmniworkerGoForWaterTag>(instance, false);
+            ECB.SetComponentEnabled<OmniworkerGoForFireTag>(instance, false);
         }
         
         //Disable state after spawning for now 

@@ -24,7 +24,7 @@ public partial struct OmniworkerSystem : ISystem
       arriveThreshold = config.arriveThreshold;
 
       //for each omniworker
-      foreach (var (omniworkerTag, omniworkerTransform, omniworker) in SystemAPI.Query<OmniworkerBotTag,LocalTransform>().WithEntityAccess())
+      foreach (var (omniworkerTag, omniworkerTransform, omniworker) in SystemAPI.Query<OmniworkerGoForBucketTag,LocalTransform>().WithEntityAccess())
       {
          float minDist = float.MaxValue;
          float dist;
@@ -50,6 +50,11 @@ public partial struct OmniworkerSystem : ISystem
             omniworkerPosition.Position += dir * SystemAPI.Time.DeltaTime * speed;
             omniworkerPosition.Position.y = prev;
             SystemAPI.SetComponent(omniworker, omniworkerPosition);
+         }
+         else
+         {
+            //take the bucket i change tag
+            //another system for looking for water
          }
          
       }
