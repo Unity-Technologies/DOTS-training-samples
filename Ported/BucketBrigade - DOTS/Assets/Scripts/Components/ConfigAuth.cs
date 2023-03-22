@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class ConfigAuth : MonoBehaviour
@@ -29,6 +30,10 @@ public class ConfigAuth : MonoBehaviour
     public int startingFireCount = 1;
     [Tooltip("How high the flames reach at max temperature")]
     public float maxFlameHeight = 0.1f;
+    [Range(0.001f, 10f)]
+    public float flickerRate = 0.1f;
+    [Range(0f, 1f)]
+    public float flickerRange = 0.1f;
     [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
     public float cellSize = 0.05f;
     [Tooltip("How many cells WIDE the simulation will be")]
@@ -57,13 +62,14 @@ public class ConfigAuth : MonoBehaviour
 
     public float arriveThreshold= 0.2f;
     [Header("Colours")]
+
     // cell colours
-    public Color colour_fireCell_neutral;
-    public Color colour_fireCell_cool;
-    public Color colour_fireCell_hot;
+
+    public Color colour_fireCell_neutral = new Color(125, 202, 117);
+    public Color colour_fireCell_cool = new Color(255, 255, 131);
+    public Color colour_fireCell_hot = new Color(255, 0, 0);
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
-
 
     class Baker : Baker<ConfigAuth>
     {
@@ -84,6 +90,8 @@ public class ConfigAuth : MonoBehaviour
                 // Fire related unmanaged fields
                 startingFireCount = authoring.startingFireCount,
                 maxFlameHeight = authoring.maxFlameHeight,
+                flickerRate = authoring.flickerRate,
+                flickerRange = authoring.flickerRange,
                 cellSize = authoring.cellSize,
                 rows = authoring.rows,
                 columns = authoring.columns,
@@ -106,10 +114,10 @@ public class ConfigAuth : MonoBehaviour
                 colour_fireCell_neutral = authoring.colour_fireCell_neutral,
                 colour_fireCell_cool = authoring.colour_fireCell_cool,
                 colour_fireCell_hot = authoring.colour_fireCell_hot,
-                
+
                 colour_bucket_empty = authoring.colour_bucket_empty,
-                colour_bucket_full = authoring.colour_bucket_full,
-            });
+                colour_bucket_full = authoring.colour_bucket_full
+            }); ;
         }
     }
 }
@@ -127,6 +135,8 @@ public struct Config : IComponentData
     
     public int startingFireCount;
     public float maxFlameHeight;
+    public float flickerRate;
+    public float flickerRange;
     public float cellSize;
     public int rows;
     public int columns;
@@ -144,7 +154,6 @@ public struct Config : IComponentData
 
     public Entity Bot;
     public Entity Bucket;
-    public Entity FlameCell;
     public Entity Ground;
     public Entity Water;
 
@@ -153,5 +162,4 @@ public struct Config : IComponentData
     public Color colour_fireCell_hot;
     public Color colour_bucket_empty;
     public Color colour_bucket_full;
-
 }
