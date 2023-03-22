@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65baa53f721c84d428c6716b9f6dda8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomSeed: 5
 --- !u!4 &1073455400
 Transform:
   m_ObjectHideFlags: 0
@@ -198,8 +197,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellSize: 1
-  rows: 20
-  columns: 20
+  rows: 12
+  columns: 30
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
   splashRadius: 3
   refillRate: 0.005
@@ -212,7 +211,7 @@ MonoBehaviour:
   bucketSize_FULL: 0.4
   Ground: {fileID: 1068854535243822, guid: d4b6f03fc385f234c9012b2b8bd5b591, type: 3}
   startingFireCount: 1
-  maxFlameHeight: 0.1
+  maxFlameHeight: 5
   flickerRate: 0.1
   flickerRange: 0.1
   flashpoint: 0.5
