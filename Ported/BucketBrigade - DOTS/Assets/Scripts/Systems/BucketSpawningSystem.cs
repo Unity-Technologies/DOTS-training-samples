@@ -60,6 +60,7 @@ public partial struct BucketSpawningSystem : ISystem
             ECB.SetName(instance, new FixedString64Bytes("bucket_" + i));
             
             ECB.SetComponentEnabled<FillingTag>(instance, false); 
+            ECB.SetComponentEnabled<EmptyingTag>(instance, false); 
             ECB.SetComponentEnabled<EmptyTag>(instance, true); 
             ECB.SetComponentEnabled<FullTag>(instance, false);
         }

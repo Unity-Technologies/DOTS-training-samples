@@ -16,6 +16,7 @@ class BucketAuth : UnityEngine.MonoBehaviour
                 CurrCapacity = 0
             });
             AddComponent<FillingTag>();
+            AddComponent<EmptyingTag>();
             AddComponent<EmptyTag>();
             AddComponent<FullTag>();
             AddComponent<URPMaterialPropertyBaseColor>();
@@ -31,6 +32,10 @@ public struct Bucket : IComponentData
 }
     
 public struct FillingTag : IComponentData, IEnableableComponent
+{
+}
+
+public struct EmptyingTag : IComponentData, IEnableableComponent
 {
 }
     
