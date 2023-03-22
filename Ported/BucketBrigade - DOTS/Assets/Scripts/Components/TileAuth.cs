@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class TileAuth : MonoBehaviour
 {
-    public float Temperature = 0.5f;
+    [Range(-1.0f, 1.0f)]
+    public float Temperature = 0.0f;
+
     public class TileBaker : Baker<TileAuth>
     {
        
@@ -22,7 +24,7 @@ public class TileAuth : MonoBehaviour
 
 //This is a tag
 public struct Tile : IComponentData
-{   
+{
     public float Temperature;
 }
 
