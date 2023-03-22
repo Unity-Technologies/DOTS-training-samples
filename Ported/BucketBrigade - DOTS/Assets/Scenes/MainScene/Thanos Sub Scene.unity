@@ -163,21 +163,27 @@ MonoBehaviour:
   gridSize: 0
   Ground: {fileID: 1068854535243822, guid: d4b6f03fc385f234c9012b2b8bd5b591, type: 3}
   startingFireCount: 1
-  maxFlameHeight: 0.1
-  cellSize: 0.05
+  maxFlameHeight: 1
+  flickerRate: 0.5
+  flickerRange: 0.4
+  cellSize: 1.5
   rows: 10
   columns: 10
-  flashpoint: 0.5
+  flashpoint: 0.2
   heatRadius: 1
   heatTransferRate: 0.7
   fireSimUpdateRate: 0.5
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Bucket: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220, type: 3}
   botSpeed: 0.1
+  totalBots: 10
   waterCarryAffect: 0.5
-  colour_fireCell_neutral: {r: 0.49019608, g: 0.7921569, b: 0.45882353, a: 0}
+  arriveThreshold: 0.2
+  colour_fireCell_neutral: {r: 0.075543664, g: 0.3773585, b: 0.044499815, a: 0}
   colour_fireCell_cool: {r: 1, g: 0.9882353, b: 0.5137255, a: 0}
   colour_fireCell_hot: {r: 1, g: 0, b: 0, a: 0}
+  colour_bucket_empty: {r: 0, g: 0, b: 0, a: 0}
+  colour_bucket_full: {r: 0, g: 0, b: 0, a: 0}
 --- !u!4 &155953475
 Transform:
   m_ObjectHideFlags: 0
