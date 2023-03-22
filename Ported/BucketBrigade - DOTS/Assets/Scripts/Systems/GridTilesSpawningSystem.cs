@@ -39,7 +39,7 @@ public partial struct GridTilesSpawningSystem : ISystem
                     },
                     Scale = config.cellSize,
                     Rotation = quaternion.identity
-                });              
+                });
 
                 //Make sure all tiles are not on fire by default
                 ecb.SetComponentEnabled<OnFire>(groundTile,false);
