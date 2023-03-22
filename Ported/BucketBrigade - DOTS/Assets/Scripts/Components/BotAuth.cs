@@ -12,7 +12,6 @@ public class BotAuth : MonoBehaviour
          AddComponent<ForwardPassingBotTag>();
          AddComponent<BackwardPassingBotTag>();
          AddComponent<BackBotTag>();
-         AddComponent<OmniworkerBotTag>();
       }
    }
 }
@@ -34,9 +33,5 @@ public struct BackwardPassingBotTag : IComponentData, IEnableableComponent{
 }
 
 public struct BackBotTag : IComponentData, IEnableableComponent{
-   
-}
-
-public struct OmniworkerBotTag : IComponentData, IEnableableComponent{
    
 }

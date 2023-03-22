@@ -46,7 +46,9 @@ public partial struct OmniworkerSystem : ISystem
          if (dist > arriveThreshold)
          {
             var omniworkerPosition = SystemAPI.GetComponent<LocalTransform>(omniworker);
+            var prev = omniworkerPosition.Position.y;
             omniworkerPosition.Position += dir * SystemAPI.Time.DeltaTime * speed;
+            omniworkerPosition.Position.y = prev;
             SystemAPI.SetComponent(omniworker, omniworkerPosition);
          }
          
