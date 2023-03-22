@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class TileAuth : MonoBehaviour
@@ -16,6 +15,7 @@ public class TileAuth : MonoBehaviour
                 Temperature = authoring.Temperature
             });
             AddComponent<OnFire>();
+            AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
 }
