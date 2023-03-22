@@ -28,7 +28,7 @@ public partial struct BucketSpawningSystem : ISystem
         
         //Get the total amount of buckets
         totalBuckets = config.totalBuckets;
-        Debug.Log(totalBuckets);
+    
         //Get the bucket prefab
         bucketPrefab = config.Bucket;
         

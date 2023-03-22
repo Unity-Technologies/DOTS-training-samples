@@ -59,10 +59,13 @@ public class ConfigAuth : MonoBehaviour
 
     [Header("BOTS")]
     public GameObject Bot;
+    public GameObject Omniworker;
     [Range(0.0001f, 1f)]
     public float botSpeed = 0.1f;
     [Range(1, 100)]
     public int totalBots = 10;
+    [Range(1, 100)]
+    public int totalOmniworkers = 10;
     [Range(0.001f, 1f)]
     public float waterCarryAffect = 0.5f;
     public float arriveThreshold= 0.2f;
@@ -109,7 +112,9 @@ public class ConfigAuth : MonoBehaviour
 
                 // Game objects
                 Bot = GetEntity(authoring.Bot),
+                Omniworker = GetEntity(authoring.Omniworker),
                 TotalBots = authoring.totalBots,
+                TotalOmniworkers = authoring.totalOmniworkers,
                 Bucket = GetEntity(authoring.Bucket),
                 Ground = GetEntity(authoring.Ground),
                 Water = GetEntity(authoring.Water),
@@ -145,6 +150,7 @@ public struct Config : IComponentData
     public int heatRadius;
 
     public int TotalBots;
+    public int TotalOmniworkers;
 
     public float heatTransferRate;
     public float fireSimUpdateRate;
@@ -156,6 +162,7 @@ public struct Config : IComponentData
     public int waterSourcesCount;
 
     public Entity Bot;
+    public Entity Omniworker;
     public Entity Bucket;
     public Entity Ground;
     public Entity Water;

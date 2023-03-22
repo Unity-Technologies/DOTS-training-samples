@@ -219,8 +219,10 @@ MonoBehaviour:
   heatTransferRate: 0.7
   fireSimUpdateRate: 0.5
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
+  Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
   botSpeed: 0.5
   totalBots: 10
+  totalOmniworkers: 2
   waterCarryAffect: 0.5
   arriveThreshold: 0.2
   colour_fireCell_neutral: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 1}

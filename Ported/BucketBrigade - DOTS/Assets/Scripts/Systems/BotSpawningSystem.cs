@@ -1,6 +1,5 @@
 
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -10,37 +9,33 @@ public partial struct BotSpawningSystem : ISystem
     private int numRow;
     private int numCol;
     private int totalBots;
+    private int totalOmniworkers;
     private Entity botPrefab;
+    private Entity omniworkerPrefab;
     private Config config; 
     
     
     public void OnUpdate(ref SystemState state)
     {
-        // Get the config 
         config = SystemAPI.GetSingleton<Config>();
-        
-        //Get the total amount of bots
         totalBots = config.TotalBots;
-        Debug.Log(totalBots);
-        //Get the bot prefab
+        totalOmniworkers = config.TotalOmniworkers;
         botPrefab = config.Bot;
-        
-        //Get the rows and colums 
+        omniworkerPrefab = config.Omniworker;
         numRow = config.rows;
         numCol = config.columns;
         
-        //Get the random component 
         Random randomComponent = SystemAPI.GetSingleton<Random>();
         randomComponent.Value.InitState(4);
-
-        //Get the ECB
+        
         var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
-        //Loop through and spawn at a random position
+        //Loop through and spawn bots at a random position
         for (int i = 0; i < totalBots; i++)
         {
-            //Instatiate the bucket
+            Debug.Log(totalBots);
+            //Instatiate the bot
             var instance = ECB.Instantiate(botPrefab);
             //Set its transform
             var botTransform = LocalTransform.FromPosition(
@@ -71,6 +66,23 @@ public partial struct BotSpawningSystem : ISystem
             ECB.SetComponentEnabled<OmniworkerBotTag>(instance, false);
         }
         
+        //Loop for omniworkers
+        for (int i = 0; i < totalOmniworkers; i++)
+        {
+            var instance = ECB.Instantiate(omniworkerPrefab);
+            //Set its transform
+            var botTransform = LocalTransform.FromPosition(
+                randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
+                0.5f,
+                randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
+            
+            botTransform.Scale = 1f;
+            ECB.SetComponent(instance,botTransform);
+            ECB.SetComponentEnabled<FrontBotTag>(instance, false); 
+            ECB.SetComponentEnabled<BackBotTag>(instance, false);
+            ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
+            ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
+        }
         
         //Disable state after spawning for now 
         state.Enabled = false;
