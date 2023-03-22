@@ -62,10 +62,21 @@ public partial struct BucketEmptyingSystem : ISystem
             SystemAPI.SetComponentEnabled<EmptyingTag>(bucket, false);
             SystemAPI.SetComponentEnabled<EmptyTag>(bucket, true);
             
-            //set the temperature of this tile
-            //var test = SystemAPI.GetComponent<Tile>(closestFire);
-            //test.Temperature = 0;
-            //SystemAPI.SetComponent(closestFire, test);
+            //set the temperature of the tiles
+            var closestFirePosition = SystemAPI.GetComponent<LocalTransform>(closestFire);
+            var tileDiagonal = config.cellSize * math.sqrt(2);
+            foreach (var (tile, tileTransform, tileEntity) in SystemAPI.Query<RefRW<Tile>,LocalTransform>().WithEntityAccess())
+            {
+                //get the distance
+                var dist = Vector3.Distance(tileTransform.Position, closestFirePosition.Position);
+               
+                if (dist <= tileDiagonal)
+                {
+                    var tempTile = SystemAPI.GetComponent<Tile>(tileEntity);
+                    tempTile.Temperature = 0;
+                    SystemAPI.SetComponent(tileEntity, tempTile);
+                }
+            }
         }
     }
 }

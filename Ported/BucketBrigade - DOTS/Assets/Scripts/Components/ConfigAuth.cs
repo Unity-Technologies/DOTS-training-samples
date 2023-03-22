@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class ConfigAuth : MonoBehaviour
 {
+    [Header("GRID")]
+    [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
+    public float cellSize = 0.05f;
+    [Tooltip("How many cells WIDE the simulation will be")]
+    public int rows = 20;
+    [Tooltip("How many cells DEEP the simulation will be")]
+    public int columns = 20;
+    
     [Header("WATER")]
     public GameObject Water;
     [Range(1,5)]
@@ -11,6 +19,9 @@ public class ConfigAuth : MonoBehaviour
     public int splashRadius = 3;
     [Tooltip("Water sources will refill by this amount per second")]
     public float refillRate = 0.0001f;
+
+    [Header("BUCKET")]
+    public GameObject Bucket;
     [Range(0, 100)]
     public int totalBuckets = 3;
     [Tooltip("How much water does a bucket hold?")]
@@ -21,7 +32,6 @@ public class ConfigAuth : MonoBehaviour
     public float bucketSize_EMPTY= 0.2f;
     [Tooltip("Visual scale of bucket when FULL (no effect on water capacity)")]
     public float bucketSize_FULL= 0.4f;
-    public int gridSize;
     
     [Header("FIRE")]
     [Tooltip("Prefabs / GroundTile")]
@@ -34,12 +44,6 @@ public class ConfigAuth : MonoBehaviour
     public float flickerRate = 0.1f;
     [Range(0f, 1f)]
     public float flickerRange = 0.1f;
-    [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
-    public float cellSize = 0.05f;
-    [Tooltip("How many cells WIDE the simulation will be")]
-    public int rows = 20;
-    [Tooltip("How many cells DEEP the simulation will be")]
-    public int columns = 20;
     [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
     public float flashpoint = 0.5f;
     [Tooltip("How far does heat travel? Note: Higher heat radius significantly increases CPU usafge")]
@@ -52,19 +56,15 @@ public class ConfigAuth : MonoBehaviour
 
     [Header("BOTS")]
     public GameObject Bot;
-    public GameObject Bucket;
     [Range(0.0001f, 1f)]
     public float botSpeed = 0.1f;
     [Range(1, 100)]
     public int totalBots = 10;
     [Range(0.001f, 1f)]
     public float waterCarryAffect = 0.5f;
-
     public float arriveThreshold= 0.2f;
+    
     [Header("Colours")]
-
-    // cell colours
-
     public Color colour_fireCell_neutral = new Color(125, 202, 117);
     public Color colour_fireCell_cool = new Color(255, 255, 131);
     public Color colour_fireCell_hot = new Color(255, 0, 0);
@@ -85,7 +85,6 @@ public class ConfigAuth : MonoBehaviour
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSize_EMPTY = authoring.bucketSize_EMPTY,
                 bucketSize_FULL = authoring.bucketSize_FULL,
-                gridSize = authoring.gridSize,
 
                 // Fire related unmanaged fields
                 startingFireCount = authoring.startingFireCount,
@@ -131,8 +130,7 @@ public struct Config : IComponentData
     public float bucketFillRate;
     public float bucketSize_EMPTY;
     public float bucketSize_FULL;
-    public int gridSize;
-    
+
     public int startingFireCount;
     public float maxFlameHeight;
     public float flickerRate;
