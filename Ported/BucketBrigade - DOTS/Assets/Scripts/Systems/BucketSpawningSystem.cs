@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-
+[UpdateAfter(typeof(WaterSpawningSystem))]
 public partial struct BucketSpawningSystem : ISystem
 {
     private int numRow;
@@ -50,9 +50,9 @@ public partial struct BucketSpawningSystem : ISystem
             var instance = ECB.Instantiate(bucketPrefab);
             //Set its transform
             var bucketTransform = LocalTransform.FromPosition(
-                randomComponent.Value.NextFloat(1, numRow-1) ,
+                randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
                 0.1f,
-                randomComponent.Value.NextFloat(1, numCol-1));
+                randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
             
             bucketTransform.Scale = 0.2f; //This is the scale of the bucket
             

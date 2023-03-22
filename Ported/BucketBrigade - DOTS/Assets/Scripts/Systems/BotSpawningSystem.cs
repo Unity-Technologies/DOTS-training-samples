@@ -43,13 +43,13 @@ public partial struct BotSpawningSystem : ISystem
             //Instatiate the bucket
             var instance = ECB.Instantiate(botPrefab);
             //Set its transform
-            var bucketTransform = LocalTransform.FromPosition(
-                randomComponent.Value.NextFloat(1, numRow-1) ,
-                0.25f,
-                randomComponent.Value.NextFloat(1, numCol-1));
+            var botTransform = LocalTransform.FromPosition(
+                randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
+                0.5f,
+                randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
             
-            bucketTransform.Scale = 1f; //This is the scale of the bot pls change this
-            ECB.SetComponent(instance,bucketTransform);
+            botTransform.Scale = 1f; //This is the scale of the bot pls change this
+            ECB.SetComponent(instance,botTransform);
             if (i != 0) //If it is not the first one
             {
                 ECB.SetComponentEnabled<FrontBotTag>(instance, false); 

@@ -37,7 +37,7 @@ public partial struct GridTilesSpawningSystem : ISystem
                         y = - (config.maxFlameHeight * 0.5f),
                         z = j * config.cellSize
                     },
-                    Scale = 1f,
+                    Scale = config.cellSize,
                     Rotation = quaternion.identity
                 });              
 
