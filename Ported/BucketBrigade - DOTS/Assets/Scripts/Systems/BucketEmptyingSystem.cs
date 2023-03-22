@@ -64,7 +64,7 @@ public partial struct BucketEmptyingSystem : ISystem
             
             //set the temperature of the tiles
             var closestFirePosition = SystemAPI.GetComponent<LocalTransform>(closestFire);
-            var tileDiagonal = SystemAPI.GetComponent<LocalTransform>(closestFire).Scale * math.sqrt(2); //maybe we should change this
+            var tileDiagonal = config.cellSize * math.sqrt(2);
             foreach (var (tile, tileTransform, tileEntity) in SystemAPI.Query<RefRW<Tile>,LocalTransform>().WithEntityAccess())
             {
                 //get the distance
