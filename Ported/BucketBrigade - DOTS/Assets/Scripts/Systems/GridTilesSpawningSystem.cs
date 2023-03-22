@@ -12,13 +12,6 @@ public partial struct GridTilesSpawningSystem : ISystem
     {
         state.RequireForUpdate<Config>();
     }
-    
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state)
-    {
-      
-
-    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
