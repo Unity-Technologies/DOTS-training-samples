@@ -22,8 +22,12 @@ public partial struct WaterSpawningSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var random = SystemAPI.GetSingleton<Random>();
 
+        for (int i = 0; i <= config.waterSourcesCount; i++)
         {
             var waterTile = ecb.Instantiate(config.Water);
+            var capacity = random.Value.NextFloat(config.cellSize/2, 2*config.cellSize);
+
+            //setting water source position
             if (random.Value.NextBool())//vert or horizontal
             {
                 if (random.Value.NextBool())//top or bottom
@@ -32,11 +36,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = 5 + config.columns,
+                            x = (config.columns + 4) * config.cellSize,
                             y = 0,
-                            z = random.Value.NextInt(-5,5 + config.rows)
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = 5f,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 }
@@ -46,11 +50,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = -5,
+                            x = -4 * config.cellSize,
                             y = 0,
-                            z = random.Value.NextInt(-5,5 + config.rows)
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = 5f,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 } 
@@ -63,11 +67,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextInt(-5,5 + config.columns),
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
                             y = 0,
-                            z = 5 + config.rows
+                            z = (config.rows + 4) * config.cellSize,
                         },
-                        Scale = 5f,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 }
@@ -77,11 +81,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextInt(-5,5 + config.columns),
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
                             y = 0,
-                            z = -5
+                            z = -4 * config.cellSize
                         },
-                        Scale = 5f,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 }

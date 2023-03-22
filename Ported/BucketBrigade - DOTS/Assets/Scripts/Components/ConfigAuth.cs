@@ -5,8 +5,9 @@ using UnityEngine;
 public class ConfigAuth : MonoBehaviour
 {
     [Header("GRID")]
+    [Range(0.4f, 3f)]
     [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
-    public float cellSize = 0.05f;
+    public float cellSize = 1f;
     [Tooltip("How many cells WIDE the simulation will be")]
     public int rows = 20;
     [Tooltip("How many cells DEEP the simulation will be")]
@@ -19,6 +20,8 @@ public class ConfigAuth : MonoBehaviour
     public int splashRadius = 3;
     [Tooltip("Water sources will refill by this amount per second")]
     public float refillRate = 0.0001f;
+    [Tooltip("Number of water sources")]
+    public int waterSourcesCount = 4;
 
     [Header("BUCKET")]
     public GameObject Bucket;
@@ -85,6 +88,7 @@ public class ConfigAuth : MonoBehaviour
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSize_EMPTY = authoring.bucketSize_EMPTY,
                 bucketSize_FULL = authoring.bucketSize_FULL,
+                waterSourcesCount = authoring.waterSourcesCount,
 
                 // Fire related unmanaged fields
                 startingFireCount = authoring.startingFireCount,
@@ -149,6 +153,7 @@ public struct Config : IComponentData
     public float botSpeed;
     public float waterCarryAffect;
     public float arriveThreshold;
+    public int waterSourcesCount;
 
     public Entity Bot;
     public Entity Bucket;
