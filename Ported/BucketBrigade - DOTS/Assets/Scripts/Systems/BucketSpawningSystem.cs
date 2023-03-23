@@ -51,7 +51,7 @@ public partial struct BucketSpawningSystem : ISystem
             //Set its transform
             var bucketTransform = LocalTransform.FromPosition(
                 randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
-                0.1f,
+                config.bucketStartingYPosition,
                 randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
             
             bucketTransform.Scale = 0.2f; //This is the scale of the bucket

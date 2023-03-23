@@ -35,6 +35,7 @@ public class ConfigAuth : MonoBehaviour
     public float bucketSize_EMPTY= 0.2f;
     [Tooltip("Visual scale of bucket when FULL (no effect on water capacity)")]
     public float bucketSize_FULL= 0.4f;
+    private float bucketStartingYPosition = 0.1f;
     
     [Header("FIRE")]
     [Tooltip("Prefabs / GroundTile")]
@@ -69,6 +70,7 @@ public class ConfigAuth : MonoBehaviour
     [Range(0.001f, 1f)]
     public float waterCarryAffect = 0.5f;
     public float arriveThreshold= 0.2f;
+    private float botStartingYPosition = 0.5f;
     
     [Header("Colours")]
     public Color colour_fireCell_neutral = new Color(125, 202, 117);
@@ -108,6 +110,8 @@ public class ConfigAuth : MonoBehaviour
                 botSpeed = authoring.botSpeed,
                 waterCarryAffect = authoring.waterCarryAffect,
                 arriveThreshold = authoring.arriveThreshold,
+                botStartingYPosition = authoring.botStartingYPosition,
+                bucketStartingYPosition = authoring.bucketStartingYPosition,
 
 
                 // Game objects
@@ -139,6 +143,7 @@ public struct Config : IComponentData
     public float bucketFillRate;
     public float bucketSize_EMPTY;
     public float bucketSize_FULL;
+    public float bucketStartingYPosition;
 
     public int startingFireCount;
     public float maxFlameHeight;
@@ -148,6 +153,7 @@ public struct Config : IComponentData
     public int rows;
     public int columns;
     public int heatRadius;
+    public float botStartingYPosition;
 
     public int TotalBots;
     public int TotalOmniworkers;

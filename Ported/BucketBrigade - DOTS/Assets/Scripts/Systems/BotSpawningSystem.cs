@@ -40,7 +40,7 @@ public partial struct BotSpawningSystem : ISystem
             //Set its transform
             var botTransform = LocalTransform.FromPosition(
                 randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
-                0.5f,
+                config.botStartingYPosition,
                 randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
             
             botTransform.Scale = 1f; //This is the scale of the bot pls change this

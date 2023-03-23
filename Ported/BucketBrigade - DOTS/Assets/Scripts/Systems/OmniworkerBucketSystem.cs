@@ -6,7 +6,7 @@ using UnityEngine;
 [UpdateAfter(typeof(BotSpawningSystem))]
 [UpdateAfter(typeof(WaterSpawningSystem))]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
-public partial struct OmniworkerSystem : ISystem
+public partial struct OmniworkerBucketSystem : ISystem
 {
    private float speed;
    private float3 bucketPos;
@@ -23,7 +23,7 @@ public partial struct OmniworkerSystem : ISystem
       speed = config.botSpeed;
       arriveThreshold = config.arriveThreshold;
 
-      //for each omniworker
+      //for each omniworker that goes for the bucket
       foreach (var (omniworkerTag, omniworkerTransform, omniworker) in SystemAPI.Query<OmniworkerGoForBucketTag,LocalTransform>().WithEntityAccess())
       {
          float minDist = float.MaxValue;
@@ -40,7 +40,9 @@ public partial struct OmniworkerSystem : ISystem
          }
          
          float3 dir = bucketPos - omniworkerTransform.Position;
-         dist = Vector3.Distance(bucketPos, omniworkerTransform.Position);
+         Vector3 bucketPosWithoutY = new Vector3(bucketPos.x, 0f, bucketPos.z);
+         Vector3 omniworkerPosWithoutY = new Vector3(omniworkerTransform.Position.x, 0f, omniworkerTransform.Position.z);
+         dist = Vector3.Distance(bucketPosWithoutY, omniworkerPosWithoutY);
          dir = Vector3.Normalize(dir);
       
          if (dist > arriveThreshold)
@@ -53,7 +55,9 @@ public partial struct OmniworkerSystem : ISystem
          }
          else
          {
-            //take the bucket i change tag
+            SystemAPI.SetComponentEnabled<OmniworkerGoForBucketTag>(omniworker, false);
+            SystemAPI.SetComponentEnabled<OmniworkerGoForWaterTag>(omniworker, true);
+            //take the bucket and change tag
             //another system for looking for water
          }
          
