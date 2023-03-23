@@ -85,48 +85,49 @@ public class ConfigAuth : MonoBehaviour
         {
             AddComponent(new Config
             {
-                // Water related unmanaged fields
+                //GRID
+                cellSize = authoring.cellSize,
+                rows = authoring.rows,
+                columns = authoring.columns,
+                
+                //WATER
+                Water = GetEntity(authoring.Water),
                 splashRadius = authoring.splashRadius,
                 refillRate = authoring.refillRate,
+                waterSourcesCount = authoring.waterSourcesCount,
+                
+                //BUCKET
+                Bucket = GetEntity(authoring.Bucket),
                 totalBuckets = authoring.totalBuckets,
                 bucketCapacity = authoring.bucketCapacity,
                 bucketFillRate = authoring.bucketFillRate,
                 bucketSize_EMPTY = authoring.bucketSize_EMPTY,
                 bucketSize_FULL = authoring.bucketSize_FULL,
-                waterSourcesCount = authoring.waterSourcesCount,
-
-                // Fire related unmanaged fields
+                bucketStartingYPosition = authoring.bucketStartingYPosition,
+                
+                //FIRE
+                Ground = GetEntity(authoring.Ground),
                 startingFireCount = authoring.startingFireCount,
                 maxFlameHeight = authoring.maxFlameHeight,
                 flickerRate = authoring.flickerRate,
                 flickerRange = authoring.flickerRange,
-                cellSize = authoring.cellSize,
-                rows = authoring.rows,
-                columns = authoring.columns,
-                heatRadius = authoring.heatRadius,
                 flashpoint = authoring.flashpoint,
+                heatRadius = authoring.heatRadius,
 
-                // Bot related unmanaged fields
+                //BOT
+                Bot = GetEntity(authoring.Bot),
+                Omniworker = GetEntity(authoring.Omniworker),
                 botSpeed = authoring.botSpeed,
+                TotalBots = authoring.totalBots,
+                TotalOmniworkers = authoring.totalOmniworkers,
                 waterCarryAffect = authoring.waterCarryAffect,
                 arriveThreshold = authoring.arriveThreshold,
                 botStartingYPosition = authoring.botStartingYPosition,
-                bucketStartingYPosition = authoring.bucketStartingYPosition,
 
-
-                // Game objects
-                Bot = GetEntity(authoring.Bot),
-                Omniworker = GetEntity(authoring.Omniworker),
-                TotalBots = authoring.totalBots,
-                TotalOmniworkers = authoring.totalOmniworkers,
-                Bucket = GetEntity(authoring.Bucket),
-                Ground = GetEntity(authoring.Ground),
-                Water = GetEntity(authoring.Water),
-
+                //COLORS
                 colour_fireCell_neutral = authoring.colour_fireCell_neutral,
                 colour_fireCell_cool = authoring.colour_fireCell_cool,
                 colour_fireCell_hot = authoring.colour_fireCell_hot,
-
                 colour_bucket_empty = authoring.colour_bucket_empty,
                 colour_bucket_full = authoring.colour_bucket_full
             }); ;
