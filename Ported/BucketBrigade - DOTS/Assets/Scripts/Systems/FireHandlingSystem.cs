@@ -27,14 +27,18 @@ public partial struct FireHandlingSystem : ISystem
         var ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
         EntityCommandBuffer.ParallelWriter ecbParallel = ECB.AsParallelWriter();
 
+        var firePropagationJob = new FirePropagationJob
+        {
+
+        }.ScheduleParallel(state.Dependency);
+
         // Create and schedule a Job that tests if the GroundTiles should be on fire
         var ignitionTestJob = new IgnitionTestJob
         {
-            //OnFireActive = m_OnFireActive,
             config = config,
             ecb = ecbParallel
 
-        }.ScheduleParallel(state.Dependency);
+        }.ScheduleParallel(firePropagationJob);
 
         // Update Colour and Height of the fire based on the GroundTile temperature
         var onFireTileUpdateJob = new FireUpdateJob
@@ -98,4 +102,14 @@ public partial struct FireUpdateJob: IJobEntity
 
         ecb.SetComponent(index, entity, new URPMaterialPropertyBaseColor { Value = groundColor(config.colour_fireCell_cool, config.colour_fireCell_hot) });
     }
+}
+
+[BurstCompile]
+public partial struct FirePropagationJob: IJobEntity
+{
+    void Execute([EntityIndexInQuery] int index, Entity entity)
+    {
+
+    }
+
 }
