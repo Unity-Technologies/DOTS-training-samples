@@ -36,9 +36,9 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = (config.columns + 4) * config.cellSize,
+                            x = (config.columns + 4) * config.cellSize - 8f,
                             y = 0,
-                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize) - 5f
                         },
                         Scale = capacity,
                         Rotation = quaternion.identity
@@ -50,9 +50,9 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = -4 * config.cellSize,
+                            x = -4 * config.cellSize - 8f,
                             y = 0,
-                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize) - 5f
                         },
                         Scale = capacity,
                         Rotation = quaternion.identity
@@ -67,9 +67,9 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize) - 8f,
                             y = 0,
-                            z = (config.rows + 4) * config.cellSize,
+                            z = (config.rows + 4) * config.cellSize- 5f
                         },
                         Scale = capacity,
                         Rotation = quaternion.identity
@@ -81,9 +81,9 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize) - 8f,
                             y = 0,
-                            z = -4 * config.cellSize
+                            z = -4 * config.cellSize - 5f
                         },
                         Scale = capacity,
                         Rotation = quaternion.identity
