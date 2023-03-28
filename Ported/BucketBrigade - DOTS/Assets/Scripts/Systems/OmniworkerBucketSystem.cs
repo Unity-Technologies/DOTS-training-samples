@@ -24,12 +24,12 @@ public partial struct OmniworkerBucketSystem : ISystem
       arriveThreshold = config.arriveThreshold;
 
       //for each omniworker that goes for the bucket
-      foreach (var (omniworkerTag, omniworkerTransform, omniworker) in SystemAPI.Query<OmniworkerGoForBucketTag,LocalTransform>().WithEntityAccess())
+      foreach (var (omniworkerTransform, omniworker) in SystemAPI.Query<LocalTransform>().WithEntityAccess().WithAll<OmniworkerGoForBucketTag>())
       {
          float minDist = float.MaxValue;
          float dist;
          //Get closest bucket
-         foreach (var (bucket,bucketTransform) in SystemAPI.Query<Bucket,LocalTransform>())
+         foreach (var bucketTransform in SystemAPI.Query<LocalTransform>().WithAll<Bucket>())
          {
             dist = Vector3.Distance(bucketTransform.Position, omniworkerTransform.Position);
             if (dist < minDist)
@@ -58,7 +58,6 @@ public partial struct OmniworkerBucketSystem : ISystem
             SystemAPI.SetComponentEnabled<OmniworkerGoForBucketTag>(omniworker, false);
             SystemAPI.SetComponentEnabled<OmniworkerGoForWaterTag>(omniworker, true);
             //take the bucket and change tag
-            //another system for looking for water
          }
          
       }

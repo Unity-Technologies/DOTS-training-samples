@@ -22,12 +22,12 @@ public partial struct OmniworkerWaterSystem : ISystem
       arriveThreshold = config.arriveThreshold;
 
       //for each omniworker that goes for the water with bucket
-      foreach (var (omniworkerTag, omniworkerTransform, omniworker) in SystemAPI.Query<OmniworkerGoForWaterTag,LocalTransform>().WithEntityAccess())
+      foreach (var (omniworkerTransform, omniworker) in SystemAPI.Query<LocalTransform>().WithEntityAccess().WithAll<OmniworkerGoForWaterTag>())
       {
          float minDist = float.MaxValue;
          float dist;
          //Get closest water
-         foreach (var (water,waterTransform) in SystemAPI.Query<Water,LocalTransform>())
+         foreach (var waterTransform in SystemAPI.Query<LocalTransform>().WithAll<Water>())
          {
             dist = Vector3.Distance(waterTransform.Position, omniworkerTransform.Position);
             if (dist < minDist)
@@ -56,7 +56,6 @@ public partial struct OmniworkerWaterSystem : ISystem
             SystemAPI.SetComponentEnabled<OmniworkerGoForWaterTag>(omniworker, false);
             SystemAPI.SetComponentEnabled<OmniworkerGoForFireTag>(omniworker, true);
             //fill the bucket with water and change tag
-            //another system for looking for fire
          }
          
       }
