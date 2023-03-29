@@ -50,7 +50,8 @@ public class ConfigAuth : MonoBehaviour
     public float flickerRange = 0.1f;
     [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
     public float flashpoint = 0.5f;
-    [Tooltip("How far does heat travel? Note: Higher heat radius significantly increases CPU usafge")]
+    [Tooltip("How far does heat travel?")]
+    [Range(1,10)]
     public int heatRadius = 1;
     [Tooltip("How fast will adjascent cells heat up?")]
     public float heatTransferRate = 0.7f;
