@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using UnityEngine;
 
 [BurstCompile]
 public partial struct GridTilesSpawningSystem : ISystem
@@ -22,6 +25,9 @@ public partial struct GridTilesSpawningSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
+        Random randomComponent = SystemAPI.GetSingleton<Random>();
+        var fireNumber = config.startingFireCount;
+        //var groundTiles = new NativeList<Entity>();
 
         for (int i = 0; i <= config.columns; i++)
         {
@@ -41,12 +47,32 @@ public partial struct GridTilesSpawningSystem : ISystem
                     Rotation = quaternion.identity
                 });
 
-                //Make sure all tiles are not on fire by default
-                ecb.SetComponentEnabled<OnFire>(groundTile,false);
+                if (fireNumber > 0) //temporary solution
+                {
+                    fireNumber--;
+                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1) });
+                    ecb.SetComponentEnabled<OnFire>(groundTile,true);
+                }
+                else
+                {
+                    ecb.SetComponentEnabled<OnFire>(groundTile,false);
+                }
+                
                 ecb.SetComponent(groundTile, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
-
                 ecb.AddComponent(groundTile, new PostTransformScale { Value = float3x3.Scale(config.cellSize, config.maxFlameHeight, config.cellSize) });
+                //groundTiles(groundTile);
             }
         }
+        
+        /*while (fireNumber > 0)
+        {
+            var rand = randomComponent.Value.NextInt(0, config.columns+config.rows);
+            if (!SystemAPI.IsComponentEnabled<OnFire>(groundTiles[rand])) // to avoid setting same tile
+            {
+                fireNumber--;
+                ecb.SetComponent(groundTiles[rand], new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1) });
+                ecb.SetComponentEnabled<OnFire>(groundTiles[rand],true);
+            }
+        }*/
     }
 }
