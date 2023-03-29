@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -7,14 +8,20 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-[UpdateAfter(typeof(BotSpawningSystem))]
+
 [UpdateAfter(typeof(WaterSpawningSystem))]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
+[UpdateAfter(typeof(BotNearestMovementSystem))]
+[UpdateAfter(typeof(BotSpawningSystem))]
+
 public partial struct BotMovementSystem : ISystem
 {
    private NativeArray<LocalTransform> forwardTransform;
    private NativeArray<LocalTransform> backwardTransform;
+   private NativeArray<BotTag> botTagsF;
+   private NativeArray<BotTag> botTagsB;
    private float3 backPos;
    private float3 frontPos;
    private float3 waterPos;
@@ -22,14 +29,34 @@ public partial struct BotMovementSystem : ISystem
    private float speed;
    private float totalNumberOfBots;
    private float arriveThreshold;
-
+   private EntityQuery forwardBotsQ;
+   private EntityQuery backwardBotsQ;
+   private EntityQuery botTagsQF;
+   private EntityQuery botTagsQB;
+   
+  
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
+            
+      //Before moving the rest of the bots i need to ensure that the other system has run 
+      state.RequireForUpdate<TeamReadyTag>();
+
+      forwardBotsQ = new EntityQueryBuilder(Allocator.TempJob).WithAll<LocalTransform, ForwardPassingBotTag>().WithDisabled<CarryingBotTag>()
+         .Build(state.EntityManager);
+      backwardBotsQ = new EntityQueryBuilder(Allocator.TempJob).WithAll<LocalTransform, BackwardPassingBotTag>().WithDisabled<CarryingBotTag>()
+         .Build(state.EntityManager);
+      botTagsQF = new EntityQueryBuilder(Allocator.TempJob).WithAll<BotTag,ForwardPassingBotTag>().WithDisabled<CarryingBotTag>()
+         .Build(state.EntityManager);
+      botTagsQB = new EntityQueryBuilder(Allocator.TempJob).WithAll<BotTag,BackwardPassingBotTag>().WithDisabled<CarryingBotTag>()
+         .Build(state.EntityManager);
+      
    }
 
    public void OnUpdate(ref SystemState state)
    {
+      
+      float dt = SystemAPI.Time.DeltaTime;
       
       //Get the config 
       var config = SystemAPI.GetSingleton<Config>();
@@ -37,20 +64,14 @@ public partial struct BotMovementSystem : ISystem
       totalNumberOfBots = config.TotalBots;
       arriveThreshold = config.arriveThreshold;
       
-      
-      
-      
-      
+      //Get Back guy position
       float minDist = float.MaxValue;
       //For one team
-      
-      //Get Back guy position
       foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>())
       {
          backPos = backTransform.Position;
       }
-
-      
+    
       //Get closest water
       foreach (var (water,waterTransform) in SystemAPI.Query<Water,LocalTransform>())
       {
@@ -85,41 +106,46 @@ public partial struct BotMovementSystem : ISystem
          
       }
 
-      Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
-      //state.Enabled = false;
-      
-      //Query the rest of the bots
-      EntityQuery forwardBotsQ = state.GetEntityQuery(typeof(ForwardPassingBotTag), typeof(LocalTransform));
-      EntityQuery backwardBotsQ = state.GetEntityQuery(typeof(BackwardPassingBotTag),typeof(LocalTransform));
-      
-      //Turn them into a native array 
-      var forwardBots = forwardBotsQ.ToEntityArray(Allocator.TempJob);
-      var backwardBots =  backwardBotsQ.ToEntityArray(Allocator.TempJob);
-      
+   
       forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
       backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+      botTagsF = botTagsQF.ToComponentDataArray<BotTag>(Allocator.TempJob);
+      botTagsB = botTagsQB.ToComponentDataArray<BotTag>(Allocator.TempJob);
 
+      //Turn them into a native array 
+      var forwardEntities = forwardBotsQ.ToEntityArray(Allocator.TempJob);
+      var backwardEntities = backwardBotsQ.ToEntityArray(Allocator.TempJob);
+   
       
-      float dt = SystemAPI.Time.DeltaTime;
+      var ecbSingletonF = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+      var ecbF = ecbSingletonF.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
       //Use job to distribute the bots (forward)
       var forwardJob = new MoveBotJob
       {
-         front = frontPos, 
+         ECB = ecbF,
+         Entities = forwardEntities,
+         front = frontPos+new float3(0.5f,0.0f,0.5f), 
          back = backPos,
          totalNumberBots = totalNumberOfBots/2,
          localTransform = forwardTransform,
+         botTags = botTagsF,
          deltaTime = dt,
          speed =  speed,
          arriveThreshold = arriveThreshold
 
       };
 
+      var ecbSingletonB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+      var ecbB = ecbSingletonB.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
       var backwardJob = new MoveBotJob
       {
-         front = backPos,
+         ECB = ecbB,
+         Entities = backwardEntities,
+         front = backPos-new float3(0.5f,0.0f,0.5f),
          back = frontPos,
-         totalNumberBots = totalNumberOfBots / 2,
+         totalNumberBots = totalNumberOfBots/2,
          localTransform = backwardTransform,
+         botTags = botTagsB,
          deltaTime = dt,
          speed = speed,
          arriveThreshold = arriveThreshold
@@ -127,34 +153,47 @@ public partial struct BotMovementSystem : ISystem
       };
 
 
-      JobHandle forwardHandle = forwardJob.Schedule(forwardTransform.Length,2);
-      JobHandle backwardHandle = backwardJob.Schedule(backwardTransform.Length,2);
-
+      JobHandle forwardHandle = forwardJob.Schedule(forwardTransform.Length,1);
       forwardHandle.Complete();
+      
+      JobHandle backwardHandle = backwardJob.Schedule(backwardTransform.Length,1);
       backwardHandle.Complete();
       forwardBotsQ.CopyFromComponentDataArray(forwardTransform);
       backwardBotsQ.CopyFromComponentDataArray(backwardTransform);
 
+      
    }
 }
 
+
+
 public partial struct MoveBotJob : IJobParallelFor
 {
+   public EntityCommandBuffer.ParallelWriter ECB;
+   public NativeArray<Entity> Entities;
    public float3 front;
    public float3 back;
    public float totalNumberBots;
    public NativeArray<LocalTransform> localTransform;
+   
+   [NativeDisableParallelForRestriction]
+   public NativeArray<BotTag> botTags;
    public float deltaTime;
    public float speed;
    public float arriveThreshold;
-   public bool isForward;
-   
+  
    public void Execute(int index)
    {
       LocalTransform transform = localTransform[index];
+      Entity e = Entities[index];
+      float botNo = botTags[index].indexInChain;
+
       
       
-      float progress = (float)index / totalNumberBots;
+      
+      
+      
+      float progress = (float) botNo/ totalNumberBots;
       float curveOffset = Mathf.Sin(progress * Mathf.PI) * 1f;
 
       // get Vec2 data
@@ -162,26 +201,24 @@ public partial struct MoveBotJob : IJobParallelFor
       float distance = heading.magnitude;
       Vector2 direction = heading / distance;
       Vector2 perpendicular = new Vector2(direction.y, -direction.x);
-
-      Debug.Log("chain progress: " + progress + ",  curveOffset: " + curveOffset);
       
-      float3 targetPos = Vector3.Lerp(front, back, (float)index / (float)totalNumberBots) +
-                         (new Vector3(perpendicular.x, 0f, perpendicular.y) * curveOffset);
+      float3 targetPos = Vector3.Lerp(front, back, (float)botNo / (float)totalNumberBots) +
+                         (new Vector3(perpendicular.x, 0.0f, perpendicular.y) * curveOffset);
 
 
-      float3 dir = targetPos - transform.Position;
-      float dist = Vector3.Distance(targetPos, transform.Position);
-      dir = Vector3.Normalize(dir);
-      
-      if (dist > arriveThreshold)
+      float3 dir = Vector3.Normalize(targetPos - transform.Position);
+
+      if (Vector3.Distance(transform.Position, targetPos) > arriveThreshold)
       {
-         transform.Position = localTransform[index].Position + dir * deltaTime * speed;
+         
+         transform.Position = transform.Position + dir * deltaTime * speed;
          localTransform[index] = transform;
+         
+        
+      } else if(Vector3.Distance(transform.Position, targetPos) < arriveThreshold)
+      {
+         ECB.SetComponentEnabled<ReachedTarget>(index,e, true);
       }
-      
-      
      
-      
-      
    }
 }

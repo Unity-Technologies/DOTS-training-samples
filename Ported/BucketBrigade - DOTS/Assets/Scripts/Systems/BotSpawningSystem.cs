@@ -1,4 +1,5 @@
 
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
 using UnityEngine;
@@ -13,19 +14,20 @@ public partial struct BotSpawningSystem : ISystem
     private Entity botPrefab;
     private Entity omniworkerPrefab;
     private Config config; 
-    
-    
+
     public void OnUpdate(ref SystemState state)
     {
         config = SystemAPI.GetSingleton<Config>();
         totalBots = config.TotalBots;
         totalOmniworkers = config.TotalOmniworkers;
+
         botPrefab = config.Bot;
         omniworkerPrefab = config.Omniworker;
         numRow = config.rows;
         numCol = config.columns;
         
         Random randomComponent = SystemAPI.GetSingleton<Random>();
+
         //randomComponent.Value.InitState(4);
         
         var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -35,6 +37,7 @@ public partial struct BotSpawningSystem : ISystem
         for (int i = 0; i < totalBots; i++)
         {
             Debug.Log(totalBots);
+
             //Instatiate the bot
             var instance = ECB.Instantiate(botPrefab);
             //Set its transform
@@ -61,6 +64,17 @@ public partial struct BotSpawningSystem : ISystem
             {
                 ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false); 
             }
+            
+            //This is not really useful yet
+            ECB.SetComponentEnabled<ReachedTarget>(instance,false);
+            ECB.SetComponentEnabled<CarryingBotTag>(instance,false);
+            
+            ECB.SetComponent<BotTag>(instance, new BotTag
+            {
+                cooldown = 0.0f,
+                noInChain = i,
+                indexInChain = 0
+            });
         }
         
         //Loop for omniworkers
@@ -80,7 +94,14 @@ public partial struct BotSpawningSystem : ISystem
             ECB.SetComponentEnabled<OmniworkerGoForFireTag>(instance, false);
         }
         
+      
+        
         //Disable state after spawning for now 
         state.Enabled = false;
+        foreach (var (transition, entity) in SystemAPI.Query<Transition>().WithEntityAccess())
+        {
+            ECB.AddComponent<spawnCompleteTag>(entity);
+        }
+        
     }
 }

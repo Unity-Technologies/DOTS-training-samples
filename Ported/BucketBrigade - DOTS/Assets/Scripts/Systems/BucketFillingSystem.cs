@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -72,6 +73,7 @@ public partial struct BucketFillingSystem : ISystem
                 bucketParams.ValueRW.CurrCapacity = bucketParams.ValueRW.MaxCapacity;
                 SystemAPI.SetComponentEnabled<FillingTag>(bucket, false);
                 SystemAPI.SetComponentEnabled<FullTag>(bucket, true);
+                SystemAPI.SetComponentEnabled<EmptyTag>(bucket, false);
             }
         }
     }

@@ -19,6 +19,7 @@ class BucketAuth : UnityEngine.MonoBehaviour
             AddComponent<EmptyingTag>();
             AddComponent<EmptyTag>();
             AddComponent<FullTag>();
+            AddComponent<FreeTag>();
             AddComponent<URPMaterialPropertyBaseColor>();
         }
     }
@@ -44,5 +45,9 @@ public struct EmptyTag : IComponentData, IEnableableComponent
 }
     
 public struct FullTag : IComponentData, IEnableableComponent
+{
+}
+
+public struct FreeTag : IComponentData, IEnableableComponent
 {
 }
