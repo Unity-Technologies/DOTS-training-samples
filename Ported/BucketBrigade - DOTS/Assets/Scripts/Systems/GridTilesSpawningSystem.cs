@@ -47,7 +47,7 @@ public partial struct GridTilesSpawningSystem : ISystem
                     Rotation = quaternion.identity
                 });
 
-                if (fireNumber > 0) //temporary solution
+                if (fireNumber > 0 && randomComponent.Value.NextInt(0, config.rows*config.columns) <= i+j) //temporary solution
                 {
                     fireNumber--;
                     ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1) });
@@ -60,7 +60,7 @@ public partial struct GridTilesSpawningSystem : ISystem
                 
                 ecb.SetComponent(groundTile, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
                 ecb.AddComponent(groundTile, new PostTransformScale { Value = float3x3.Scale(config.cellSize, config.maxFlameHeight, config.cellSize) });
-                //groundTiles(groundTile);
+                //groundTiles.Add(groundTile);
             }
         }
         
