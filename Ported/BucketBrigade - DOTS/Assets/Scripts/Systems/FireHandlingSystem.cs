@@ -88,19 +88,19 @@ public partial struct FireUpdateJob: IJobEntity
     [ReadOnly] public float time;
     public EntityCommandBuffer.ParallelWriter ecb;
 
-    void Execute([EntityIndexInQuery] int index, Entity entity, Tile tile, ref LocalTransform transform)
+    void Execute([EntityIndexInChunk] int index, [ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, ref LocalTransform transform)
     {
         // Handle Position
         float3 pos = transform.Position;
         pos.y = (-config.maxFlameHeight * 0.5f + (tile.Temperature * config.maxFlameHeight)) - config.flickerRange;
-        pos.y += (config.flickerRange * 0.5f) + UnityEngine.Mathf.PerlinNoise((time - index) * config.flickerRate - tile.Temperature, tile.Temperature) * config.flickerRange;
+        pos.y += (config.flickerRange * 0.5f) + UnityEngine.Mathf.PerlinNoise((time - chunkIndex * 128 + index ) * config.flickerRate - tile.Temperature, tile.Temperature) * config.flickerRange;
         transform.Position = pos;
 
         // Handle Color
         UnityEngine.Vector4 groundColor(UnityEngine.Color cool, UnityEngine.Color hot)
         { return UnityEngine.Color.Lerp(cool, hot, tile.Temperature); }
 
-        ecb.SetComponent(index, entity, new URPMaterialPropertyBaseColor { Value = groundColor(config.colour_fireCell_cool, config.colour_fireCell_hot) });
+        ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor { Value = groundColor(config.colour_fireCell_cool, config.colour_fireCell_hot) });
     }
 }
 
