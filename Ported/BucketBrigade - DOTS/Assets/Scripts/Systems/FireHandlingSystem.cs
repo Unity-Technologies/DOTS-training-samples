@@ -51,7 +51,6 @@ public partial struct FireHandlingSystem : ISystem
         // Making sure that the last scheduled job in our onUpdate,
         // changes the last Job Dependency of the World state
         state.Dependency = onFireTileUpdateJob;
-
     }
 }
 
@@ -61,7 +60,7 @@ public partial struct IgnitionTestJob : IJobEntity
     [ReadOnly] public Config config;
     public EntityCommandBuffer.ParallelWriter ecb;
 
-    void Execute([EntityIndexInQuery]int index, Entity entity, Tile tile, ref LocalTransform transform)
+    void Execute([EntityIndexInChunk]int index, Entity entity, Tile tile, ref LocalTransform transform)
     {        
         var isOnFire = tile.Temperature >= config.flashpoint;
 
@@ -107,7 +106,7 @@ public partial struct FireUpdateJob: IJobEntity
 [BurstCompile]
 public partial struct FirePropagationJob: IJobEntity
 {
-    void Execute([EntityIndexInQuery] int index, Entity entity)
+    void Execute([EntityIndexInChunk] int index, Entity entity)
     {
 
     }
