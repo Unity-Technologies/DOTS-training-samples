@@ -26,9 +26,18 @@ public partial struct GridTilesSpawningSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         var config = SystemAPI.GetSingleton<Config>();
         Random randomComponent = SystemAPI.GetSingleton<Random>();
-        var fireNumber = config.startingFireCount;
-        //var groundTiles = new NativeList<Entity>();
+        var fireTilesNumbers = new NativeArray<int>(config.startingFireCount, Allocator.Temp);
 
+        for (int i = 0; i < config.startingFireCount; i++) //generating random tile number
+        {
+            int randomNumber = randomComponent.Value.NextInt(0, config.rows*config.columns+1);
+            while (fireTilesNumbers.Contains(randomNumber))
+            {
+                randomNumber = randomComponent.Value.NextInt(0, config.rows*config.columns+1);
+            }
+            fireTilesNumbers[i] = randomNumber;
+        }
+        
         for (int i = 0; i <= config.columns; i++)
         {
             for (int j = 0; j <= config.rows; j++)
@@ -47,10 +56,9 @@ public partial struct GridTilesSpawningSystem : ISystem
                     Rotation = quaternion.identity
                 });
 
-                if (fireNumber > 0 && randomComponent.Value.NextInt(0, config.rows*config.columns) <= i+j) //temporary solution
+                if (fireTilesNumbers.Contains(i*config.rows + j))
                 {
-                    fireNumber--;
-                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1) });
+                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, config.maxFlameHeight+0.001f) }); //added value because max is exclusive
                     ecb.SetComponentEnabled<OnFire>(groundTile,true);
                 }
                 else
@@ -60,19 +68,9 @@ public partial struct GridTilesSpawningSystem : ISystem
                 
                 ecb.SetComponent(groundTile, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
                 ecb.AddComponent(groundTile, new PostTransformScale { Value = float3x3.Scale(config.cellSize, config.maxFlameHeight, config.cellSize) });
-                //groundTiles.Add(groundTile);
             }
         }
         
-        /*while (fireNumber > 0)
-        {
-            var rand = randomComponent.Value.NextInt(0, config.columns+config.rows);
-            if (!SystemAPI.IsComponentEnabled<OnFire>(groundTiles[rand])) // to avoid setting same tile
-            {
-                fireNumber--;
-                ecb.SetComponent(groundTiles[rand], new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1) });
-                ecb.SetComponentEnabled<OnFire>(groundTiles[rand],true);
-            }
-        }*/
+        fireTilesNumbers.Dispose();
     }
 }

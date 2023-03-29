@@ -43,7 +43,7 @@ public class ConfigAuth : MonoBehaviour
     [Tooltip("How many random fires do you want to battle?")]
     public int startingFireCount = 1;
     [Tooltip("How high the flames reach at max temperature")]
-    public float maxFlameHeight = 0.1f;
+    public float maxFlameHeight = 1f;
     [Range(0.001f, 10f)]
     public float flickerRate = 0.1f;
     [Range(0f, 1f)]
