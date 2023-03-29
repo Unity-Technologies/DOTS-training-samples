@@ -26,7 +26,7 @@ public partial struct BotSpawningSystem : ISystem
         numCol = config.columns;
         
         Random randomComponent = SystemAPI.GetSingleton<Random>();
-        randomComponent.Value.InitState(4);
+        //randomComponent.Value.InitState(4);
         
         var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
