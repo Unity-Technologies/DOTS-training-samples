@@ -17,19 +17,18 @@ public partial class InputSystem : SystemBase
     
     protected override void OnCreate()
     { 
-        newRequests = GetEntityQuery(typeof(SceneLoader));
-        RequireForUpdate<SceneLoader>();
+        //newRequests = GetEntityQuery(typeof(SceneLoader));
         RequireForUpdate<Config>();
         m_OnFireActive = GetComponentLookup<OnFire>();
     }
 
     protected override void OnUpdate()
     {
-        var requests = newRequests.ToComponentDataArray<SceneLoader>(Allocator.Persistent);
+        //var requests = newRequests.ToComponentDataArray<SceneLoader>(Allocator.Persistent);
         m_OnFireActive.Update(this);
         var config = SystemAPI.GetSingleton<Config>();
         RefRW<Random> random = SystemAPI.GetSingletonRW<Random>();
-        var sceneLoader = SystemAPI.GetSingleton<SceneLoader>();
+        //var sceneLoader = SystemAPI.GetSingleton<SceneLoader>();
         bool leftClick = Input.GetKeyDown(KeyCode.Mouse0);
         bool resetClick = Input.GetKeyDown(KeyCode.R);
         camera = Camera.main;
