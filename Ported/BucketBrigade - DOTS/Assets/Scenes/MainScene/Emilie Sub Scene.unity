@@ -196,7 +196,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 208df5661fd473d429daa32ad0704ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellSize: 1.12
+  cellSize: 1
   rows: 10
   columns: 10
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
@@ -211,7 +211,7 @@ MonoBehaviour:
   bucketSize_FULL: 0.4
   Ground: {fileID: 1068854535243822, guid: d4b6f03fc385f234c9012b2b8bd5b591, type: 3}
   startingFireCount: 1
-  maxFlameHeight: 2
+  maxFlameHeight: 1
   flickerRate: 0.1
   flickerRange: 0.1
   flashpoint: 0.5
@@ -220,8 +220,8 @@ MonoBehaviour:
   fireSimUpdateRate: 0.5
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
-  botSpeed: 1
-  totalBots: 10
+  botSpeed: 4.62
+  totalBots: 6
   totalOmniworkers: 1
   waterCarryAffect: 0.5
   arriveThreshold: 0.2
@@ -263,7 +263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1430845571
 MeshCollider:
   m_ObjectHideFlags: 0

@@ -59,8 +59,9 @@ public partial struct BucketEmptyingSystem : ISystem
             bucketTransform.ValueRW.Scale = scale;
             
             //Change tags on bucket
-            SystemAPI.SetComponentEnabled<EmptyingTag>(bucket, false);
             SystemAPI.SetComponentEnabled<EmptyTag>(bucket, true);
+            SystemAPI.SetComponentEnabled<FullTag>(bucket, false);
+            SystemAPI.SetComponentEnabled<EmptyingTag>(bucket, false);
             
             //set the temperature of the tiles
             var closestFirePosition = SystemAPI.GetComponent<LocalTransform>(closestFire);

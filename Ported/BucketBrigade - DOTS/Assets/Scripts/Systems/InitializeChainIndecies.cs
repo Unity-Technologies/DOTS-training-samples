@@ -44,13 +44,15 @@ namespace Systems
                 var newBotTagF = botTagsF[i];
                 newBotTagF.indexInChain = i;
                 state.EntityManager.SetComponentData(botEntityF[i],newBotTagF);
+                Debug.Log("Forward No " + i + " entity: " + botEntityF[i]);
             }
             
-            for (j = 0; j < botTagsB.Length; j++)
+            for (j = botTagsB.Length-1; j >= 0 ; j--)
             {
                 var newBotTagB = botTagsB[j];
                 newBotTagB.indexInChain = j;
                 state.EntityManager.SetComponentData(botEntityB[j],newBotTagB);
+                Debug.Log("Backward No " + j + " entity: " + botEntityB[j]);
             }
             
             

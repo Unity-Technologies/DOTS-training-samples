@@ -16,6 +16,7 @@ using UnityEngine;
 [UpdateAfter(typeof(BotSpawningSystem))]
 [UpdateAfter(typeof(WaterSpawningSystem))]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
+[UpdateAfter(typeof(FireHandlingSystem))]
 public partial struct BotNearestMovementSystem : ISystem
 {
    
@@ -89,7 +90,7 @@ public partial struct BotNearestMovementSystem : ISystem
       var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
       var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-      //Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
+      Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
       //state.Enabled = false;
       
       //Make the slowest one be the one that determines the end 
@@ -212,7 +213,7 @@ public partial struct MoveToNearestFrontJob : IJobEntity
    public void Execute(ref LocalTransform localTransform, Entity e)
    {
       float3 dir = Vector3.Normalize(targetPos - localTransform.Position);
-      if (Vector3.Distance(targetPos ,localTransform.Position) > 1)
+      if (Vector3.Distance(targetPos ,localTransform.Position) > 0.2)
       {
          localTransform.Position = localTransform.Position + dir * deltaTime * speed;
       }

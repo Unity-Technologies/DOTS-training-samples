@@ -1,6 +1,7 @@
 
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -33,6 +34,28 @@ public partial struct BotSpawningSystem : ISystem
         var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
         
+        //Colors (so it is color coded)
+        URPMaterialPropertyBaseColor ForwardColor()
+        {
+            var color = UnityEngine.Color.magenta;
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color }; 
+        }
+        URPMaterialPropertyBaseColor BackwardColor()
+        {
+            var color = UnityEngine.Color.cyan;
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color }; 
+        }
+        URPMaterialPropertyBaseColor FrontColor()
+        {
+            var color = UnityEngine.Color.red;
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color }; 
+        }
+        URPMaterialPropertyBaseColor BackColor()
+        {
+            var color = UnityEngine.Color.blue;
+            return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color }; 
+        }
+        
         //Loop through and spawn bots at a random position
         for (int i = 0; i < totalBots; i++)
         {
@@ -48,21 +71,32 @@ public partial struct BotSpawningSystem : ISystem
             
             botTransform.Scale = 1f; //This is the scale of the bot pls change this
             ECB.SetComponent(instance,botTransform);
-            if (i != 0) //If it is not the first one
-            {
-                ECB.SetComponentEnabled<FrontBotTag>(instance, false); 
-            } 
-            if (i != totalBots - 1)//If it is not the last one
-            {
-                ECB.SetComponentEnabled<BackBotTag>(instance, false);
-            }
+            
             if (i < totalBots / 2 || i ==  totalBots - 1)//If it is part of the first half
             {
                 ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
+                ECB.SetComponent(instance,ForwardColor());
             }
             if (i >= totalBots / 2 || i == 0)//If it is part of the last half
             {
                 ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false); 
+                ECB.SetComponent(instance,BackwardColor());
+            }
+            if (i != 0) //If it is not the first one
+            {
+                ECB.SetComponentEnabled<FrontBotTag>(instance, false); 
+            }
+            else
+            {
+                ECB.SetComponent(instance,FrontColor());
+            }
+            if (i != totalBots - 1)//If it is not the last one
+            {
+                ECB.SetComponentEnabled<BackBotTag>(instance, false);
+            }
+            else
+            {
+                ECB.SetComponent(instance,BackColor());
             }
             
             //This is not really useful yet
@@ -75,6 +109,13 @@ public partial struct BotSpawningSystem : ISystem
                 noInChain = i,
                 indexInChain = 0
             });
+            
+            
+            
+            
+            
+            
+            
         }
         
         //Loop for omniworkers

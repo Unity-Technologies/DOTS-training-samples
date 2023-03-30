@@ -62,7 +62,7 @@ public class ConfigAuth : MonoBehaviour
     [Header("BOTS")]
     public GameObject Bot;
     public GameObject Omniworker;
-    [Range(0.0001f, 1f)]
+    [Range(0.0001f, 10f)]
     public float botSpeed = 0.1f;
     [Range(1, 100)]
     public int totalBots = 10;

@@ -71,9 +71,10 @@ public partial struct BucketFillingSystem : ISystem
             if (bucketParams.ValueRO.CurrCapacity >= bucketParams.ValueRO.MaxCapacity)
             {
                 bucketParams.ValueRW.CurrCapacity = bucketParams.ValueRW.MaxCapacity;
-                SystemAPI.SetComponentEnabled<FillingTag>(bucket, false);
-                SystemAPI.SetComponentEnabled<FullTag>(bucket, true);
                 SystemAPI.SetComponentEnabled<EmptyTag>(bucket, false);
+                SystemAPI.SetComponentEnabled<FullTag>(bucket, true);
+                SystemAPI.SetComponentEnabled<FillingTag>(bucket, false);
+                
             }
         }
     }
