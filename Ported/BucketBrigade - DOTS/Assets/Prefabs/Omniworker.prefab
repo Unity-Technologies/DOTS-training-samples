@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4551244851114030}
   - component: {fileID: 33739795962977418}
   - component: {fileID: 23338209068383762}
-  - component: {fileID: 5435682046273608888}
+  - component: {fileID: 2366146598754307497}
   m_Layer: 0
   m_Name: Omniworker
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33739795962977418
 MeshFilter:
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5435682046273608888
+--- !u!114 &2366146598754307497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1821148559735918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fdbfbf714c73459e89461fc09e1e6953, type: 3}
+  m_Script: {fileID: 11500000, guid: 781a8c61bcff408489baf5a4301e7279, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(OmniworkerFireSystem))]
+[UpdateAfter(typeof(OmniworkerWaterSystem))]
 public partial struct OmniworkerFireSystem : ISystem
 {
    private float speed;

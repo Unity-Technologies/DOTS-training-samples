@@ -5,6 +5,8 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Rendering;
 using Unity.Mathematics;
+using UnityEngine;
+using Vector3 = System.Numerics.Vector3;
 
 [BurstCompile]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
@@ -26,6 +28,30 @@ public partial struct FireHandlingSystem : ISystem
         //Get the ECB
         var ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
         EntityCommandBuffer.ParallelWriter ecbParallel = ECB.AsParallelWriter();
+        var maxTileDistance = config.cellSize * math.sqrt(2) * config.heatRadius;
+        var counter = 0;
+        
+        foreach (var (fireTransform, fireTile) in SystemAPI.Query<LocalTransform, Tile>().WithAll<OnFire>())
+        {
+            foreach (var (tileTransform, tileEntity) in SystemAPI.Query<LocalTransform>().WithEntityAccess().WithAll<Tile>())
+            {
+                Debug.Log(counter);
+                counter++;
+                
+                var currentTemp = fireTile.Temperature;
+                Vector3 tilePosWithoutY = new Vector3(tileTransform.Position.x, 0f, tileTransform.Position.z);
+                Vector3 firePosWithoutY = new Vector3(fireTransform.Position.x, 0f, fireTransform.Position.z);
+                var dist = Vector3.Distance(tilePosWithoutY, firePosWithoutY);
+                if (dist <= maxTileDistance && dist!=0)
+                {
+                    var newTemperature = currentTemp + fireTile.Temperature * config.heatTransferRate;
+                    if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
+                    var tileComponent = SystemAPI.GetComponent<Tile>(tileEntity);
+                    tileComponent.Temperature = newTemperature;
+                    SystemAPI.SetComponent(tileEntity, tileComponent);
+                }
+            }
+        }
 
         var firePropagationJob = new FirePropagationJob
         {

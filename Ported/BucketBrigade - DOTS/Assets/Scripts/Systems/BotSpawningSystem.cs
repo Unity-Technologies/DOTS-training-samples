@@ -59,8 +59,6 @@ public partial struct BotSpawningSystem : ISystem
         //Loop through and spawn bots at a random position
         for (int i = 0; i < totalBots; i++)
         {
-            Debug.Log(totalBots);
-
             //Instatiate the bot
             var instance = ECB.Instantiate(botPrefab);
             //Set its transform
