@@ -28,7 +28,7 @@ public partial class InputSystem : SystemBase
         var requests = newRequests.ToComponentDataArray<SceneLoader>(Allocator.Persistent);
         m_OnFireActive.Update(this);
         var config = SystemAPI.GetSingleton<Config>();
-        var random = SystemAPI.GetSingleton<Random>();
+        RefRW<Random> random = SystemAPI.GetSingletonRW<Random>();
         var sceneLoader = SystemAPI.GetSingleton<SceneLoader>();
         bool leftClick = Input.GetKeyDown(KeyCode.Mouse0);
         bool resetClick = Input.GetKeyDown(KeyCode.R);
@@ -39,20 +39,21 @@ public partial class InputSystem : SystemBase
         var ecb = ecbSingleton.CreateCommandBuffer(this.EntityManager.WorldUnmanaged);
 
 
-        foreach (var (tileTransform,entity) in SystemAPI.Query<RefRW<LocalTransform>>().WithEntityAccess().WithAll<Tile>())
+        foreach (var (tileTransform, entity) in SystemAPI.Query<RefRW<LocalTransform>>().WithEntityAccess().WithAll<Tile>())
         {
-           if (leftClick)
-           {
-               var dist=Vector2.Distance(new Vector2(tileTransform.ValueRW.Position.x, tileTransform.ValueRW.Position.z), new Vector2(worldPos.x, worldPos.y));
-               if (dist < 0.5f*config.cellSize)
-               {
-                   ecb.SetComponent(entity, new Tile { Temperature = config.flashpoint});
-                   ecb.SetComponentEnabled<OnFire>(entity,true);
-               }
+            if (leftClick)
+            {
+                var dist=Vector2.Distance(new Vector2(tileTransform.ValueRW.Position.x, tileTransform.ValueRW.Position.z), new Vector2(worldPos.x, worldPos.y));
+                if (dist < 0.5f*config.cellSize)
+                {
+                    var randomVar = random.ValueRW.Value.NextFloat(config.flashpoint, config.flashpoint + 0.9f);
+                    ecb.SetComponent(entity, new Tile { Temperature = randomVar });
+                    Debug.Log(randomVar);
+                    ecb.SetComponentEnabled<OnFire>(entity,true);
+                }
                 
-           }
+            }
         }
-        
         /*if (resetClick)
         {
             for (int i = 0; i < requests.Length; i += 1)
