@@ -46,9 +46,9 @@ public class ConfigAuth : MonoBehaviour
     [Range(0.001f, 1f)]
     public float maxFlameHeight = 0.5f;
     [Range(0.001f, 10f)]
-    public float flickerRate = 0.1f;
+    public float flickerRate = 3f;
     [Range(0f, 1f)]
-    public float flickerRange = 0.1f;
+    public float flickerRange = 0.3f;
     [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
     public float flashpoint = 0.5f;
     [Tooltip("How far does heat travel?")]
