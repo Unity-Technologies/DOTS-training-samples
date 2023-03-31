@@ -48,7 +48,6 @@ public partial class InputSystem : SystemBase
                     var randomVar = random.ValueRW.Value.NextFloat(config.flashpoint, config.flashpoint + 0.9f);
                     ecb.SetComponent(entity, new Tile { Temperature = randomVar });
                     Debug.Log(randomVar);
-                    ecb.SetComponentEnabled<OnFire>(entity,true);
                 }
                 
             }

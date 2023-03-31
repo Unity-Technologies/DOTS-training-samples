@@ -58,12 +58,7 @@ public partial struct GridTilesSpawningSystem : ISystem
 
                 if (fireTilesNumbers.Contains(i*config.rows + j))
                 {
-                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, config.maxFlameHeight+0.001f) }); //added value because max is exclusive
-                    ecb.SetComponentEnabled<OnFire>(groundTile,true);
-                }
-                else
-                {
-                    ecb.SetComponentEnabled<OnFire>(groundTile,false);
+                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1.0f) }); // Temperature max value is 1.0f
                 }
                 
                 ecb.SetComponent(groundTile, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
