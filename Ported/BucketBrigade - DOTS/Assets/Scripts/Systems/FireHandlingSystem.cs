@@ -28,30 +28,31 @@ public partial struct FireHandlingSystem : ISystem
         //Get the ECB
         var ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
         EntityCommandBuffer.ParallelWriter ecbParallel = ECB.AsParallelWriter();
-        var maxTileDistance = config.cellSize * math.sqrt(2) * config.heatRadius;
-        var counter = 0;
-        
-        foreach (var (fireTransform, fireTile) in SystemAPI.Query<LocalTransform, Tile>().WithAll<OnFire>())
-        {
-            foreach (var (tileTransform, tileEntity) in SystemAPI.Query<LocalTransform>().WithEntityAccess().WithAll<Tile>())
-            {
-                Debug.Log(counter);
-                counter++;
-                
-                var currentTemp = fireTile.Temperature;
-                Vector3 tilePosWithoutY = new Vector3(tileTransform.Position.x, 0f, tileTransform.Position.z);
-                Vector3 firePosWithoutY = new Vector3(fireTransform.Position.x, 0f, fireTransform.Position.z);
-                var dist = Vector3.Distance(tilePosWithoutY, firePosWithoutY);
-                if (dist <= maxTileDistance && dist!=0)
-                {
-                    var newTemperature = currentTemp + fireTile.Temperature * config.heatTransferRate;
-                    if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
-                    var tileComponent = SystemAPI.GetComponent<Tile>(tileEntity);
-                    tileComponent.Temperature = newTemperature;
-                    SystemAPI.SetComponent(tileEntity, tileComponent);
-                }
-            }
-        }
+
+        //var maxTileDistance = config.cellSize * math.sqrt(2) * config.heatRadius;
+        //var counter = 0;
+
+        //foreach (var (fireTransform, fireTile) in SystemAPI.Query<LocalTransform, Tile>().WithAll<OnFire>())
+        //{
+        //    foreach (var (tileTransform, tileEntity) in SystemAPI.Query<LocalTransform>().WithEntityAccess().WithAll<Tile>())
+        //    {
+        //        //Debug.Log(counter);
+        //        counter++;
+
+        //        var currentTemp = fireTile.Temperature;
+        //        Vector3 tilePosWithoutY = new Vector3(tileTransform.Position.x, 0f, tileTransform.Position.z);
+        //        Vector3 firePosWithoutY = new Vector3(fireTransform.Position.x, 0f, fireTransform.Position.z);
+        //        var dist = Vector3.Distance(tilePosWithoutY, firePosWithoutY);
+        //        if (dist <= maxTileDistance && dist != 0)
+        //        {
+        //            var newTemperature = currentTemp + fireTile.Temperature * config.heatTransferRate;
+        //            if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
+        //            var tileComponent = SystemAPI.GetComponent<Tile>(tileEntity);
+        //            tileComponent.Temperature = newTemperature;
+        //            SystemAPI.SetComponent(tileEntity, tileComponent);
+        //        }
+        //    }
+        //}
 
         var firePropagationJob = new FirePropagationJob
         {
@@ -86,15 +87,14 @@ public partial struct IgnitionTestJob : IJobEntity
     [ReadOnly] public Config config;
     public EntityCommandBuffer.ParallelWriter ecb;
 
-    void Execute([EntityIndexInChunk]int index, Entity entity, Tile tile, ref LocalTransform transform)
+    void Execute([EntityIndexInChunk]int index, [ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, ref LocalTransform transform)
     {        
         var isOnFire = tile.Temperature >= config.flashpoint;
 
-        ecb.SetComponentEnabled<OnFire>(index, entity, isOnFire);
-
+        ecb.SetComponentEnabled<OnFire>(chunkIndex, entity, isOnFire);
         if (!isOnFire)
         {
-            ecb.SetComponent(index, entity, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
+            ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
 
             // Resetting ground height after it is not on fire
             float3 pos = transform.Position;
