@@ -26,7 +26,7 @@ public partial struct BucketEmptyingSystem : ISystem
         foreach (var (bucketParams, bucketTransform, bucketColor, bucket) in SystemAPI.Query<RefRW<Bucket>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithEntityAccess().WithAll<EmptyingTag>())
         {
             minDist = float.MaxValue;
-            Entity closestFire = default;
+            Entity closestFire = Entity.Null;
             
             //Get closest fire
             foreach (var (fire, fireTransform, fireEntity) in SystemAPI.Query<RefRW<OnFire>,LocalTransform>().WithEntityAccess())
@@ -40,7 +40,7 @@ public partial struct BucketEmptyingSystem : ISystem
                 }
             }
 
-            if (closestFire == default) return;
+            if (closestFire == Entity.Null) return;
 
             //Empty the bucket
             bucketParams.ValueRW.CurrCapacity = 0;

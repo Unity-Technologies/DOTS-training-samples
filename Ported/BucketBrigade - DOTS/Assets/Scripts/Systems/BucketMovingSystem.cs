@@ -130,7 +130,7 @@ public partial struct BucketMovingSystem : ISystem
                 }
             }
 
-            if (closestFilledBucketE != default)
+            if (closestFilledBucketE != Entity.Null)
             {
                 //Set it to being assigned to the team
                 state.EntityManager.AddComponent(closestFilledBucketE, typeof(Team));
@@ -209,7 +209,7 @@ public partial struct BucketMovingSystem : ISystem
                 }
             }
 
-            if (closestBotE == default)
+            if (closestBotE == Entity.Null)
             {
                 return;
             }
@@ -272,6 +272,7 @@ public partial struct BucketMovingSystem : ISystem
 
         JobHandle moveToNextHandle = moveToNextJob.Schedule(state.Dependency);
         moveToNextHandle.Complete();
+        //state.Dependency = moveToNextHandle;
 
     }
 }   

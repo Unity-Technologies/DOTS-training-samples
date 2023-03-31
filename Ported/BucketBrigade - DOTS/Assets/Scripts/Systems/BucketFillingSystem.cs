@@ -28,7 +28,7 @@ public partial struct BucketFillingSystem : ISystem
         foreach (var (bucketParams, bucketTransform, bucketColor, bucket) in SystemAPI.Query<RefRW<Bucket>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithEntityAccess().WithAll<FillingTag>())
         {
             minDist = float.MaxValue;
-            Entity closestWater = default;
+            Entity closestWater = Entity.Null;
             
             //Get closest water
             foreach (var (water,waterTransform, waterEntity) in SystemAPI.Query<RefRW<Water>,LocalTransform>().WithEntityAccess())
@@ -44,7 +44,7 @@ public partial struct BucketFillingSystem : ISystem
                 }
             }
 
-            if (closestWater == default) return;
+            if (closestWater == Entity.Null) return;
 
             //Add water to the bucket
             bucketParams.ValueRW.CurrCapacity += config.bucketFillRate;
