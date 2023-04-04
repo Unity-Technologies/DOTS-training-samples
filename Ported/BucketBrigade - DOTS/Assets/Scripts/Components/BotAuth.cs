@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Rendering;
 using UnityEngine;
 
 public class BotAuth : MonoBehaviour
@@ -18,6 +19,7 @@ public class BotAuth : MonoBehaviour
          AddComponent<BackBotTag>();
          AddComponent<CarryingBotTag>();
          AddComponent<ReachedTarget>();
+         AddComponent<URPMaterialPropertyBaseColor>();
 
       }
    }

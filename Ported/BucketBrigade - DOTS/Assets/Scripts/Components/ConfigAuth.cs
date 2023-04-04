@@ -7,11 +7,11 @@ public class ConfigAuth : MonoBehaviour
     [Header("GRID")]
     [Range(0.4f, 3f)]
     [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
-    public float cellSize = 1f;
+    public float cellSize = 0.3f;
     [Tooltip("How many cells WIDE the simulation will be")]
-    public int rows = 20;
+    public int rows = 50;
     [Tooltip("How many cells DEEP the simulation will be")]
-    public int columns = 20;
+    public int columns = 50;
     
     [Header("WATER")]
     public GameObject Water;
@@ -50,12 +50,12 @@ public class ConfigAuth : MonoBehaviour
     [Range(0f, 1f)]
     public float flickerRange = 0.3f;
     [Tooltip("When temperature reaches *flashpoint* the cell is on fire")]
-    public float flashpoint = 0.5f;
+    public float flashpoint = 0.2f;
     [Tooltip("How far does heat travel?")]
     [Range(1,10)]
     public int heatRadius = 1;
     [Tooltip("How fast will adjascent cells heat up?")]
-    public float heatTransferRate = 0.7f;
+    public float heatTransferRate = 0.0001f;
     [Range(0.0001f, 2f)]
     [Tooltip("How often the fire cells update. 1 = once per second. Lower = faster")]
     public float fireSimUpdateRate = 0.5f;
