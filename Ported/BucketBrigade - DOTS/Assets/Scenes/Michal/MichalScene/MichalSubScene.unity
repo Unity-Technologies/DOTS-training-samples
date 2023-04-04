@@ -197,26 +197,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellSize: 1
-  rows: 1
-  columns: 10
+  rows: 20
+  columns: 20
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
   splashRadius: 3
   refillRate: 0.005
-  waterSourcesCount: 6
+  waterSourcesCount: 3
   Bucket: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220, type: 3}
-  totalBuckets: 10
+  totalBuckets: 6
   bucketCapacity: 1
   bucketFillRate: 0.01
   bucketSize_EMPTY: 0.2
   bucketSize_FULL: 0.4
   Ground: {fileID: 1068854535243822, guid: d4b6f03fc385f234c9012b2b8bd5b591, type: 3}
-  startingFireCount: 1
-  maxFlameHeight: 5
+  startingFireCount: 2
+  maxFlameHeight: 1
   flickerRate: 0.1
   flickerRange: 0.1
-  flashpoint: 0.5
+  flashpoint: 0.4
   heatRadius: 1
-  heatTransferRate: 0.7
+  heatTransferRate: 0.001
   fireSimUpdateRate: 0.5
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
