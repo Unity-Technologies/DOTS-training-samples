@@ -90,7 +90,7 @@ public partial struct BotNearestMovementSystem : ISystem
       var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
       var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-      //Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
+      Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
       //state.Enabled = false;
       
       //Make the slowest one be the one that determines the end 
