@@ -32,12 +32,8 @@ public partial struct FireHandlingSystem : ISystem
         {
             foreach (var (tileTransform, tile, tileEntity) in SystemAPI.Query<LocalTransform, Tile>().WithEntityAccess())
             {
-                if ((math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
-                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius) ||
-                    (math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
-                     math.abs(tileTransform.Position.z - fireTransform.Position.z) == 0) ||
-                    (math.abs(tileTransform.Position.x - fireTransform.Position.x) == 0 &&
-                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius))
+                if (math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
+                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius)
                 {
                     var newTemperature = tile.Temperature + (fireTile.Temperature * config.heatTransferRate);
                     if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
