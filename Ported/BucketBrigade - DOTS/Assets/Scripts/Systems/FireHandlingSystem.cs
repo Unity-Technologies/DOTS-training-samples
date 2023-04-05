@@ -25,10 +25,6 @@ public partial struct FireHandlingSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
 
-        //Get the ECB
-        var ECB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-        EntityCommandBuffer.ParallelWriter ecbParallel = ECB.AsParallelWriter();
-
         foreach (var (fireTransform, fireTile) in SystemAPI.Query<LocalTransform, Tile>().WithAll<OnFire>())
         {
             foreach (var (tileTransform, tile, tileEntity) in SystemAPI.Query<LocalTransform, Tile>().WithEntityAccess())
@@ -51,9 +47,7 @@ public partial struct FireHandlingSystem : ISystem
         // Create and schedule a Job that tests if the GroundTiles should be on fire
         var ignitionTestJob = new IgnitionTestJob
         {
-            config = config,
-            ecb = ecbParallel
-
+            config = config
            
         }.ScheduleParallel(state.Dependency);
         //}.ScheduleParallel(firePropagationJob);
@@ -62,8 +56,8 @@ public partial struct FireHandlingSystem : ISystem
         var onFireTileUpdateJob = new FireUpdateJob
         {
             config = config,
-            time = UnityEngine.Time.time,
-            ecb = ecbParallel,
+            time = UnityEngine.Time.time
+
         }.ScheduleParallel(ignitionTestJob);
 
         // Making sure that the last scheduled job in our onUpdate,
@@ -78,16 +72,16 @@ public partial struct FireHandlingSystem : ISystem
 public partial struct IgnitionTestJob : IJobEntity
 {
     [ReadOnly] public Config config;
-    public EntityCommandBuffer.ParallelWriter ecb;
+
 
     void Execute(Tile tile, ref LocalTransform transform, ref URPMaterialPropertyBaseColor color, EnabledRefRW<OnFire> onFireState)
     {        
         var isOnFire = tile.Temperature >= config.flashpoint;
-
         onFireState.ValueRW = isOnFire;
         if (!isOnFire)
         {
-            color = new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral };
+            color = new URPMaterialPropertyBaseColor { Value = (Vector4)config.colour_fireCell_neutral };
+
 
             // Resetting ground height after it is not on fire
             float3 pos = transform.Position;
@@ -99,15 +93,17 @@ public partial struct IgnitionTestJob : IJobEntity
 
 
 [BurstCompile]
-[WithAll(typeof(OnFire))]
 public partial struct FireUpdateJob: IJobEntity
 {
     [ReadOnly] public Config config;
     [ReadOnly] public float time;
-    public EntityCommandBuffer.ParallelWriter ecb;
 
-    void Execute([EntityIndexInChunk] int index, [ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, ref LocalTransform transform)
+    void Execute([EntityIndexInChunk] int index, [ChunkIndexInQuery] int chunkIndex, Tile tile, ref LocalTransform transform,
+        ref URPMaterialPropertyBaseColor color, EnabledRefRO<OnFire> onFireState)
     {
+        if (!onFireState.ValueRO)
+            return;
+
         // Handle Position
         float3 pos = transform.Position;
         pos.y = (-config.maxFlameHeight * 0.5f + (tile.Temperature * config.maxFlameHeight)) - config.flickerRange;
@@ -118,7 +114,7 @@ public partial struct FireUpdateJob: IJobEntity
         UnityEngine.Vector4 groundColor(UnityEngine.Color cool, UnityEngine.Color hot)
         { return UnityEngine.Color.Lerp(cool, hot, tile.Temperature); }
 
-        ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor { Value = groundColor(config.colour_fireCell_cool, config.colour_fireCell_hot) });
+        color = new URPMaterialPropertyBaseColor { Value = groundColor(config.colour_fireCell_cool, config.colour_fireCell_hot) };
     }
 }
 
