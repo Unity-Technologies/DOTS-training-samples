@@ -24,8 +24,6 @@ public partial struct BotMovementSystem : ISystem
    private NativeArray<BotTag> botTagsB;
    private float3 backPos;
    private float3 frontPos;
-   private float3 waterPos;
-   private float3 firePos;
    private float speed;
    private float totalNumberOfBots;
    private float arriveThreshold;
@@ -65,48 +63,19 @@ public partial struct BotMovementSystem : ISystem
       arriveThreshold = config.arriveThreshold;
       
       //Get Back guy position
-      float minDist = float.MaxValue;
       //For one team
       foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>())
       {
          backPos = backTransform.Position;
       }
-    
-      //Get closest water
-      foreach (var (water,waterTransform) in SystemAPI.Query<Water,LocalTransform>())
-      {
-         if (water.CurrCapacity > 0) //Check if it has water in it
-         {
-            var dist = Vector3.Distance(waterTransform.Position, backPos);
-            if (dist < minDist)
-            {
-               minDist = dist;
-               waterPos = waterTransform.Position;
-            }
-         }
-      }
-      //Reset value
-      minDist = float.MaxValue;
+
+
       //Get thrower guy
       foreach (var frontTransform in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>())
       {
          frontPos = frontTransform.Position;
       }
 
-      //Get closest fire to the back pos
-      foreach (var fireTransform in SystemAPI.Query<LocalTransform>().WithAll<OnFire>())
-      {
-        
-         var dist = Vector3.Distance(fireTransform.Position, backPos);
-         if (dist < minDist)
-         {
-            minDist = dist; 
-            firePos = fireTransform.Position;
-         }
-         
-      }
-
-   
       forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
       backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
       botTagsF = botTagsQF.ToComponentDataArray<BotTag>(Allocator.TempJob);
@@ -161,7 +130,22 @@ public partial struct BotMovementSystem : ISystem
       forwardBotsQ.CopyFromComponentDataArray(forwardTransform);
       backwardBotsQ.CopyFromComponentDataArray(backwardTransform);
 
+      //Check if everyone has reached their target. If so the BucketMovingSystem should start running. 
+      //Query all the reached target entities and check if len = total num bots in team 
+      EntityQuery botsInTeamQ =  new EntityQueryBuilder(Allocator.Temp).WithAll<Team,BotTag>()
+         .Build(state.EntityManager);
+      int numBotsInTeam = botsInTeamQ.CalculateEntityCount();
+      EntityQuery botsInTeamReachedQ =  new EntityQueryBuilder(Allocator.Temp).WithAll<Team,BotTag,ReachedTarget>()
+         .Build(state.EntityManager);
+      int numBbotsInTeamReachedQ =  botsInTeamReachedQ.CalculateEntityCount();
+
+      if (numBotsInTeam == numBbotsInTeamReachedQ)
+      {
+         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+         state.EntityManager.AddComponent<botChainCompleteTag>(TransitionManager);
+      }
       
+
    }
 }
 
@@ -188,10 +172,6 @@ public partial struct MoveBotJob : IJobParallelFor
       Entity e = Entities[index];
       float botNo = botTags[index].indexInChain;
 
-      
-      
-      
-      
       
       float progress = (float) botNo/ totalNumberBots;
       float curveOffset = Mathf.Sin(progress * Mathf.PI) * 1f;

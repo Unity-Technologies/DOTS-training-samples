@@ -20,7 +20,19 @@ public struct Transition : IComponentData
     
 }
 
-public struct spawnCompleteTag : IComponentData
+public struct botSpawnCompleteTag : IComponentData
 {
     
 }
+
+public struct tileSpawnCompleteTag : IComponentData
+{
+    
+}
+
+
+
+public struct botChainCompleteTag : IComponentData
+{
+}
+

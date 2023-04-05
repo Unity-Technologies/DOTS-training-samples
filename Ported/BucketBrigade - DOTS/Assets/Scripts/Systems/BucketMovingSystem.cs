@@ -13,14 +13,10 @@ using UnityEngine;
 [UpdateAfter(typeof(BucketFillingSystem))]
 public partial struct BucketMovingSystem : ISystem
 {
-    private NativeArray<LocalTransform> forwardTransform;
-    private NativeArray<LocalTransform> backwardTransform;
     private NativeArray<LocalTransform> frontBotTransforms;
     private NativeArray<LocalTransform> backBotTransforms;
     
-    private EntityQuery forwardBotsQ;
     private EntityQuery frontBotsQ;
-    private EntityQuery backwardBotsQ;
     private EntityQuery backBotsQ;
     private EntityQuery botsQ;
     private EntityQuery movingBotsQ;
@@ -46,13 +42,8 @@ public partial struct BucketMovingSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        state.RequireForUpdate<botChainCompleteTag>();
         
-        //Needed Entity Queries 
-      
-        forwardBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform, ForwardPassingBotTag, Team,ReachedTarget>()
-            .Build(state.EntityManager);
-        backwardBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform, BackwardPassingBotTag,Team,ReachedTarget>()
-            .Build(state.EntityManager);
         movingBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform,Team,ReachedTarget,BotTag>().WithDisabled<BackBotTag,FrontBotTag>()
             .Build(state.EntityManager);
         frontBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform,Team,FrontBotTag>()
@@ -67,16 +58,10 @@ public partial struct BucketMovingSystem : ISystem
         //Needed ComponentLookups
         fullBuckets = SystemAPI.GetComponentLookup<FullTag>();
         
-        
-        
-        
-
     }
 
     public void OnDestroy(ref SystemState state)
     {
-        forwardBotsQ.Dispose();
-        backwardBotsQ.Dispose();
         movingBotsQ.Dispose();
         frontBotsQ.Dispose();
         backBotsQ.Dispose();
@@ -91,26 +76,11 @@ public partial struct BucketMovingSystem : ISystem
         
         //Get delta time
         var dt = SystemAPI.Time.DeltaTime;
-
-        //Get all the forward bots in an array (from a specific team)
-        //Turn them into a native array 
-        forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
-        backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
-    
+        
         frontBotTransforms = frontBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
         backBotTransforms = backBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
-        
 
-        if (forwardTransform.Length + backwardTransform.Length < totalNumberOfBots - 2)
-        {
-            return;
-        }
-        else
-        {
-            forwardTransform.Dispose();
-            backwardTransform.Dispose();
-        }
-        
+  
        var minDist = float.MaxValue;
         
        //The back guy i should get a bucket, fill it, and assign it to the team 
@@ -150,8 +120,7 @@ public partial struct BucketMovingSystem : ISystem
 
        //Update changed lookups 
        fullBuckets.Update(ref state);
-
-
+       
        
         //For the bots without a bucket we should find our closest free team bucket
         if (numAssignedBuckets > 0)
@@ -213,10 +182,6 @@ public partial struct BucketMovingSystem : ISystem
             {
                 return;
             }
-            else
-            {
-                Debug.Log("The current closest bot is " + closestBotTag.noInChain + " chain index " + closestBotTag.indexInChain);
-            }
             //At this point we should have the closest bot to our team's bucket
             //Set it to being occupied and the corresponding bot to be carrying 
             state.EntityManager.SetComponentEnabled<FreeTag>(closestFilledBucketE, false);
@@ -254,6 +219,7 @@ public partial struct BucketMovingSystem : ISystem
 
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
             .CreateCommandBuffer(state.WorldUnmanaged);
+        var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
 
         MoveToNextJob moveToNextJob = new MoveToNextJob
         {
@@ -266,13 +232,17 @@ public partial struct BucketMovingSystem : ISystem
             speed = speed,
             ECB = ecb,
             arriveThreshold = 0.2f,
-            isForward  = isFull
+            isForward  = isFull,
+            transitionManager = TransitionManager
             
         };
 
         JobHandle moveToNextHandle = moveToNextJob.Schedule(state.Dependency);
         moveToNextHandle.Complete();
         //state.Dependency = moveToNextHandle;
+        
+        //Reset closest bot entity to prevent it from having an entity as a default value
+        closestBotE = Entity.Null;
 
     }
 }   
@@ -392,7 +362,6 @@ public partial struct MoveToNextJob : IJobEntity
 {
     
     public BotTag currentBotTag;
-    
     public float3 TargetPos;
     public float3 EndPos;
     
@@ -403,6 +372,8 @@ public partial struct MoveToNextJob : IJobEntity
     public float speed;
     public float arriveThreshold;
     public bool isForward;
+    
+    public Entity transitionManager;
     
     public EntityCommandBuffer ECB;
     public void Execute(Entity self, LocalTransform selfTransform)
@@ -438,7 +409,7 @@ public partial struct MoveToNextJob : IJobEntity
         else //We reached the target pos
         {
             //Put myself on a cooldown, so that I don't pick up the bucket again
-            currentBotTag.cooldown = 100f;
+            currentBotTag.cooldown = 50f;
             ECB.SetComponent(self,currentBotTag);
 
             //Stop carrying the bucket 
@@ -453,12 +424,15 @@ public partial struct MoveToNextJob : IJobEntity
                 {
                     Debug.Log("I am the front guy so I should empty the bucket" + self);
                     ECB.SetComponentEnabled<EmptyingTag>(bucket,true);
+                    ECB.RemoveComponent<botChainCompleteTag>(transitionManager);
+                    
                 }
                 else
                 {
                     Debug.Log("I am the back guy so I should fill the bucket" + self);
                     ECB.SetComponentEnabled<FillingTag>(bucket,true);
                 }
+                
                 
             }
             

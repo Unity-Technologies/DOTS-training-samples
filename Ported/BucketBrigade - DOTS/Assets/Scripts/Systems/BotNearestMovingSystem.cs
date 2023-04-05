@@ -1,21 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.VisualScripting;
-using UnityEngine;
 
 [UpdateAfter(typeof(BotSpawningSystem))]
 [UpdateAfter(typeof(WaterSpawningSystem))]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
+[CreateAfter(typeof(FireHandlingSystem))]
 [UpdateAfter(typeof(FireHandlingSystem))]
 public partial struct BotNearestMovementSystem : ISystem
 {
@@ -30,6 +23,7 @@ public partial struct BotNearestMovementSystem : ISystem
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
+      state.RequireForUpdate<tileSpawnCompleteTag>();
    }
    
   
@@ -71,18 +65,23 @@ public partial struct BotNearestMovementSystem : ISystem
       {
          frontPos = frontTransform.Position;
       }
-
+      
       //Get closest fire to the back pos
       foreach (var fireTransform in SystemAPI.Query<LocalTransform>().WithAll<OnFire>())
       {
-        
+         
          var dist = Vector3.Distance(fireTransform.Position, backPos);
          if (dist < minDist)
          {
             minDist = dist; 
             firePos = fireTransform.Position;
          }
-         
+      }
+
+
+      if (firePos.Equals(float3.zero))
+      {
+         return;
       }
       
       
@@ -90,7 +89,7 @@ public partial struct BotNearestMovementSystem : ISystem
       var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
       var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-      Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
+      //Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
       //state.Enabled = false;
       
       //Make the slowest one be the one that determines the end 
@@ -180,16 +179,17 @@ public partial struct MoveToNearestBackJob : IJobEntity
    public void Execute(ref LocalTransform localTransform, Entity e)
    {
       float3 dir = Vector3.Normalize(targetPos - localTransform.Position);
-      if (Vector3.Distance(targetPos ,localTransform.Position) > 1)
+      if (Vector3.Distance(targetPos ,localTransform.Position) > arriveThreshold)
       {
          localTransform.Position = localTransform.Position + dir * deltaTime * speed;
       }
       else
       {
+         ECB.SetComponentEnabled<ReachedTarget>(e, true);
          if (shouldSetReady)
          {
             ECB.AddComponent(e, new TeamReadyTag());
-            ECB.SetComponentEnabled<ReachedTarget>(e, true);
+            
          }
       }
       
@@ -212,18 +212,20 @@ public partial struct MoveToNearestFrontJob : IJobEntity
  
    public void Execute(ref LocalTransform localTransform, Entity e)
    {
+      targetPos.y = 0.25f;
       float3 dir = Vector3.Normalize(targetPos - localTransform.Position);
-      if (Vector3.Distance(targetPos ,localTransform.Position) > 0.2)
+      if (Vector3.Distance(targetPos ,localTransform.Position) > arriveThreshold)
       {
          localTransform.Position = localTransform.Position + dir * deltaTime * speed;
       }
       else
       {
+         ECB.SetComponentEnabled<ReachedTarget>(e, true);
          if (shouldSetReady)
          {
            
             ECB.AddComponent(e, new TeamReadyTag());
-            ECB.SetComponentEnabled<ReachedTarget>(e, true);
+            
          }
 
       }

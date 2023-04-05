@@ -47,7 +47,6 @@ public partial struct FireHandlingSystem : ISystem
                 }
             }
         }
-
         var firePropagationJob = new FirePropagationJob
         {
            
