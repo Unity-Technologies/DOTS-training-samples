@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Systems;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -11,10 +12,8 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 
-[UpdateAfter(typeof(WaterSpawningSystem))]
-[UpdateAfter(typeof(GridTilesSpawningSystem))]
+
 [UpdateAfter(typeof(BotNearestMovementSystem))]
-[UpdateAfter(typeof(BotSpawningSystem))]
 
 public partial struct BotMovementSystem : ISystem
 {

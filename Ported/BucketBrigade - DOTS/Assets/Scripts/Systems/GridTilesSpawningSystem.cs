@@ -61,11 +61,17 @@ public partial struct GridTilesSpawningSystem : ISystem
                     ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1.0f) }); // Temperature max value is 1.0f
                 }
                 
+                //SET THE FIRE TO BEING DISABLES PR DEFAULT 
+                ecb.SetComponentEnabled<OnFire>(groundTile, false); 
+                
                 ecb.SetComponent(groundTile, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
                 ecb.AddComponent(groundTile, new PostTransformScale { Value = float3x3.Scale(config.cellSize, config.maxFlameHeight, config.cellSize) });
             }
         }
         
         fireTilesNumbers.Dispose();
+        
+        var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+        ecb.AddComponent<tileSpawnCompleteTag>(TransitionManager);
     }
 }

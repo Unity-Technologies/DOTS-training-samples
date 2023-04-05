@@ -1,14 +1,11 @@
 
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(BotSpawningSystem))]
-[UpdateAfter(typeof(WaterSpawningSystem))]
-[UpdateAfter(typeof(GridTilesSpawningSystem))]
-[CreateAfter(typeof(FireHandlingSystem))]
 [UpdateAfter(typeof(FireHandlingSystem))]
 public partial struct BotNearestMovementSystem : ISystem
 {
@@ -66,8 +63,24 @@ public partial struct BotNearestMovementSystem : ISystem
          frontPos = frontTransform.Position;
       }
       
-      //Get closest fire to the back pos
-      foreach (var fireTransform in SystemAPI.Query<LocalTransform>().WithAll<OnFire>())
+
+      EntityQuery fireQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, OnFire>().Build();
+      NativeArray<LocalTransform> fireTransforms = fireQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+
+      int numFire = fireTransforms.Length;
+      for (int i = 0; i < numFire; i++)
+      {
+         var dist = Vector3.Distance(fireTransforms[i].Position, backPos);
+         if (dist < minDist)
+         {
+            minDist = dist; 
+            firePos = fireTransforms[i].Position;
+         }
+      }
+
+      fireTransforms.Dispose();
+          //Get closest fire to the back pos
+      /*foreach (var fireTransform in SystemAPI.Query<LocalTransform>().WithAll<OnFire>())
       {
          
          var dist = Vector3.Distance(fireTransform.Position, backPos);
@@ -78,7 +91,7 @@ public partial struct BotNearestMovementSystem : ISystem
          }
       }
 
-
+     */
       if (firePos.Equals(float3.zero))
       {
          return;
@@ -88,9 +101,6 @@ public partial struct BotNearestMovementSystem : ISystem
       //Create the ECB's for adding the ReachedTarget Component 
       var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
       var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-      //Debug.Log("Water: " + waterPos  + " Fire: " + firePos + " Front: "+ frontPos + " Back: "+backPos );
-      //state.Enabled = false;
       
       //Make the slowest one be the one that determines the end 
       if (Vector3.Distance(waterPos, backPos) < Vector3.Distance(firePos, frontPos))
@@ -165,6 +175,9 @@ public partial struct BotNearestMovementSystem : ISystem
 }
 
 [WithAll(typeof(BackBotTag),typeof(Team))]
+//[WithDisabled(typeof(ReachedTarget))]
+
+//[WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
 //This job will move the back bot to the water
 public partial struct MoveToNearestBackJob : IJobEntity
 {

@@ -10,7 +10,6 @@ using UnityEngine;
 
 //It should run after the bot moving system
 [UpdateAfter(typeof(BotMovementSystem))]
-[UpdateAfter(typeof(BucketFillingSystem))]
 public partial struct BucketMovingSystem : ISystem
 {
     private NativeArray<LocalTransform> frontBotTransforms;
@@ -44,12 +43,10 @@ public partial struct BucketMovingSystem : ISystem
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<botChainCompleteTag>();
         
-        movingBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform,Team,ReachedTarget,BotTag>().WithDisabled<BackBotTag,FrontBotTag>()
-            .Build(state.EntityManager);
-        frontBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform,Team,FrontBotTag>()
-            .Build(state.EntityManager);
-        backBotsQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<LocalTransform,Team,BackBotTag>()
-            .Build(state.EntityManager);
+        movingBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,ReachedTarget,BotTag>().WithDisabled<BackBotTag,FrontBotTag>()
+            .Build();
+        frontBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,FrontBotTag>().Build();
+        backBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,BackBotTag>().Build();
 
         //Instantiating Variables
         numAssignedBuckets = 0;
@@ -58,13 +55,6 @@ public partial struct BucketMovingSystem : ISystem
         //Needed ComponentLookups
         fullBuckets = SystemAPI.GetComponentLookup<FullTag>();
         
-    }
-
-    public void OnDestroy(ref SystemState state)
-    {
-        movingBotsQ.Dispose();
-        frontBotsQ.Dispose();
-        backBotsQ.Dispose();
     }
 
     public void OnUpdate(ref SystemState state)
@@ -378,7 +368,6 @@ public partial struct MoveToNextJob : IJobEntity
     public EntityCommandBuffer ECB;
     public void Execute(Entity self, LocalTransform selfTransform)
     {
-        
         //First I will make sure the bucket is not being filled
         ECB.SetComponentEnabled<FillingTag>(bucket, false);
 
@@ -409,7 +398,7 @@ public partial struct MoveToNextJob : IJobEntity
         else //We reached the target pos
         {
             //Put myself on a cooldown, so that I don't pick up the bucket again
-            currentBotTag.cooldown = 50f;
+            currentBotTag.cooldown = 10f;
             ECB.SetComponent(self,currentBotTag);
 
             //Stop carrying the bucket 
@@ -438,8 +427,6 @@ public partial struct MoveToNextJob : IJobEntity
             
 
         }
-
-        //movingBotTransforms[currentBotTag.noInChain] = transform;
     }
     
 }

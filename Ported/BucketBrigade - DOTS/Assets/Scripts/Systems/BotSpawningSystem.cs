@@ -137,10 +137,9 @@ public partial struct BotSpawningSystem : ISystem
         
         //Disable state after spawning for now 
         state.Enabled = false;
-        foreach (var (transition, entity) in SystemAPI.Query<Transition>().WithEntityAccess())
-        {
-            ECB.AddComponent<spawnCompleteTag>(entity);
-        }
+        var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+        ECB.AddComponent<botSpawnCompleteTag>(TransitionManager);
+       
         
     }
 }

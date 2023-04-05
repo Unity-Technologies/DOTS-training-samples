@@ -1,3 +1,4 @@
+using Systems;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
@@ -9,7 +10,7 @@ using UnityEngine;
 using Vector3 = System.Numerics.Vector3;
 
 [BurstCompile]
-[UpdateAfter(typeof(GridTilesSpawningSystem))]
+[UpdateAfter(typeof(InitializeChainIndecies))]
 public partial struct FireHandlingSystem : ISystem
 {
 
@@ -32,12 +33,8 @@ public partial struct FireHandlingSystem : ISystem
         {
             foreach (var (tileTransform, tile, tileEntity) in SystemAPI.Query<LocalTransform, Tile>().WithEntityAccess())
             {
-                if ((math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
-                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius) ||
-                    (math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
-                     math.abs(tileTransform.Position.z - fireTransform.Position.z) == 0) ||
-                    (math.abs(tileTransform.Position.x - fireTransform.Position.x) == 0 &&
-                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius))
+                if (math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
+                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius)
                 {
                     var newTemperature = tile.Temperature + (fireTile.Temperature * config.heatTransferRate);
                     if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
@@ -47,10 +44,9 @@ public partial struct FireHandlingSystem : ISystem
                 }
             }
         }
-        var firePropagationJob = new FirePropagationJob
-        {
-           
-        }.ScheduleParallel(state.Dependency);
+ 
+        //Will be used when/if we convert fire propagation into a Parallel job
+        //var firePropagationJob = new FirePropagationJob{}.ScheduleParallel(state.Dependency);
 
         // Create and schedule a Job that tests if the GroundTiles should be on fire
         var ignitionTestJob = new IgnitionTestJob
@@ -58,7 +54,9 @@ public partial struct FireHandlingSystem : ISystem
             config = config,
             ecb = ecbParallel
 
-        }.ScheduleParallel(firePropagationJob);
+           
+        }.ScheduleParallel(state.Dependency);
+        //}.ScheduleParallel(firePropagationJob);
 
         // Update Colour and Height of the fire based on the GroundTile temperature
         var onFireTileUpdateJob = new FireUpdateJob
@@ -71,23 +69,25 @@ public partial struct FireHandlingSystem : ISystem
         // Making sure that the last scheduled job in our onUpdate,
         // changes the last Job Dependency of the World state
         state.Dependency = onFireTileUpdateJob;
+        
     }
 }
 
 [BurstCompile]
+[WithOptions(EntityQueryOptions.IgnoreComponentEnabledState)]
 public partial struct IgnitionTestJob : IJobEntity
 {
     [ReadOnly] public Config config;
     public EntityCommandBuffer.ParallelWriter ecb;
 
-    void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, ref LocalTransform transform)
+    void Execute(Tile tile, ref LocalTransform transform, ref URPMaterialPropertyBaseColor color, EnabledRefRW<OnFire> onFireState)
     {        
         var isOnFire = tile.Temperature >= config.flashpoint;
 
-        ecb.SetComponentEnabled<OnFire>(chunkIndex, entity, isOnFire);
+        onFireState.ValueRW = isOnFire;
         if (!isOnFire)
         {
-            ecb.SetComponent(chunkIndex, entity, new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral });
+            color = new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)config.colour_fireCell_neutral };
 
             // Resetting ground height after it is not on fire
             float3 pos = transform.Position;
@@ -99,7 +99,7 @@ public partial struct IgnitionTestJob : IJobEntity
 
 
 [BurstCompile]
-
+[WithAll(typeof(OnFire))]
 public partial struct FireUpdateJob: IJobEntity
 {
     [ReadOnly] public Config config;
@@ -122,11 +122,11 @@ public partial struct FireUpdateJob: IJobEntity
     }
 }
 
-
+//Template for the FirePropagationJob
 [BurstCompile]
 public partial struct FirePropagationJob: IJobEntity
 {
-    void Execute([ChunkIndexInQuery] int index, Entity entity, Tile tile, LocalTransform transform)
+    void Execute([EntityIndexInChunk] int index, [ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, LocalTransform transform)
     {
        
     }

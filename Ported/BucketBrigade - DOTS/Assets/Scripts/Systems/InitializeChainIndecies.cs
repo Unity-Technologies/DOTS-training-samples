@@ -7,8 +7,9 @@ using UnityEngine;
 namespace Systems
 {
     [UpdateAfter(typeof(BotSpawningSystem))]
-    [UpdateAfter(typeof(BotNearestMovementSystem))]
-    [UpdateBefore(typeof(BotMovementSystem))]
+    [UpdateAfter(typeof(GridTilesSpawningSystem))]
+    [UpdateAfter(typeof(WaterSpawningSystem))]
+    [UpdateAfter(typeof(BucketSpawningSystem))]
     public partial struct InitializeChainIndecies : ISystem
     {
         private int numTimesRun;
@@ -20,7 +21,7 @@ namespace Systems
         
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<spawnCompleteTag>();
+            state.RequireForUpdate<botSpawnCompleteTag>();
             BotTagsFQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<BotTag, ForwardPassingBotTag>()
                 .Build(state.EntityManager);
             BotTagsBQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<BotTag, BackwardPassingBotTag>()
@@ -44,7 +45,7 @@ namespace Systems
                 var newBotTagF = botTagsF[i];
                 newBotTagF.indexInChain = i;
                 state.EntityManager.SetComponentData(botEntityF[i],newBotTagF);
-                Debug.Log("Forward No " + i + " entity: " + botEntityF[i]);
+                //Debug.Log("Forward No " + i + " entity: " + botEntityF[i]);
             }
             
             for (j = botTagsB.Length-1; j >= 0 ; j--)
@@ -52,7 +53,7 @@ namespace Systems
                 var newBotTagB = botTagsB[j];
                 newBotTagB.indexInChain = j;
                 state.EntityManager.SetComponentData(botEntityB[j],newBotTagB);
-                Debug.Log("Backward No " + j + " entity: " + botEntityB[j]);
+                //Debug.Log("Backward No " + j + " entity: " + botEntityB[j]);
             }
             
             
