@@ -2,15 +2,14 @@ using Systems;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Rendering;
 using Unity.Mathematics;
 using UnityEngine;
-using Vector3 = System.Numerics.Vector3;
 
 [BurstCompile]
 [UpdateAfter(typeof(InitializeChainIndecies))]
+[UpdateAfter(typeof(GridTilesSpawningSystem))]
 public partial struct FireHandlingSystem : ISystem
 {
 
@@ -24,33 +23,21 @@ public partial struct FireHandlingSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+        var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
 
-        foreach (var (fireTransform, fireTile) in SystemAPI.Query<LocalTransform, Tile>().WithAll<OnFire>())
+        var firePropagationJob = new FirePropagationJob
         {
-            foreach (var (tileTransform, tile, tileEntity) in SystemAPI.Query<LocalTransform, Tile>().WithEntityAccess())
-            {
-                if (math.abs(tileTransform.Position.x - fireTransform.Position.x) <= config.cellSize * config.heatRadius &&
-                    math.abs(tileTransform.Position.z - fireTransform.Position.z) <= config.cellSize * config.heatRadius)
-                {
-                    var newTemperature = tile.Temperature + (fireTile.Temperature * config.heatTransferRate);
-                    if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
-                    var tileComponent = SystemAPI.GetComponent<Tile>(tileEntity);
-                    tileComponent.Temperature = newTemperature;
-                    SystemAPI.SetComponent(tileEntity, tileComponent);
-                }
-            }
-        }
- 
-        //Will be used when/if we convert fire propagation into a Parallel job
-        //var firePropagationJob = new FirePropagationJob{}.ScheduleParallel(state.Dependency);
+            fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
+            fireTransforms = fireQuery.ToComponentDataArray<LocalTransform>(Allocator.TempJob),
+            config = config
+        }.ScheduleParallel(state.Dependency);
 
         // Create and schedule a Job that tests if the GroundTiles should be on fire
         var ignitionTestJob = new IgnitionTestJob
         {
             config = config
            
-        }.ScheduleParallel(state.Dependency);
-        //}.ScheduleParallel(firePropagationJob);
+        }.ScheduleParallel(firePropagationJob);
 
         // Update Colour and Height of the fire based on the GroundTile temperature
         var onFireTileUpdateJob = new FireUpdateJob
@@ -72,8 +59,7 @@ public partial struct FireHandlingSystem : ISystem
 public partial struct IgnitionTestJob : IJobEntity
 {
     [ReadOnly] public Config config;
-
-
+    
     void Execute(Tile tile, ref LocalTransform transform, ref URPMaterialPropertyBaseColor color, EnabledRefRW<OnFire> onFireState)
     {        
         var isOnFire = tile.Temperature >= config.flashpoint;
@@ -81,7 +67,6 @@ public partial struct IgnitionTestJob : IJobEntity
         if (!isOnFire)
         {
             color = new URPMaterialPropertyBaseColor { Value = (Vector4)config.colour_fireCell_neutral };
-
 
             // Resetting ground height after it is not on fire
             float3 pos = transform.Position;
@@ -118,13 +103,23 @@ public partial struct FireUpdateJob: IJobEntity
     }
 }
 
-//Template for the FirePropagationJob
 [BurstCompile]
 public partial struct FirePropagationJob: IJobEntity
 {
-    void Execute([EntityIndexInChunk] int index, [ChunkIndexInQuery] int chunkIndex, Entity entity, Tile tile, LocalTransform transform)
+    [ReadOnly] public NativeArray<Tile> fireTiles;
+    [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
+    [ReadOnly] public Config config;
+    void Execute(ref Tile tile, in LocalTransform tileTransform)
     {
-       
+        for (int i = 0; i < fireTiles.Length; i++)
+        {
+            if (math.abs(tileTransform.Position.x - fireTransforms[i].Position.x) <= config.cellSize * config.heatRadius &&
+                math.abs(tileTransform.Position.z - fireTransforms[i].Position.z) <= config.cellSize * config.heatRadius)
+            {
+                var newTemperature = tile.Temperature + (fireTiles[i].Temperature * config.heatTransferRate);
+                if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
+                tile.Temperature = newTemperature;
+            }
+        }
     }
-
 }
