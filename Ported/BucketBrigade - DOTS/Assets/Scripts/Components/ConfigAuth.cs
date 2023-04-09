@@ -116,6 +116,7 @@ public class ConfigAuth : MonoBehaviour
                 flashpoint = authoring.flashpoint,
                 heatRadius = authoring.heatRadius,
                 heatTransferRate = authoring.heatTransferRate,
+                fireSimUpdateRate = authoring.fireSimUpdateRate,
 
                 //BOT
                 Bot = GetEntity(authoring.Bot),

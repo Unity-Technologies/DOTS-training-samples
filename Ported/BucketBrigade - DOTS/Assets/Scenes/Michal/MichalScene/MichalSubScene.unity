@@ -216,8 +216,8 @@ MonoBehaviour:
   flickerRange: 0.1
   flashpoint: 0.4
   heatRadius: 1
-  heatTransferRate: 0.001
-  fireSimUpdateRate: 0.5
+  heatTransferRate: 0.003
+  fireSimUpdateRate: 0.1
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
   botSpeed: 0.5

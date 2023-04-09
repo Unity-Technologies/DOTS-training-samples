@@ -12,6 +12,7 @@ using UnityEngine;
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
 public partial struct FireHandlingSystem : ISystem
 {
+    private float fireSimUpdateRateCounter;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -24,12 +25,16 @@ public partial struct FireHandlingSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
+        if (fireSimUpdateRateCounter >= config.fireSimUpdateRate) fireSimUpdateRateCounter = 0; 
+        fireSimUpdateRateCounter += SystemAPI.Time.DeltaTime;
+        Debug.Log(fireSimUpdateRateCounter);
 
         var firePropagationJob = new FirePropagationJob
         {
             fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
             fireTransforms = fireQuery.ToComponentDataArray<LocalTransform>(Allocator.TempJob),
-            config = config
+            config = config,
+            shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate
         }.ScheduleParallel(state.Dependency);
 
         // Create and schedule a Job that tests if the GroundTiles should be on fire
@@ -109,16 +114,20 @@ public partial struct FirePropagationJob: IJobEntity
     [ReadOnly] public NativeArray<Tile> fireTiles;
     [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
     [ReadOnly] public Config config;
+    [ReadOnly] public bool shouldUpdate;
     void Execute(ref Tile tile, in LocalTransform tileTransform)
     {
-        for (int i = 0; i < fireTiles.Length; i++)
+        if (shouldUpdate)
         {
-            if (math.abs(tileTransform.Position.x - fireTransforms[i].Position.x) <= config.cellSize * config.heatRadius &&
-                math.abs(tileTransform.Position.z - fireTransforms[i].Position.z) <= config.cellSize * config.heatRadius)
+            for (int i = 0; i < fireTiles.Length; i++)
             {
-                var newTemperature = tile.Temperature + (fireTiles[i].Temperature * config.heatTransferRate);
-                if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
-                tile.Temperature = newTemperature;
+                if (math.abs(tileTransform.Position.x - fireTransforms[i].Position.x) <= config.cellSize * config.heatRadius &&
+                    math.abs(tileTransform.Position.z - fireTransforms[i].Position.z) <= config.cellSize * config.heatRadius)
+                {
+                    var newTemperature = tile.Temperature + (fireTiles[i].Temperature * config.heatTransferRate);
+                    if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
+                    tile.Temperature = newTemperature;
+                }
             }
         }
     }
