@@ -194,9 +194,11 @@ public partial struct BotNearestMovementSystem : ISystem
 
 [WithAll(typeof(BackBotTag),typeof(Team))]
 [BurstCompile]
-//[WithDisabled(typeof(ReachedTarget))]
 
-//[WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
+//BUG: Using the following in conjunction with EnabledRefRW<ReachedTarget> causes an error 
+[WithDisabled(typeof(ReachedTarget))]
+
+
 //This job will move the back bot to the water
 public partial struct MoveToNearestBackJob : IJobEntity
 {
@@ -209,7 +211,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
    public Entity transitionManager;
   
  
-   public void Execute(ref LocalTransform localTransform, Entity e)
+   public void Execute(ref LocalTransform localTransform, Entity e, EnabledRefRW<ReachedTarget> reachedState)
    {
       float3 dir = Vector3.Normalize(targetPos - localTransform.Position);
       if (Vector3.Distance(targetPos ,localTransform.Position) > arriveThreshold)
