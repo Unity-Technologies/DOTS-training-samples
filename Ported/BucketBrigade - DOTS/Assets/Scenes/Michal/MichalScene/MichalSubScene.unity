@@ -200,6 +200,7 @@ MonoBehaviour:
   rows: 50
   columns: 50
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
+  waterCellSize: 3
   splashRadius: 3
   refillRate: 0.005
   waterSourcesCount: 3
