@@ -5,7 +5,7 @@ using UnityEngine;
 public class ConfigAuth : MonoBehaviour
 {
     [Header("GRID")]
-    [Range(0.4f, 3f)]
+    [Range(0.3f, 3f)]
     [Tooltip("Size of an individual flame. Full grid will be (rows * cellSize)")]
     public float cellSize = 0.3f;
     [Tooltip("How many cells WIDE the simulation will be")]

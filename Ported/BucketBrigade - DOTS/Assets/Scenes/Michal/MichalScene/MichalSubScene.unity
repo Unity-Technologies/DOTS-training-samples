@@ -196,11 +196,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 208df5661fd473d429daa32ad0704ec0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cellSize: 1
-  rows: 20
-  columns: 20
+  cellSize: 0.3
+  rows: 50
+  columns: 50
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
-  splashRadius: 3
+  splashRadius: 4
   refillRate: 0.005
   waterSourcesCount: 3
   Bucket: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220, type: 3}
@@ -210,19 +210,19 @@ MonoBehaviour:
   bucketSize_EMPTY: 0.2
   bucketSize_FULL: 0.4
   Ground: {fileID: 1068854535243822, guid: d4b6f03fc385f234c9012b2b8bd5b591, type: 3}
-  startingFireCount: 2
+  startingFireCount: 10
   maxFlameHeight: 1
   flickerRate: 0.1
   flickerRange: 0.1
-  flashpoint: 0.4
-  heatRadius: 1
-  heatTransferRate: 0.003
-  fireSimUpdateRate: 0.1
+  flashpoint: 0.2
+  heatRadius: 2
+  heatTransferRate: 0.0003
+  fireSimUpdateRate: 0.01
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
-  botSpeed: 0.5
+  botSpeed: 1
   totalBots: 10
-  totalOmniworkers: 2
+  totalOmniworkers: 1
   waterCarryAffect: 0.5
   arriveThreshold: 0.2
   colour_fireCell_neutral: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 1}
