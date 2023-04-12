@@ -25,7 +25,7 @@ public partial struct WaterSpawningSystem : ISystem
         for (int i = 0; i <= config.waterSourcesCount; i++)
         {
             var waterTile = ecb.Instantiate(config.Water);
-            var capacity = random.Value.NextFloat(config.cellSize/2, 2*config.cellSize);
+            var capacity = random.Value.NextFloat(config.waterCellSize/2, 2*config.waterCellSize);
 
             //setting water source position
             if (random.Value.NextBool())//vert or horizontal
@@ -40,7 +40,7 @@ public partial struct WaterSpawningSystem : ISystem
                             y = 0,
                             z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = config.cellSize,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 }
@@ -54,7 +54,7 @@ public partial struct WaterSpawningSystem : ISystem
                             y = 0,
                             z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = config.cellSize,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 } 
@@ -71,7 +71,7 @@ public partial struct WaterSpawningSystem : ISystem
                             y = 0,
                             z = config.rows * config.cellSize + config.waterCellSize
                         },
-                        Scale = config.cellSize,
+                        Scale = capacity,
                         Rotation = quaternion.identity
                     });
                 }
