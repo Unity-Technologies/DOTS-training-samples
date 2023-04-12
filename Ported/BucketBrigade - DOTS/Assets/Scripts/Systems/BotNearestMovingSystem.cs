@@ -49,8 +49,7 @@ public partial struct BotNearestMovementSystem : ISystem
     
       
       //If the team has a bucket we should check if it is being filled before moving
-      EntityQuery fillingBuckets = SystemAPI.QueryBuilder().WithAll<FillingTag,Team>().Build();
-      
+      EntityQuery fillingBuckets = SystemAPI.QueryBuilder().WithAll<FillingTag, Team>().Build();
       
       
       //Get closest water
