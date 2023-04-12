@@ -1,3 +1,4 @@
+using System;
 using Systems;
 using Unity.Entities;
 using Unity.Burst;
@@ -120,9 +121,12 @@ public partial struct FirePropagationJob: IJobEntity
         {
             for (int i = 0; i < fireTiles.Length; i++)
             {
-                if (math.abs(tileTransform.Position.x - fireTransforms[i].Position.x) <= config.cellSize * config.heatRadius &&
-                    math.abs(tileTransform.Position.z - fireTransforms[i].Position.z) <= config.cellSize * config.heatRadius)
+                //Debug.Log("X: " + math.abs(tileTransform.Position.x - fireTransforms[i].Position.x) + "test: " + config.cellSize * config.heatRadius);
+                //Debug.Log("Z: " + math.abs(tileTransform.Position.z - fireTransforms[i].Position.z) + "test: " + config.cellSize * config.heatRadius);
+                if (math.round(math.abs(tileTransform.Position.x - fireTransforms[i].Position.x)*10)/10 <= config.cellSize * config.heatRadius &&
+                    math.round(math.abs(tileTransform.Position.z - fireTransforms[i].Position.z)*10)/10 <= config.cellSize * config.heatRadius)
                 {
+                    //Debug.Log("match");
                     var newTemperature = tile.Temperature + (fireTiles[i].Temperature * config.heatTransferRate);
                     if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
                     tile.Temperature = newTemperature;
