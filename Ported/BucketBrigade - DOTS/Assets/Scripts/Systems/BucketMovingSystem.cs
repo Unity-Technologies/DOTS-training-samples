@@ -20,7 +20,6 @@ public partial struct BucketMovingSystem : ISystem
     private EntityQuery frontBotsQ;
     private EntityQuery backBotsQ;
     private EntityQuery botsQ;
-    private EntityQuery movingBotsQ;
 
     private ComponentLookup<FullTag> fullBuckets;
     
@@ -46,8 +45,7 @@ public partial struct BucketMovingSystem : ISystem
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<botChainCompleteTag>();
         
-        movingBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,ReachedTarget,BotTag>().WithDisabled<BackBotTag,FrontBotTag>()
-            .Build();
+       
         frontBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,FrontBotTag>().Build();
         backBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform,Team,BackBotTag>().Build();
 
@@ -71,8 +69,8 @@ public partial struct BucketMovingSystem : ISystem
         //Get delta time
         var dt = SystemAPI.Time.DeltaTime;
         
-        frontBotTransforms = frontBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
-        backBotTransforms = backBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+        frontBotTransforms = frontBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        backBotTransforms = backBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
 
   
        var minDist = float.MaxValue;
