@@ -48,9 +48,9 @@ public partial struct GridTilesSpawningSystem : ISystem
                 {
                     Position = new float3
                     {
-                        x = i * config.cellSize - 8f,
+                        x = i * config.cellSize,
                         y = - (config.maxFlameHeight * 0.5f),
-                        z = j * config.cellSize - 5f
+                        z = j * config.cellSize
                     },
                     Scale = 1,
                     Rotation = quaternion.identity
