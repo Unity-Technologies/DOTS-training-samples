@@ -41,7 +41,9 @@ public partial struct BotNearestMovementSystem : ISystem
       bucketCapacity = config.bucketCapacity;
       
       float minDist = float.MaxValue;
-      //For one team
+
+      // This assigns the Position of the BackBot for each Team to a variable
+      // It currently works for one team
       foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>())
       {
          backPos = backTransform.Position;
@@ -55,7 +57,6 @@ public partial struct BotNearestMovementSystem : ISystem
       //Get closest water
       foreach (var (water,waterTransform) in SystemAPI.Query<Water,LocalTransform>())
       {
-         
          if (water.CurrCapacity >= bucketCapacity && fillingBuckets.CalculateEntityCount() == 0) //Check if it has water in it
          {
             var dist = Vector3.Distance(waterTransform.Position, backPos);
@@ -69,13 +70,16 @@ public partial struct BotNearestMovementSystem : ISystem
       
       //Reset value
       minDist = float.MaxValue;
+
       //Get thrower guy
+      // This assigns the Position of the BackBot for each Team to a variable
+      // It currently works for one team
       foreach (var frontTransform in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>())
       {
-         frontPos = frontTransform.Position;
+        frontPos = frontTransform.Position;
       }
       
-
+      // Get closest OnFire Tile to the BackBot position
       EntityQuery fireQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, OnFire>().Build();
       NativeArray<LocalTransform> fireTransforms = fireQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
 
@@ -91,7 +95,7 @@ public partial struct BotNearestMovementSystem : ISystem
       }
 
       fireTransforms.Dispose();
-          //Get closest fire to the back pos
+      //Get closest fire to the back pos
       /*foreach (var fireTransform in SystemAPI.Query<LocalTransform>().WithAll<OnFire>())
       {
          
@@ -104,6 +108,7 @@ public partial struct BotNearestMovementSystem : ISystem
       }
 
      */
+      // No OnFire Tile found, work's done
       if (firePos.Equals(float3.zero))
       {
          return;
@@ -194,6 +199,8 @@ public partial struct BotNearestMovementSystem : ISystem
 
 [WithAll(typeof(BackBotTag),typeof(Team))]
 [BurstCompile]
+[WithDisabled(typeof(CarryingBotTag))]
+
 //[WithDisabled(typeof(ReachedTarget))]
 
 //[WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
@@ -232,6 +239,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
 }
 [BurstCompile]
 [WithAll(typeof(FrontBotTag),typeof(Team))]
+//[WithDisabled(typeof(CarryingBotTag))]
 //This job will move the front bot to the fire
 public partial struct MoveToNearestFrontJob : IJobEntity
 {
