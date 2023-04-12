@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -6,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Scenes;
 
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
+[BurstCompile]
 public partial class InputSystem : SystemBase
 {
     public ComponentLookup<OnFire> m_OnFireActive;
@@ -21,7 +23,7 @@ public partial class InputSystem : SystemBase
         RequireForUpdate<Config>();
         m_OnFireActive = GetComponentLookup<OnFire>();
     }
-
+    [BurstCompile]
     protected override void OnUpdate()
     {
         //var requests = newRequests.ToComponentDataArray<SceneLoader>(Allocator.Persistent);
