@@ -21,6 +21,9 @@ public partial struct BucketEmptyingSystem : ISystem
     {
         float minDist;
         var config = SystemAPI.GetSingleton<Config>();
+        var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
 
         //For each bucket with EmptyingTag enabled
         foreach (var (bucketParams, bucketTransform, bucketColor, bucket) in SystemAPI.Query<RefRW<Bucket>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithEntityAccess().WithAll<EmptyingTag>())
@@ -28,8 +31,6 @@ public partial struct BucketEmptyingSystem : ISystem
             minDist = float.MaxValue;
             Entity closestFire = Entity.Null;
             float3 closestFirePosition = new float3(0.0f);
-
-            
             
             EntityQuery fireQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, OnFire>().Build();
             NativeArray<LocalTransform> fireTransforms = fireQ.ToComponentDataArray<LocalTransform>(Allocator.Temp);
@@ -49,19 +50,6 @@ public partial struct BucketEmptyingSystem : ISystem
 
             fireTransforms.Dispose();
             fireE.Dispose();
-            //Get closest fire
-            /*foreach (var (fireTransform, fireEntity) in SystemAPI.Query<LocalTransform>().WithAll<OnFire>().WithEntityAccess())
-            {
-                //get the distance
-                var dist = Vector3.Distance(fireTransform.Position, bucketTransform.ValueRO.Position);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    closestFire = fireEntity;
-                    closestFirePosition = fireTransform.Position;
-                }
-            }
-            */
 
             if (closestFire == Entity.Null) return;
 
@@ -87,25 +75,27 @@ public partial struct BucketEmptyingSystem : ISystem
             SystemAPI.SetComponentEnabled<EmptyingTag>(bucket, false);
             
             //set the temperature of the tiles
-
-
-            var fireTile = SystemAPI.GetComponent<Tile>(closestFire);
-            fireTile.Temperature = 0.0f;
-            SystemAPI.SetComponent(closestFire,fireTile);
-            
-            /*
-            var tileDiagonal = config.cellSize * math.sqrt(2);
-            foreach (var (tile, tileTransform) in SystemAPI.Query<RefRW<Tile>,LocalTransform>())
+            var fireExtuinguishJob = new FireExtuinguishJob
             {
-                //get the distance
-                var dist = Vector3.Distance(tileTransform.Position, closestFirePosition);
-               
-                if (dist <= tileDiagonal)
-                {
-                    tile.ValueRW.Temperature = 0.0f;
-                }
-            }
-            */
+                centerFire = closestFirePosition,
+                config = config
+            }.ScheduleParallel(state.Dependency);
+            state.Dependency = fireExtuinguishJob;
+        }
+    }
+}
+
+[BurstCompile]
+public partial struct FireExtuinguishJob: IJobEntity
+{
+    [ReadOnly] public float3 centerFire;
+    [ReadOnly] public Config config;
+    void Execute(ref Tile tile, in LocalTransform tileTransform)
+    {
+        if (math.abs(tileTransform.Position.x - centerFire.x) <= config.cellSize * config.splashRadius &&
+            math.abs(tileTransform.Position.z - centerFire.z) <= config.cellSize * config.splashRadius)
+        {
+            tile.Temperature = 0.0f;
         }
     }
 }

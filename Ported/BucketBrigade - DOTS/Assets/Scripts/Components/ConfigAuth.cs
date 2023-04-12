@@ -15,6 +15,9 @@ public class ConfigAuth : MonoBehaviour
     
     [Header("WATER")]
     public GameObject Water;
+    [Range(0.3f, 3f)]
+    [Tooltip("Size of an individual water cell")]
+    public float waterCellSize = 0.3f;
     [Range(1,5)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
@@ -94,6 +97,7 @@ public class ConfigAuth : MonoBehaviour
                 
                 //WATER
                 Water = GetEntity(authoring.Water),
+                waterCellSize = authoring.waterCellSize,
                 splashRadius = authoring.splashRadius,
                 refillRate = authoring.refillRate,
                 waterSourcesCount = authoring.waterSourcesCount,
@@ -169,6 +173,7 @@ public struct Config : IComponentData
 
     public float botSpeed;
     public float waterCarryAffect;
+    public float waterCellSize;
     public float arriveThreshold;
     public int waterSourcesCount;
 

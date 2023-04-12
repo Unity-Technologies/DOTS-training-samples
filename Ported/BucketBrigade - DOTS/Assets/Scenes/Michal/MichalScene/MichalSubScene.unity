@@ -200,7 +200,7 @@ MonoBehaviour:
   rows: 50
   columns: 50
   Water: {fileID: 1068854535243822, guid: 071cca02d3c0c47fca04bfe31f586314, type: 3}
-  splashRadius: 4
+  splashRadius: 3
   refillRate: 0.005
   waterSourcesCount: 3
   Bucket: {fileID: 1773963921688032, guid: 9102bbc859e71427f87e47b09aa59220, type: 3}
@@ -220,7 +220,7 @@ MonoBehaviour:
   fireSimUpdateRate: 0.01
   Bot: {fileID: 1821148559735918, guid: d85cd9db3461f4a1083519cb9477ae3e, type: 3}
   Omniworker: {fileID: 1821148559735918, guid: ac9fc2582aa16034c96c5ea687c9aeda, type: 3}
-  botSpeed: 1
+  botSpeed: 3
   totalBots: 10
   totalOmniworkers: 1
   waterCarryAffect: 0.5

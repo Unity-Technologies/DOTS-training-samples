@@ -36,11 +36,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = (config.columns + 4) * config.cellSize - 8f,
+                            x = config.columns * config.cellSize + config.waterCellSize,
                             y = 0,
-                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize) - 5f
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = capacity,
+                        Scale = config.cellSize,
                         Rotation = quaternion.identity
                     });
                 }
@@ -50,11 +50,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = -4 * config.cellSize - 8f,
+                            x = -config.columns * config.cellSize - config.waterCellSize,
                             y = 0,
-                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize) - 5f
+                            z = random.Value.NextFloat(-5,5 + config.rows * config.cellSize)
                         },
-                        Scale = capacity,
+                        Scale = config.cellSize,
                         Rotation = quaternion.identity
                     });
                 } 
@@ -67,11 +67,11 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize) - 8f,
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
                             y = 0,
-                            z = (config.rows + 4) * config.cellSize- 5f
+                            z = config.rows * config.cellSize + config.waterCellSize
                         },
-                        Scale = capacity,
+                        Scale = config.cellSize,
                         Rotation = quaternion.identity
                     });
                 }
@@ -81,9 +81,9 @@ public partial struct WaterSpawningSystem : ISystem
                     {
                         Position = new float3
                         {
-                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize) - 8f,
+                            x = random.Value.NextFloat(-5,5 + config.columns * config.cellSize),
                             y = 0,
-                            z = -4 * config.cellSize - 5f
+                            z = -config.rows * config.cellSize - config.waterCellSize
                         },
                         Scale = capacity,
                         Rotation = quaternion.identity
