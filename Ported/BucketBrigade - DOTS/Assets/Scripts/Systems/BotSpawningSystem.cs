@@ -108,6 +108,7 @@ public partial struct BotSpawningSystem : ISystem
                 indexInChain = 0
             });
             
+            ECB.AddSharedComponent(instance, new Team{Value = 1});
             
             
             
@@ -115,6 +116,57 @@ public partial struct BotSpawningSystem : ISystem
             
             
         }
+        
+        for (int i = 0; i < 2; i++)
+        {
+            //Instatiate the bot
+            var instance = ECB.Instantiate(botPrefab);
+            //Set its transform
+            var botTransform = LocalTransform.FromPosition(
+                randomComponent.Value.NextFloat(-0.1f, numCol*config.cellSize + 0.1f) ,
+                config.botStartingYPosition,
+                randomComponent.Value.NextFloat(-0.1f, numRow*config.cellSize + 0.1f));
+            
+            botTransform.Scale = 1f; //This is the scale of the bot pls change this
+            ECB.SetComponent(instance,botTransform);
+            
+            ECB.SetComponentEnabled<ForwardPassingBotTag>(instance,false);
+            ECB.SetComponentEnabled<BackwardPassingBotTag>(instance,false);
+
+            if (i == 0)
+            {
+                ECB.SetComponentEnabled<BackBotTag>(instance,false);
+            }
+            else
+            {
+                ECB.SetComponentEnabled<FrontBotTag>(instance,false);
+            }
+            
+            //This is not really useful yet
+            ECB.SetComponentEnabled<ReachedTarget>(instance,false);
+            ECB.SetComponentEnabled<CarryingBotTag>(instance,false);
+            
+            ECB.SetComponent<BotTag>(instance, new BotTag
+            {
+                cooldown = 0.0f,
+                noInChain = i,
+                indexInChain = 0
+            });
+            
+            ECB.AddSharedComponent(instance, new Team{Value = 2});
+            
+            
+            
+            
+            
+            
+        }
+        
+        
+        
+        
+        
+        
         
         //Loop for omniworkers
         for (int i = 0; i < totalOmniworkers; i++)

@@ -3,17 +3,22 @@
 
 class TeamAuth : UnityEngine.MonoBehaviour
 {
+    public int Value = 0;
     class TeamBaker : Baker<TeamAuth>
     {
         public override void Bake(TeamAuth authoring)
         {
-            AddComponent<Team>();
+            AddSharedComponent(new Team
+            {
+                Value = authoring.Value
+            });
         }
     }
    
 }
 
 
-struct Team : IComponentData
+public struct Team : ISharedComponentData
 {
+    public int Value;
 }

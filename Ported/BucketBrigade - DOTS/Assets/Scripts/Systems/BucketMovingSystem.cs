@@ -423,8 +423,7 @@ public partial struct MoveToNextJob : IJobEntity
                 {
                     ECB.SetComponentEnabled<EmptyingTag>(bucket,true);
                     ECB.RemoveComponent<botChainCompleteTag>(transitionManager);
-                    ECB.AddComponent<updateBotNearestTag>(transitionManager);
-                    
+
                 }
                 else
                 {

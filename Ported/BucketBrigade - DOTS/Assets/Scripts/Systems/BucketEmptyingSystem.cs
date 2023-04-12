@@ -23,7 +23,6 @@ public partial struct BucketEmptyingSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-        var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
 
         //For each bucket with EmptyingTag enabled
         foreach (var (bucketParams, bucketTransform, bucketColor, bucket) in SystemAPI.Query<RefRW<Bucket>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithEntityAccess().WithAll<EmptyingTag>())
@@ -81,6 +80,11 @@ public partial struct BucketEmptyingSystem : ISystem
                 config = config
             }.ScheduleParallel(state.Dependency);
             state.Dependency = fireExtuinguishJob;
+            
+            
+            //Make the front guy find another fire 
+            var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+            ECB.AddComponent<updateBotNearestTag>(TransitionManager);
         }
     }
 }
