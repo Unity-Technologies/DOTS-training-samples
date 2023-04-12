@@ -27,7 +27,6 @@ public partial struct FireHandlingSystem : ISystem
         var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
         if (fireSimUpdateRateCounter >= config.fireSimUpdateRate) fireSimUpdateRateCounter = 0; 
         fireSimUpdateRateCounter += SystemAPI.Time.DeltaTime;
-        Debug.Log(fireSimUpdateRateCounter);
 
         var firePropagationJob = new FirePropagationJob
         {

@@ -1,4 +1,5 @@
 
+using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
@@ -7,6 +8,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(FireHandlingSystem))]
+[BurstCompile]
 public partial struct BotNearestMovementSystem : ISystem
 {
    
@@ -16,14 +18,18 @@ public partial struct BotNearestMovementSystem : ISystem
    private float3 firePos;
    private float speed;
    private float arriveThreshold;
+   private float bucketCapacity;
 
+   [BurstCompile]
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
       state.RequireForUpdate<tileSpawnCompleteTag>();
+      state.RequireForUpdate<updateBotNearestTag>();
+      
    }
    
-  
+   [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
       float dt = SystemAPI.Time.DeltaTime;
@@ -32,8 +38,7 @@ public partial struct BotNearestMovementSystem : ISystem
       var config = SystemAPI.GetSingleton<Config>();
       speed = config.botSpeed;
       arriveThreshold = config.arriveThreshold;
-      
-      
+      bucketCapacity = config.bucketCapacity;
       
       float minDist = float.MaxValue;
       //For one team
@@ -42,10 +47,17 @@ public partial struct BotNearestMovementSystem : ISystem
          backPos = backTransform.Position;
       }
     
+      
+      //If the team has a bucket we should check if it is being filled before moving
+      EntityQuery fillingBuckets = SystemAPI.QueryBuilder().WithAll<FillingTag,Team>().Build();
+      
+      
+      
       //Get closest water
       foreach (var (water,waterTransform) in SystemAPI.Query<Water,LocalTransform>())
       {
-         if (water.CurrCapacity > 0) //Check if it has water in it
+         
+         if (water.CurrCapacity >= bucketCapacity && fillingBuckets.CalculateEntityCount() == 0) //Check if it has water in it
          {
             var dist = Vector3.Distance(waterTransform.Position, backPos);
             if (dist < minDist)
@@ -55,6 +67,7 @@ public partial struct BotNearestMovementSystem : ISystem
             }
          }
       }
+      
       //Reset value
       minDist = float.MaxValue;
       //Get thrower guy
@@ -102,6 +115,8 @@ public partial struct BotNearestMovementSystem : ISystem
       var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
       var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
       
+      var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+      
       //Make the slowest one be the one that determines the end 
       if (Vector3.Distance(waterPos, backPos) < Vector3.Distance(firePos, frontPos))
       {
@@ -113,7 +128,8 @@ public partial struct BotNearestMovementSystem : ISystem
             targetPos = waterPos,
             deltaTime = dt,
             speed = speed,
-            arriveThreshold = arriveThreshold
+            arriveThreshold = arriveThreshold,
+            transitionManager = TransitionManager
          };
 
 
@@ -126,7 +142,8 @@ public partial struct BotNearestMovementSystem : ISystem
             targetPos = firePos,
             deltaTime = dt,
             speed = speed,
-            arriveThreshold = arriveThreshold
+            arriveThreshold = arriveThreshold,
+            transitionManager = TransitionManager
          };
 
 
@@ -145,7 +162,8 @@ public partial struct BotNearestMovementSystem : ISystem
             targetPos = firePos,
             deltaTime = dt,
             speed = speed,
-            arriveThreshold = arriveThreshold
+            arriveThreshold = arriveThreshold,
+            transitionManager = TransitionManager
          };
 
 
@@ -158,7 +176,8 @@ public partial struct BotNearestMovementSystem : ISystem
             targetPos = waterPos,
             deltaTime = dt,
             speed = speed,
-            arriveThreshold = arriveThreshold
+            arriveThreshold = arriveThreshold,
+            transitionManager = TransitionManager
          };
 
 
@@ -175,6 +194,7 @@ public partial struct BotNearestMovementSystem : ISystem
 }
 
 [WithAll(typeof(BackBotTag),typeof(Team))]
+[BurstCompile]
 //[WithDisabled(typeof(ReachedTarget))]
 
 //[WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
@@ -187,6 +207,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
    public float deltaTime;
    public float speed;
    public float arriveThreshold;
+   public Entity transitionManager;
   
  
    public void Execute(ref LocalTransform localTransform, Entity e)
@@ -202,6 +223,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
          if (shouldSetReady)
          {
             ECB.AddComponent(e, new TeamReadyTag());
+            ECB.RemoveComponent<updateBotNearestTag>(transitionManager);
             
          }
       }
@@ -209,7 +231,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
       
    }
 }
-
+[BurstCompile]
 [WithAll(typeof(FrontBotTag),typeof(Team))]
 //This job will move the front bot to the fire
 public partial struct MoveToNearestFrontJob : IJobEntity
@@ -221,6 +243,7 @@ public partial struct MoveToNearestFrontJob : IJobEntity
    public float deltaTime;
    public float speed;
    public float arriveThreshold;
+   public Entity transitionManager;
   
  
    public void Execute(ref LocalTransform localTransform, Entity e)
@@ -238,7 +261,8 @@ public partial struct MoveToNearestFrontJob : IJobEntity
          {
            
             ECB.AddComponent(e, new TeamReadyTag());
-            
+            ECB.RemoveComponent<updateBotNearestTag>(transitionManager);
+
          }
 
       }

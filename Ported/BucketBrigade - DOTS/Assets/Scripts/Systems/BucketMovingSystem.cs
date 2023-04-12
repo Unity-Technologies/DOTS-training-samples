@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Entities.UniversalDelegates;
@@ -10,6 +11,7 @@ using UnityEngine;
 
 //It should run after the bot moving system
 [UpdateAfter(typeof(BotMovementSystem))]
+
 public partial struct BucketMovingSystem : ISystem
 {
     private NativeArray<LocalTransform> frontBotTransforms;
@@ -38,6 +40,7 @@ public partial struct BucketMovingSystem : ISystem
     private bool isFilling;
     private bool isFull;
     
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -57,6 +60,7 @@ public partial struct BucketMovingSystem : ISystem
         
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         //Get the config 
@@ -93,7 +97,7 @@ public partial struct BucketMovingSystem : ISystem
             if (closestFilledBucketE != Entity.Null)
             {
                 //Set it to being assigned to the team
-                state.EntityManager.AddComponent(closestFilledBucketE, typeof(Team));
+                state.EntityManager.AddComponent(closestFilledBucketE, ComponentType.ReadWrite<Team>());
                
                 //For visuals move it to the bots position 
                 closestFilledBucketTransform.Position = backBotTransforms[0].Position + new float3(0.0f, 0.5f, 0.0f);
@@ -102,7 +106,6 @@ public partial struct BucketMovingSystem : ISystem
                 //And fill it 
                 state.EntityManager.SetComponentEnabled<FillingTag>(closestFilledBucketE,true);
                 numAssignedBuckets++;
-                Debug.Log("Bucket for team was fetched by: " + backBotTransforms[0]);
             } 
             
         }
@@ -204,7 +207,11 @@ public partial struct BucketMovingSystem : ISystem
 
             
         }
-        
+
+        if (endPosition.Equals(float3.zero) || nextBotPosition.Equals(float3.zero))
+        {
+            return;
+        }
         //Now make a job to move the carrying bot to the next bot in the chain
 
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
@@ -347,6 +354,7 @@ public partial struct MoveToNextBotJob : IJobParallelFor
 
 
 [WithAll(typeof(CarryingBotTag))]
+[BurstCompile]
 //This job will move a bot to the next one in line
 public partial struct MoveToNextJob : IJobEntity
 {
@@ -368,6 +376,10 @@ public partial struct MoveToNextJob : IJobEntity
     public EntityCommandBuffer ECB;
     public void Execute(Entity self, LocalTransform selfTransform)
     {
+        if (currentBotTag.cooldown > 0.0f)
+        {
+            return;
+        }
         //First I will make sure the bucket is not being filled
         ECB.SetComponentEnabled<FillingTag>(bucket, false);
 
@@ -411,15 +423,15 @@ public partial struct MoveToNextJob : IJobEntity
             {
                 if (isForward)
                 {
-                    Debug.Log("I am the front guy so I should empty the bucket" + self);
                     ECB.SetComponentEnabled<EmptyingTag>(bucket,true);
                     ECB.RemoveComponent<botChainCompleteTag>(transitionManager);
+                    ECB.AddComponent<updateBotNearestTag>(transitionManager);
                     
                 }
                 else
                 {
-                    Debug.Log("I am the back guy so I should fill the bucket" + self);
                     ECB.SetComponentEnabled<FillingTag>(bucket,true);
+                    ECB.AddComponent<updateBotNearestTag>(transitionManager);
                 }
                 
                 

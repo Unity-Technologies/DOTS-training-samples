@@ -14,6 +14,7 @@ using UnityEngine.Rendering;
 
 
 [UpdateAfter(typeof(BotNearestMovementSystem))]
+[BurstCompile]
 
 public partial struct BotMovementSystem : ISystem
 {
@@ -31,7 +32,7 @@ public partial struct BotMovementSystem : ISystem
    private EntityQuery botTagsQF;
    private EntityQuery botTagsQB;
    
-  
+   [BurstCompile]
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
@@ -39,17 +40,14 @@ public partial struct BotMovementSystem : ISystem
       //Before moving the rest of the bots i need to ensure that the other system has run 
       state.RequireForUpdate<TeamReadyTag>();
 
-      forwardBotsQ = new EntityQueryBuilder(Allocator.TempJob).WithAll<LocalTransform, ForwardPassingBotTag>().WithDisabled<CarryingBotTag>()
-         .Build(state.EntityManager);
-      backwardBotsQ = new EntityQueryBuilder(Allocator.TempJob).WithAll<LocalTransform, BackwardPassingBotTag>().WithDisabled<CarryingBotTag>()
-         .Build(state.EntityManager);
-      botTagsQF = new EntityQueryBuilder(Allocator.TempJob).WithAll<BotTag,ForwardPassingBotTag>().WithDisabled<CarryingBotTag>()
-         .Build(state.EntityManager);
-      botTagsQB = new EntityQueryBuilder(Allocator.TempJob).WithAll<BotTag,BackwardPassingBotTag>().WithDisabled<CarryingBotTag>()
-         .Build(state.EntityManager);
+      forwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, ForwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
+      backwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
+      botTagsQF = SystemAPI.QueryBuilder().WithAll<BotTag,ForwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
+      botTagsQB = SystemAPI.QueryBuilder().WithAll<BotTag,BackwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
       
    }
 
+   [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
       
@@ -131,11 +129,9 @@ public partial struct BotMovementSystem : ISystem
 
       //Check if everyone has reached their target. If so the BucketMovingSystem should start running. 
       //Query all the reached target entities and check if len = total num bots in team 
-      EntityQuery botsInTeamQ =  new EntityQueryBuilder(Allocator.Temp).WithAll<Team,BotTag>()
-         .Build(state.EntityManager);
+      EntityQuery botsInTeamQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag>().Build();
       int numBotsInTeam = botsInTeamQ.CalculateEntityCount();
-      EntityQuery botsInTeamReachedQ =  new EntityQueryBuilder(Allocator.Temp).WithAll<Team,BotTag,ReachedTarget>()
-         .Build(state.EntityManager);
+      EntityQuery botsInTeamReachedQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag,ReachedTarget>().Build();
       int numBbotsInTeamReachedQ =  botsInTeamReachedQ.CalculateEntityCount();
 
       if (numBotsInTeam == numBbotsInTeamReachedQ)
@@ -144,12 +140,11 @@ public partial struct BotMovementSystem : ISystem
          state.EntityManager.AddComponent<botChainCompleteTag>(TransitionManager);
       }
       
-
    }
 }
 
 
-
+[BurstCompile]
 public partial struct MoveBotJob : IJobParallelFor
 {
    public EntityCommandBuffer.ParallelWriter ECB;

@@ -73,5 +73,6 @@ public partial struct GridTilesSpawningSystem : ISystem
         
         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
         ecb.AddComponent<tileSpawnCompleteTag>(TransitionManager);
+        ecb.AddComponent<updateBotNearestTag>(TransitionManager);
     }
 }

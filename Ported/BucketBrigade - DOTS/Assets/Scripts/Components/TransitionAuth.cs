@@ -31,8 +31,12 @@ public struct tileSpawnCompleteTag : IComponentData
 }
 
 
-
 public struct botChainCompleteTag : IComponentData
 {
 }
+
+public struct updateBotNearestTag : IComponentData
+{
+}
+
 
