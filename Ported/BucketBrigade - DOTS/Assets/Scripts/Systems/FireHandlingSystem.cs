@@ -32,7 +32,6 @@ public partial struct FireHandlingSystem : ISystem
         var firePropagationJob = new FirePropagationJob
         {
             fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
-            fireTransforms = fireQuery.ToComponentDataArray<LocalTransform>(Allocator.TempJob),
             config = config,
             shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate
         }.ScheduleParallel(state.Dependency);
@@ -112,17 +111,16 @@ public partial struct FireUpdateJob: IJobEntity
 public partial struct FirePropagationJob: IJobEntity
 {
     [ReadOnly] public NativeArray<Tile> fireTiles;
-    [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
     [ReadOnly] public Config config;
     [ReadOnly] public bool shouldUpdate;
-    void Execute(ref Tile tile, in LocalTransform tileTransform)
+    void Execute(ref Tile tile)
     {
         if (shouldUpdate)
         {
             for (int i = 0; i < fireTiles.Length; i++)
             {
-                if (math.round(math.abs(tileTransform.Position.x - fireTransforms[i].Position.x)*10)/10 <= config.cellSize * config.heatRadius &&
-                    math.round(math.abs(tileTransform.Position.z - fireTransforms[i].Position.z)*10)/10 <= config.cellSize * config.heatRadius)
+                if ((tile.rowIndex - fireTiles[i].rowIndex <= config.heatRadius && tile.rowIndex - fireTiles[i].rowIndex >= -config.heatRadius) &&
+                    (tile.columnIndex - fireTiles[i].columnIndex <= config.heatRadius && tile.columnIndex - fireTiles[i].columnIndex >= -config.heatRadius))
                 {
                     var newTemperature = tile.Temperature + (fireTiles[i].Temperature * config.heatTransferRate);
                     if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
