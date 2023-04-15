@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(BucketMovingSystem))]
-[BurstCompile]
+//[BurstCompile]
 public partial struct BucketEmptyingSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -85,17 +85,33 @@ public partial struct BucketEmptyingSystem : ISystem
     }
 }
 
-[BurstCompile]
+//[BurstCompile]
 public partial struct FireExtuinguishJob: IJobEntity
 {
     [ReadOnly] public float3 centerFire;
     [ReadOnly] public Config config;
     void Execute(ref Tile tile, in LocalTransform tileTransform)
     {
-        if (math.abs(tileTransform.Position.x - centerFire.x) <= config.cellSize * config.splashRadius &&
+
+        if (math.abs(tileTransform.Position.x - centerFire.x) <= config.cellSize &&
+            math.abs(tileTransform.Position.z - centerFire.z) <= config.cellSize)
+        {
+            tile.Temperature -= config.coolingStrength;
+
+        }
+        else if (math.abs(tileTransform.Position.x - centerFire.x) <= config.cellSize * config.splashRadius &&
             math.abs(tileTransform.Position.z - centerFire.z) <= config.cellSize * config.splashRadius)
         {
-            tile.Temperature = 0.0f;
+
+            float x = math.trunc(math.abs(tileTransform.Position.x - centerFire.x) / config.cellSize);
+            float z = math.trunc(math.abs(tileTransform.Position.z - centerFire.z) / config.cellSize);
+
+            Debug.Log("X: " + x + " Z: " + z);
+
+            float dowseCellStrength = 1f / (Mathf.Abs(x * config.coolingStrengthFalloff) + Mathf.Abs(z * config.coolingStrengthFalloff));
+            tile.Temperature -= config.coolingStrength * dowseCellStrength;
+
+            Debug.Log("Cooling Strength: " + config.coolingStrength * dowseCellStrength);
         }
     }
 }
