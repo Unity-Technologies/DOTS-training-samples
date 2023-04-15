@@ -222,15 +222,16 @@ public partial struct BucketMovingSystem : ISystem
             currentBotTag = closestBotTag,
             EndPos = endPosition,
             bucketTransform = closestFilledBucketTransform,
+            isBucketFull = state.EntityManager.IsComponentEnabled<FullTag>(closestFilledBucketE),
             bucket = closestFilledBucketE,
             deltaTime = dt,
             speed = speed,
+            waterCarryAffect = config.waterCarryAffect,
             ECB = ecb,
             arriveThreshold = 0.2f,
             isForward  = isFull,
             transitionManager = TransitionManager
-            
-        };
+    };
 
         JobHandle moveToNextHandle = moveToNextJob.Schedule(state.Dependency);
         moveToNextHandle.Complete();
@@ -240,7 +241,7 @@ public partial struct BucketMovingSystem : ISystem
         closestBotE = Entity.Null;
 
     }
-}   
+}
 
 
 public partial struct MoveToNextBotJob : IJobParallelFor
@@ -260,11 +261,11 @@ public partial struct MoveToNextBotJob : IJobParallelFor
     public LocalTransform frontBotTransform;
     public LocalTransform bucketTransform;
     public Entity bucket;
-    
+
     public float deltaTime;
     public float speed;
     public float arriveThreshold;
-    
+
     public EntityCommandBuffer.ParallelWriter ECB;
 
 
@@ -272,7 +273,7 @@ public partial struct MoveToNextBotJob : IJobParallelFor
     {
 
         //If we are not carrying a bucket, we should not execute this 
-        if (!CarryingBotsLookup.IsComponentEnabled(bots[index]) )
+        if (!CarryingBotsLookup.IsComponentEnabled(bots[index]))
         {
             return;
         }
@@ -281,22 +282,22 @@ public partial struct MoveToNextBotJob : IJobParallelFor
         {
             return;
         }
-        
+
         //If we are a backward moving bot and the bucket is full we should not execute this 
         if (!FowardBotsLookup.IsComponentEnabled(bots[index]) && FullBucketsLookup.IsComponentEnabled(bucket))
         {
             return;
         }
-        
-        
-        
+
+
+
         //Else we should move
         //Just make it not be filling forever as it will drain the water source
         ECB.SetComponentEnabled<FillingTag>(index, bucket, false);
         //How to signal this?
 
         float3 targetPos = new float3(0.0f);
-        
+
         //If it is not the front bot 
         if (index != 0)
         {
@@ -309,38 +310,38 @@ public partial struct MoveToNextBotJob : IJobParallelFor
             targetPos = frontBotTransform.Position;
 
         }
-        
+
         LocalTransform transform = movingBotTransforms[index];
         float3 dir = Vector3.Normalize(targetPos - transform.Position);
-        if (Vector3.Distance(targetPos ,transform.Position) > arriveThreshold)
+        if (Vector3.Distance(targetPos, transform.Position) > arriveThreshold)
         {
             transform.Position = transform.Position + dir * deltaTime * speed;
-            
-            bucketTransform.Position = transform.Position + new float3(0.0f, 0.5f,0.0f);
-            ECB.SetComponent(index, bucket,bucketTransform);
+
+            bucketTransform.Position = transform.Position + new float3(0.0f, 0.5f, 0.0f);
+            ECB.SetComponent(index, bucket, bucketTransform);
             Debug.Log("Bucket after: " + bucketTransform.Position);
-                        
+
         }
         else //We reached the target pos
         {
             //Get the tag so we can set our cooldown
             BotTag currentBot = botTags[index];
-            
+
             //Put myself on a cooldown, so that I don't pick up the bucket again
             currentBot.cooldown = 1000f;
-            ECB.SetComponent<BotTag>(index, bots[index],currentBot);
-            
+            ECB.SetComponent<BotTag>(index, bots[index], currentBot);
+
             //Stop carrying the bucket 
-            ECB.SetComponentEnabled<CarryingBotTag>(index,bots[index],false);
+            ECB.SetComponentEnabled<CarryingBotTag>(index, bots[index], false);
             // Make the bucket free 
-            ECB.SetComponentEnabled<FreeTag>(index, bucket,true);
+            ECB.SetComponentEnabled<FreeTag>(index, bucket, true);
 
             //If I am the front guy I should set the bucket to being emptying 
             if (index == 0)
             {
-                ECB.SetComponentEnabled<EmptyingTag>(index, bucket,true);
+                ECB.SetComponentEnabled<EmptyingTag>(index, bucket, true);
             }
-            
+
 
         }
         movingBotTransforms[index] = transform;
@@ -363,9 +364,11 @@ public partial struct MoveToNextJob : IJobEntity
     
     public LocalTransform bucketTransform;
     public Entity bucket;
-    
+    public bool isBucketFull;
+
     public float deltaTime;
     public float speed;
+    public float waterCarryAffect;
     public float arriveThreshold;
     public bool isForward;
     
@@ -400,7 +403,13 @@ public partial struct MoveToNextJob : IJobEntity
         float3 dir = Vector3.Normalize(targetPos - selfTransform.Position);
         if (Vector3.Distance(targetPos ,selfTransform.Position) > arriveThreshold)
         {
-            selfTransform.Position = selfTransform.Position + dir * deltaTime * speed;
+            
+            // Movement penalty to bots when carrying a full bucket
+            if(isBucketFull)
+                selfTransform.Position = selfTransform.Position + dir * deltaTime * speed * waterCarryAffect;
+            else
+                selfTransform.Position = selfTransform.Position + dir * deltaTime * speed;
+                
             ECB.SetComponent(self,selfTransform);
             bucketTransform.Position = selfTransform.Position + new float3(0.0f, 0.5f,0.0f);
             ECB.SetComponent(bucket,bucketTransform);

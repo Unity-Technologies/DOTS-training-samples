@@ -73,6 +73,7 @@ public class ConfigAuth : MonoBehaviour
     [Range(1, 100)]
     public int totalOmniworkers = 10;
     [Range(0.001f, 1f)]
+    [Tooltip("The speed penalty to a bot that carries a full bucket")]
     public float waterCarryAffect = 0.5f;
     public float arriveThreshold= 0.2f;
     private float botStartingYPosition = 0.5f;
