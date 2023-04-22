@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -10,6 +11,7 @@ namespace Systems
     [UpdateAfter(typeof(GridTilesSpawningSystem))]
     [UpdateAfter(typeof(WaterSpawningSystem))]
     [UpdateAfter(typeof(BucketSpawningSystem))]
+    [BurstCompile]
     public partial struct InitializeChainIndecies : ISystem
     {
         private int numTimesRun;
@@ -18,15 +20,14 @@ namespace Systems
 
         private EntityQuery BotTagsFQ;
         private EntityQuery BotTagsBQ;
-        
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<botSpawnCompleteTag>();
             state.RequireForUpdate<Config>();
         }
         
-       
-
+        
         public void OnUpdate(ref SystemState state)
         {
             

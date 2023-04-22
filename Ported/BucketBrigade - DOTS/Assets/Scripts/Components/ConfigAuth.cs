@@ -21,6 +21,12 @@ public class ConfigAuth : MonoBehaviour
     [Range(1,5)]
     [Tooltip("Number of cells affected by a bucket of water")]
     public int splashRadius = 3;
+    [Range(0.001f, 1f)]
+    [Tooltip("Water bucket reduces fire temperature by this amount")]
+    public float coolingStrength = 1.0f;
+    [Tooltip("Splash damage of water bucket. (1 = no loss of power over distance)")]
+    [Range(0.001f, 1f)]
+    public float coolingStrengthFalloff = 0.75f;
     [Tooltip("Water sources will refill by this amount per second")]
     public float refillRate = 0.0001f;
     [Tooltip("Number of water sources")]
@@ -75,6 +81,7 @@ public class ConfigAuth : MonoBehaviour
     [Range(1, 10)]
     public int totalTeams = 1;
     [Range(0.001f, 1f)]
+    [Tooltip("The speed penalty to a bot that carries a full bucket")]
     public float waterCarryAffect = 0.5f;
     public float arriveThreshold= 0.2f;
     private float botStartingYPosition = 0.5f;
@@ -104,7 +111,9 @@ public class ConfigAuth : MonoBehaviour
                 splashRadius = authoring.splashRadius,
                 refillRate = authoring.refillRate,
                 waterSourcesCount = authoring.waterSourcesCount,
-                
+                coolingStrength = authoring.coolingStrength,
+                coolingStrengthFalloff = authoring.coolingStrengthFalloff,
+
                 //BUCKET
                 Bucket = GetEntity(authoring.Bucket),
                 totalBuckets = authoring.totalBuckets,
@@ -181,6 +190,8 @@ public struct Config : IComponentData
     public float waterCellSize;
     public float arriveThreshold;
     public int waterSourcesCount;
+    public float coolingStrength;
+    public float coolingStrengthFalloff;
 
     public Entity Bot;
     public Entity Omniworker;

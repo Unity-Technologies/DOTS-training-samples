@@ -6,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(BucketSpawningSystem))]
+[BurstCompile]
 public partial struct BotSpawningSystem : ISystem
 {
     private int numRow;
@@ -17,6 +18,8 @@ public partial struct BotSpawningSystem : ISystem
     private Config config;
     private int numTeams;
 
+    
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         config = SystemAPI.GetSingleton<Config>();
@@ -154,7 +157,6 @@ public partial struct BotSpawningSystem : ISystem
         state.Enabled = false;
         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
         ECB.AddComponent<botSpawnCompleteTag>(TransitionManager);
-       
-        
+
     }
 }

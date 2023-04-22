@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [BurstCompile]
 public partial struct GridTilesSpawningSystem : ISystem
@@ -37,6 +38,7 @@ public partial struct GridTilesSpawningSystem : ISystem
             }
             fireTilesNumbers[i] = randomNumber;
         }
+
         
         for (int i = 0; i <= config.columns; i++)
         {
@@ -48,19 +50,18 @@ public partial struct GridTilesSpawningSystem : ISystem
                 {
                     Position = new float3
                     {
-                        x = i * config.cellSize - 8f,
+                        x = i * config.cellSize,
                         y = - (config.maxFlameHeight * 0.5f),
-                        z = j * config.cellSize - 5f
+                        z = j * config.cellSize
                     },
                     Scale = 1,
                     Rotation = quaternion.identity
                 });
 
-                if (fireTilesNumbers.Contains(i*config.rows + j))
-                {
-                    ecb.SetComponent(groundTile, new Tile { Temperature = randomComponent.Value.NextFloat(config.flashpoint, 1.0f) }); // Temperature max value is 1.0f
-                }
-                
+                var temperatureToSet = 0f;
+                if (fireTilesNumbers.Contains(i * config.rows + j)) temperatureToSet = randomComponent.Value.NextFloat(config.flashpoint, 1.0f);
+                ecb.SetComponent(groundTile, new Tile { Temperature = temperatureToSet, rowIndex = i, columnIndex = j});
+
                 //SET THE FIRE TO BEING DISABLES PR DEFAULT 
                 ecb.SetComponentEnabled<OnFire>(groundTile, false); 
                 
@@ -68,11 +69,11 @@ public partial struct GridTilesSpawningSystem : ISystem
                 ecb.AddComponent(groundTile, new PostTransformScale { Value = float3x3.Scale(config.cellSize, config.maxFlameHeight, config.cellSize) });
             }
         }
-        
+
         fireTilesNumbers.Dispose();
-        
-        var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
-        ecb.AddComponent<tileSpawnCompleteTag>(TransitionManager);
-        ecb.AddComponent<updateBotNearestTag>(TransitionManager);
+
+        var transitionManager = SystemAPI.GetSingletonEntity<Transition>();
+        ecb.AddComponent<tileSpawnCompleteTag>(transitionManager);
+        ecb.AddComponent<updateBotNearestTag>(transitionManager);
     }
 }

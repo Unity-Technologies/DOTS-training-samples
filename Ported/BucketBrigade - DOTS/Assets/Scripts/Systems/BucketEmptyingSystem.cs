@@ -76,7 +76,7 @@ public partial struct BucketEmptyingSystem : ISystem
             //set the temperature of the tiles
             var fireExtuinguishJob = new FireExtuinguishJob
             {
-                centerFire = closestFirePosition,
+                centerFire = SystemAPI.GetComponent<Tile>(closestFire),
                 config = config
             }.ScheduleParallel(state.Dependency);
             state.Dependency = fireExtuinguishJob;
@@ -92,14 +92,26 @@ public partial struct BucketEmptyingSystem : ISystem
 [BurstCompile]
 public partial struct FireExtuinguishJob: IJobEntity
 {
-    [ReadOnly] public float3 centerFire;
+    [ReadOnly] public Tile centerFire;
     [ReadOnly] public Config config;
+
     void Execute(ref Tile tile, in LocalTransform tileTransform)
     {
-        if (math.abs(tileTransform.Position.x - centerFire.x) <= config.cellSize * config.splashRadius &&
-            math.abs(tileTransform.Position.z - centerFire.z) <= config.cellSize * config.splashRadius)
+        var xDist = math.abs(tile.rowIndex - centerFire.rowIndex);
+        var zDist = math.abs(tile.columnIndex - centerFire.columnIndex);
+
+        if ((xDist <= config.splashRadius) && (zDist <= config.splashRadius))
         {
-            tile.Temperature = 0.0f;
+            if(xDist == 0 && zDist ==0)
+                tile.Temperature -= config.coolingStrength;
+            else
+            {
+                // Different method than the demo. I think the demo's method for cooling falloff might compute higher dowseCellStrength
+                // when x or z is 0 (cell next to the center but not in the diagonal).
+                // This method does not.
+                float dowseCellStrength = (1f / math.max(xDist, zDist)) * config.coolingStrengthFalloff;
+                tile.Temperature -= config.coolingStrength * dowseCellStrength;
+            }
         }
     }
 }

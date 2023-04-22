@@ -2,19 +2,21 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Burst;
 
 [UpdateAfter(typeof(OmniworkerWaterSystem))]
+[BurstCompile]
 public partial struct OmniworkerFireSystem : ISystem
 {
    private float speed;
    private float3 firePos;
    private float arriveThreshold;
-
+   [BurstCompile]
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
    }
-
+   [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
       var config = SystemAPI.GetSingleton<Config>();

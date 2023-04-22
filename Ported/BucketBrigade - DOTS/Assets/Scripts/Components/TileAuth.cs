@@ -1,3 +1,4 @@
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Rendering;
 using UnityEngine;
@@ -14,7 +15,9 @@ public class TileAuth : MonoBehaviour
         {
             AddComponent(new Tile
             {
-                Temperature = authoring.Temperature
+                Temperature = authoring.Temperature,
+                rowIndex = -1,
+                columnIndex = -1,
             });
             AddComponent<OnFire>();
             AddComponent<URPMaterialPropertyBaseColor>();
@@ -26,6 +29,8 @@ public class TileAuth : MonoBehaviour
 public struct Tile : IComponentData
 {
     public float Temperature;
+    public int rowIndex;
+    public int columnIndex;
 }
 
 // This is a tag component that is also an "enableable component".

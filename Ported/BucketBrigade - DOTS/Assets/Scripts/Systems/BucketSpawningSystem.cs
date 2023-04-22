@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -5,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(WaterSpawningSystem))]
+[BurstCompile]
 public partial struct BucketSpawningSystem : ISystem
 {
     private int numRow;
@@ -13,13 +15,13 @@ public partial struct BucketSpawningSystem : ISystem
     private Entity bucketPrefab;
     private Config config; 
     
-    
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
     }
 
-
+    
     public void OnUpdate(ref SystemState state)
     {
         // Get the config 
@@ -63,9 +65,6 @@ public partial struct BucketSpawningSystem : ISystem
             ECB.SetComponentEnabled<EmptyTag>(instance, true); 
             ECB.SetComponentEnabled<FullTag>(instance, false);
         }
-        
-        
-        
         //Disable state after spawning for now 
         state.Enabled = false;
     }

@@ -55,6 +55,7 @@ public partial struct BotNearestMovementSystem : ISystem
       bucketCapacity = config.bucketCapacity;
       numTeams = config.TotalTeams;
       
+
       //Get component for each team
       for (int t = 0; t < numTeams; t++)
       {
@@ -180,13 +181,12 @@ public partial struct BotNearestMovementSystem : ISystem
             }
          }
       }
-   
+
    }
 }
 
 [WithAll(typeof(BackBotTag))]
 [BurstCompile]
-
 public partial struct MoveToNearestBackJob : IJobEntity
 {
    public EntityCommandBuffer ECB;
@@ -225,7 +225,9 @@ public partial struct MoveToNearestBackJob : IJobEntity
    }
 }
 [BurstCompile]
+
 [WithAll(typeof(FrontBotTag))]
+
 //This job will move the front bot to the fire
 public partial struct MoveToNearestFrontJob : IJobEntity
 {
