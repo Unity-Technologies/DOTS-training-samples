@@ -72,10 +72,13 @@ public class ConfigAuth : MonoBehaviour
     public int totalBots = 10;
     [Range(1, 100)]
     public int totalOmniworkers = 10;
+    [Range(1, 10)]
+    public int totalTeams = 1;
     [Range(0.001f, 1f)]
     public float waterCarryAffect = 0.5f;
     public float arriveThreshold= 0.2f;
     private float botStartingYPosition = 0.5f;
+    
     
     [Header("Colours")]
     public Color colour_fireCell_neutral = new Color(125, 202, 117);
@@ -128,6 +131,7 @@ public class ConfigAuth : MonoBehaviour
                 botSpeed = authoring.botSpeed,
                 TotalBots = authoring.totalBots,
                 TotalOmniworkers = authoring.totalOmniworkers,
+                TotalTeams = authoring.totalTeams,
                 waterCarryAffect = authoring.waterCarryAffect,
                 arriveThreshold = authoring.arriveThreshold,
                 botStartingYPosition = authoring.botStartingYPosition,
@@ -166,6 +170,7 @@ public struct Config : IComponentData
 
     public int TotalBots;
     public int TotalOmniworkers;
+    public int TotalTeams;
 
     public float heatTransferRate;
     public float fireSimUpdateRate;

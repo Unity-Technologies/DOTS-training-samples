@@ -22,69 +22,78 @@ namespace Systems
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<botSpawnCompleteTag>();
-            BotTagsFQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<BotTag, ForwardPassingBotTag>()
-                .Build(state.EntityManager);
-            BotTagsBQ = new EntityQueryBuilder(Allocator.Persistent).WithAll<BotTag, BackwardPassingBotTag>()
-                .Build(state.EntityManager);
+            state.RequireForUpdate<Config>();
         }
         
        
 
         public void OnUpdate(ref SystemState state)
         {
-            //Create native arrays
-            var botTagsF = BotTagsFQ.ToComponentDataArray<BotTag>(Allocator.Temp);
-            var botTagsB = BotTagsBQ.ToComponentDataArray<BotTag>(Allocator.Temp);
-
-            var botEntityF = BotTagsFQ.ToEntityArray(Allocator.Temp);
-            var botEntityB = BotTagsBQ.ToEntityArray(Allocator.Temp);
-
-
-            for (i = 0; i < botTagsF.Length; i++)
-            {
-                var newBotTagF = botTagsF[i];
-                newBotTagF.indexInChain = i;
-                state.EntityManager.SetComponentData(botEntityF[i],newBotTagF);
-                //Debug.Log("Forward No " + i + " entity: " + botEntityF[i]);
-            }
             
-            for (j = botTagsB.Length-1; j >= 0 ; j--)
-            {
-                var newBotTagB = botTagsB[j];
-                newBotTagB.indexInChain = j;
-                state.EntityManager.SetComponentData(botEntityB[j],newBotTagB);
-                //Debug.Log("Backward No " + j + " entity: " + botEntityB[j]);
-            }
+            var config = SystemAPI.GetSingleton<Config>();
+            var numTeams = config.TotalTeams;
             
-            
-            
-            /*
-            foreach (var (botTagF,entity) in SystemAPI.Query<BotTag>().WithAll<ForwardPassingBotTag>().WithEntityAccess())
-            {
-                var newBotTagF = botTagF;
-                newBotTagF.indexInChain = i;
-                state.EntityManager.SetComponentData(entity,newBotTagF);
-                i++;
-            }
+            //Get delta time
+            var dt = SystemAPI.Time.DeltaTime;
         
-            foreach ( var (botTagB,entity) in SystemAPI.Query<BotTag>().WithAll<BackwardPassingBotTag>().WithEntityAccess())
+            //GIGANTIC FOR LOOP AGAIN 
+            //Get all teams
+            var teamList = new NativeList<Team>(numTeams, Allocator.Persistent);
+      
+            //Get component for each team
+            for (int t = 0; t < numTeams; t++)
             {
-                var newBotTagB = botTagB;
-                newBotTagB.indexInChain = j;
-                state.EntityManager.SetComponentData(entity,newBotTagB);
-                j++;
+                var TeamComponent = new Team { Value = t};
+      
+                teamList.Add(TeamComponent);
             }
-           
-            numTimesRun++;
 
-            */
+
+            //Add gigantic for loop to handle each team 
+            for (int i = 0; i < teamList.Length; i++)
+            {
+                BotTagsFQ = SystemAPI.QueryBuilder().WithAll<BotTag, ForwardPassingBotTag,Team>()
+                    .Build();
+                BotTagsFQ.SetSharedComponentFilter(teamList[i]);
+                BotTagsBQ = SystemAPI.QueryBuilder().WithAll<BotTag, BackwardPassingBotTag,Team>()
+                    .Build();
+                BotTagsBQ.SetSharedComponentFilter(teamList[i]);
+                
+                //Create native arrays
+                var botTagsF = BotTagsFQ.ToComponentDataArray<BotTag>(Allocator.Temp);
+                var botTagsB = BotTagsBQ.ToComponentDataArray<BotTag>(Allocator.Temp);
+
+                var botEntityF = BotTagsFQ.ToEntityArray(Allocator.Temp);
+                var botEntityB = BotTagsBQ.ToEntityArray(Allocator.Temp);
+
+
+                for (int k = 0; k < botTagsF.Length; k++)
+                {
+                    var newBotTagF = botTagsF[k];
+                    newBotTagF.indexInChain = k;
+                    state.EntityManager.SetComponentData(botEntityF[k],newBotTagF);
+                }
+            
+                for (j = botTagsB.Length-1; j >= 0 ; j--)
+                {
+                    var newBotTagB = botTagsB[j];
+                    newBotTagB.indexInChain = j;
+                    state.EntityManager.SetComponentData(botEntityB[j],newBotTagB);
+                }
+                
+                
+                botEntityF.Dispose();
+                botTagsF.Dispose();
+                botEntityB.Dispose();
+                botTagsB.Dispose();
+
+
+            }
+            
             Debug.Log("Ran InitializeChainIndex System" + " i: " + i + " j: " + j);
             
             state.Enabled = false;
-            botEntityF.Dispose();
-            botTagsF.Dispose();
-            botEntityB.Dispose();
-            botTagsB.Dispose();
+            
             
 
 

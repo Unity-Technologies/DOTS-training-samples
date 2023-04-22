@@ -14,7 +14,7 @@ public class TeamReadyAuth : MonoBehaviour
     }
 }
 
-struct TeamReadyTag : IComponentData
+public struct TeamReadyTag : IEnableableComponent,IComponentData
 {
     
 }

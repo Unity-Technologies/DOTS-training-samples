@@ -31,6 +31,7 @@ public partial struct BotMovementSystem : ISystem
    private EntityQuery backwardBotsQ;
    private EntityQuery botTagsQF;
    private EntityQuery botTagsQB;
+   private int numTeams;
    
    [BurstCompile]
    public void OnCreate(ref SystemState state)
@@ -38,107 +39,142 @@ public partial struct BotMovementSystem : ISystem
       state.RequireForUpdate<Config>();
             
       //Before moving the rest of the bots i need to ensure that the other system has run 
-      state.RequireForUpdate<TeamReadyTag>();
-
-      forwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, ForwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
-      backwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
-      botTagsQF = SystemAPI.QueryBuilder().WithAll<BotTag,ForwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
-      botTagsQB = SystemAPI.QueryBuilder().WithAll<BotTag,BackwardPassingBotTag>().WithDisabled<CarryingBotTag>().Build();
+      //state.RequireForUpdate<TeamReadyTag>();
+      
       
    }
 
    [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
-      
       float dt = SystemAPI.Time.DeltaTime;
-      
+         
       //Get the config 
       var config = SystemAPI.GetSingleton<Config>();
       speed = config.botSpeed;
       totalNumberOfBots = config.TotalBots;
       arriveThreshold = config.arriveThreshold;
+      numTeams = config.TotalTeams;
       
-      //Get Back guy position
-      //For one team
-      foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>())
+      //GIGANTIC FOR LOOP AGAIN 
+      //Get all teams
+      var teamList = new NativeList<Team>(1, Allocator.Persistent);
+      
+      //Get component for each team
+      for (int t = 0; t < numTeams; t++)
       {
-         backPos = backTransform.Position;
+         var TeamComponent = new Team { Value = t};
+      
+         teamList.Add(TeamComponent);
       }
 
 
-      //Get thrower guy
-      foreach (var frontTransform in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>())
+      //Add gigantic for loop to handle each team 
+      for (int i = 0; i < teamList.Length; i++)
       {
-         frontPos = frontTransform.Position;
+         
+         //Needed queries 
+         forwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, ForwardPassingBotTag,Team>().WithDisabled<CarryingBotTag>().Build();
+         forwardBotsQ.SetSharedComponentFilter(teamList[i]);
+         backwardBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackwardPassingBotTag,Team>().WithDisabled<CarryingBotTag>().Build();
+         backwardBotsQ.SetSharedComponentFilter(teamList[i]);
+         
+         botTagsQF = SystemAPI.QueryBuilder().WithAll<BotTag,ForwardPassingBotTag,Team>().WithDisabled<CarryingBotTag>().Build();
+         botTagsQF.SetSharedComponentFilter(teamList[i]);
+         botTagsQB = SystemAPI.QueryBuilder().WithAll<BotTag,BackwardPassingBotTag,Team>().WithDisabled<CarryingBotTag>().Build();
+         botTagsQB.SetSharedComponentFilter(teamList[i]);
+         
+         
+         
+         
+        
+         
+         //Get Back guy position
+         //For one team
+         foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>().WithSharedComponentFilter(teamList[i]))
+         {
+            backPos = backTransform.Position;
+         }
+         
+
+         //Get thrower guy
+         foreach (var frontTransform in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>().WithSharedComponentFilter(teamList[i]))
+         {
+            frontPos = frontTransform.Position;
+         }
+
+         forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+         backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+         botTagsF = botTagsQF.ToComponentDataArray<BotTag>(Allocator.TempJob);
+         botTagsB = botTagsQB.ToComponentDataArray<BotTag>(Allocator.TempJob);
+
+         //Turn them into a native array 
+         var forwardEntities = forwardBotsQ.ToEntityArray(Allocator.TempJob);
+         var backwardEntities = backwardBotsQ.ToEntityArray(Allocator.TempJob);
+      
+         
+         var ecbSingletonF = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+         var ecbF = ecbSingletonF.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+         //Use job to distribute the bots (forward)
+         var forwardJob = new MoveBotJob
+         {
+            ECB = ecbF,
+            Entities = forwardEntities,
+            front = frontPos+new float3(0.5f,0.0f,0.5f), 
+            back = backPos,
+            totalNumberBots = totalNumberOfBots/2,
+            localTransform = forwardTransform,
+            botTags = botTagsF,
+            deltaTime = dt,
+            speed =  speed,
+            arriveThreshold = arriveThreshold
+
+         };
+
+         var ecbSingletonB = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+         var ecbB = ecbSingletonB.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+         var backwardJob = new MoveBotJob
+         {
+            ECB = ecbB,
+            Entities = backwardEntities,
+            front = backPos-new float3(0.5f,0.0f,0.5f),
+            back = frontPos,
+            totalNumberBots = totalNumberOfBots/2,
+            localTransform = backwardTransform,
+            botTags = botTagsB,
+            deltaTime = dt,
+            speed = speed,
+            arriveThreshold = arriveThreshold
+
+         };
+
+
+         JobHandle forwardHandle = forwardJob.Schedule(forwardTransform.Length,1);
+         forwardHandle.Complete();
+         
+         JobHandle backwardHandle = backwardJob.Schedule(backwardTransform.Length,1);
+         backwardHandle.Complete();
+         forwardBotsQ.CopyFromComponentDataArray(forwardTransform);
+         backwardBotsQ.CopyFromComponentDataArray(backwardTransform);
+
+         //Check if everyone has reached their target. If so the BucketMovingSystem should start running. 
+         //Query all the reached target entities and check if len = total num bots in team 
+         EntityQuery botsInTeamQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag>().Build();
+         botsInTeamQ.SetSharedComponentFilter(teamList[i]);
+         int numBotsInTeam = botsInTeamQ.CalculateEntityCount();
+         
+         EntityQuery botsInTeamReachedQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag,ReachedTarget>().Build();
+         botsInTeamReachedQ.SetSharedComponentFilter(teamList[i]);
+         int numBbotsInTeamReachedQ =  botsInTeamReachedQ.CalculateEntityCount();
+
+         if (numBotsInTeam == numBbotsInTeamReachedQ)
+         {
+            var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
+            state.EntityManager.AddComponent<botChainCompleteTag>(TransitionManager);
+         }
       }
 
-      forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-      backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
-      botTagsF = botTagsQF.ToComponentDataArray<BotTag>(Allocator.TempJob);
-      botTagsB = botTagsQB.ToComponentDataArray<BotTag>(Allocator.TempJob);
 
-      //Turn them into a native array 
-      var forwardEntities = forwardBotsQ.ToEntityArray(Allocator.TempJob);
-      var backwardEntities = backwardBotsQ.ToEntityArray(Allocator.TempJob);
-   
-      
-      var ecbSingletonF = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-      var ecbF = ecbSingletonF.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-      //Use job to distribute the bots (forward)
-      var forwardJob = new MoveBotJob
-      {
-         ECB = ecbF,
-         Entities = forwardEntities,
-         front = frontPos+new float3(0.5f,0.0f,0.5f), 
-         back = backPos,
-         totalNumberBots = totalNumberOfBots/2,
-         localTransform = forwardTransform,
-         botTags = botTagsF,
-         deltaTime = dt,
-         speed =  speed,
-         arriveThreshold = arriveThreshold
-
-      };
-
-      var ecbSingletonB = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-      var ecbB = ecbSingletonB.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
-      var backwardJob = new MoveBotJob
-      {
-         ECB = ecbB,
-         Entities = backwardEntities,
-         front = backPos-new float3(0.5f,0.0f,0.5f),
-         back = frontPos,
-         totalNumberBots = totalNumberOfBots/2,
-         localTransform = backwardTransform,
-         botTags = botTagsB,
-         deltaTime = dt,
-         speed = speed,
-         arriveThreshold = arriveThreshold
-
-      };
-
-
-      JobHandle forwardHandle = forwardJob.Schedule(forwardTransform.Length,1);
-      forwardHandle.Complete();
-      
-      JobHandle backwardHandle = backwardJob.Schedule(backwardTransform.Length,1);
-      backwardHandle.Complete();
-      forwardBotsQ.CopyFromComponentDataArray(forwardTransform);
-      backwardBotsQ.CopyFromComponentDataArray(backwardTransform);
-
-      //Check if everyone has reached their target. If so the BucketMovingSystem should start running. 
-      //Query all the reached target entities and check if len = total num bots in team 
-      EntityQuery botsInTeamQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag>().Build();
-      int numBotsInTeam = botsInTeamQ.CalculateEntityCount();
-      EntityQuery botsInTeamReachedQ =  SystemAPI.QueryBuilder().WithAll<Team,BotTag,ReachedTarget>().Build();
-      int numBbotsInTeamReachedQ =  botsInTeamReachedQ.CalculateEntityCount();
-
-      if (numBotsInTeam == numBbotsInTeamReachedQ)
-      {
-         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
-         state.EntityManager.AddComponent<botChainCompleteTag>(TransitionManager);
-      }
       
    }
 }

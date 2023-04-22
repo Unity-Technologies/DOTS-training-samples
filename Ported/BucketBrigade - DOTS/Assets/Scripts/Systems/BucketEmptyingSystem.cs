@@ -21,7 +21,7 @@ public partial struct BucketEmptyingSystem : ISystem
     {
         float minDist;
         var config = SystemAPI.GetSingleton<Config>();
-        var ECBSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ECBSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
         var ECB = ECBSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         //For each bucket with EmptyingTag enabled
