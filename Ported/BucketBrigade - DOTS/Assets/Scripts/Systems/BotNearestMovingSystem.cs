@@ -20,6 +20,9 @@ public partial struct BotNearestMovementSystem : ISystem
    private float bucketCapacity;
    private NativeList<Team> teamList;
    private int numTeams;
+   private EntityCommandBuffer ecb;
+   private ComponentLookup<TeamReadyTag> teamReadyTagComponentLookup;
+   private bool hasCreatedTeamList;
    
   
 
@@ -32,7 +35,8 @@ public partial struct BotNearestMovementSystem : ISystem
 
       //Initialize team list
       teamList = new NativeList<Team>(1, Allocator.Persistent);
-      
+      teamReadyTagComponentLookup = SystemAPI.GetComponentLookup<TeamReadyTag>();
+      hasCreatedTeamList = false;
 
    }
 
@@ -44,8 +48,8 @@ public partial struct BotNearestMovementSystem : ISystem
    [BurstCompile]
    public void OnUpdate(ref SystemState state)
    {
-      
-      float dt = SystemAPI.Time.DeltaTime;
+      ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>()
+         .CreateCommandBuffer(state.WorldUnmanaged);
       
       
       //Get the config 
@@ -55,13 +59,19 @@ public partial struct BotNearestMovementSystem : ISystem
       bucketCapacity = config.bucketCapacity;
       numTeams = config.TotalTeams;
       
-
+      
+      teamReadyTagComponentLookup.Update(ref state);
+      
       //Get component for each team
-      for (int t = 0; t < numTeams; t++)
+      for (int t = 0; t < numTeams && !hasCreatedTeamList; t++)
       {
          var TeamComponent = new Team { Value = t};
       
          teamList.Add(TeamComponent);
+         if (t == numTeams - 1)
+         {
+            hasCreatedTeamList = true;
+         }
       }
       
       //Add gigantic for loop to handle each team 
@@ -74,16 +84,30 @@ public partial struct BotNearestMovementSystem : ISystem
          LocalTransform frontBotTransform = LocalTransform.Identity;
          LocalTransform backBotTransform=LocalTransform.Identity;
          float minDist = float.MaxValue;
+         float dt = SystemAPI.Time.DeltaTime;
+
          
-         //For one team
-         
+         //Get the back guy i.e. the bot at the water position
          foreach (var (backTransform,bot) in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
          {
             backBotTransform = backTransform;
             backBot = bot;
          }
+
+            /*//Get the back guy i.e. the bot at the water position
+         EntityQuery backBotQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackBotTag, Team>().Build();
+         backBotQ.SetSharedComponentFilter(teamList[i]);
+         backBot = backBotQ.GetSingletonEntity();
+         backBotTransform = backBotQ.GetSingleton<LocalTransform>();
          
-         //Get thrower guy
+         //Get the front guy i.e. the bot at the fire
+         EntityQuery frontBotQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, FrontBotTag, Team>().Build();
+         frontBotQ.SetSharedComponentFilter(teamList[i]);
+         frontBot = frontBotQ.GetSingletonEntity();
+         frontBotTransform = frontBotQ.GetSingleton<LocalTransform>();
+         */
+         
+         //Get the front guy i.e. the bot at the fire
          foreach (var (frontTransform,bot) in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
          {
             frontBotTransform = frontTransform;
@@ -91,8 +115,8 @@ public partial struct BotNearestMovementSystem : ISystem
          }
          
          //Check if we should skip to the next team
-         ComponentLookup<TeamReadyTag> readyTeams = SystemAPI.GetComponentLookup<TeamReadyTag>();
-         if (readyTeams.IsComponentEnabled(frontBot) && readyTeams.IsComponentEnabled(backBot))
+         //ComponentLookup<TeamReadyTag> readyTeams = SystemAPI.GetComponentLookup<TeamReadyTag>();
+         if (teamReadyTagComponentLookup.IsComponentEnabled(frontBot) && teamReadyTagComponentLookup.IsComponentEnabled(backBot))
          {
             //If both the front and back bot are at their goal position we should not update 
             continue;
@@ -129,44 +153,47 @@ public partial struct BotNearestMovementSystem : ISystem
          for (int f = 0; f < fireTransforms.Length; f++)
          {
             var dist = Vector3.Distance(fireTransforms[f].Position, backBotTransform.Position);
-            if (dist < minDist)
+            if (dist < minDist )
             {
                minDist = dist; 
                firePos = fireTransforms[f].Position;
             } 
          }
-
-         fireTransforms.Dispose();
          
-        
-         
-        
          if (firePos.Equals(float3.zero))
          {
-            return;
+            continue;
          }
+         
+         if (waterPos.Equals(float3.zero))
+         {
+            continue;
+         }
+
+
          
          
          //Move the Initial Bots 
-         if (!readyTeams.IsComponentEnabled(backBot))
+         if (!teamReadyTagComponentLookup.IsComponentEnabled(backBot))
          {
+            
             waterPos.y = 0.25f;
             float3 dir = Vector3.Normalize(waterPos - backBotTransform.Position);
             if (Vector3.Distance(waterPos ,backBotTransform.Position) > arriveThreshold)
             {
-               backBotTransform.Position += dir * dt * speed;
+               backBotTransform.Position +=  dir * dt * speed;
                state.EntityManager.SetComponentData(backBot, backBotTransform);
             }
             else
             {
-               //state.EntityManager.SetComponentEnabled<TeamReadyTag>(backBot, true);
+               teamReadyTagComponentLookup.SetComponentEnabled(backBot, true);
             }
 
-
-
          }
+         
+         teamReadyTagComponentLookup.Update(ref state);
 
-         if(!readyTeams.IsComponentEnabled(frontBot))
+         if(!teamReadyTagComponentLookup.IsComponentEnabled(frontBot))
          {
             firePos.y = 0.25f;
             float3 dir = Vector3.Normalize(firePos - frontBotTransform.Position);
@@ -177,13 +204,19 @@ public partial struct BotNearestMovementSystem : ISystem
             }
             else
             {
-               //state.EntityManager.SetComponentEnabled<TeamReadyTag>(frontBot, true);
+               teamReadyTagComponentLookup.SetComponentEnabled(frontBot, true);
             }
+            
          }
+         
+         
+            
+         fireTransforms.Dispose();
       }
 
    }
 }
+
 
 [WithAll(typeof(BackBotTag))]
 [BurstCompile]
@@ -292,15 +325,14 @@ public partial struct MoveToTarget: IJob
       float3 dir = Vector3.Normalize(targetPos - botTransform.Position);
       if (Vector3.Distance(targetPos ,botTransform.Position) > arriveThreshold)
       {
-         botTransform.Position += + dir * deltaTime * speed;
+         botTransform.Position += dir * deltaTime * speed;
          ECB.SetComponent(bot, botTransform);
       }
       else
       {
          ECB.SetComponentEnabled<ReachedTarget>(bot, true);
          //Indicate that one of our bots are ready
-        
-         ECB.AddComponent(bot, new TeamReadyTag());
+         ECB.SetComponentEnabled<TeamReadyTag>(bot, true);
       }
 
    }

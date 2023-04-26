@@ -6,7 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(BucketMovingSystem))]
+[UpdateBefore(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BucketEmptyingSystem : ISystem
 {
@@ -81,10 +81,6 @@ public partial struct BucketEmptyingSystem : ISystem
             }.ScheduleParallel(state.Dependency);
             state.Dependency = fireExtuinguishJob;
             
-            
-            //Make the front guy find another fire 
-            var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
-            ECB.AddComponent<updateBotNearestTag>(TransitionManager);
         }
     }
 }
