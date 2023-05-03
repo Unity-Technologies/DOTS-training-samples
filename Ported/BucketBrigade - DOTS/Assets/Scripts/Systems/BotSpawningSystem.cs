@@ -64,11 +64,14 @@ public partial struct BotSpawningSystem : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
-
+        URPMaterialPropertyBaseColor FetcherColor()
+        {
+            var color = Color.green;
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
 
         for (int t = 0; t < numTeams; t++)
-        {
-            
+        { 
             //Loop through and spawn bots at a random position
             for (int i = 0; i < totalBots; i++)
             {
@@ -83,16 +86,24 @@ public partial struct BotSpawningSystem : ISystem
                 botTransform.Scale = 1f; //This is the scale of the bot pls change this
                 ECB.SetComponent(instance, botTransform);
 
-                if (i < totalBots / 2 || i == totalBots - 1) //If it is part of the first half
+                if (i < Unity.Mathematics.math.ceil(totalBots / 2) || i == totalBots - 1) //If it is part of the first half
                 {
                     ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, ForwardColor());
                 }
 
-                if (i >= totalBots / 2 || i == 0) //If it is part of the last half
+                if (i > Unity.Mathematics.math.ceil(totalBots / 2) || i == 0) //If it is part of the last half
                 {
                     ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, BackwardColor());
+                }
+
+                if (i == Unity.Mathematics.math.ceil(totalBots / 2)) //The middle dude is the bucket fetcher
+                {
+                    ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
+                    ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
+                    ECB.AddComponent<BucketFetcherBotTag>(instance);
+                    ECB.SetComponent(instance, FetcherColor());
                 }
 
                 if (i != 0) //If it is not the first one
@@ -121,11 +132,11 @@ public partial struct BotSpawningSystem : ISystem
                 ECB.SetComponentEnabled<ReachedTarget>(instance, false);
                 ECB.SetComponentEnabled<CarryingBotTag>(instance, false);
 
-                ECB.SetComponent<BotTag>(instance, new BotTag
+                ECB.SetComponent(instance, new BotTag
                 {
                     cooldown = 0.0f,
                     noInChain = i,
-                    indexInChain = 0
+                    indexInChain = 0,
                 });
 
                 ECB.AddSharedComponent(instance, new Team { Value = t });
@@ -152,7 +163,6 @@ public partial struct BotSpawningSystem : ISystem
         }
         
       
-        
         //Disable state after spawning for now 
         state.Enabled = false;
         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();

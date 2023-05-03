@@ -30,27 +30,17 @@ public struct BotTag : IComponentData
    public float cooldown;
    public int noInChain;
    public int indexInChain;
-
 }
 
-public struct FrontBotTag : IComponentData, IEnableableComponent{
-   
-}
+public struct FrontBotTag : IComponentData, IEnableableComponent{}
 
-public struct ForwardPassingBotTag : IComponentData, IEnableableComponent{
-   
-}
+public struct ForwardPassingBotTag : IComponentData, IEnableableComponent{}
 
-public struct BackwardPassingBotTag : IComponentData, IEnableableComponent{
-   
-}
+public struct BackwardPassingBotTag : IComponentData, IEnableableComponent{}
 
-public struct BackBotTag : IComponentData, IEnableableComponent{
-   
-
-}
+public struct BackBotTag : IComponentData, IEnableableComponent{}
 
 public struct CarryingBotTag : IComponentData, IEnableableComponent //Not added pr default
-{
-   
-}
+{}
+
+public struct BucketFetcherBotTag : IComponentData { }

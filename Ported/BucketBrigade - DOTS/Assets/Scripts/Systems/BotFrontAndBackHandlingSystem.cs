@@ -7,14 +7,14 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(BucketMovingSystem))]
-[BurstCompile]
+//[UpdateAfter(typeof(BucketMovingSystem))]
+//[BurstCompile]
 public partial struct BotFrontAndBackHandlingSystem : ISystem
 {
 
     public void OnCreate(ref SystemState state)
     { 
-        state.RequireForUpdate<Config>();
+        //state.RequireForUpdate<Config>();
     }
 
     [BurstCompile]

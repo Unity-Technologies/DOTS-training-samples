@@ -10,6 +10,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(FireHandlingSystem))]
+[UpdateAfter(typeof(BotSpawningSystem))]
 [BurstCompile]
 public partial struct BotNearestMovementSystem : ISystem
 {
@@ -258,9 +259,7 @@ public partial struct MoveToNearestBackJob : IJobEntity
    }
 }
 [BurstCompile]
-
 [WithAll(typeof(FrontBotTag))]
-
 //This job will move the front bot to the fire
 public partial struct MoveToNearestFrontJob : IJobEntity
 {

@@ -15,7 +15,6 @@ using UnityEngine.Rendering;
 
 [UpdateAfter(typeof(BotNearestMovementSystem))]
 [BurstCompile]
-
 public partial struct BotMovementSystem : ISystem
 {
    private NativeArray<LocalTransform> forwardTransform;
@@ -40,8 +39,6 @@ public partial struct BotMovementSystem : ISystem
             
       //Before moving the rest of the bots i need to ensure that the other system has run 
       //state.RequireForUpdate<TeamReadyTag>();
-      
-      
    }
 
    [BurstCompile]
@@ -84,11 +81,6 @@ public partial struct BotMovementSystem : ISystem
          botTagsQB = SystemAPI.QueryBuilder().WithAll<BotTag,BackwardPassingBotTag,Team>().WithDisabled<CarryingBotTag>().Build();
          botTagsQB.SetSharedComponentFilter(teamList[i]);
          
-         
-         
-         
-        
-         
          //Get Back guy position
          //For one team
          foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>().WithSharedComponentFilter(teamList[i]))
@@ -122,7 +114,7 @@ public partial struct BotMovementSystem : ISystem
             Entities = forwardEntities,
             front = frontPos+new float3(0.5f,0.0f,0.5f), 
             back = backPos,
-            totalNumberBots = totalNumberOfBots/2,
+            totalNumberBots = math.ceil(totalNumberOfBots / 2) - 1,
             localTransform = forwardTransform,
             botTags = botTagsF,
             deltaTime = dt,
@@ -139,7 +131,7 @@ public partial struct BotMovementSystem : ISystem
             Entities = backwardEntities,
             front = backPos-new float3(0.5f,0.0f,0.5f),
             back = frontPos,
-            totalNumberBots = totalNumberOfBots/2,
+            totalNumberBots = math.ceil(totalNumberOfBots/2) - 1,
             localTransform = backwardTransform,
             botTags = botTagsB,
             deltaTime = dt,
@@ -167,15 +159,13 @@ public partial struct BotMovementSystem : ISystem
          botsInTeamReachedQ.SetSharedComponentFilter(teamList[i]);
          int numBbotsInTeamReachedQ =  botsInTeamReachedQ.CalculateEntityCount();
 
+         // With this if any Team has completed the Chain then the botChainCompleteTag is set.
          if (numBotsInTeam == numBbotsInTeamReachedQ)
          {
             var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
             state.EntityManager.AddComponent<botChainCompleteTag>(TransitionManager);
          }
       }
-
-
-      
    }
 }
 
