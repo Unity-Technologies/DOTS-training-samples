@@ -11,8 +11,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-
-
+[UpdateInGroup(typeof(MovementSystemGroup))]
 [UpdateAfter(typeof(BotNearestMovementSystem))]
 [BurstCompile]
 
@@ -33,15 +32,18 @@ public partial struct BotMovementSystem : ISystem
    private EntityQuery botTagsQB;
    private int numTeams;
    
+   private NativeList<Team> teamList;
+   
+   private bool hasCreatedTeamList;
+   
    [BurstCompile]
    public void OnCreate(ref SystemState state)
    {
       state.RequireForUpdate<Config>();
             
-      //Before moving the rest of the bots i need to ensure that the other system has run 
-      //state.RequireForUpdate<TeamReadyTag>();
-      
-      
+      teamList = new NativeList<Team>(numTeams, Allocator.Persistent);
+      hasCreatedTeamList = false;
+
    }
 
    [BurstCompile]
@@ -55,17 +57,18 @@ public partial struct BotMovementSystem : ISystem
       totalNumberOfBots = config.TotalBots;
       arriveThreshold = config.arriveThreshold;
       numTeams = config.TotalTeams;
-      
+
       //GIGANTIC FOR LOOP AGAIN 
-      //Get all teams
-      var teamList = new NativeList<Team>(1, Allocator.Persistent);
-      
       //Get component for each team
-      for (int t = 0; t < numTeams; t++)
+      for (int t = 0; t < numTeams && !hasCreatedTeamList; t++)
       {
          var TeamComponent = new Team { Value = t};
       
          teamList.Add(TeamComponent);
+         if (t == numTeams - 1)
+         {
+            hasCreatedTeamList = true;
+         }
       }
 
 
@@ -85,12 +88,7 @@ public partial struct BotMovementSystem : ISystem
          botTagsQB.SetSharedComponentFilter(teamList[i]);
          
          
-         
-         
-        
-         
          //Get Back guy position
-         //For one team
          foreach (var backTransform in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>().WithSharedComponentFilter(teamList[i]))
          {
             backPos = backTransform.Position;
@@ -102,7 +100,7 @@ public partial struct BotMovementSystem : ISystem
          {
             frontPos = frontTransform.Position;
          }
-
+         
          forwardTransform = forwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
          backwardTransform = backwardBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
          botTagsF = botTagsQF.ToComponentDataArray<BotTag>(Allocator.TempJob);

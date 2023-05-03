@@ -1,14 +1,13 @@
 
-using System;
 using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(MovementSystemGroup))]
 [UpdateAfter(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BotNearestMovementSystem : ISystem
@@ -59,8 +58,13 @@ public partial struct BotNearestMovementSystem : ISystem
       bucketCapacity = config.bucketCapacity;
       numTeams = config.TotalTeams;
       
-      
+      //Update the component lookup
       teamReadyTagComponentLookup.Update(ref state);
+      
+      
+      //Get the front and back bots in one query
+      EntityQuery backBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackBotTag, Team>().Build();
+      EntityQuery frontBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, FrontBotTag, Team>().Build();
       
       //Get component for each team
       for (int t = 0; t < numTeams && !hasCreatedTeamList; t++)
@@ -86,33 +90,14 @@ public partial struct BotNearestMovementSystem : ISystem
          float minDist = float.MaxValue;
          float dt = SystemAPI.Time.DeltaTime;
 
-         
-         //Get the back guy i.e. the bot at the water position
-         foreach (var (backTransform,bot) in SystemAPI.Query<LocalTransform>().WithAll<BackBotTag,Team>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
-         {
-            backBotTransform = backTransform;
-            backBot = bot;
-         }
+         backBotsQ.SetSharedComponentFilter(teamList[i]);
+         frontBotsQ.SetSharedComponentFilter(teamList[i]);
 
-            /*//Get the back guy i.e. the bot at the water position
-         EntityQuery backBotQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, BackBotTag, Team>().Build();
-         backBotQ.SetSharedComponentFilter(teamList[i]);
-         backBot = backBotQ.GetSingletonEntity();
-         backBotTransform = backBotQ.GetSingleton<LocalTransform>();
+         backBotTransform = backBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp)[0];
+         backBot = backBotsQ.ToEntityArray(Allocator.Temp)[0];
          
-         //Get the front guy i.e. the bot at the fire
-         EntityQuery frontBotQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, FrontBotTag, Team>().Build();
-         frontBotQ.SetSharedComponentFilter(teamList[i]);
-         frontBot = frontBotQ.GetSingletonEntity();
-         frontBotTransform = frontBotQ.GetSingleton<LocalTransform>();
-         */
-         
-         //Get the front guy i.e. the bot at the fire
-         foreach (var (frontTransform,bot) in SystemAPI.Query<LocalTransform>().WithAll<FrontBotTag,Team>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
-         {
-            frontBotTransform = frontTransform;
-            frontBot = bot;
-         }
+         frontBotTransform = frontBotsQ.ToComponentDataArray<LocalTransform>(Allocator.Temp)[0];
+         frontBot = frontBotsQ.ToEntityArray(Allocator.Temp)[0];
          
          //Check if we should skip to the next team
          //ComponentLookup<TeamReadyTag> readyTeams = SystemAPI.GetComponentLookup<TeamReadyTag>();

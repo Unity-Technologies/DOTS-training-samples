@@ -10,6 +10,7 @@ using UnityEngine;
 
 
 //It should run after the bot moving system
+[UpdateInGroup(typeof(MovementSystemGroup))]
 [UpdateAfter(typeof(BotMovementSystem))]
 
 public partial struct BucketMovingSystem : ISystem
@@ -38,6 +39,9 @@ public partial struct BucketMovingSystem : ISystem
     private bool isFilling;
     private bool isFull;
     private int numTeams;
+    private NativeList<Team> teamList;
+    
+    private bool hasCreatedTeamList;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -56,6 +60,9 @@ public partial struct BucketMovingSystem : ISystem
         
         //Needed ComponentLookups
         fullBuckets = SystemAPI.GetComponentLookup<FullTag>();
+        
+        teamList = new NativeList<Team>(numTeams, Allocator.Persistent);
+        hasCreatedTeamList = false;
         
     }
 
@@ -76,16 +83,17 @@ public partial struct BucketMovingSystem : ISystem
         //Get delta time
         var dt = SystemAPI.Time.DeltaTime;
         
-        //GIGANTIC FOR LOOP AGAIN 
-        //Get all teams
-        var teamList = new NativeList<Team>(numTeams, Allocator.Persistent);
       
         //Get component for each team
-        for (int t = 0; t < numTeams; t++)
+        for (int t = 0; t < numTeams  && !hasCreatedTeamList; t++)
         {
             var TeamComponent = new Team { Value = t};
       
             teamList.Add(TeamComponent);
+            if (t == numTeams - 1)
+            {
+                hasCreatedTeamList = true;
+            }
         }
 
 

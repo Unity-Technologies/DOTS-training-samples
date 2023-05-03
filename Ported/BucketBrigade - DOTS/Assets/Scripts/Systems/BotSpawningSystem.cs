@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-
+[UpdateInGroup(typeof(SpawnSystemGroup))]
 [UpdateAfter(typeof(BucketSpawningSystem))]
 [BurstCompile]
 public partial struct BotSpawningSystem : ISystem

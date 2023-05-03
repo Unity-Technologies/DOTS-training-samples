@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Burst;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Rendering;
 using Unity.Mathematics;
 using UnityEngine;
@@ -11,6 +12,7 @@ using UnityEngine;
 [BurstCompile]
 [UpdateAfter(typeof(InitializeChainIndecies))]
 [UpdateAfter(typeof(GridTilesSpawningSystem))]
+[UpdateAfter(typeof(QuadrantSystem))]
 public partial struct FireHandlingSystem : ISystem
 {
     private float fireSimUpdateRateCounter;
@@ -26,16 +28,30 @@ public partial struct FireHandlingSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
         var fireQuery = SystemAPI.QueryBuilder().WithAll<LocalTransform, Tile, OnFire>().Build();
+        var tileQuery = SystemAPI.QueryBuilder().WithAll<Tile>().Build();
         if (fireSimUpdateRateCounter >= config.fireSimUpdateRate) fireSimUpdateRateCounter = 0; 
         fireSimUpdateRateCounter += SystemAPI.Time.DeltaTime;
 
-        var firePropagationJob = new FirePropagationJob
+        
+        //For the regular fire propagation job
+        /*var firePropagationJob = new FirePropagationJob
         {
             fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
             config = config,
             shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate
         }.ScheduleParallel(state.Dependency);
-
+        */
+        
+        //For the hash map fire propagation job
+        var quadrants = QuadrantSystem.quadrantMultiHashMap;
+        var firePropagationJob = new FirePropagationQuadrantSystemJob
+        {
+            config = config,
+            shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate,
+            quadrantMultiHashMap = quadrants
+        }.ScheduleParallel(tileQuery, state.Dependency);
+        
+        
         // Create and schedule a Job that tests if the GroundTiles should be on fire
         var ignitionTestJob = new IgnitionTestJob
         {
@@ -56,6 +72,54 @@ public partial struct FireHandlingSystem : ISystem
         state.Dependency = onFireTileUpdateJob;
         
     }
+
+   
+    
+    
+    
+    
+    
+    public partial struct FirePropagationQuadrantSystemJob: IJobEntity
+    {
+        [ReadOnly] public Config config;
+        [ReadOnly] public bool shouldUpdate;
+        [ReadOnly] public NativeParallelMultiHashMap<int, QuadrantData> quadrantMultiHashMap;
+    
+        void Execute(ref Tile tile, LocalTransform localTransform)
+        {
+            if (shouldUpdate)
+            {
+                int key = QuadrantSystem.GetPositionHashMapKey(localTransform.Position);
+                FindNearbyTiles(key, ref tile);
+                FindNearbyTiles(key+1,ref tile);
+                FindNearbyTiles(key-1,ref tile);
+                FindNearbyTiles(key + QuadrantSystem.yMult,ref tile);
+                FindNearbyTiles(key - QuadrantSystem.yMult,ref tile);
+            }
+        }
+        
+        private void FindNearbyTiles(int key, ref Tile tile)
+        {
+            NativeParallelMultiHashMapIterator<int> nativeParallelMultiHashMapIterator;
+
+            QuadrantData quadrantData;
+            if (quadrantMultiHashMap.TryGetFirstValue(key, out quadrantData, out nativeParallelMultiHashMapIterator))
+            {
+                do
+                {
+                    
+                    var newTemperature = tile.Temperature + (quadrantData.tile.Temperature * config.heatTransferRate);
+                    if (newTemperature > config.maxFlameHeight) newTemperature = config.maxFlameHeight;
+                    tile.Temperature = newTemperature;
+                    
+
+                } while (quadrantMultiHashMap.TryGetNextValue(out quadrantData, ref nativeParallelMultiHashMapIterator));
+
+            }
+        }
+
+    }
+
 }
 
 [BurstCompile]
@@ -130,3 +194,7 @@ public partial struct FirePropagationJob: IJobEntity
         }
     }
 }
+
+
+
+

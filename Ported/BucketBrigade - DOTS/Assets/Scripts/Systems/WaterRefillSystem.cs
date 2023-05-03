@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateAfter(typeof(BucketFillingSystem))]
+[UpdateInGroup(typeof(EmptyAndFillSystemGroup))]
 [BurstCompile]
 public partial struct WaterRefillSystem : ISystem
 {
