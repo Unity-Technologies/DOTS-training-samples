@@ -93,8 +93,12 @@ public partial struct FireHandlingSystem : ISystem
                 FindNearbyTiles(key, ref tile);
                 FindNearbyTiles(key+1,ref tile);
                 FindNearbyTiles(key-1,ref tile);
-                FindNearbyTiles(key + QuadrantSystem.yMult,ref tile);
-                FindNearbyTiles(key - QuadrantSystem.yMult,ref tile);
+                FindNearbyTiles(key + QuadrantSystem.zMult,ref tile);
+                FindNearbyTiles(key - QuadrantSystem.zMult,ref tile);
+                FindNearbyTiles(key + 1 +  QuadrantSystem.zMult,ref tile);
+                FindNearbyTiles(key - 1 + QuadrantSystem.zMult,ref tile);
+                FindNearbyTiles(key + 1 - QuadrantSystem.zMult,ref tile);
+                FindNearbyTiles(key - 1 - QuadrantSystem.zMult,ref tile);
             }
         }
         

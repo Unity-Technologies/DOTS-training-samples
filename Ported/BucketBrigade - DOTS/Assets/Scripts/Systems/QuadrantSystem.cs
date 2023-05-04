@@ -16,13 +16,13 @@ public partial struct QuadrantSystem : ISystem
 {
 
     public static float radius;
-    public static int yMult;
+    public static int zMult;
     public static NativeParallelMultiHashMap<int, QuadrantData> quadrantMultiHashMap;
     
     
     public static int GetPositionHashMapKey(float3 position)
     {
-        return (int)(math.floor(position.x / radius) + (yMult * math.floor(position.z / radius)));
+        return (int)(math.floor(position.x / radius) + (zMult * math.floor(position.z / radius)));
     }
 
     private void DebugDrawQuadrant(float3 position)
@@ -57,7 +57,7 @@ public partial struct QuadrantSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-       yMult = 1000;
+       zMult = 1000;
        
         
        quadrantMultiHashMap = new NativeParallelMultiHashMap<int, QuadrantData>(0,Allocator.Persistent);
@@ -72,7 +72,7 @@ public partial struct QuadrantSystem : ISystem
     {
         
         var config = SystemAPI.GetSingleton<Config>();
-        radius = config.heatRadius;
+        radius = config.heatRadius * config.cellSize;
         
         EntityQuery tileEntities = SystemAPI.QueryBuilder().WithAll<Tile,OnFire>().Build();
 
