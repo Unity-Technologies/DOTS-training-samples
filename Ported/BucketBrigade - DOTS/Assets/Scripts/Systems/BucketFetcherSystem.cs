@@ -80,14 +80,17 @@ public partial struct BucketFetcherSystem : ISystem
 
             var jobCarryingFetcherQuery = SystemAPI.QueryBuilder().WithAll<BucketFetcherBotTag, CarryingBotTag, Team>().Build();
             jobCarryingFetcherQuery.SetSharedComponentFilter(team);
-
+            
             var jobFreeFetcherQuery = SystemAPI.QueryBuilder().WithAll<BucketFetcherBotTag, Team>().WithNone<CarryingBotTag>().Build();
             jobFreeFetcherQuery.SetSharedComponentFilter(team);
+
+            // Assert that the results of the queries have a sum of 1
+            // Debug.Log($"This should be 1: {jobFreeFetcherQuery.CalculateEntityCount() + jobCarryingFetcherQuery.CalculateEntityCount()}");              
 
             JobHandle bucketFetcherToBucket = new FetchBucket
             {
                 arriveThreshold = config.arriveThreshold,
-                closestBucket = closestBucketToBackE,
+                closestBucket = closestBucketToBackE, // closest bucket seems wrong sometimes
                 closestBucketTransform = closestBucketToBackT,
                 backBot = backBot,
                 backBotTransform = backBotTransform,
@@ -115,9 +118,6 @@ public partial struct BucketFetcherSystem : ISystem
     }
 }
 
-// TODO Create unique tag Fetching that is unique for a team.
-// This Job right now picks up lots of Buckets at the start
-// After the first drop, buckets are assigned to teams without getting picked up.
 
 // This job handles the movement of the Bucket Fetcher bot while carrying the Bucket.
 public partial struct FetchBucketCarrying : IJobEntity
@@ -195,6 +195,9 @@ public partial struct FetchBucket : IJobEntity
 
         float3 dirToBucket = Vector3.Normalize(bucketPosXZ - fetcherPosXZ);
         var distToBucket = Vector3.Distance(bucketPosXZ, fetcherPosXZ);
+
+        // Print bucket and bucket fetcher to see who gets what
+        //Debug.Log()
 
         // Move to the bucket
         // If the BucketFetcher has not gone to the closest bucket and is not carrying anything

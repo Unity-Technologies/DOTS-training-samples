@@ -90,12 +90,24 @@ public partial struct BotSpawningSystem : ISystem
                 {
                     ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, ForwardColor());
+                    ECB.SetComponent(instance, new BotTag
+                    {
+                        cooldown = 0.0f,
+                        noInChain = i,
+                        indexInChain = 0,
+                    });
                 }
 
                 if (i > Unity.Mathematics.math.ceil(totalBots / 2) || i == 0) //If it is part of the last half
                 {
                     ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, BackwardColor());
+                    ECB.SetComponent(instance, new BotTag
+                    {
+                        cooldown = 0.0f,
+                        noInChain = i-1,
+                        indexInChain = 0,
+                    });
                 }
 
                 if (i == Unity.Mathematics.math.ceil(totalBots / 2)) //The middle dude is the bucket fetcher
@@ -104,40 +116,49 @@ public partial struct BotSpawningSystem : ISystem
                     ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
                     ECB.AddComponent<BucketFetcherBotTag>(instance);
                     ECB.SetComponent(instance, FetcherColor());
+                    ECB.SetComponent(instance, new BotTag
+                    {
+                        cooldown = 0.0f,
+                        noInChain = -1,
+                        indexInChain = -1,
+                    });
                 }
 
-                if (i != 0) //If it is not the first one
-                {
-                    ECB.SetComponentEnabled<FrontBotTag>(instance, false);
-                }
-                else
+                if (i == 0) //If it is the first one
                 {
                     ECB.SetComponent(instance, FrontColor());
                     ECB.AddComponent<TeamReadyTag>(instance);
                     ECB.SetComponentEnabled<TeamReadyTag>(instance, false);
-                }
-
-                if (i != totalBots - 1) //If it is not the last one
-                {
                     ECB.SetComponentEnabled<BackBotTag>(instance, false);
+                    ECB.SetComponent(instance, new BotTag
+                    {
+                        cooldown = 0.0f,
+                        noInChain = 0,
+                        indexInChain = 0,
+                    });
                 }
-                else
+                else if (i == totalBots - 1) //If it is the last one
                 {
                     ECB.SetComponent(instance, BackColor());
                     ECB.AddComponent<TeamReadyTag>(instance);
                     ECB.SetComponentEnabled<TeamReadyTag>(instance, false);
+                    ECB.SetComponentEnabled<FrontBotTag>(instance, false);
+                    ECB.SetComponent(instance, new BotTag
+                    {
+                        cooldown = 0.0f,
+                        noInChain = i-1,
+                        indexInChain = 0,
+                    });
+                }
+                else
+                {
+                    ECB.SetComponentEnabled<FrontBotTag>(instance, false);
+                    ECB.SetComponentEnabled<BackBotTag>(instance, false);
                 }
 
                 //This is not really useful yet
                 ECB.SetComponentEnabled<ReachedTarget>(instance, false);
                 ECB.SetComponentEnabled<CarryingBotTag>(instance, false);
-
-                ECB.SetComponent(instance, new BotTag
-                {
-                    cooldown = 0.0f,
-                    noInChain = i,
-                    indexInChain = 0,
-                });
 
                 ECB.AddSharedComponent(instance, new Team { Value = t });
 
