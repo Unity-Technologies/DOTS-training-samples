@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using Unity.Entities;
+﻿using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Components
 {
     public struct DirectionComponent : IComponentData
     {
-        public Vector3 Direction;
+        public float3 Direction;
     }
 }
