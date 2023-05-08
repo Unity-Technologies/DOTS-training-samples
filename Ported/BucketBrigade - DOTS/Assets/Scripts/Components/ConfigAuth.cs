@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class ConfigAuth : MonoBehaviour
@@ -141,7 +140,6 @@ public class ConfigAuth : MonoBehaviour
                 TotalBots = authoring.totalBots,
                 TotalOmniworkers = authoring.totalOmniworkers,
                 TotalTeams = authoring.totalTeams,
-                waterCarryAffect = authoring.waterCarryAffect,
                 arriveThreshold = authoring.arriveThreshold,
                 botStartingYPosition = authoring.botStartingYPosition,
 
@@ -186,7 +184,6 @@ public struct Config : IComponentData
     public float flashpoint;
 
     public float botSpeed;
-    public float waterCarryAffect;
     public float waterCellSize;
     public float arriveThreshold;
     public int waterSourcesCount;

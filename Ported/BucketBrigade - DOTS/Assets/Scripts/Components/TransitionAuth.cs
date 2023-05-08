@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -14,29 +12,10 @@ public class TransitionAuth : MonoBehaviour
     }
 }
 
-
-public struct Transition : IComponentData
-{
-    
-}
-
-public struct botSpawnCompleteTag : IComponentData
-{
-    
-}
-
-public struct tileSpawnCompleteTag : IComponentData
-{
-    
-}
-
-
-public struct botChainCompleteTag : IComponentData
-{
-}
-
-public struct updateBotNearestTag : IComponentData
-{
-}
+public struct Transition : IComponentData {}
+public struct botSpawnCompleteTag : IComponentData {}
+public struct tileSpawnCompleteTag : IComponentData {}
+public struct botChainCompleteTag : IComponentData {}
+public struct updateBotNearestTag : IComponentData {}
 
 

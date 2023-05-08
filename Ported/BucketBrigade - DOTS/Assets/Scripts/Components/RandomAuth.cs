@@ -11,7 +11,7 @@ public class RandomAuth : MonoBehaviour
         {
             AddComponent(new Random
             {
-                Value = new Unity.Mathematics.Random((uint)authoring._randomSeed), // This always has the same seed
+                Value = new Unity.Mathematics.Random((uint)authoring._randomSeed)
             });
         }
     }

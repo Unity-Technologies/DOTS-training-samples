@@ -4,6 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Unity.Burst;
 
+[UpdateInGroup(typeof(OmniworkerSystemGroup))]
 [UpdateAfter(typeof(OmniworkerWaterSystem))]
 [BurstCompile]
 public partial struct OmniworkerFireSystem : ISystem

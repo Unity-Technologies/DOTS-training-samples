@@ -39,8 +39,7 @@ public partial class InputSystem : SystemBase
         var ecbSingleton = SystemAPI.GetSingleton<EndInitializationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(this.EntityManager.WorldUnmanaged);
 
-
-        foreach (var (tileTransform, entity) in SystemAPI.Query<RefRW<LocalTransform>>().WithEntityAccess().WithAll<Tile>())
+        foreach (var (tileTransform, tile, entity) in SystemAPI.Query<RefRW<LocalTransform>,Tile>().WithEntityAccess().WithAll<Tile>())
         {
             if (leftClick)
             {
@@ -48,7 +47,11 @@ public partial class InputSystem : SystemBase
                 if (dist < 0.5f*config.cellSize)
                 {
                     var randomVar = random.ValueRW.Value.NextFloat(config.flashpoint, config.flashpoint + 0.9f);
-                    ecb.SetComponent(entity, new Tile { Temperature = randomVar });
+                    var newTile = new Tile
+                        { Temperature = randomVar, 
+                            columnIndex = tile.columnIndex, 
+                            rowIndex = tile.rowIndex }; //Is this really efficient?
+                    ecb.SetComponent(entity,newTile);
                     Debug.Log(randomVar);
                 }
                 

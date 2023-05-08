@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(SpawnSystemGroup))]
 [BurstCompile]
 public partial struct WaterSpawningSystem : ISystem
 {

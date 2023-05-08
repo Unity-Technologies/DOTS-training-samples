@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-
+[UpdateInGroup(typeof(SpawnSystemGroup))]
 [UpdateAfter(typeof(WaterSpawningSystem))]
 [BurstCompile]
 public partial struct BucketSpawningSystem : ISystem
