@@ -1,7 +1,7 @@
 using Unity.Entities;
-using UnityEngine;
+using Unity.Mathematics;
 
 public struct PositionComponent : IComponentData
 {
-    public Vector3 Position;
+    public float3 Position;
 }
