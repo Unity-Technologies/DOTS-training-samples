@@ -1,18 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Unity.Entities;
 
-public class PassengerSystem : MonoBehaviour
+public class PassengerSystem : ISystem
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public void OnCreate(ref SystemState state) { }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public void OnDestroy(ref SystemState state) { }
+
+    public void OnUpdate(ref SystemState state) { }
 }
