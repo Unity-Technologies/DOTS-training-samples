@@ -1,7 +1,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct PositionComponent : IComponentData
+namespace Components
 {
-    public float3 Position;
+    public struct PositionComponent : IComponentData
+    {
+        public float3 Position;
+    }
 }

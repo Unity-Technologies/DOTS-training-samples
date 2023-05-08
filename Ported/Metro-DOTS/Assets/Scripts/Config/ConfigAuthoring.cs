@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using Unity.Entities;
+using System.Collections.Generic;
 
 namespace Metro
 {
     public class ConfigAuthoring : MonoBehaviour
     {
         public int NumPassengers = 1000;
-        
+
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)
@@ -18,10 +19,10 @@ namespace Metro
                 });
             }
         }
-        
-        public struct Config : IComponentData
-        {
-            public int NumPassengers;
-        }
+
+    }
+    public struct Config : IComponentData
+    {
+        public int NumPassengers;
     }
 }
