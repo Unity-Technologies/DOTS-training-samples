@@ -158,7 +158,8 @@ MonoBehaviour:
     antCount: 1000
     antScale: 1
     pheromoneDecayRate: 0
-    obstacleSize: 0
+    obstacleSize: 0.5
+    ringCount: 4
     randomSteering: 0
     pheromoneSteerStrength: 0
     wallSteerStrength: 0

@@ -15,6 +15,7 @@ public struct Colony: IComponentData
     
     public float pheromoneDecayRate;
     public float obstacleSize;
+    public int ringCount;
     public float randomSteering;
     public float pheromoneSteerStrength;
     public float wallSteerStrength;
