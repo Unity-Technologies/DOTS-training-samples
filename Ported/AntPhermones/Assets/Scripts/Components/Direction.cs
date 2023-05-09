@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct Direction: IComponentData
 {
-    public float2 direction;
+    public float direction; // angle around Z
 }
