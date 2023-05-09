@@ -6,8 +6,8 @@ public partial struct Spawner : ISystem
 {
     JobHandle DoDynamics()
     {
-        foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>()) 
-        { }
+        //foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
+        //{ }
 
         return new();
     }

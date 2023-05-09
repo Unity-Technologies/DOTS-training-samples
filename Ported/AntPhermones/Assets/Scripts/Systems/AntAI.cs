@@ -21,7 +21,7 @@ public partial struct AntAI: ISystem
         var pheromoneHandle = PheromoneDetection.Do();
         var resourceHandle = ResourceDetection.Do();
         
-        Dynamics.Do();
+        //Dynamics.Do();
 
         /*
         foreach (var antPosition in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())

@@ -15,9 +15,15 @@ public partial struct Spawner: ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
+        SpawnHome(state, colony);
         SpawnObstacles(state, colony);
         SpawnAnts(state, colony);
         state.Enabled = false;
+    }
+
+    void SpawnHome(SystemState state, Colony colony)
+    {
+        var home = state.EntityManager.Instantiate(colony.homePrefab, 1, Allocator.Temp);
     }
 
     void SpawnObstacles(SystemState state, Colony colony)

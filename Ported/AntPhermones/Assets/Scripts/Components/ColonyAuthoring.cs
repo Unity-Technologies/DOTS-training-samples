@@ -22,7 +22,8 @@ public struct Colony: IComponentData
     public float wallSteerStrength;
 
     public float mapSize;
-    
+
+    public Entity homePrefab;
     public Entity obstaclePrefab;
     public Entity antPrefab;
     
@@ -31,6 +32,7 @@ public struct Colony: IComponentData
 public class ColonyAuthoring : MonoBehaviour
 {
     public Colony colony;
+    public GameObject homePrefab;
     public GameObject obstaclePrefab;
     public GameObject antPrefab;
     class Baker : Baker<ColonyAuthoring>
@@ -40,8 +42,9 @@ public class ColonyAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.Renderable);
             var colony = authoring.colony;
 
-            colony.obstaclePrefab = GetEntity(authoring.obstaclePrefab, TransformUsageFlags.Renderable); 
-            colony.antPrefab = GetEntity(authoring.antPrefab, TransformUsageFlags.Renderable); 
+            colony.homePrefab = GetEntity(authoring.homePrefab, TransformUsageFlags.Renderable);
+            colony.obstaclePrefab = GetEntity(authoring.obstaclePrefab, TransformUsageFlags.Renderable);
+            colony.antPrefab = GetEntity(authoring.antPrefab, TransformUsageFlags.Renderable);
             AddComponent<Colony>(entity, colony);
         }
     }
