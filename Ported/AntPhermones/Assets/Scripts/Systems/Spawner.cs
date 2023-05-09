@@ -79,7 +79,7 @@ public partial struct Spawner: ISystem
         var mapSize = colony.mapSize;
         foreach (var (position, direction, localTransform, speed) in SystemAPI.Query<RefRW<Position>, RefRW<Direction>, RefRW<LocalTransform>, RefRW<Speed>>().WithAll<Ant>())
         {
-            position.ValueRW.position = new float2(Random.Range(-5f,5f),Random.Range(-5f,5f));
+            position.ValueRW.position = new float2(Random.Range(-5f,5f) + mapSize * 0.5f,Random.Range(-5f,5f) + mapSize * 0.5f);
             direction.ValueRW.direction = Random.Range(0, 360);
             speed.ValueRW.speed = Random.Range(0, colony.antTargetSpeed);
             localTransform.ValueRW.Scale = colony.antScale;

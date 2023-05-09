@@ -155,8 +155,8 @@ MonoBehaviour:
   colony:
     antTargetSpeed: 0.1
     antAccel: 0
-    antCount: 10
-    antScale: 0.5
+    antCount: 1000
+    antScale: 1
     pheromoneDecayRate: 0
     obstacleSize: 0
     randomSteering: 0
