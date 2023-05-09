@@ -156,7 +156,7 @@ MonoBehaviour:
     antTargetSpeed: 0.1
     antAccel: 0
     antCount: 1000
-    antScale: 1
+    antScale: 2
     pheromoneDecayRate: 0
     obstacleSize: 0
     randomSteering: 0
