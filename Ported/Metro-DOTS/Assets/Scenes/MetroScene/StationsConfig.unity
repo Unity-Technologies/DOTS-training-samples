@@ -155,7 +155,7 @@ MonoBehaviour:
   StationPrefab: {fileID: 9124492264590785119, guid: c49cbacff96918a499fa3aba8261fd0d,
     type: 3}
   NumStations: 10
-  Spacing: 10
+  Spacing: 50
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0
