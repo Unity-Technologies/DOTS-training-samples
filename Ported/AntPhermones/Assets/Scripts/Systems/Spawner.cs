@@ -1,3 +1,4 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -7,11 +8,13 @@ using Random = UnityEngine.Random;
 
 public partial struct Spawner: ISystem 
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Colony>();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
