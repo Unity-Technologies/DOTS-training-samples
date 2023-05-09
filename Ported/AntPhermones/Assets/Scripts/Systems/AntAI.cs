@@ -35,15 +35,5 @@ public partial struct AntAI: ISystem
         // Dynamics
         var job = new DynamicsJob();
         state.Dependency = job.Schedule(state.Dependency);
-        
-
-        /*
-        foreach (var antPosition in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
-        {
-            var position = antPosition.ValueRW.position;
-            position.x += 0.01f;
-            antPosition.ValueRW.position = position;
-        }
-        */
     }
 }
