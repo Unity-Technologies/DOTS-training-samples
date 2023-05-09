@@ -167,6 +167,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 984b2423582a485da9405d707c74b545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumPassengers: 200
+  NumPassengers: 50
   PassengerPrefab: {fileID: 7372287293309593553, guid: df855cd7b2133f544b6ffac4a9be7dce,
     type: 3}
+  TrainPrefab: {fileID: 4538662907198620910, guid: 0074485fcad8c2c4baa117c7b058a315,
+    type: 3}
+  MaxTrainSpeed: 15
+  TrackPoints:
+  - x: 0
+    y: 0
+    z: 0
+  - x: 0
+    y: 0
+    z: 10
+  - x: 5
+    y: 0
+    z: 20
+  - x: 0
+    y: 0
+    z: 30
+  - x: 0
+    y: 0
+    z: 40

@@ -14,6 +14,8 @@ public partial struct StationSpawningSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        state.Enabled = false;
+        return;
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
         var stations = CollectionHelper.CreateNativeArray<Entity>(stationConfig.NumStations, Allocator.Temp);
 

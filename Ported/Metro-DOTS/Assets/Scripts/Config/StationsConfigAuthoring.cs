@@ -1,41 +1,34 @@
 using UnityEngine;
 using Unity.Entities;
-using Unity.Mathematics;
 
-
-public class StationsConfigAuthoring : MonoBehaviour
+namespace Metro
 {
-    public GameObject StationPrefab;
-    public GameObject TrackPrefab;
-    public int NumStations = 10;
-    public float Spacing;
-    public float3 TrackACenter;
-    public float3 TrackBCenter;
-
-    class Baker : Baker<StationsConfigAuthoring>
+    public class StationsConfigAuthoring : MonoBehaviour
     {
-        public override void Bake(StationsConfigAuthoring authoring)
+        public GameObject StationPrefab;
+        public int NumStations = 10;
+        public float Spacing;
+
+        class Baker : Baker<StationsConfigAuthoring>
         {
-            var entity = GetEntity(TransformUsageFlags.None);
-            AddComponent(entity, new StationConfig
+            public override void Bake(StationsConfigAuthoring authoring)
             {
-                StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Dynamic),
-                TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Dynamic),
-                Spacing = authoring.Spacing,
-                NumStations = authoring.NumStations,
-                TrackACenter = authoring.TrackACenter,
-                TrackBCenter = authoring.TrackBCenter
-            });
+                var entity = GetEntity(TransformUsageFlags.None);
+                AddComponent(entity, new StationConfig
+                {
+                    StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Dynamic),
+                    Spacing = authoring.Spacing,
+                    NumStations = authoring.NumStations
+                });
+            }
         }
     }
-}
 
-public struct StationConfig : IComponentData
-{
-    public Entity StationEntity;
-    public Entity TrackEntity;
-    public float Spacing;
-    public int NumStations;
-    public float3 TrackACenter;
-    public float3 TrackBCenter;
+    public struct StationConfig : IComponentData
+    {
+        public Entity StationEntity;
+        public Entity TrainEntity;
+        public float Spacing;
+        public int NumStations;
+    }
 }
