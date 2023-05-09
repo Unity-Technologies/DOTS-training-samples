@@ -27,6 +27,7 @@ namespace Metro
     public struct StationConfig : IComponentData
     {
         public Entity StationEntity;
+        public Entity TrainEntity;
         public float Spacing;
         public int NumStations;
     }
