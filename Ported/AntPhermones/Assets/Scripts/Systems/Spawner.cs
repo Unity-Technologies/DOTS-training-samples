@@ -16,6 +16,7 @@ public partial struct Spawner: ISystem
     {
         var colony = SystemAPI.GetSingleton<Colony>();
         SpawnHome(state, colony);
+        SpawnResource(state, colony);
         SpawnObstacles(state, colony);
         SpawnAnts(state, colony);
         state.Enabled = false;
@@ -24,6 +25,16 @@ public partial struct Spawner: ISystem
     void SpawnHome(SystemState state, Colony colony)
     {
         var home = state.EntityManager.Instantiate(colony.homePrefab, 1, Allocator.Temp);
+    }
+
+    void SpawnResource(SystemState state, Colony colony)
+    {
+        var resource = state.EntityManager.Instantiate(colony.resourcePrefab);
+        float mapSize = colony.mapSize;
+
+        float resourceAngle = Random.value * 2f * Mathf.PI;
+        var localTransform = SystemAPI.GetComponentRW<LocalTransform>(resource, false);
+        localTransform.ValueRW.Position = new float3(Mathf.Cos(resourceAngle) * mapSize * 0.475f, Mathf.Sin(resourceAngle) * mapSize * 0.475f, 0);
     }
 
     void SpawnObstacles(SystemState state, Colony colony)
