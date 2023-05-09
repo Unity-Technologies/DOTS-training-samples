@@ -8,6 +8,8 @@ namespace Metro
     {
         public int NumPassengers = 1000;
         public GameObject PassengerPrefab;
+        public float MinPassengerHeight = 0.6f;
+        public float MaxPassengerHeight = 1.2f;
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -17,7 +19,9 @@ namespace Metro
                 AddComponent(entity, new Config
                 {
                     NumPassengers = authoring.NumPassengers,
-                    PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic)
+                    PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
+                    MinPassengerHeight = authoring.MinPassengerHeight,
+                    MaxPassengerHeight = authoring.MaxPassengerHeight
                 });
             }
         }
@@ -27,5 +31,7 @@ namespace Metro
     {
         public Entity PassengerEntity;
         public int NumPassengers;
+        public float MinPassengerHeight;
+        public float MaxPassengerHeight;
     }
 }

@@ -6,17 +6,15 @@ namespace Metro
 {
     public class PassengerAuthoring : MonoBehaviour
     {
-        public float MinHeight;
-        public float MaxHeight;
         class Baker : Baker<PassengerAuthoring>
         {
             public override void Bake(PassengerAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.None);
+                var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
                 AddComponent(entity, new PassengerComponent
                 {
                     Color = new float3(1, 0, 1),
-                    Height = authoring.MaxHeight
+                    Height = 1f
                 });
             }
         }
