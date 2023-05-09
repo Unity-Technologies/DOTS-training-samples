@@ -199,6 +199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnBase: 1
+  ShowTimeScaleControls: 1
 --- !u!4 &1820085672
 Transform:
   m_ObjectHideFlags: 0
