@@ -18,7 +18,7 @@ public partial struct PheromonesInitSystem : ISystem
         var entity = ecb.CreateEntity();
         var buffer = ecb.AddBuffer<PheromoneBufferElement>(entity);
         
-        var totalPixels = globalSettings.MapSizeX * globalSettings.MapSizeX;
+        var totalPixels = globalSettings.MapSizeX * globalSettings.MapSizeY;
         buffer.Capacity = totalPixels;
         
         for (int i = 0; i < totalPixels; i++)
