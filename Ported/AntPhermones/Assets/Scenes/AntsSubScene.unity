@@ -159,7 +159,7 @@ MonoBehaviour:
     antScale: 1
     pheromoneDecayRate: 0
     obstacleSize: 0
-    randomSteering: 0
+    randomSteering: 10
     pheromoneSteerStrength: 0
     wallSteerStrength: 0
     mapSize: 128
