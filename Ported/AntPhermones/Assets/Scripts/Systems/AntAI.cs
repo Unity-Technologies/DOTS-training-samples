@@ -16,12 +16,25 @@ public partial struct AntAI: ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var steeringHandle = SteeringRandomizer.Do();
-        var obstacleHandle = ObstacleDetection.Do();
-        var pheromoneHandle = PheromoneDetection.Do();
-        var resourceHandle = ResourceDetection.Do();
-        var dynamicsHandle = DoDynamics(state);
-
+        // SteeringRandomize
+        
+        
+        
+        // ObstacleDetection
+        
+        
+        
+        // PheromoneDetection
+        
+        
+        
+        // ResourceDetection
+        
+        
+        
+        // Dynamics
+        
+        
 
         /*
         foreach (var antPosition in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
