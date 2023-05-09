@@ -18,6 +18,7 @@ public partial struct Spawner: ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
+        Random.InitState(System.DateTime.UtcNow.Millisecond);
         SpawnHome(state, colony);
         SpawnResource(state, colony);
         SpawnObstacles(state, colony);
@@ -40,7 +41,7 @@ public partial struct Spawner: ISystem
 
         float resourceAngle = Random.value * 2f * Mathf.PI;
         var localTransform = SystemAPI.GetComponentRW<LocalTransform>(resource, false);
-        localTransform.ValueRW.Position = new float3(Mathf.Cos(resourceAngle) * mapSize * 0.475f, Mathf.Sin(resourceAngle) * mapSize * 0.475f, 0);
+        localTransform.ValueRW.Position = new float3(mapSize * 0.5f + Mathf.Cos(resourceAngle) * mapSize * 0.475f, mapSize * 0.5f + Mathf.Sin(resourceAngle) * mapSize * 0.475f, 0);
     }
 
     void SpawnObstacles(SystemState state, Colony colony)

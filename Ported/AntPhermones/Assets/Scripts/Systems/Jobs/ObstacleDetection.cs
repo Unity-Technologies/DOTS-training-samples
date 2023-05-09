@@ -1,22 +1,52 @@
+using System;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
+using UnityEngine;
 
-public struct ObstacleDetection : IJobParallelFor
+[BurstCompile]
+[WithAll(typeof(Ant))]
+public partial struct ObstacleDetection : IJobEntity
 {
-    public void Execute(int index)
+    public float distance;
+    public float mapSize;
+    public float obstacleSize;
+    public float steeringStrength;
+    public NativeArray<LocalTransform> obstacles;
+
+    public void Execute(Entity entity, ref Ant ant, in Position position, in Direction direction)
     {
-        // Here we do the work
-        throw new System.NotImplementedException();
-    }
-    
-    public static JobHandle Do()
-    {
-        // Here we setup the job, schedule it and return the handle
-        // ... scheduling the job
-    /*    var job = new SquareNumbersJob { Nums = myArray };
-        return job.Schedule(
-            myArray.Length,    // count
-            100);              // batch size
-    */
-        return new();
+        int output = 0;
+
+        // this for loop makes us check the direction * -1 and * 1
+        for (int i = -1; i <= 1; i += 2)
+        {
+            float angle = direction.direction + i * Mathf.PI * 0.25f;
+            float testX = position.position.x + Mathf.Cos(angle) * distance;
+            float testY = position.position.y + Mathf.Sin(angle) * distance;
+
+            // test map boundaries
+            if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
+            {
+
+            }
+            else
+            {
+                foreach (var transform in obstacles)
+                {
+                    float circleX = transform.Position.x;
+                    float circleY = transform.Position.y;
+                    if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
+                    {
+                        output -= i;
+                        break;
+                    }
+                }
+            }
+        }
+
+        ant.wallSteering = output * steeringStrength;
     }
 }

@@ -162,7 +162,7 @@ MonoBehaviour:
     ringCount: 4
     randomSteering: 10
     pheromoneSteerStrength: 0
-    wallSteerStrength: 0
+    wallSteerStrength: 0.15
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}

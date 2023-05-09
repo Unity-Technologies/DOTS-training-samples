@@ -42,7 +42,20 @@ public partial struct AntAI: ISystem
         
         
         // ObstacleDetection
-        
+        var obstaclesQuery = new EntityQueryBuilder(Allocator.Temp);
+        obstaclesQuery.WithAll<LocalTransform>();
+        obstaclesQuery.WithNone<Ant>();
+        obstaclesQuery.WithNone<Home>();
+        obstaclesQuery.WithNone<Resource>();
+        var obstacleJob = new ObstacleDetection
+        {
+            distance = 1.25f,
+            mapSize = colony.mapSize,
+            obstacleSize = colony.obstacleSize,
+            steeringStrength = colony.wallSteerStrength,
+            obstacles = obstaclesQuery.Build(ref state).ToComponentDataArray<LocalTransform>(Allocator.TempJob)
+        };
+        obstacleJob.ScheduleParallel();
         
         
         // PheromoneDetection
