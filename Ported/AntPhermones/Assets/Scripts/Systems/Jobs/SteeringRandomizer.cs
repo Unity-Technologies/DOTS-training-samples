@@ -14,7 +14,7 @@ public partial struct SteeringRandomizerJob : IJobEntity
     [NativeSetThreadIndex] private int threadId;
 
     [BurstCompile]
-    public void Execute( [ChunkIndexInQuery] int chunkIndex, Entity entity, ref Direction direction)
+    public void Execute(ref Direction direction)
     {
         var rng = rngs[threadId];
         direction.direction += rng.NextFloat(-randomSteering, randomSteering);
