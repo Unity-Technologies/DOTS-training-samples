@@ -33,7 +33,7 @@ public partial struct PassengerSystem : ISystem
 
 
         int passengersPerQueue = config.NumPassengers / stationConfig.NumQueingPoints;
-        float distanceBetweenPassenger = 3;
+        float distanceBetweenPassenger = 1;
         int i = 0;
         foreach (var transform in
                     SystemAPI.Query<RefRO<LocalTransform>>()
