@@ -1,4 +1,5 @@
 using Metro;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 
@@ -6,6 +7,8 @@ public partial struct PassengerSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
+		state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        
         state.RequireForUpdate<Config>();
     }
 
@@ -13,8 +16,14 @@ public partial struct PassengerSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        ///Debug.Log($"Update Passenger {state.World.Name}");
-        var singleton = SystemAPI.GetSingleton<Config>();
-        //Debug.Log($"NumPassengers: {singleton.NumPassengers}");
+        var config = SystemAPI.GetSingleton<Config>();
+
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+		
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengers, Allocator.Temp);
+        ecb.Instantiate(config.PassengerEntity, passengers);
+        
+        state.Enabled = false;
     }
 }
