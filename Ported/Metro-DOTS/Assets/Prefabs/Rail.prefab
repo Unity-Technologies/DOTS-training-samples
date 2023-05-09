@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6653075398340056893}
   - component: {fileID: 1534753770903162495}
   - component: {fileID: 3139129695327890994}
+  - component: {fileID: -7434809945840332799}
   m_Layer: 0
   m_Name: Rail
   m_TagString: Untagged
@@ -106,3 +107,15 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &-7434809945840332799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59487317104500460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31d37b88cd91e8443aad8b07acb16ab8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

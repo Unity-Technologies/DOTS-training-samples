@@ -154,8 +154,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   StationPrefab: {fileID: 9124492264590785119, guid: c49cbacff96918a499fa3aba8261fd0d,
     type: 3}
+  TrackPrefab: {fileID: 59487317104500460, guid: 22dbc0a64aa1fc7428e1611803758ce9,
+    type: 3}
   NumStations: 10
   Spacing: 50
+  TrackCenter:
+    x: 8.8
+    y: 0
+    z: -6.8
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0

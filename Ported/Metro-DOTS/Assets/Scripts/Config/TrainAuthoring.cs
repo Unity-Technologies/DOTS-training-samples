@@ -16,7 +16,7 @@ namespace Metro
                 {
                     TrainID = 0,
                     TrackID = 0,
-                    TrackPointIndex = 0,
+                    TrackPointIndex = 1,
                     Forward = true,
                     Offset = new float3(0, 0, 0)
                 });

@@ -12,7 +12,6 @@ namespace Metro
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
-        public float3[] TrackPoints;
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -26,12 +25,6 @@ namespace Metro
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed
                 });
-                var trackPoints = AddBuffer<TrackPoint>(entity);
-                trackPoints.Length = authoring.TrackPoints.Length;
-                for (int i = 0; i < authoring.TrackPoints.Length; i++)
-                {
-                    trackPoints[i] = new TrackPoint(){ Value = authoring.TrackPoints[i]};
-                }
             }
         }
 
@@ -42,11 +35,5 @@ namespace Metro
         public Entity TrainEntity;
         public int NumPassengers;
         public float MaxTrainSpeed;
-    }
-    
-    [InternalBufferCapacity(5)]
-    public struct TrackPoint : IBufferElementData
-    {
-        public float3 Value;
     }
 }
