@@ -1,24 +1,25 @@
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Transforms;
+using UnityEngine;
 
-public partial struct Spawner : ISystem
+public partial struct AntAI : ISystem
 {
-    JobHandle DoDynamics()
+    public JobHandle DoDynamics(SystemState state)
     {
-        //foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
-        //{ }
-
+        foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
+        {
+            Debug.Log(position.ValueRW.position);
+        }
         return new();
     }
 
-    struct Dynamics : IJobParallelFor
+    public struct Dynamics : IJobParallelFor
     {
         public void Execute(int index)
         {
             // Here we do the work
             throw new System.NotImplementedException();
         }
-
     }
 }
+

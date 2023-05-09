@@ -11,7 +11,6 @@ public struct Colony: IComponentData
     public float antSize;
     public float antTargetSpeed;
     public float antAccel;
-    [FormerlySerializedAs("nbAnts")]
     public int AntCount;
     public Vector3 AntSize;
     

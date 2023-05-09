@@ -20,8 +20,8 @@ public partial struct AntAI: ISystem
         var obstacleHandle = ObstacleDetection.Do();
         var pheromoneHandle = PheromoneDetection.Do();
         var resourceHandle = ResourceDetection.Do();
-        
-        //Dynamics.Do();
+        var dynamicsHandle = DoDynamics(state);
+
 
         /*
         foreach (var antPosition in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
