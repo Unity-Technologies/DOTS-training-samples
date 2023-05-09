@@ -32,6 +32,7 @@ namespace Metro
                 position.x += 0.01f;
                 transform.ValueRW.Position = position;
             }
+            
         }
     }
 }
