@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 694108412}
   - component: {fileID: 694108411}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: StationConfigAuthoring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -152,10 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5812d35b9f101de4e9ccf7b5cb551813, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  StationPrefab: {fileID: 3049574878518033282, guid: 19d3eb85cbdb91840b735c7993c7c8af,
+  StationPrefab: {fileID: 9124492264590785119, guid: c49cbacff96918a499fa3aba8261fd0d,
     type: 3}
   NumStations: 10
-  Spacing: 3
+  Spacing: 10
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0
