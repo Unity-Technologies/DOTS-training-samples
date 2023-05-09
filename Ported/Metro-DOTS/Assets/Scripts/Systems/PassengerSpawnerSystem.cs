@@ -32,8 +32,8 @@ namespace Metro
 
             var random = new Random(1234);
 
-            foreach ((var postTransformMatrix, var transform) in
-                     SystemAPI.Query<RefRW<PostTransformMatrix>, RefRW<LocalTransform>>()
+            foreach ((var postTransformMatrix, var transform, var passenger) in
+                     SystemAPI.Query<RefRW<PostTransformMatrix>, RefRW<LocalTransform>, RefRW<PassengerComponent>>()
                          .WithAll<PassengerComponent>())
             {
                 var randomPos = random.NextFloat2Direction() * random.NextFloat(0.1f, 10f);
