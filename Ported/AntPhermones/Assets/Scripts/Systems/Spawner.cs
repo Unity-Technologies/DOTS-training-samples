@@ -67,7 +67,7 @@ public partial struct Spawner: ISystem
                     var obstacle = state.EntityManager.Instantiate(colony.obstaclePrefab);
 
                     var localTransform = SystemAPI.GetComponentRW<LocalTransform>(obstacle, false);
-                    localTransform.ValueRW.Position = new float3(Mathf.Cos(angle) * ringRadius, Mathf.Sin(angle) * ringRadius, 0);
+                    localTransform.ValueRW.Position = new float3(mapSize * 0.5f + Mathf.Cos(angle) * ringRadius, mapSize * 0.5f + Mathf.Sin(angle) * ringRadius, 0);
                 }
             }
         }
