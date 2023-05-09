@@ -16,7 +16,7 @@ public partial struct PassengerSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<ConfigAuthoring.Config>();
+        var config = SystemAPI.GetSingleton<Config>();
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);

@@ -15,20 +15,23 @@ public partial struct StationSpawningSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        var stationComponent = SystemAPI.GetSingleton<StationConfig>();
+        var stationConfig = SystemAPI.GetSingleton<StationConfig>();
+        var stations = CollectionHelper.CreateNativeArray<Entity>(stationConfig.NumStations, Allocator.Temp);
 
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        // query will not work as entities are not created right away with command buffer
+        // var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        // var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        // ecb.Instantiate(stationConfig.StationEntity, stations);
 
-        var stations = CollectionHelper.CreateNativeArray<Entity>(stationComponent.NumStations, Allocator.Temp);
-        ecb.Instantiate(stationComponent.StationEntity, stations);
+        var em = state.EntityManager;
+        em.Instantiate(stationConfig.StationEntity, stations);
 
-        int i = 0;
+        var i = 0;
         foreach (var transform in
             SystemAPI.Query<RefRW<LocalTransform>>()
             .WithAll<Components.StationIDComponent>())
         {
-            transform.ValueRW.Position = new float3(i * stationComponent.Spacing, 0, 0);
+            transform.ValueRW.Position = new float3(i * stationConfig.Spacing, 0, 0);
             i++;
         }
 
