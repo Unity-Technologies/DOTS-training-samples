@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Unity.Entities;
+using System.Collections.Generic;
 
 namespace Metro
 {
@@ -7,7 +8,7 @@ namespace Metro
     {
         public int NumPassengers = 1000;
         public GameObject PassengerPrefab;
-        
+
         class Baker : Baker<ConfigAuthoring>
         {
             public override void Bake(ConfigAuthoring authoring)
@@ -20,11 +21,11 @@ namespace Metro
                 });
             }
         }
-        
-        public struct Config : IComponentData
-        {
-            public Entity PassengerEntity;
-            public int NumPassengers;
-        }
+
+    }
+    public struct Config : IComponentData
+    {
+        public Entity PassengerEntity;
+        public int NumPassengers;
     }
 }
