@@ -42,9 +42,9 @@ public partial struct Spawner: ISystem
 
     void SpawnObstacles(SystemState state, Colony colony)
     {
-        int mapSize = 10;
-        int ringCount = 4;
-        float obstacleRadius = 0.5f;
+        float mapSize = colony.mapSize;
+        int ringCount = colony.ringCount;
+        float obstacleRadius = colony.obstacleSize;
         float maxFillRatio = 0.8f;
 
         for (int i = 1; i <= ringCount; ++i)

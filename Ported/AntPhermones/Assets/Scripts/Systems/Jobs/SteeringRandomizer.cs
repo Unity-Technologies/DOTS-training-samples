@@ -1,22 +1,23 @@
-using Unity.Jobs;
+using Unity.Burst;
+using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
+using Unity.Mathematics;
 
-public struct SteeringRandomizer : IJobParallelFor
+[BurstCompile]
+[WithAll(typeof(Ant))]
+public partial struct SteeringRandomizerJob : IJobEntity
 {
-    public void Execute(int index)
+    public NativeArray<Random> rngs;
+    public float randomSteering;
+
+    [NativeSetThreadIndex] private int threadId;
+
+    [BurstCompile]
+    public void Execute( [ChunkIndexInQuery] int chunkIndex, Entity entity, ref Direction direction)
     {
-        // Here we do the work
-        throw new System.NotImplementedException();
-    }
-    
-    public static JobHandle Do()
-    {
-        // Here we setup the job, schedule it and return the handle
-        // ... scheduling the job
-    /*    var job = new SquareNumbersJob { Nums = myArray };
-        return job.Schedule(
-            myArray.Length,    // count
-            100);              // batch size
-    */
-        return new();
+        var rng = rngs[threadId];
+        direction.direction += rng.NextFloat(-randomSteering, randomSteering);
+        rngs[threadId] = rng; // this is necessary because its a struct so we must update the state
     }
 }
