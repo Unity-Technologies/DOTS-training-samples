@@ -10,6 +10,7 @@ public partial struct AntMoveSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<AntData>();
+        state.RequireForUpdate<GlobalSettings>();
     }
     public void OnDestroy(ref SystemState state)
     {
@@ -18,10 +19,18 @@ public partial struct AntMoveSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         // make consts configurable
-        const float randomSteering = math.PI / 4f;
-        const float antSpeed = 0.2f;
-        const float antAccel = 0.07f;
+        float randomSteering = 0;
+        float antSpeed = 0;
+        float antAccel = 0;
         const float mapSize = 1024f;
+
+        foreach (var settings in SystemAPI.Query<RefRO<GlobalSettings>>())
+        {
+            randomSteering = settings.ValueRO.AntRandomSteering;
+            antSpeed = settings.ValueRO.AntSpeed;
+            antAccel = settings.ValueRO.AntAccel;
+            break;
+        }
 
         float dt = SystemAPI.Time.DeltaTime;
 
