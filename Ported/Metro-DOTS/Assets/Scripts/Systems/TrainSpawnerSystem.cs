@@ -35,9 +35,11 @@ public partial struct TrainSpawnerSystem : ISystem
         foreach (var entity in q.ToEntityArray(Allocator.Temp))
         {
             var transform = em.GetComponentData<LocalTransform>(entity);
+            em.SetComponentData(entity, transform);
             var train = em.GetComponentData<TrainIDComponent>(entity);
             train.Offset = transform.Position;
             em.SetComponentData(entity, train);
+            em.SetComponentData(entity, transform);
             
             em.SetComponentEnabled<EnRouteComponent>(entity, true);
             em.SetComponentEnabled<LoadingComponent>(entity, false);

@@ -11,6 +11,7 @@ public partial struct TrainMoverSystem  : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        state.RequireForUpdate<TrackPoint>();
     }
 
     public void OnDestroy(ref SystemState state) { }
@@ -42,28 +43,42 @@ public partial struct TrainMoverSystem  : ISystem
                 {
                     int nextIndex = forward ? currentIndex + 1 : currentIndex - 1;
 
-                    float3 currentPoint = track[currentIndex].Value;
-                    float3 nextPoint = track[nextIndex].Value;
-                    float distanceToNextPoint = math.distance(nextPoint, position);
-                    float3 directionToNextPoint = math.normalize(nextPoint - currentPoint);
+                    TrackPoint currentPoint = track[currentIndex];
+                    TrackPoint nextPoint = track[nextIndex];
+                    float3 currentPosition = currentPoint.Position;
+                    float3 nextPosition = nextPoint.Position;
+                    
+                    float distanceToNextPoint = math.distance(nextPosition, position);
+                    float3 directionToNextPoint = math.normalize(nextPosition - currentPosition);
+
+                    transform.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
 
                     if (totalDistance >= distanceToNextPoint)
                     {
                         totalDistance -= distanceToNextPoint;
-                        position = nextPoint;
+                        position = nextPosition;
 
                         currentIndex = nextIndex;
-                        if (forward && currentIndex + 1 >= track.Length)
-                            forward = false;
-                        else if (!forward && currentIndex == 0)
-                            forward = true;
+
+                        if (nextPoint.IsEnd)
+                            forward = !forward;
                         
-                        em.SetComponentEnabled<LoadingComponent>(entity, true);
-                        em.SetComponentEnabled<EnRouteComponent>(entity, false);
-                        var loadingComp = em.GetComponentData<LoadingComponent>(entity);
-                        loadingComp.duration = 0;
-                        em.SetComponentData(entity, loadingComp);
-                        break;
+                        if (nextPoint.IsStation)
+                        {
+                            em.SetComponentEnabled<LoadingComponent>(entity, true);
+                            em.SetComponentEnabled<EnRouteComponent>(entity, false);
+                            var loadingComp = em.GetComponentData<LoadingComponent>(entity);
+                            loadingComp.duration = 0;
+                            em.SetComponentData(entity, loadingComp);
+                            break;
+                        }
+                        //
+                        // if (forward && currentIndex + 1 >= track.Length)
+                        //     forward = false;
+                        // else if (!forward && currentIndex == 0)
+                        //     forward = true;
+                        //
+                        //
                     }
                     else
                     {
@@ -95,6 +110,5 @@ public partial struct TrainMoverSystem  : ISystem
             em.SetComponentData(entity, transform);
             em.SetComponentData(entity, train);
         }
-        
     }
 }
