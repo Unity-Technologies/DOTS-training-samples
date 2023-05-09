@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Unity.Entities;
-using System.Collections.Generic;
 
 namespace Metro
 {
