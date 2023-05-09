@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-public partial struct SpawnerSystem: ISystem 
+public partial struct Spawner: ISystem 
 {
     public void OnCreate(ref SystemState state)
     {

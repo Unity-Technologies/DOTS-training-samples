@@ -3,5 +3,5 @@ using Unity.Mathematics;
 
 public struct Position: IComponentData
 {
-    public float2 value;
+    public float2 position;
 }
