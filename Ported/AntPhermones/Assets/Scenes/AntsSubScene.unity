@@ -153,11 +153,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colony:
-    antSize: 0
     antTargetSpeed: 0
     antAccel: 0
-    AntCount: 10
-    AntSize: {x: 0.008, y: 0.004, z: 0.004}
+    antCount: 10
+    antScale: 0.5
     pheromoneDecayRate: 0
     obstacleSize: 0
     randomSteering: 0

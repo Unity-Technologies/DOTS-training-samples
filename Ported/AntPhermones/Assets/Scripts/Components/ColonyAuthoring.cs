@@ -8,11 +8,10 @@ using UnityEngine.Serialization;
 [Serializable]
 public struct Colony: IComponentData
 {
-    public float antSize;
     public float antTargetSpeed;
     public float antAccel;
-    public int AntCount;
-    public Vector3 AntSize;
+    public int antCount;
+    public float antScale;
     
     public float pheromoneDecayRate;
     public float obstacleSize;

@@ -42,9 +42,9 @@ public partial struct Spawner: ISystem
 
     void SpawnAnts(SystemState state, Colony colony)
     {
-        var ants = state.EntityManager.Instantiate(colony.antPrefab, colony.AntCount, Allocator.Temp);
+        var ants = state.EntityManager.Instantiate(colony.antPrefab, colony.antCount, Allocator.Temp);
         var mapSize = colony.mapSize;
         foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
-            position.ValueRW.position = new float2(Random.Range(-5f,5f)+mapSize*.5f,Random.Range(-5f,5f) + mapSize * .5f);
+            position.ValueRW.position = new float2(Random.Range(-5f,5f),Random.Range(-5f,5f));
     }
 }
