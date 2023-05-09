@@ -13,14 +13,19 @@ public struct Colony: IComponentData
     public float antAccel;
     [FormerlySerializedAs("nbAnts")]
     public int AntCount;
+    public Vector3 AntSize;
     
     public float pheromoneDecayRate;
     public float obstacleSize;
     public float randomSteering;
     public float pheromoneSteerStrength;
     public float wallSteerStrength;
+
+    public float mapSize;
+    
     public Entity obstaclePrefab;
     public Entity antPrefab;
+    
 }
 
 public class ColonyAuthoring : MonoBehaviour

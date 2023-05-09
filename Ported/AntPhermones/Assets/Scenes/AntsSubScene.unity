@@ -200,12 +200,14 @@ MonoBehaviour:
     antSize: 0
     antTargetSpeed: 0
     antAccel: 0
-    nbAnts: 10
+    AntCount: 10
+    AntSize: {x: 0.008, y: 0.004, z: 0.004}
     pheromoneDecayRate: 0
     obstacleSize: 0
     randomSteering: 0
     pheromoneSteerStrength: 0
     wallSteerStrength: 0
+    mapSize: 128
   obstaclePrefab: {fileID: 4497485142559760226, guid: 24bb24f3c954dea4a8b54e2686946f9e,
     type: 3}
   antPrefab: {fileID: 7682677627663218339, guid: 8d7c700fbe7c0bc4084e5e7fd9da2c85,

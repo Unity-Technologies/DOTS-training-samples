@@ -1,11 +1,9 @@
-using NUnit.Framework.Internal;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
+using Random = UnityEngine.Random;
 
 public partial struct Spawner: ISystem 
 {
@@ -39,12 +37,8 @@ public partial struct Spawner: ISystem
     void SpawnAnts(SystemState state, Colony colony)
     {
         var ants = state.EntityManager.Instantiate(colony.antPrefab, colony.AntCount, Allocator.Temp);
-        var randomizer = Randomizer.CreateRandomizer();
-        foreach (var transform in SystemAPI.Query<RefRW<LocalTransform>>().WithAll<Ant>())
-        {
-            var position = new float3(randomizer.NextFloat(), randomizer.NextFloat(), randomizer.NextFloat());
-            transform.ValueRW.Position = position;
-            Debug.Log($"Position = {position}");
-        }
+        var mapSize = colony.mapSize;
+        foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>())
+            position.ValueRW.position = new float2(Random.Range(-5f,5f)+mapSize*.5f,Random.Range(-5f,5f) + mapSize * .5f);
     }
 }

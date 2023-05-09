@@ -1,22 +1,24 @@
+using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 
-public struct Dynamics : IJobParallelFor
+public partial struct Spawner : ISystem
 {
-    public void Execute(int index)
+    JobHandle DoDynamics()
     {
-        // Here we do the work
-        throw new System.NotImplementedException();
-    }
-    
-    public static JobHandle Do()
-    {
-        // Here we setup the job, schedule it and return the handle
-        // ... scheduling the job
-    /*    var job = new SquareNumbersJob { Nums = myArray };
-        return job.Schedule(
-            myArray.Length,    // count
-            100);              // batch size
-    */
+        foreach (var position in SystemAPI.Query<RefRW<Position>>().WithAll<Ant>()) 
+        { }
+
         return new();
+    }
+
+    struct Dynamics : IJobParallelFor
+    {
+        public void Execute(int index)
+        {
+            // Here we do the work
+            throw new System.NotImplementedException();
+        }
+
     }
 }
