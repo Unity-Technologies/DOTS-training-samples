@@ -80,6 +80,42 @@ public partial struct StationSpawningSystem : ISystem
             }
         }
 
+        // TODO Add random spawn points between 3-5 for same number of carriadges
+        // var random = Random.CreateFromIndex(12314);
+        // var val = random.NextFloat();
+        int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPoints /** 2*/);
+        var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
+
+        EntityArchetype eat = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform));
+        Entity queueEntity = em.CreateEntity(eat);
+#if UNITY_EDITOR
+        em.SetName(queueEntity, "QueueEntity");
+#endif
+        em.Instantiate(queueEntity, queuePoints);
+
+        float carriadgeLength = 5;
+
+        i = 0;
+        foreach (var transform in
+            SystemAPI.Query<RefRO<LocalTransform>>()
+            .WithAll<StationIDComponent>())
+        {
+            for (int k = 0; k < stationConfig.NumQueingPoints; k++)
+            {
+                LocalTransform lc = new LocalTransform();
+                float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
+                lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
+                lc.Scale = 1;
+                em.SetComponentData<LocalTransform>(queuePoints[(i * stationConfig.NumQueingPoints) + k], lc);
+            }
+
+            i++;
+            //for (int k = 0; k < stationConfig.NumCarriadges; k++)
+            //{
+            //    // make the x negative
+            //}
+        }
+
         // var tracks = CollectionHelper.CreateNativeArray<Entity>(TrackPointBuffer.Length, Allocator.Temp);
         // em.Instantiate(stationConfig.TrackEntity, tracks);
 

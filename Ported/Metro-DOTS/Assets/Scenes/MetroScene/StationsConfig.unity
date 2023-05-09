@@ -158,10 +158,19 @@ MonoBehaviour:
     type: 3}
   NumStations: 10
   Spacing: 50
-  TrackCenter:
-    x: 8.8
-    y: 0
-    z: -6.8
+  TrackACenter:
+    x: 10
+    y: -2
+    z: -1
+  TrackBCenter:
+    x: 10
+    y: -2
+    z: -8
+  NumCarriadges: 4
+  SpawnPointOffsetFromCenterPoint:
+    x: 0
+    y: 1.5
+    z: 3
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0
