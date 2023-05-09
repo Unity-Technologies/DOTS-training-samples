@@ -24,6 +24,7 @@ public struct Colony: IComponentData
     public Entity homePrefab;
     public Entity obstaclePrefab;
     public Entity antPrefab;
+    public Entity resourcePrefab;
     
 }
 
@@ -33,6 +34,8 @@ public class ColonyAuthoring : MonoBehaviour
     public GameObject homePrefab;
     public GameObject obstaclePrefab;
     public GameObject antPrefab;
+    public GameObject resourcePrefab;
+
     class Baker : Baker<ColonyAuthoring>
     {
         public override void Bake(ColonyAuthoring authoring)
@@ -43,6 +46,7 @@ public class ColonyAuthoring : MonoBehaviour
             colony.homePrefab = GetEntity(authoring.homePrefab, TransformUsageFlags.Renderable);
             colony.obstaclePrefab = GetEntity(authoring.obstaclePrefab, TransformUsageFlags.Renderable);
             colony.antPrefab = GetEntity(authoring.antPrefab, TransformUsageFlags.Renderable);
+            colony.resourcePrefab = GetEntity(authoring.resourcePrefab, TransformUsageFlags.Renderable);
             AddComponent<Colony>(entity, colony);
         }
     }
