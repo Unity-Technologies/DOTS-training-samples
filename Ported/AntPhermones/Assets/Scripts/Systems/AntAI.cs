@@ -33,7 +33,8 @@ public partial struct AntAI: ISystem
         
         
         // Dynamics
-        
+        var job = new DynamicsJob();
+        state.Dependency = job.Schedule(state.Dependency);
         
 
         /*
