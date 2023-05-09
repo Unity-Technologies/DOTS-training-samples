@@ -1,6 +1,5 @@
 using Components;
 using Metro;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -22,22 +21,16 @@ public partial struct TrainMoverSystem  : ISystem
         var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
         var config = SystemAPI.GetSingleton<Config>();
 
-        var q = em.CreateEntityQuery(typeof(TrainIDComponent));
-        foreach (var entity in q.ToEntityArray(Allocator.Temp))
+        foreach (var (transform, train, entity) in
+                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<TrainIDComponent>>()
+                     .WithEntityAccess())
         {
-            var transform = em.GetComponentData<LocalTransform>(entity);
-            var train = em.GetComponentData<TrainIDComponent>(entity);
-
-        // foreach (var (transform, train) in
-        //          SystemAPI.Query<RefRW<LocalTransform>, RefRW<TrainIDComponent>>())
-        // {
-
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
-                float3 position = transform.Position - train.Offset;
-                int currentIndex = train.TrackPointIndex;
+                float3 position = transform.ValueRO.Position - train.ValueRO.Offset;
+                int currentIndex = train.ValueRO.TrackPointIndex;
                 float totalDistance = config.MaxTrainSpeed * SystemAPI.Time.DeltaTime;
-                bool forward = train.Forward;
+                bool forward = train.ValueRO.Forward;
 
                 while (totalDistance > 0)
                 {
@@ -51,7 +44,7 @@ public partial struct TrainMoverSystem  : ISystem
                     float distanceToNextPoint = math.distance(nextPosition, position);
                     float3 directionToNextPoint = math.normalize(nextPosition - currentPosition);
 
-                    transform.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
+                    transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
 
                     if (totalDistance >= distanceToNextPoint)
                     {
@@ -67,18 +60,9 @@ public partial struct TrainMoverSystem  : ISystem
                         {
                             em.SetComponentEnabled<LoadingComponent>(entity, true);
                             em.SetComponentEnabled<EnRouteComponent>(entity, false);
-                            var loadingComp = em.GetComponentData<LoadingComponent>(entity);
-                            loadingComp.duration = 0;
-                            em.SetComponentData(entity, loadingComp);
+                            train.ValueRW.Duration = 0;
                             break;
                         }
-                        //
-                        // if (forward && currentIndex + 1 >= track.Length)
-                        //     forward = false;
-                        // else if (!forward && currentIndex == 0)
-                        //     forward = true;
-                        //
-                        //
                     }
                     else
                     {
@@ -89,26 +73,20 @@ public partial struct TrainMoverSystem  : ISystem
                     }
                 }
 
-                train.Forward = forward;
-                train.TrackPointIndex = currentIndex;
-                transform.Position = position + train.Offset;
+                train.ValueRW.Forward = forward;
+                train.ValueRW.TrackPointIndex = currentIndex;
+                transform.ValueRW.Position = position + train.ValueRW.Offset;
             }
             
             else if (em.IsComponentEnabled<LoadingComponent>(entity))
             {
-                var loadingComp = em.GetComponentData<LoadingComponent>(entity);
-                loadingComp.duration += SystemAPI.Time.DeltaTime;
-
-                if (loadingComp.duration >= 2.0f)
+                train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
+                if (train.ValueRW.Duration >= 2.0f)
                 {
                     em.SetComponentEnabled<LoadingComponent>(entity, false);
                     em.SetComponentEnabled<EnRouteComponent>(entity, true);
                 }
-                em.SetComponentData(entity, loadingComp);
             }
-
-            em.SetComponentData(entity, transform);
-            em.SetComponentData(entity, train);
         }
     }
 }
