@@ -67,7 +67,7 @@ public partial struct AntAI: ISystem
         
         
         // Dynamics
-        var job = new DynamicsJob();
+        var job = new DynamicsJob{ mapSize = colony.mapSize };
         state.Dependency = job.Schedule(state.Dependency);
     }
 }
