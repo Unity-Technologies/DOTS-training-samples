@@ -86,12 +86,15 @@ public partial struct StationSpawningSystem : ISystem
         int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPoints /** 2*/);
         var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
 
-        EntityArchetype eat = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform));
-        Entity queueEntity = em.CreateEntity(eat);
+        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform));
 #if UNITY_EDITOR
-        em.SetName(queueEntity, "QueueEntity");
+        // todo: make naming work
+        for (var k = 0; k < queuePoints.Length; k++)
+        {
+            em.SetName(queuePoints[k], "QueueEntity");   
+        }
 #endif
-        em.Instantiate(queueEntity, queuePoints);
+        em.CreateEntity(queueArchetype, queuePoints);
 
         float carriadgeLength = 5;
 
@@ -106,7 +109,8 @@ public partial struct StationSpawningSystem : ISystem
                 float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
                 lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
                 lc.Scale = 1;
-                em.SetComponentData<LocalTransform>(queuePoints[(i * stationConfig.NumQueingPoints) + k], lc);
+                var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
+                em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
             }
 
             i++;

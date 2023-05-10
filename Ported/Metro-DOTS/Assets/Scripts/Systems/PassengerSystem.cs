@@ -28,28 +28,30 @@ public partial struct PassengerSystem : ISystem
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
-        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengers * stationConfig.NumStations, Allocator.Temp);
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations, Allocator.Temp);
         ecb.Instantiate(config.PassengerEntity, passengers);
 
 
-        int passengersPerQueue = config.NumPassengers / stationConfig.NumQueingPoints;
+        int passengersPerQueue = config.NumPassengersPerStation / stationConfig.NumQueingPoints;
         float distanceBetweenPassenger = 1;
-        int i = 0;
+        
+        int queueId = 0;
         foreach (var transform in
-                    SystemAPI.Query<RefRO<LocalTransform>>()
-                    .WithAll<QueueComponent>())
+                 SystemAPI.Query<RefRO<LocalTransform>>()
+                     .WithAll<QueueComponent>())
         {
             for (int j = 0; j < passengersPerQueue; j++)
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
-                lc.Scale = 0.3f;
                 lc.Position += new float3(0, 0, distanceBetweenPassenger * j);
 
-                ecb.SetComponent<LocalTransform>(passengers[i * stationConfig.NumStations + j], lc);
+                ecb.SetComponent<LocalTransform>(passengers[queueId * passengersPerQueue + j], lc);
             }
-            i++;
+            queueId++;
         }
+        
+        state.Enabled = false;
 
         // i = 0;
         // foreach (var transform in
@@ -60,7 +62,5 @@ public partial struct PassengerSystem : ISystem
         //     i++;
         // }
 
-
-        state.Enabled = false;
     }
 }

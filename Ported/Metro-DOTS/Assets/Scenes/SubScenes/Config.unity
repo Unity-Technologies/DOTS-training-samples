@@ -67,9 +67,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -167,6 +164,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 984b2423582a485da9405d707c74b545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumPassengers: 200
+  NumPassengersPerStation: 64
   PassengerPrefab: {fileID: 7372287293309593553, guid: df855cd7b2133f544b6ffac4a9be7dce,
     type: 3}
