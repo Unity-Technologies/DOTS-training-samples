@@ -68,7 +68,7 @@ public partial struct AntAI: ISystem
         
         
         // Dynamics
-        var dynamicsJob = new DynamicsJob();
+        var dynamicsJob = new DynamicsJob{ mapSize = colony.mapSize };
         state.Dependency = dynamicsJob.Schedule(state.Dependency);
 
         // Drop Pheromones
