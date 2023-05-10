@@ -21,8 +21,11 @@ namespace Metro
                     Offset = new float3(0, 0, 0),
                     Duration = 0
                 });
+                
                 AddComponent(entity, new EnRouteComponent());
                 AddComponent(entity, new LoadingComponent());
+                AddComponent(entity, new UnloadingComponent());
+                AddComponent(entity, new ArrivingComponent());
                 AddComponent(entity, new DepartingComponent());
             }
         }

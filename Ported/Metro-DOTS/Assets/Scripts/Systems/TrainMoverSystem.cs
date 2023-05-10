@@ -69,8 +69,6 @@ public partial struct TrainMoverSystem  : ISystem
                 float currentSpeed = train.ValueRO.Speed;
                 float distanceRequiredToStop = DistanceToStop(currentSpeed, config.TrainAcceleration);
                 
-                // Debug.Log($"Distance to next stop {distanceToStop} Distance required to stop {distanceRequiredToStop} Speed: {train.ValueRO.Speed}");
-                //
                 float speed = math.clamp(train.ValueRO.Speed + (config.TrainAcceleration * SystemAPI.Time.DeltaTime), 0, config.MaxTrainSpeed);
                 // bool departing = Math.Abs(speed - config.MaxTrainSpeed) < float.Epsilon;
                 // if (departing != em.IsComponentEnabled<DepartingComponent>(entity))
@@ -99,10 +97,11 @@ public partial struct TrainMoverSystem  : ISystem
                         
                         if (nextPoint.IsStation)
                         {
-                            em.SetComponentEnabled<LoadingComponent>(entity, true);
+                            em.SetComponentEnabled<UnloadingComponent>(entity, true);
                             em.SetComponentEnabled<EnRouteComponent>(entity, false);
                             train.ValueRW.Duration = 0;
                             train.ValueRW.Speed = 0;
+                            Debug.Log("Travel complete: Setting movement state to Unloading");
                             break;
                         }
                     }
@@ -123,13 +122,27 @@ public partial struct TrainMoverSystem  : ISystem
                 transform.ValueRW.Position = finalPos;
             }
             
+            else if (em.IsComponentEnabled<UnloadingComponent>(entity))
+            {
+                train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
+                if (train.ValueRW.Duration >= config.UnloadingTime)
+                {
+                    train.ValueRW.Duration = 0;
+                    em.SetComponentEnabled<UnloadingComponent>(entity, false);
+                    em.SetComponentEnabled<LoadingComponent>(entity, true);
+                    Debug.Log("Unloading complete: Setting movement state to Loading");
+                }
+            }
+            
             else if (em.IsComponentEnabled<LoadingComponent>(entity))
             {
                 train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
-                if (train.ValueRW.Duration >= 2.0f)
+                if (train.ValueRW.Duration >= config.UnloadingTime)
                 {
+                    train.ValueRW.Duration = 0;
                     em.SetComponentEnabled<LoadingComponent>(entity, false);
                     em.SetComponentEnabled<EnRouteComponent>(entity, true);
+                    Debug.Log("Loading complete: Setting movement state to EnRoute");
                 }
             }
         }

@@ -174,3 +174,5 @@ MonoBehaviour:
     type: 3}
   MaxTrainSpeed: 30
   TrainAcceleration: 5
+  TrainUnloadingTime: 2.5
+  TrainLoadingTime: 2.5
