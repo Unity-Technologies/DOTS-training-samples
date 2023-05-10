@@ -5,7 +5,9 @@ using UnityEngine;
 public class GridAuthoring : MonoBehaviour
 {
     public int GridSize;
+    public float MinGridY;
     public float GridCellSize;
+    public int NumStartingFires;
 
     public GameObject BotPrefab;
     public GameObject FirePrefab;
@@ -22,6 +24,8 @@ public class GridAuthoring : MonoBehaviour
             AddComponent(entity, new Grid
             {
                 GridSize = authoring.GridSize,
+                NumStartingFires = authoring.NumStartingFires,
+                MinGridY = authoring.MinGridY,
                 BotPrefab = GetEntity(authoring.BotPrefab, TransformUsageFlags.Dynamic),
                 FirePrefab = GetEntity(authoring.FirePrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
                 WaterPrefab = GetEntity(authoring.WaterPrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
@@ -33,10 +37,12 @@ public class GridAuthoring : MonoBehaviour
 
 public struct Grid : IComponentData
 {
-    public int GridSize; 
+    public int GridSize;
+    public float MinGridY;
     public float GridCellSize;
     public float PlayerOffset;
     public float PlayerSpeed;
+    public int NumStartingFires;
     public Entity BotPrefab;
     public Entity FirePrefab;
     public Entity WaterPrefab;

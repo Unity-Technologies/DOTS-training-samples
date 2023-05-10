@@ -17,10 +17,14 @@ public partial struct GridSpawnSystem : ISystem {
         state.EntityManager.Instantiate(config.FirePrefab, config.GridSize * config.GridSize, Allocator.Temp);
         var pos = config.GridOrigin;
         int i = 0;
-        foreach (var (trans, burn) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Burner>>().WithAll<Fire>()) {
+        int numRandomFires = config.NumStartingFires;
+
+        foreach (var (trans, burn, fire) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Burner>, RefRW<Fire>>()) {
+            fire.ValueRW.t = UnityEngine.Random.value < 0.1f ? UnityEngine.Random.value : 0.0f;
+
             trans.ValueRW.Scale = 1;
             trans.ValueRW.Position.x = pos.x + (i % config.GridSize) * 1.05f;
-            trans.ValueRW.Position.y = pos.y - 2.0f;    // Candidate for some global grid config min-Y value
+            trans.ValueRW.Position.y = pos.y - config.MinGridY;
             trans.ValueRW.Position.z = pos.z + (i / config.GridSize) * 1.05f;
             i++;
         }

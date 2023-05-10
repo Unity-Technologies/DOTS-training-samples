@@ -913,7 +913,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridSize: 50
+  MinGridY: -2
   GridCellSize: 1
+  NumStartingFires: 3
   BotPrefab: {fileID: 0}
   FirePrefab: {fileID: 6831108980965835434, guid: f0fb49b1979a6c94bacfa853a03a2045,
     type: 3}
