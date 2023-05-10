@@ -22,36 +22,38 @@ public partial struct FoodSpawnerSystem : ISystem
         var ecbSystemSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSystemSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+        float radius = settings.FoodRadius;
+        float halfRadius = radius / 2;
+
         foreach (var spawner in SystemAPI.Query<RefRO<FoodSpawner>, RefRW<LocalTransform>>())
         {
             for (uint i = 0; i < spawner.Item1.ValueRO.Count; i++)
             {
                 var rand = Unity.Mathematics.Random.CreateFromIndex(i);
+                rand.InitState((uint)(SystemAPI.Time.ElapsedTime * 1000000f));
                 var entity = ecb.Instantiate(spawner.Item1.ValueRO.Prefab);
 
                 float xPos = 0;
                 float yPos = 0;
                 if (rand.NextBool())
                 {
-                    xPos = rand.NextFloat(0, settings.FoodBufferSize);
+                    xPos = rand.NextFloat(halfRadius, settings.FoodBufferSize);
                 } else
                 {
-                    xPos = rand.NextFloat(settings.MapSizeX - settings.FoodBufferSize, settings.MapSizeX);
+                    xPos = rand.NextFloat(settings.MapSizeX - settings.FoodBufferSize, settings.MapSizeX - halfRadius);
                 }
                 if (rand.NextBool())
                 {
-                    yPos = rand.NextFloat(0, settings.FoodBufferSize);
+                    yPos = rand.NextFloat(halfRadius, settings.FoodBufferSize - halfRadius);
                 }
                 else
                 {
                     yPos = rand.NextFloat(settings.MapSizeY - settings.FoodBufferSize, settings.MapSizeY);
                 }
-                xPos = 0;
-                yPos = 0;
-                ecb.SetComponent(entity, new LocalTransform() { Position = new float3(xPos, yPos, 0), Scale = 1 });
+                ecb.SetComponent(entity, new LocalTransform() { Position = new float3(xPos, yPos, 0), Scale = radius });
                 ecb.AddComponent(entity, new FoodData() {
                     Center = { x = xPos, y = yPos},
-                    Radius = 1f
+                    Radius = radius
                 });
             }
         }
