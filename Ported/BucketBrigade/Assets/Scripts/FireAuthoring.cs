@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class FireAuthoring : MonoBehaviour
 {
+    public Color startingColor;
     public int StartFireNumber;
+
     class Baker : Baker<FireAuthoring>
     {
         public override void Bake(FireAuthoring authoring)
@@ -12,7 +14,7 @@ public class FireAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
             AddComponent<Fire>(entity);
             AddComponent<Burner>(entity);
-            AddComponent(entity, new URPMaterialPropertyBaseColor { Value = (Vector4)Color.white });
+            AddComponent(entity, new URPMaterialPropertyBaseColor { Value = (Vector4)authoring.startingColor });
         }
     }
 }

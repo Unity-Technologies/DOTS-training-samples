@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1173533399063125237}
   - component: {fileID: -3847765418633749626}
   m_Layer: 0
-  m_Name: PrefabFireCube
+  m_Name: GridFireCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

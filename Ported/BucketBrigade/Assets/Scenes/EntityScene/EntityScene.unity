@@ -915,7 +915,7 @@ MonoBehaviour:
   GridSize: 50
   GridCellSize: 1
   BotPrefab: {fileID: 0}
-  FirePrefab: {fileID: 6831108980965835434, guid: 9c2e47bf0bab24e7cb19d65cdd222fc6,
+  FirePrefab: {fileID: 6831108980965835434, guid: f0fb49b1979a6c94bacfa853a03a2045,
     type: 3}
   WaterPrefab: {fileID: 0}
   originGrid: {fileID: 348539257}
