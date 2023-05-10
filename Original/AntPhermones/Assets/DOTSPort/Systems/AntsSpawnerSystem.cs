@@ -64,8 +64,8 @@ public struct AntSpawner : IComponentData
 
 public struct AntData : IComponentData
 {
-    public Vector2 SpawnerCenter;
-    public Vector2 Position;
+    public float2 SpawnerCenter;
+    public float2 Position;
     public float FacingAngle;
     public float Speed;
     public bool HoldingResource;
