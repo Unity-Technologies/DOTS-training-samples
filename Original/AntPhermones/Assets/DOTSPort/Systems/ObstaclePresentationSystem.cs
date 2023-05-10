@@ -35,7 +35,7 @@ public partial struct ObstaclePresentationSystem : ISystem
             
             while (Angle < AngleEnd)
             {
-                Angle += 0.1f;
+                Angle += 0.03f;
                 Vector2 NextPoint = prim.Position * MapSize;
                 NextPoint.x += Mathf.Cos(Angle) * prim.Radius * MapSize;
                 NextPoint.y += Mathf.Sin(Angle) * prim.Radius * MapSize;
