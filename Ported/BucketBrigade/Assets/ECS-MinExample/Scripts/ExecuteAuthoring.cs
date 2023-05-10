@@ -21,6 +21,8 @@ namespace Miscellaneous.Execute
         public bool StateChangeValue;
         public bool StateChangeProfiling;
         public bool TextureUpdate;
+        public bool OmnibotSpawner;
+        public bool Omnibotmovement;
 
         class Baker : Baker<ExecuteAuthoring>
         {
@@ -43,6 +45,8 @@ namespace Miscellaneous.Execute
                 if (authoring.StateChangeValue) AddComponent<StateChangeValue>(entity);
                 if (authoring.StateChangeProfiling) AddComponent<StateChangeProfiling>(entity);
                 if (authoring.TextureUpdate) AddComponent<TextureUpdater>(entity);
+                if (authoring.OmnibotSpawner) AddComponent<OmnibotSpawner>(entity);
+                if (authoring.Omnibotmovement) AddComponent<OmnnibotMovement>(entity);
             }
         }
     }
@@ -109,5 +113,14 @@ namespace Miscellaneous.Execute
 
     public struct TextureUpdater : IComponentData
     {
+    }
+
+    public struct OmnibotSpawner : IComponentData
+    {
+    }
+    
+    public struct OmnnibotMovement : IComponentData
+    {
+    
     }
 }

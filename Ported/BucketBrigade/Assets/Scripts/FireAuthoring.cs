@@ -10,17 +10,11 @@ public class FireAuthoring : MonoBehaviour {
         public override void Bake(FireAuthoring authoring) {
             var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
             AddComponent<Fire>(entity);
-            AddComponent(entity, new Burner { startingColor = (Vector4)authoring.startingColor, fullBurningColor = (Vector4)authoring.fireColor });
-            AddComponent(entity, new URPMaterialPropertyBaseColor { Value = (Vector4)authoring.startingColor });
+            AddComponent(entity, new URPMaterialPropertyBaseColor { });
         }
     }
 }
 
 public struct Fire : IComponentData {
     public float t;
-}
-
-public struct Burner : IComponentData, IQueryTypeParameter {
-    public Vector4 startingColor;
-    public Vector4 fullBurningColor;
 }

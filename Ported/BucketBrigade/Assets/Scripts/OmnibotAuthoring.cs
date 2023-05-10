@@ -15,5 +15,5 @@ public class OmnibotAuthoring : MonoBehaviour
 
 public struct Omnibot : IComponentData
 {
-
+    public float t;
 }

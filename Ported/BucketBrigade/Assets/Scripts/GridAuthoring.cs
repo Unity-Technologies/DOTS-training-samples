@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class GridAuthoring : MonoBehaviour
 {
+    [Header("General grid")]
     public int GridSize;
     public float MinGridY;
     public float GridCellSize;
-    public int NumStartingFires;
 
+    [Header("Bot settings")]
+    public int NumOmnibot;
+
+    [Header("Fire settings")]
+    public int NumStartingFires;
+    public float FireSpreadValue;
+    public float FireGrowthRate;
+    public Color StartingGridColor;
+    public Color FullBurningGridColor;
+
+    [Header("Prefabs")]
     public GameObject BotPrefab;
     public GameObject FirePrefab;
     public GameObject WaterPrefab;
+    public GameObject OmnibotPrefab;
     public Transform originGrid;
 
     class Baker : Baker<GridAuthoring>
@@ -29,7 +41,13 @@ public class GridAuthoring : MonoBehaviour
                 BotPrefab = GetEntity(authoring.BotPrefab, TransformUsageFlags.Dynamic),
                 FirePrefab = GetEntity(authoring.FirePrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
                 WaterPrefab = GetEntity(authoring.WaterPrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
-                GridOrigin = new float3(authoring.originGrid.position)
+                OmnibotPrefab = GetEntity(authoring.OmnibotPrefab, TransformUsageFlags.Dynamic),
+                GridOrigin = new float3(authoring.originGrid.position),
+                NumOmnibot = authoring.NumOmnibot,
+                FireSpreadValue = authoring.FireSpreadValue,
+                FireGrowthRate = authoring.FireGrowthRate,
+                StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
+                FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
             });
         }
     }
@@ -47,4 +65,10 @@ public struct Grid : IComponentData
     public Entity FirePrefab;
     public Entity WaterPrefab;
     public float3 GridOrigin;
+    public Entity OmnibotPrefab;
+    public int NumOmnibot;
+    public float FireSpreadValue;
+    public float FireGrowthRate;
+    public float4 StartingGridColor;
+    public float4 FullBurningGridColor;
 }
