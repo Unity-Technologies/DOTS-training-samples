@@ -15,9 +15,11 @@ public partial struct ObstaclePresentationSystem : ISystem
         state.Enabled = false;
         
         var buffer = SystemAPI.GetSingletonBuffer<ObstacleArcPrimitive>();
-
+        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
         var obstacleDrawer = MonoBehaviour.FindObjectOfType<ObstacleDrawer>();
-        
+
+        float MapSize = Mathf.Min((float)globalSettings.MapSizeX, (float)globalSettings.MapSizeY);
+
         int PrimIndex = -1;
         for (int i = 0; i < buffer.Length; i++)
         {
@@ -26,17 +28,17 @@ public partial struct ObstaclePresentationSystem : ISystem
 
             float Angle = prim.AngleStart;
             float AngleEnd = prim.AngleEnd + ((prim.AngleStart < prim.AngleEnd) ? 0.0f : 2.0f * Mathf.PI);
-            Vector2 PrevPoint = prim.Position;
-            PrevPoint.x += Mathf.Cos(Angle) * prim.Radius;
-            PrevPoint.y += Mathf.Sin(Angle) * prim.Radius;            
+            Vector2 PrevPoint = prim.Position * MapSize;
+            PrevPoint.x += Mathf.Cos(Angle) * prim.Radius * MapSize;
+            PrevPoint.y += Mathf.Sin(Angle) * prim.Radius * MapSize;            
             centerPoints.Add(PrevPoint);
             
             while (Angle < AngleEnd)
             {
                 Angle += 0.1f;
-                Vector2 NextPoint = prim.Position;
-                NextPoint.x += Mathf.Cos(Angle) * prim.Radius;
-                NextPoint.y += Mathf.Sin(Angle) * prim.Radius;
+                Vector2 NextPoint = prim.Position * MapSize;
+                NextPoint.x += Mathf.Cos(Angle) * prim.Radius * MapSize;
+                NextPoint.y += Mathf.Sin(Angle) * prim.Radius * MapSize;
                 centerPoints.Add(NextPoint);
             }
             
