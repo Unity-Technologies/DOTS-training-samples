@@ -172,20 +172,5 @@ MonoBehaviour:
     type: 3}
   TrainPrefab: {fileID: 4538662907198620910, guid: 0074485fcad8c2c4baa117c7b058a315,
     type: 3}
-  MaxTrainSpeed: 15
-  TrackPoints:
-  - x: 0
-    y: 0
-    z: 0
-  - x: 0
-    y: 0
-    z: 10
-  - x: 5
-    y: 0
-    z: 20
-  - x: 0
-    y: 0
-    z: 30
-  - x: 0
-    y: 0
-    z: 40
+  MaxTrainSpeed: 30
+  TrainAcceleration: 5

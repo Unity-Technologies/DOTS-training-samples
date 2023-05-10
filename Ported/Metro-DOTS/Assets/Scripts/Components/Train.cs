@@ -10,5 +10,7 @@ namespace Components
         public int TrackPointIndex;
         public bool Forward;
         public float3 Offset;
+        public float Duration;
+        public float Speed;
     }
 }

@@ -2,7 +2,6 @@
 using Metro;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 public partial struct TrainSpawnerSystem : ISystem
@@ -21,26 +20,20 @@ public partial struct TrainSpawnerSystem : ISystem
         var em = state.EntityManager;
         em.Instantiate(config.TrainEntity, trains);
 
-        foreach (var entity in trains)
+        foreach (var (transform, train, entity) in
+                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
+                     .WithEntityAccess())
         {
             var track = SystemAPI.GetSingletonBuffer<TrackPoint>(true);
-            TrackPoint currentPoint = track[0];
 
-            var transform = em.GetComponentData<LocalTransform>(entity);
+            train.ValueRW.Offset = transform.ValueRO.Position;
             
-            em.SetComponentData(entity, transform);
-            var train = em.GetComponentData<Train>(entity);
-            
-            train.Offset = transform.Position;
-            transform.Position = currentPoint.Position;
+            transform.ValueRW.Position = track[0].Position;
 
-            em.SetComponentData(entity, train);
-            em.SetComponentData(entity, transform);
-            
             em.SetComponentEnabled<EnRouteComponent>(entity, true);
             em.SetComponentEnabled<LoadingComponent>(entity, false);
+            em.SetComponentEnabled<DepartingComponent>(entity, false);
         }
-
         state.Enabled = false;
     }
 }

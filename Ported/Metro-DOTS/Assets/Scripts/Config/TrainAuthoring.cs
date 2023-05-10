@@ -18,11 +18,13 @@ namespace Metro
                     TrackID = 0,
                     TrackPointIndex = 1,
                     Forward = true,
-                    Offset = new float3(0, 0, 0)
+                    Offset = new float3(0, 0, 0),
+                    Duration = 0
                 });
 
                 AddComponent<EnRouteComponent>(entity);
                 AddComponent<LoadingComponent>(entity);
+                AddComponent<DepartingComponent>(entity);
             }
         }
     }
