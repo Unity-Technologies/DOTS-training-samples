@@ -170,7 +170,7 @@ MonoBehaviour:
   NumPassengers: 50
   PassengerPrefab: {fileID: 7372287293309593553, guid: df855cd7b2133f544b6ffac4a9be7dce,
     type: 3}
-  TrainPrefab: {fileID: 4538662907198620910, guid: 0074485fcad8c2c4baa117c7b058a315,
+  TrainPrefab: {fileID: 5703372225319551209, guid: 2b7394df6315fe84d84da18a4213442e,
     type: 3}
   MaxTrainSpeed: 30
   TrainAcceleration: 5

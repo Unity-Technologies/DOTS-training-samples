@@ -32,6 +32,7 @@ public partial struct TrainMoverSystem  : ISystem
         return distance;
     }
     
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
@@ -82,7 +83,7 @@ public partial struct TrainMoverSystem  : ISystem
                 float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
                 while (totalDistanceToTravel > 0)
                 {
-                    float3 directionToNextPoint = new float3(0, 0, 1);
+                    float3 directionToNextPoint;
                     if (nextPosition.Equals(currentPosition))
                         directionToNextPoint = transform.ValueRO.Forward();
                     else
