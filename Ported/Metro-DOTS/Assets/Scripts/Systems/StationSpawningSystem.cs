@@ -42,42 +42,58 @@ public partial struct StationSpawningSystem : ISystem
             transform.ValueRW.Position = offset;
         }
 
-        var trackEntity = em.CreateEntity();
+        var trackEntityA = em.CreateEntity();
+        var trackEntityB = em.CreateEntity();
 #if UNITY_EDITOR
-        em.SetName(trackEntity, "TrackEntity");
+        em.SetName(trackEntityA, "TrackEntityA");
+        em.SetName(trackEntityB, "TrackEntityB");
 #endif
-        var TrackPointBuffer = em.AddBuffer<TrackPoint>(trackEntity);
+        var TrackPointBufferA = em.AddBuffer<TrackPoint>(trackEntityA);
+        var TrackPointBufferB = em.AddBuffer<TrackPoint>(trackEntityB);
+        TrackPointBufferA = em.GetBuffer<TrackPoint>(trackEntityA);
 
         int i = 0;
+        var halfStationLength = 20;
+        float3 trackPointOffsetFromCenter = new float3(halfStationLength, 0, 0);
         foreach (var transform in
             SystemAPI.Query<RefRO<LocalTransform>>()
             .WithAll<StationIDComponent>())
         {
             bool isEnd = i == 0 || i == stationConfig.NumStations - 1;
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + new float3(-20, 0, 0) });
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + new float3(+20, 0, 0) });
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position - trackPointOffsetFromCenter });
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + trackPointOffsetFromCenter });
+            
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position - trackPointOffsetFromCenter });
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position + trackPointOffsetFromCenter });
             i++;
         }
 
         float sleeperSpacing = 1;
-        for (int j = 0; j < TrackPointBuffer.Length - 1; j++)
+
+        foreach (var trackBuffer in new[] { TrackPointBufferA, TrackPointBufferB })
         {
-            float distance = math.distance(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position);
-            var numberOfSleepers = (int)(distance / sleeperSpacing);
-
-            var sleepers = CollectionHelper.CreateNativeArray<Entity>(numberOfSleepers, Allocator.Temp);
-            em.Instantiate(stationConfig.TrackEntity, sleepers);
-
-            for (int k = 0; k < sleepers.Length; k++)
+            for (int j = 0; j < trackBuffer.Length - 1; j++)
             {
-                float3 pos = math.lerp(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position, (float)k / sleepers.Length);
-                LocalTransform lc = new LocalTransform();
-                lc.Position = pos;
-                lc.Scale = 1;
-                lc.Rotation = quaternion.RotateY(math.PI / 2);
-                em.SetComponentData<LocalTransform>(sleepers[k], lc);
-            }
+                float distance = math.distance(trackBuffer[j].Position, trackBuffer[j + 1].Position);
+                var numberOfSleepers = (int)(distance / sleeperSpacing);
+
+                var sleepers = CollectionHelper.CreateNativeArray<Entity>(numberOfSleepers, Allocator.Temp);
+                em.Instantiate(stationConfig.TrackEntity, sleepers);
+
+                for (int k = 0; k < sleepers.Length; k++)
+                {
+                    float3 pos = math.lerp(trackBuffer[j].Position, trackBuffer[j + 1].Position, (float)k / sleepers.Length);
+                    LocalTransform lc = new LocalTransform
+                    {
+                        Position = pos,
+                        Scale = 1f,
+                        Rotation = quaternion.RotateY(math.PI / 2)
+                    };
+                    em.SetComponentData<LocalTransform>(sleepers[k], lc);
+                }
+            }   
         }
 
         // TODO Add random spawn points between 3-5 for same number of carriadges
