@@ -1,3 +1,4 @@
+using Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -42,8 +43,9 @@ public partial struct StationSpawningSystem : ISystem
             transform.ValueRW.Position = offset;
         }
 
-        var trackEntityA = em.CreateEntity();
-        var trackEntityB = em.CreateEntity();
+        var trackArchetype = em.CreateArchetype(typeof(TrackIDComponent));
+        var trackEntityA = em.CreateEntity(trackArchetype);
+        var trackEntityB = em.CreateEntity(trackArchetype);
 #if UNITY_EDITOR
         em.SetName(trackEntityA, "TrackEntityA");
         em.SetName(trackEntityB, "TrackEntityB");
