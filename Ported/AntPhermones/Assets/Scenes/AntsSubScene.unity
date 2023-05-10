@@ -161,6 +161,7 @@ MonoBehaviour:
     pheromoneDecayRate: 0.9985
     obstacleSize: 0.5
     ringCount: 4
+    bucketResolution: 16
     randomSteering: 8
     pheromoneSteerStrength: 0
     wallSteerStrength: 0.15

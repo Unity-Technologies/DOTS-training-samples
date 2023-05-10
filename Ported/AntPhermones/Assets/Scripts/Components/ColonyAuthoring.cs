@@ -1,7 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -18,6 +21,7 @@ public struct Colony: IComponentData
 
     public float obstacleSize;
     public int ringCount;
+    public int bucketResolution;
     public float randomSteering;
     public float pheromoneSteerStrength;
     public float wallSteerStrength;
@@ -28,7 +32,8 @@ public struct Colony: IComponentData
     public Entity obstaclePrefab;
     public Entity antPrefab;
     public Entity resourcePrefab;
-    
+
+    public NativeArray<UnsafeList<float2>> buckets;
 }
 
 public class ColonyAuthoring : MonoBehaviour

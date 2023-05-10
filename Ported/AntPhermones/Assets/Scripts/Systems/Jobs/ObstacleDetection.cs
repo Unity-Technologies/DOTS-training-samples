@@ -1,8 +1,10 @@
 using System;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -11,9 +13,11 @@ using UnityEngine;
 public partial struct ObstacleDetection : IJobEntity
 {
     public float distance;
+    public float mapSize;
     public float obstacleSize;
     public float steeringStrength;
-    public NativeArray<LocalTransform> obstacles;
+    public int bucketResolution;
+    public NativeArray<UnsafeList<float2>> buckets;
 
     public void Execute(Entity entity, ref Ant ant, in Position position, in Direction direction)
     {
@@ -28,14 +32,29 @@ public partial struct ObstacleDetection : IJobEntity
             float testX = position.position.x + Mathf.Cos(angle) * distance;
             float testY = position.position.y + Mathf.Sin(angle) * distance;
 
-            foreach (var transform in obstacles)
+            // test map boundaries
+            if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
             {
-                float circleX = transform.Position.x;
-                float circleY = transform.Position.y;
-                if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
+
+            }
+            else
+            {
+                int x = (int)(testX / mapSize * bucketResolution);
+                int y = (int)(testY / mapSize * bucketResolution);
+                if (x < 0 || y < 0 || x >= bucketResolution || y >= bucketResolution)
                 {
-                    output -= i;
-                    break;
+                    continue;
+                }
+                var obstacles = buckets[x + y * bucketResolution];
+                foreach (var obstaclePosition in obstacles)
+                {
+                    float circleX = obstaclePosition.x;
+                    float circleY = obstaclePosition.y;
+                    if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
+                    {
+                        output -= i;
+                        break;
+                    }
                 }
             }
         }

@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -52,6 +55,8 @@ public partial struct Spawner: ISystem
         float obstacleRadius = colony.obstacleSize;
         float maxFillRatio = 0.8f;
 
+        List<float2> obstaclePositions = new List<float2>();
+
         for (int i = 1; i <= ringCount; ++i)
         {
             float ringRadius = (i / (ringCount + 1f)) * (mapSize * 0.5f);
@@ -71,11 +76,42 @@ public partial struct Spawner: ISystem
                     float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
                     var obstacle = state.EntityManager.Instantiate(colony.obstaclePrefab);
 
+                    float2 obstaclePosition = new float2(mapSize * 0.5f + Mathf.Cos(angle) * ringRadius, mapSize * 0.5f + Mathf.Sin(angle) * ringRadius);
+
                     var localTransform = SystemAPI.GetComponentRW<LocalTransform>(obstacle, false);
-                    localTransform.ValueRW.Position = new float3(mapSize * 0.5f + Mathf.Cos(angle) * ringRadius, mapSize * 0.5f + Mathf.Sin(angle) * ringRadius, 0);
+                    localTransform.ValueRW.Position = new float3(obstaclePosition.x, obstaclePosition.y, 0);
+                    obstaclePositions.Add(obstaclePosition);
                 }
             }
         }
+
+        int bucketResolution = colony.bucketResolution;
+        NativeArray<UnsafeList<float2>> buckets = new NativeArray<UnsafeList<float2>>(bucketResolution * bucketResolution, Allocator.Persistent);
+        for (int i = 0; i < buckets.Length; ++i)
+        {
+            buckets[i] = new UnsafeList<float2>(0, Allocator.Persistent);
+        }
+        foreach (var position in obstaclePositions)
+        {
+            float radius = colony.obstacleSize;
+            for (int x = Mathf.FloorToInt((position.x - radius) / mapSize * bucketResolution); x <= Mathf.FloorToInt((position.x + radius) / mapSize * bucketResolution); x++)
+            {
+                if (x < 0 || x >= bucketResolution)
+                {
+                    continue;
+                }
+                for (int y = Mathf.FloorToInt((position.y - radius) / mapSize * bucketResolution); y <= Mathf.FloorToInt((position.y + radius) / mapSize * bucketResolution); y++)
+                {
+                    if (y < 0 || y >= bucketResolution)
+                    {
+                        continue;
+                    }
+                    buckets[x + y * bucketResolution].Add(position);
+                }
+            }
+        }
+
+        SystemAPI.GetSingletonRW<Colony>().ValueRW.buckets = buckets;
     }
 
     void SpawnAnts(SystemState state, Colony colony)
