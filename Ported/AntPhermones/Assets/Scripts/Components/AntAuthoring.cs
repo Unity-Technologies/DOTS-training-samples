@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Rendering;
 
 public class AntAuthoring : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class AntAuthoring : MonoBehaviour
             AddComponent<Position>(entity, authoring.position);
             AddComponent<Speed>(entity, authoring.speed);
             AddComponent<Direction>(entity, authoring.direction);
+            AddComponent(entity, new URPMaterialPropertyBaseColor());
         }
     }
 }

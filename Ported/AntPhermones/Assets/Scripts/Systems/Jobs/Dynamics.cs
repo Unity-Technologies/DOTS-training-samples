@@ -1,11 +1,8 @@
 using System;
 using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [BurstCompile]
@@ -16,7 +13,6 @@ public partial struct DynamicsJob : IJobEntity
     
     [BurstCompile]
     public void Execute(
-        Entity entity, 
         ref Position position, 
         ref Direction direction, 
         in Speed speed,

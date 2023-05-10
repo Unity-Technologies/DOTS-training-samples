@@ -52,7 +52,6 @@ public partial struct AntAI: ISystem
         var obstacleJob = new ObstacleDetection
         {
             distance = 1.25f,
-            mapSize = colony.mapSize,
             obstacleSize = colony.obstacleSize,
             steeringStrength = colony.wallSteerStrength,
             obstacles = obstaclesQuery.Build(ref state).ToComponentDataArray<LocalTransform>(Allocator.TempJob)

@@ -11,7 +11,6 @@ using UnityEngine;
 public partial struct ObstacleDetection : IJobEntity
 {
     public float distance;
-    public float mapSize;
     public float obstacleSize;
     public float steeringStrength;
     public NativeArray<LocalTransform> obstacles;
@@ -29,22 +28,14 @@ public partial struct ObstacleDetection : IJobEntity
             float testX = position.position.x + Mathf.Cos(angle) * distance;
             float testY = position.position.y + Mathf.Sin(angle) * distance;
 
-            // test map boundaries
-            if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
+            foreach (var transform in obstacles)
             {
-
-            }
-            else
-            {
-                foreach (var transform in obstacles)
+                float circleX = transform.Position.x;
+                float circleY = transform.Position.y;
+                if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
                 {
-                    float circleX = transform.Position.x;
-                    float circleY = transform.Position.y;
-                    if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
-                    {
-                        output -= i;
-                        break;
-                    }
+                    output -= i;
+                    break;
                 }
             }
         }
