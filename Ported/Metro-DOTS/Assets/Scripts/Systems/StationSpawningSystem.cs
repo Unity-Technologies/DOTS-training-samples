@@ -24,10 +24,10 @@ public partial struct StationSpawningSystem : ISystem
         // TODO Make random posiioning work properly
         var random = Random.CreateFromIndex(12314);
 
+        int stationIdCount = 0;
         float accumulatedValue = 0;
-        foreach (var transform in
-            SystemAPI.Query<RefRW<LocalTransform>>()
-            .WithAll<StationIDComponent>())
+        foreach (var (transform, stationID) in
+            SystemAPI.Query<RefRW<LocalTransform>, RefRW<StationIDComponent>>())
         {
             /*
             var val = random.NextFloat();
@@ -36,6 +36,9 @@ public partial struct StationSpawningSystem : ISystem
             transform.ValueRW.Position = new float3(i * stationConfig.Spacing, 0, 0) + offset;
             i++;
             */
+
+            stationID.ValueRW.StationID = stationIdCount;
+            stationIdCount++;
 
             var val = random.NextFloat();
             accumulatedValue += (math.max(val * stationConfig.Spacing, 10)) + stationConfig.StationWidth;// + width of the platform
@@ -96,7 +99,7 @@ public partial struct StationSpawningSystem : ISystem
                     };
                     em.SetComponentData<LocalTransform>(sleepers[k], lc);
                 }
-            }   
+            }
         }
 
         // TODO Add random spawn points between 3-5 for same number of carriadges
@@ -105,15 +108,31 @@ public partial struct StationSpawningSystem : ISystem
         int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPoints /** 2*/);
         var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
 
-        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform));
+        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform), typeof(QueuePassengers));
 #if UNITY_EDITOR
         // todo: make naming work
         for (var k = 0; k < queuePoints.Length; k++)
         {
-            em.SetName(queuePoints[k], "QueueEntity");   
+            em.SetName(queuePoints[k], "QueueEntity");
         }
 #endif
         em.CreateEntity(queueArchetype, queuePoints);
+
+        for (int j = 0; j < queuePoints.Length; j++)
+        {
+            // Todo is there a better way to initialize 16 elemtns into a buffer?
+            var buffer = em.GetBuffer<QueuePassengers>(queuePoints[j]);
+            for (int k = 0; k < 16; k++)
+            {
+                buffer.Add(new QueuePassengers());
+            }
+
+            // init QueueComponent
+            var qc = em.GetComponentData<QueueComponent>(queuePoints[j]);
+            qc.StartIndex = 0;
+            qc.EndEndex = -1;
+            em.SetComponentData<QueueComponent>(queuePoints[j], qc);
+        }
 
         float carriadgeLength = 5;
 
@@ -122,17 +141,22 @@ public partial struct StationSpawningSystem : ISystem
             SystemAPI.Query<RefRO<LocalTransform>>()
             .WithAll<StationIDComponent>())
         {
+            var stationsQueueBuffer = em.GetBuffer<StationQueuesElement>(stations[i]);
+
             for (int k = 0; k < stationConfig.NumQueingPoints; k++)
             {
                 LocalTransform lc = new LocalTransform();
                 float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
                 lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
                 lc.Scale = 1;
+                lc.Rotation = quaternion.RotateY(math.PI);
                 var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
-            }
 
+                stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointIndex] });
+            }
             i++;
+
             //for (int k = 0; k < stationConfig.NumCarriadges; k++)
             //{
             //    // make the x negative
