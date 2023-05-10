@@ -31,7 +31,7 @@ public partial struct TrainMoverSystem  : ISystem
         }
         return distance;
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -42,21 +42,25 @@ public partial struct TrainMoverSystem  : ISystem
                  SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
                      .WithEntityAccess())
         {
+            var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
+            bool forward = train.ValueRO.Forward;
+            int currentIndex = train.ValueRO.TrackPointIndex;
+            int indexDirection = forward ? 1 : -1;
+            int nextIndex = currentIndex + indexDirection;
+                
+            TrackPoint currentPoint = track[currentIndex];
+            TrackPoint nextPoint = track[nextIndex];
+
+            float3 currentPosition = currentPoint.Position;
+            float3 nextPosition = nextPoint.Position;
+            
+            float3 directionToNextPoint = math.normalize(nextPosition - currentPosition);
+            transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
+            
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
-                var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
                 float3 position = transform.ValueRO.Position - train.ValueRO.Offset;
                 
-                bool forward = train.ValueRO.Forward;
-                int currentIndex = train.ValueRO.TrackPointIndex;
-                int indexDirection = forward ? 1 : -1;
-                int nextIndex = currentIndex + indexDirection;
-                
-                TrackPoint currentPoint = track[currentIndex];
-                TrackPoint nextPoint = track[nextIndex];
-
-                float3 currentPosition = currentPoint.Position;
-                float3 nextPosition = nextPoint.Position;
                 float distanceToNextPoint = math.distance(nextPosition, position);
 
                 float distanceToStop = distanceToNextPoint;
@@ -83,14 +87,6 @@ public partial struct TrainMoverSystem  : ISystem
                 float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
                 while (totalDistanceToTravel > 0)
                 {
-                    float3 directionToNextPoint;
-                    if (nextPosition.Equals(currentPosition))
-                        directionToNextPoint = transform.ValueRO.Forward();
-                    else
-                        directionToNextPoint = math.normalize(nextPosition - currentPosition);
-
-                    transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
-
                     if (totalDistanceToTravel >= distanceToNextPoint)
                     {
                         totalDistanceToTravel -= distanceToNextPoint;
@@ -103,11 +99,12 @@ public partial struct TrainMoverSystem  : ISystem
                         
                         if (nextPoint.IsStation)
                         {
-                            em.SetComponentEnabled<UnloadingComponent>(entity, true);
-                            em.SetComponentEnabled<EnRouteComponent>(entity, false);
                             train.ValueRW.Duration = 0;
                             train.ValueRW.Speed = 0;
-                            Debug.Log("Travel complete: Setting movement state to Unloading");
+                            train.ValueRW.StationEntity = nextPoint.Station;
+                            em.SetComponentEnabled<UnloadingComponent>(entity, true);
+                            em.SetComponentEnabled<EnRouteComponent>(entity, false);
+                            Debug.Log($"Travel complete: arrived at station {train.ValueRO.StationEntity}");
                             break;
                         }
                     }
@@ -133,10 +130,10 @@ public partial struct TrainMoverSystem  : ISystem
                 train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
                 if (train.ValueRW.Duration >= config.UnloadingTime)
                 {
+                    Debug.Log($"Unloading complete at station {train.ValueRO.StationEntity}.  Setting movement state to Loading");
                     train.ValueRW.Duration = 0;
                     em.SetComponentEnabled<UnloadingComponent>(entity, false);
                     em.SetComponentEnabled<LoadingComponent>(entity, true);
-                    Debug.Log("Unloading complete: Setting movement state to Loading");
                 }
             }
             
@@ -145,10 +142,11 @@ public partial struct TrainMoverSystem  : ISystem
                 train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
                 if (train.ValueRW.Duration >= config.UnloadingTime)
                 {
+                    Debug.Log($"Loading complete at station {train.ValueRO.StationEntity}, Setting movement state to EnRoute");
                     train.ValueRW.Duration = 0;
+                    train.ValueRW.StationEntity = Entity.Null;
                     em.SetComponentEnabled<LoadingComponent>(entity, false);
                     em.SetComponentEnabled<EnRouteComponent>(entity, true);
-                    Debug.Log("Loading complete: Setting movement state to EnRoute");
                 }
             }
         }

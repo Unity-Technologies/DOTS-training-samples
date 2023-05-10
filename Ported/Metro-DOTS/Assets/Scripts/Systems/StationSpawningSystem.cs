@@ -38,7 +38,7 @@ public partial struct StationSpawningSystem : ISystem
             */
 
             var val = random.NextFloat();
-            accumulatedValue += (math.max(val * stationConfig.Spacing, 10)) + 30;// + width of the platform
+            accumulatedValue += (math.max(val * stationConfig.Spacing, 10)) + stationConfig.StationWidth;// + width of the platform
             float3 offset = new float3(accumulatedValue, 0, 0);
             transform.ValueRW.Position = offset;
         }
@@ -57,18 +57,19 @@ public partial struct StationSpawningSystem : ISystem
         int i = 0;
         var halfStationLength = 20;
         float3 trackPointOffsetFromCenter = new float3(halfStationLength, 0, 0);
-        foreach (var transform in
+        foreach (var (transform, stationEntity) in
             SystemAPI.Query<RefRO<LocalTransform>>()
-            .WithAll<StationIDComponent>())
+            .WithAll<StationIDComponent>()
+            .WithEntityAccess())
         {
             bool isEnd = i == 0 || i == stationConfig.NumStations - 1;
-            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position - trackPointOffsetFromCenter });
-            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
-            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + trackPointOffsetFromCenter });
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position - trackPointOffsetFromCenter, Station = Entity.Null });
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true, Station = stationEntity});
+            TrackPointBufferA.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + trackPointOffsetFromCenter, Station = Entity.Null  });
             
-            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position - trackPointOffsetFromCenter });
-            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
-            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position + trackPointOffsetFromCenter });
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position - trackPointOffsetFromCenter, Station = Entity.Null  });
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true, Station = stationEntity });
+            TrackPointBufferB.Add(new TrackPoint { Position = stationConfig.TrackBCenter + transform.ValueRO.Position + trackPointOffsetFromCenter, Station = Entity.Null  });
             i++;
         }
 

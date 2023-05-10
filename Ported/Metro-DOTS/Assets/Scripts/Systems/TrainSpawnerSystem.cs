@@ -52,6 +52,7 @@ public partial struct TrainSpawnerSystem : ISystem
                 {
                     transform.ValueRW.Position = trackPoint.Position;
                     train.ValueRW.TrackPointIndex = i;
+                    train.ValueRW.StationEntity = trackPoint.Station;
 
                     bool isStation = trackPoint.IsStation;
                     em.SetComponentEnabled<EnRouteComponent>(entity, !isStation);
