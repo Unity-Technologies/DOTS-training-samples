@@ -1,7 +1,6 @@
 using System;
 using Components;
 using Metro;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,15 +9,18 @@ using UnityEngine;
 
 public partial struct TrainMoverSystem  : ISystem
 {
-    [BurstCompile]
+    private EntityQuery trackEntityQuery;
+
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Train>();
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<TrackPoint>();
+        
+        var builder = new EntityQueryBuilder(Allocator.Temp);
+        builder.WithAll<TrackIDComponent>();
+        trackEntityQuery = state.GetEntityQuery(builder);
     }
 
-    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
     public float DistanceToStop(float speed, float deceleration)
@@ -32,11 +34,13 @@ public partial struct TrainMoverSystem  : ISystem
         return distance;
     }
     
-    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
-        var track = SystemAPI.GetSingletonBuffer<TrackPoint>(true);
+        // var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
+        NativeArray<Entity> trackEntities = trackEntityQuery.ToEntityArray(Allocator.Temp);
+        var track = em.GetBuffer<TrackPoint>(trackEntities[0]);
+
         var config = SystemAPI.GetSingleton<Config>();
 
         foreach (var (transform, train, entity) in
@@ -83,7 +87,7 @@ public partial struct TrainMoverSystem  : ISystem
                 float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
                 while (totalDistanceToTravel > 0)
                 {
-                    float3 directionToNextPoint;
+                    float3 directionToNextPoint = new float3(0, 0, 1);
                     if (nextPosition.Equals(currentPosition))
                         directionToNextPoint = transform.ValueRO.Forward();
                     else
