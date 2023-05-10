@@ -5,7 +5,7 @@ using UnityEngine;
 public class FireAuthoring : MonoBehaviour
 {
     public Color startingColor;
-    public int StartFireNumber;
+    public Color fireColor;
 
     class Baker : Baker<FireAuthoring>
     {
@@ -13,7 +13,7 @@ public class FireAuthoring : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
             AddComponent<Fire>(entity);
-            AddComponent<Burner>(entity);
+            AddComponent(entity, new Burner { startingColor = (Vector4)authoring.startingColor, fullBurningColor = (Vector4)authoring.fireColor });
             AddComponent(entity, new URPMaterialPropertyBaseColor { Value = (Vector4)authoring.startingColor });
         }
     }
@@ -24,8 +24,7 @@ public struct Fire : IComponentData
 
 }
 
-public struct Burner : IComponentData, IEnableableComponent {
-    // (the component should actually be empty, but this dummy field
-    // was added as workaround for a bug in source generation)
-    public float Value;
+public struct Burner : IComponentData, IQueryTypeParameter {
+    public Vector4 startingColor;
+    public Vector4 fullBurningColor;
 }

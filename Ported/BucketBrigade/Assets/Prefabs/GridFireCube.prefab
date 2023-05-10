@@ -97,4 +97,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startingColor: {r: 0.3445621, g: 0.8207547, b: 0.45100513, a: 1}
+  fireColor: {r: 0.7264151, g: 0, b: 0, a: 1}
   StartFireNumber: 0
