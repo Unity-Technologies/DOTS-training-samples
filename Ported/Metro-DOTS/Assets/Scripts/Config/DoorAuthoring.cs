@@ -29,7 +29,6 @@ namespace Metro
 
     public struct Door : IComponentData
     {
-        public const float DoorWidth = 0.3f;
         public const float OpeningTime = 2.0f;
 
         public float3 ClosedPosition;

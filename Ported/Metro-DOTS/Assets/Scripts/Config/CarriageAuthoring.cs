@@ -8,9 +8,6 @@ namespace Metro
         [Range(1, 27)]
         public int CarriageCapacity;
 
-        public GameObject PortDoors;
-        public GameObject StarboardDoors;
-
         private class Baker : Baker<CarriageAuthoring>
         {
             public override void Bake(CarriageAuthoring authoring)
@@ -19,9 +16,6 @@ namespace Metro
                 AddComponent(entity, new Carriage
                 {
                     CarriageCapacity = authoring.CarriageCapacity,
-
-                    PortDoors = GetEntity(authoring.PortDoors, TransformUsageFlags.Dynamic),
-                    StarboardDoors = GetEntity(authoring.StarboardDoors, TransformUsageFlags.Dynamic)
                 });
             }
         }
@@ -29,9 +23,6 @@ namespace Metro
     
     public struct Carriage : IComponentData
     {
-        public Entity PortDoors;
-        public Entity StarboardDoors;
-
         public int CarriageCapacity;
     }
 }
