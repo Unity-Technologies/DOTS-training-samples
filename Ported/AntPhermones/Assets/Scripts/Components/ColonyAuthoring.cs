@@ -12,8 +12,10 @@ public struct Colony: IComponentData
     public float antAccel;
     public int antCount;
     public float antScale;
-    
+
+    public float pheromoneGrowthRate;
     public float pheromoneDecayRate;
+
     public float obstacleSize;
     public int ringCount;
     public float randomSteering;

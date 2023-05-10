@@ -157,7 +157,8 @@ MonoBehaviour:
     antAccel: 0
     antCount: 1000
     antScale: 2
-    pheromoneDecayRate: 0
+    pheromoneGrowthRate: 0.3
+    pheromoneDecayRate: 0.9985
     obstacleSize: 0.5
     ringCount: 4
     randomSteering: 10

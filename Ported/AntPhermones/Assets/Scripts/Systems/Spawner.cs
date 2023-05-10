@@ -23,6 +23,7 @@ public partial struct Spawner: ISystem
         SpawnResource(state, colony);
         SpawnObstacles(state, colony);
         SpawnAnts(state, colony);
+        SpawnPheromones(state, colony);
         state.Enabled = false;
     }
 
@@ -87,6 +88,17 @@ public partial struct Spawner: ISystem
             direction.ValueRW.direction = Random.Range(0, 360);
             speed.ValueRW.speed = Random.Range(0, colony.antTargetSpeed);
             localTransform.ValueRW.Scale = colony.antScale;
+        }
+    }
+
+    void SpawnPheromones(SystemState state, Colony colony)
+    {
+        var pheromones = state.EntityManager.CreateEntity();
+        var pheromonesBuffer = state.EntityManager.AddBuffer<Pheromone>(pheromones);
+        pheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
+        for (var i = 0; i < pheromonesBuffer.Length; i++)
+        {
+            pheromonesBuffer[i] = new Pheromone { strength = 0f };
         }
     }
 }

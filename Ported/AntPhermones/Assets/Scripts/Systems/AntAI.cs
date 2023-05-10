@@ -40,7 +40,7 @@ public partial struct AntAI: ISystem
         state.Dependency = steeringJob.Schedule(state.Dependency);
         
         
-        
+
         // ObstacleDetection
         var obstaclesQuery = new EntityQueryBuilder(Allocator.Temp);
         obstaclesQuery.WithAll<LocalTransform>();
@@ -56,8 +56,8 @@ public partial struct AntAI: ISystem
             obstacles = obstaclesQuery.Build(ref state).ToComponentDataArray<LocalTransform>(Allocator.TempJob)
         };
         obstacleJob.ScheduleParallel();
-        
-        
+
+
         // PheromoneDetection
         
         
@@ -67,7 +67,26 @@ public partial struct AntAI: ISystem
         
         
         // Dynamics
-        var job = new DynamicsJob();
-        state.Dependency = job.Schedule(state.Dependency);
+        var dynamicsJob = new DynamicsJob();
+        state.Dependency = dynamicsJob.Schedule(state.Dependency);
+
+        // Drop Pheromones
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
+        var pheromoneDropJob = new PheromoneDropJob
+        {
+            deltaTime = Time.deltaTime,
+            mapSize = (int)colony.mapSize,
+            antTargetSpeed = colony.antTargetSpeed,
+            pheromoneGrowthRate = colony.pheromoneGrowthRate,
+            pheromones = pheromones.AsNativeArray()
+        };
+        state.Dependency = pheromoneDropJob.Schedule(state.Dependency);
+
+
+
+        // Decay Pheromones
+
+
+
     }
 }
