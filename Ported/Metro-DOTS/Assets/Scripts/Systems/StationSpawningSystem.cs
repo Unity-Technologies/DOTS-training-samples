@@ -148,6 +148,7 @@ public partial struct StationSpawningSystem : ISystem
                 float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
                 lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
                 lc.Scale = 1;
+                lc.Rotation = quaternion.RotateY(math.PI);
                 var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
 
