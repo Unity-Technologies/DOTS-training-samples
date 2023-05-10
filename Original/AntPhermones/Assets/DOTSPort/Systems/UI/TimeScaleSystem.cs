@@ -8,6 +8,10 @@ public partial struct TimeScaleSystem : ISystem, ISystemStartStop
         state.RequireForUpdate<UIDirectoryManaged>();
     }
 
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         float timeScale = -1;

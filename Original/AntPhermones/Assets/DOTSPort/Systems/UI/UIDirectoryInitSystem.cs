@@ -9,7 +9,11 @@ public partial struct UIDirectoryInitSystem : ISystem
     {
         state.RequireForUpdate<TimeScaleControls>();
     }
-    
+
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         state.Enabled = false;

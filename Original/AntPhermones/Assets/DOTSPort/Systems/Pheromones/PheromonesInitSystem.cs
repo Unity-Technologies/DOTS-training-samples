@@ -7,6 +7,10 @@ public partial struct PheromonesInitSystem : ISystem
         state.RequireForUpdate<GlobalSettings>();
     }
 
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         state.Enabled = false;

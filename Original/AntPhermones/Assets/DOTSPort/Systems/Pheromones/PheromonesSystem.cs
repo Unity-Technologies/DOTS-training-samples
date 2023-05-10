@@ -15,6 +15,10 @@ public partial struct PheromonesSystem : ISystem
     {
         state.Enabled = false; // temporary, until implementation
     }
+
+    public void OnDestroy(ref SystemState state)
+    {
+    }
 }
 
 

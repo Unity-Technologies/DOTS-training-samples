@@ -10,6 +10,10 @@ public partial struct HideShowControlsSystem : ISystem
         state.RequireForUpdate<UIDirectoryManaged>();
     }
 
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         var directory = SystemAPI.ManagedAPI.GetSingleton<UIDirectoryManaged>();
