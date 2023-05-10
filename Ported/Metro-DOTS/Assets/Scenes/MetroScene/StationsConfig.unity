@@ -67,9 +67,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -159,13 +156,18 @@ MonoBehaviour:
   NumStations: 10
   Spacing: 50
   TrackACenter:
-    x: 0
-    y: 0
-    z: 0
+    x: 10
+    y: -2
+    z: -1
   TrackBCenter:
+    x: 10
+    y: -2
+    z: -8
+  NumCarriadges: 4
+  SpawnPointOffsetFromCenterPoint:
     x: 0
-    y: 0
-    z: 0
+    y: 1.5
+    z: 3
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0

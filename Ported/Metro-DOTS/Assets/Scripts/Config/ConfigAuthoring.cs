@@ -1,12 +1,14 @@
 ﻿using System;
 using UnityEngine;
 using Unity.Entities;
+using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace Metro
 {
     public class ConfigAuthoring : MonoBehaviour
     {
-        public int NumPassengers = 1000;
+        public int NumPassengersPerStation = 100;
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
@@ -21,7 +23,7 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.None);
                 AddComponent(entity, new Config
                 {
-                    NumPassengers = authoring.NumPassengers,
+                    NumPassengersPerStation = authoring.NumPassengersPerStation,
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed,
@@ -36,8 +38,8 @@ namespace Metro
     public struct Config : IComponentData
     {
         public Entity PassengerEntity;
+        public int NumPassengersPerStation;
         public Entity TrainEntity;
-        public int NumPassengers;
         public float MaxTrainSpeed;
         public float TrainAcceleration;
         public float UnloadingTime;

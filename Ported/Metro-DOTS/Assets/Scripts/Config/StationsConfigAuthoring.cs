@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
-
 public class StationsConfigAuthoring : MonoBehaviour
 {
     public GameObject StationPrefab;
@@ -11,6 +10,9 @@ public class StationsConfigAuthoring : MonoBehaviour
     public float Spacing;
     public float3 TrackACenter;
     public float3 TrackBCenter;
+
+    public int NumCarriadges = 4;
+    public float3 SpawnPointOffsetFromCenterPoint;
 
     class Baker : Baker<StationsConfigAuthoring>
     {
@@ -24,7 +26,9 @@ public class StationsConfigAuthoring : MonoBehaviour
                 Spacing = authoring.Spacing,
                 NumStations = authoring.NumStations,
                 TrackACenter = authoring.TrackACenter,
-                TrackBCenter = authoring.TrackBCenter
+                TrackBCenter = authoring.TrackBCenter,
+                SpawnPointOffsetFromCenterPoint = authoring.SpawnPointOffsetFromCenterPoint,
+                NumQueingPoints = authoring.NumCarriadges
             });
         }
     }
@@ -38,4 +42,6 @@ public struct StationConfig : IComponentData
     public int NumStations;
     public float3 TrackACenter;
     public float3 TrackBCenter;
+    public float3 SpawnPointOffsetFromCenterPoint;
+    public int NumQueingPoints;
 }
