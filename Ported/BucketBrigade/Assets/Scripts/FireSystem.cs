@@ -66,6 +66,7 @@ public partial struct FireJob : IJobEntity {
             
             if (flashpoint) {
                 fire.t = Random.CreateFromIndex((uint)index).NextFloat(math.EPSILON, 0.15f);
+                fire.random = Random.CreateFromIndex((uint)index).NextFloat(0.0f, 180.0f);
             }
         }
 
