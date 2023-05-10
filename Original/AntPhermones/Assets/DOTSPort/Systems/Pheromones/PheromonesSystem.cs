@@ -1,8 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct PheromonesSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -11,10 +13,82 @@ public partial struct PheromonesSystem : ISystem
         state.RequireForUpdate<PheromoneBufferElement>();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        state.Enabled = false; // temporary, until implementation
+        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
+        var pheromoneBufferElement = SystemAPI.GetSingletonBuffer<PheromoneBufferElement>();
+        
+        var pheromoneDropJob = new PheromoneDropJob
+        {
+            GlobalSettings = globalSettings,
+            Pheromones = pheromoneBufferElement,
+            DeltaTime = SystemAPI.Time.DeltaTime,
+        };
+        
+        var handle = pheromoneDropJob.Schedule(state.Dependency);
+        handle.Complete();
+        
+        var pheromoneDecreaseJob = new PheromoneDecreaseJob
+        {
+            Pheromones = pheromoneBufferElement,
+            TrailDecay = 1 - (globalSettings.TrailDecay * SystemAPI.Time.DeltaTime)
+        };
+        
+        pheromoneDecreaseJob.Schedule(handle).Complete();
     }
+    
+    [BurstCompile]
+    public partial struct PheromoneDecreaseJob : IJobEntity
+    {
+        public float TrailDecay;
+        public DynamicBuffer<PheromoneBufferElement> Pheromones;
+        
+        [BurstCompile]
+        void Execute()
+        {
+            for (int i = 0; i < Pheromones.Length; i++)
+            {
+                Pheromones[i] *= TrailDecay;
+            }
+        }
+    }
+    
+    [BurstCompile]
+    public partial struct PheromoneDropJob : IJobEntity
+    {
+        public GlobalSettings GlobalSettings;
+        public float DeltaTime;
+
+        // [NativeDisableParallelForRestriction]
+        public DynamicBuffer<PheromoneBufferElement> Pheromones;
+
+        [BurstCompile]
+        void Execute(ref AntData ant, ref LocalTransform localTransform)
+        {
+            float excitement = .3f;
+            if (ant.HoldingResource) 
+            {
+                excitement = 1f;
+            }
+            excitement *= ant.Speed / GlobalSettings.AntSpeed;
+            int x = (int)math.floor(localTransform.Position.x);
+            int y = (int)math.floor(localTransform.Position.y);
+            
+            if (x < 0 || y < 0 || x >= GlobalSettings.MapSizeX || y >= GlobalSettings.MapSizeY)
+                return;
+            
+            int index = PheromoneIndex(x , y, GlobalSettings.MapSizeX);
+
+            Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
+            if (Pheromones[index] > 1f)
+            {
+                Pheromones[index] = 1;
+            }
+        }
+    }
+    
+    public static int PheromoneIndex(int x, int y, int mapSizeX) => x + y * mapSizeX;
 }
 
 

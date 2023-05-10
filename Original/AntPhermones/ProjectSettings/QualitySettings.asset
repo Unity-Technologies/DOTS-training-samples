@@ -28,7 +28,7 @@ QualitySettings:
     realtimeReflectionProbes: 0
     billboardsFaceCameraPosition: 0
     useLegacyDetailDistribution: 1
-    vSyncCount: 1
+    vSyncCount: 0
     lodBias: 0.3
     maximumLODLevel: 0
     enableLODCrossFade: 1
