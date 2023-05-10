@@ -19,6 +19,7 @@ public partial struct TrainSpawnerSystem : ISystem
         entityHandle = state.GetEntityTypeHandle();
         
         state.RequireForUpdate<Config>();
+        state.RequireForUpdate<Track>();
         state.RequireForUpdate<StationIDComponent>();
     }
     
@@ -29,43 +30,42 @@ public partial struct TrainSpawnerSystem : ISystem
         entityHandle.Update(ref state);
         
         var trackEntities = m_trackQuery.ToEntityArray(Allocator.Temp);
-        if (trackEntities.Length != 0)
+
+        var config = SystemAPI.GetSingleton<Config>();
+        var trains = CollectionHelper.CreateNativeArray<Entity>(trackEntities.Length, Allocator.Temp);
+        em.Instantiate(config.TrainEntity, trains);
+
+        int trackIndex = 0;
+        foreach (var (transform, train, entity) in
+                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
+                     .WithEntityAccess())
         {
-            var config = SystemAPI.GetSingleton<Config>();
-            var trains = CollectionHelper.CreateNativeArray<Entity>(trackEntities.Length, Allocator.Temp);
-            em.Instantiate(config.TrainEntity, trains);
+            var trackEntity = trackEntities[trackIndex++];
+            var track = em.GetBuffer<TrackPoint>(trackEntity);
+            train.ValueRW.TrackEntity = trackEntity;
+            train.ValueRW.Offset = transform.ValueRO.Position;
 
-            int trackIndex = 0;
-            foreach (var (transform, train, entity) in
-                     SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
-                         .WithEntityAccess())
+            for (int i = 0; i < track.Length; i++)
             {
-                var trackEntity = trackEntities[trackIndex++];
-                var track = em.GetBuffer<TrackPoint>(trackEntity);
-                train.ValueRW.TrackEntity = trackEntity;
-                train.ValueRW.Offset = transform.ValueRO.Position;
-
-                for (int i = 0; i < track.Length; i++)
+                var trackPoint = track[i];
+                if (trackPoint.IsEnd)
                 {
-                    var trackPoint = track[i];
-                    if (trackPoint.IsEnd)
-                    {
-                        transform.ValueRW.Position = trackPoint.Position;
-                        train.ValueRW.TrackPointIndex = i;
+                    transform.ValueRW.Position = trackPoint.Position;
+                    train.ValueRW.TrackPointIndex = i;
+                    train.ValueRW.StationEntity = trackPoint.Station;
 
-                        bool isStation = trackPoint.IsStation;
-                        em.SetComponentEnabled<EnRouteComponent>(entity, !isStation);
-                        em.SetComponentEnabled<LoadingComponent>(entity, false);
-                        em.SetComponentEnabled<UnloadingComponent>(entity, isStation);
-                        em.SetComponentEnabled<ArrivingComponent>(entity, false);
-                        em.SetComponentEnabled<DepartingComponent>(entity, false);
-                        
-                        break;
-                    }
+                    bool isStation = trackPoint.IsStation;
+                    em.SetComponentEnabled<EnRouteComponent>(entity, !isStation);
+                    em.SetComponentEnabled<LoadingComponent>(entity, false);
+                    em.SetComponentEnabled<UnloadingComponent>(entity, isStation);
+                    em.SetComponentEnabled<ArrivingComponent>(entity, false);
+                    em.SetComponentEnabled<DepartingComponent>(entity, false);
+                    
+                    break;
                 }
             }
-
-            state.Enabled = false;
         }
+
+        state.Enabled = false;
     }
 }

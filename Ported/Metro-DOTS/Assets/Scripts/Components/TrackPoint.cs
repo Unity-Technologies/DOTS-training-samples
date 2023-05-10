@@ -10,4 +10,6 @@ public struct TrackPoint : IBufferElementData
     public bool IsStation;
     public bool IsEnd;
     public float3 Position;
+    public Entity Station;
+    public bool TrackA;
 }

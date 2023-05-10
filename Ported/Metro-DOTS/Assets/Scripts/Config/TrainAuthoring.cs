@@ -14,8 +14,6 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new Train()
                 {
-                    TrainID = 0,
-                    TrackID = 0,
                     TrackPointIndex = 1,
                     Forward = true,
                     Offset = new float3(0, 0, 0),

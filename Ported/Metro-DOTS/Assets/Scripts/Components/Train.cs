@@ -5,8 +5,7 @@ namespace Components
 {
     public struct Train : IComponentData
     {
-        public int TrainID;
-        public int TrackID;
+        public Entity StationEntity;
         public Entity TrackEntity;
         public int TrackPointIndex;
         public bool Forward;
