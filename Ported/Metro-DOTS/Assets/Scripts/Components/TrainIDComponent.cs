@@ -7,6 +7,7 @@ namespace Components
     {
         public int TrainID;
         public int TrackID;
+        public Entity TrackEntity;
         public int TrackPointIndex;
         public bool Forward;
         public float3 Offset;

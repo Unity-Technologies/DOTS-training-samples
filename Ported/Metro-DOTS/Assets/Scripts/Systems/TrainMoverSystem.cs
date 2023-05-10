@@ -30,7 +30,7 @@ public partial struct TrainMoverSystem  : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
-        var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
+        //var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
         var config = SystemAPI.GetSingleton<Config>();
 
         foreach (var (transform, train, entity) in
@@ -39,6 +39,7 @@ public partial struct TrainMoverSystem  : ISystem
         {
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
+                var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
                 float3 position = transform.ValueRO.Position - train.ValueRO.Offset;
                 
                 bool forward = train.ValueRO.Forward;

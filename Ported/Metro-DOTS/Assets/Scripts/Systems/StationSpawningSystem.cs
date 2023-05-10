@@ -43,6 +43,7 @@ public partial struct StationSpawningSystem : ISystem
         }
 
         var trackEntity = em.CreateEntity();
+        em.AddComponent<Track>(trackEntity);
 #if UNITY_EDITOR
         em.SetName(trackEntity, "TrackEntity");
 #endif
@@ -79,6 +80,9 @@ public partial struct StationSpawningSystem : ISystem
                 em.SetComponentData<LocalTransform>(sleepers[k], lc);
             }
         }
+        
+        // Spawn the train for the track
+        
 
         // var tracks = CollectionHelper.CreateNativeArray<Entity>(TrackPointBuffer.Length, Allocator.Temp);
         // em.Instantiate(stationConfig.TrackEntity, tracks);
