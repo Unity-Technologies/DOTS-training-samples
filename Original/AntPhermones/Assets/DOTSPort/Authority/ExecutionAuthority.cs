@@ -4,6 +4,7 @@ using Unity.Entities;
 public class ExecuteAuthoring : MonoBehaviour
 {
     public bool SpawnBase;
+    public bool SpawnFood;
     public bool ShowTimeScaleControls;
     public bool ObstacleSpawnerControls;
 
@@ -13,6 +14,7 @@ public class ExecuteAuthoring : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.None);
             if (authoring.SpawnBase) AddComponent<AntSpawnerExecution>(entity);
+            if (authoring.SpawnFood) AddComponent<FoodSpawnerExecution>(entity);
             if (authoring.ShowTimeScaleControls) AddComponent<TimeScaleControls>(entity);
             if (authoring.ObstacleSpawnerControls) AddComponent<ObstacleSpawnerExecution>(entity);
         }
@@ -20,6 +22,10 @@ public class ExecuteAuthoring : MonoBehaviour
 }
 
 public struct AntSpawnerExecution : IComponentData
+{
+}
+
+public struct FoodSpawnerExecution : IComponentData
 {
 }
 
