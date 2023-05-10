@@ -602,9 +602,9 @@ MonoBehaviour:
   MinGridY: -2
   GridCellSize: 1
   NumOmnibot: 0
-  NumStartingFires: 3
+  NumStartingFires: 5
   FireSpreadValue: 0.8
-  FireGrowthRate: 0.1
+  FireGrowthRate: 0.2
   StartingGridColor: {r: 0.32133323, g: 0.7830189, b: 0.44297495, a: 1}
   FullBurningGridColor: {r: 0.7264151, g: 0, b: 0, a: 1}
   BotPrefab: {fileID: 0}
