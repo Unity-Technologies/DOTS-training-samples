@@ -915,11 +915,17 @@ MonoBehaviour:
   GridSize: 50
   MinGridY: -2
   GridCellSize: 1
+  NumOmnibot: 0
   NumStartingFires: 3
+  FireSpreadValue: 0.8
+  FireGrowthRate: 0.1
+  StartingGridColor: {r: 0.32133323, g: 0.7830189, b: 0.44297495, a: 1}
+  FullBurningGridColor: {r: 0.7264151, g: 0, b: 0, a: 1}
   BotPrefab: {fileID: 0}
   FirePrefab: {fileID: 6831108980965835434, guid: f0fb49b1979a6c94bacfa853a03a2045,
     type: 3}
   WaterPrefab: {fileID: 0}
+  OmnibotPrefab: {fileID: 0}
   originGrid: {fileID: 348539257}
 --- !u!1 &552495477
 GameObject:
@@ -1349,6 +1355,8 @@ MonoBehaviour:
   StateChangeValue: 0
   StateChangeProfiling: 0
   TextureUpdate: 0
+  OmnibotSpawner: 0
+  Omnibotmovement: 0
 --- !u!4 &1154956091
 Transform:
   m_ObjectHideFlags: 0
