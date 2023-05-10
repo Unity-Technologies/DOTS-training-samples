@@ -81,32 +81,31 @@ public partial struct AntMoveSystem : ISystem
             ant.Item2.ValueRW.Position.y = ant.Item1.ValueRO.SpawnerCenter.y + ant.Item1.ValueRW.Position.y;
             ant.Item2.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1f), ant.Item1.ValueRW.FacingAngle);
         }
+    }
+    
+    static float PheromoneSteering(float3 position, float facingAngle, float distance, int mapSizeX, int mapSizeY, DynamicBuffer<PheromoneBufferElement> pheromones)
+    {
+        float output = 0;
 
-
-        static float PheromoneSteering(float3 position, float facingAngle, float distance, int mapSizeX, int mapSizeY, DynamicBuffer<PheromoneBufferElement> pheromones)
+        for (int i = -1; i <= 1; i += 2)
         {
-            float output = 0;
-
-            for (int i = -1; i <= 1; i += 2)
-            {
-                float angle = facingAngle + i * math.PI * .25f;
+            float angle = facingAngle + i * math.PI * .25f;
                 
-                float testX = position.x + math.cos(angle) * distance;
-                float testY = position.y + math.sin(angle) * distance;
+            float testX = position.x + math.cos(angle) * distance;
+            float testY = position.y + math.sin(angle) * distance;
 
-                if (testX < 0 || testY < 0 || testX >= mapSizeX || testY >= mapSizeY)
-                {
-                    // Should be empty
-                }
-                else
-                {
-                    int index = PheromonesSystem.PheromoneIndex((int)testX, (int)testY, mapSizeX);
-                    float value = pheromones[index];
-                    output += value * i;
-                }
+            if (testX < 0 || testY < 0 || testX >= mapSizeX || testY >= mapSizeY)
+            {
+                // Should be empty
             }
-
-            return math.sign(output);
+            else
+            {
+                int index = PheromonesSystem.PheromoneIndex((int)testX, (int)testY, mapSizeX);
+                float value = pheromones[index];
+                output += value * i;
+            }
         }
+
+        return math.sign(output);
     }
 }
