@@ -611,7 +611,8 @@ MonoBehaviour:
   FirePrefab: {fileID: 6831108980965835434, guid: f0fb49b1979a6c94bacfa853a03a2045,
     type: 3}
   WaterPrefab: {fileID: 0}
-  OmnibotPrefab: {fileID: 0}
+  OmnibotPrefab: {fileID: 1821148559735918, guid: 678514d2466455644a64dc4be1795968,
+    type: 3}
   originGrid: {fileID: 348539257}
 --- !u!1 &639796932
 GameObject:
