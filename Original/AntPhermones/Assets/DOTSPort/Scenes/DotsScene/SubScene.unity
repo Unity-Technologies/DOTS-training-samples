@@ -291,8 +291,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapSizeX: 128
   MapSizeY: 128
-  FoodBufferSize: 10
-  FoodRadius: 1
+  FoodBufferSize: 20
+  FoodRadius: 5
   AntRandomSteering: 0.7853982
   AntSpeed: 0.2
   AntAccel: 0.07
@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnBase: 1
-  SpawnFood: 0
+  SpawnFood: 1
   ShowTimeScaleControls: 1
   ObstacleSpawnerControls: 1
 --- !u!4 &1820085672
