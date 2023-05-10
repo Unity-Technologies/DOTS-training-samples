@@ -32,7 +32,9 @@ public partial struct TrainSpawnerSystem : ISystem
 
             em.SetComponentEnabled<EnRouteComponent>(entity, true);
             em.SetComponentEnabled<LoadingComponent>(entity, false);
+            em.SetComponentEnabled<UnloadingComponent>(entity, false);
             em.SetComponentEnabled<DepartingComponent>(entity, false);
+            em.SetComponentEnabled<ArrivingComponent>(entity, false);
         }
         state.Enabled = false;
     }
