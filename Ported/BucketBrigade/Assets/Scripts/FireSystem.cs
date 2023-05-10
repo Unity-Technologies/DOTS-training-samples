@@ -25,6 +25,7 @@ public partial struct FireSystem : ISystem {
             spreadVal = config.FireSpreadValue,
             startingColor = config.StartingGridColor,
             fullBurnColor = config.FullBurningGridColor,
+            elapsedTime = (float)SystemAPI.Time.ElapsedTime,
             gridSize =  config.GridSize
         };
         state.Dependency = job.ScheduleParallel(state.Dependency);
@@ -39,6 +40,7 @@ public partial struct FireJob : IJobEntity {
     public float4 fullBurnColor;
     public float rate;
     public float spreadVal;
+    public float elapsedTime;
     public int gridSize;
 
     void Execute([EntityIndexInQuery] int index, ref Fire fire, ref URPMaterialPropertyBaseColor color, ref LocalTransform transform) {
@@ -67,9 +69,7 @@ public partial struct FireJob : IJobEntity {
             }
         }
 
-        transform.Position.y = math.lerp(-2.0f, 2.0f, fire.t);
+        transform.Position.y = math.lerp(-2.0f, 2.0f - math.abs(math.sin(elapsedTime - fire.random) * 0.2f), fire.t);
         color.Value = math.lerp(startingColor, fullBurnColor, fire.t);
-
-        // Over the flashpoint and we add a sine anim
     }
 }
