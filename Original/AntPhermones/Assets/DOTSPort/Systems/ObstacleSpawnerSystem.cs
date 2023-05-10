@@ -8,6 +8,8 @@ using Unity.Transforms;
 
 public partial struct ObstacleSpawnerSystem : ISystem
 {
+    public DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<ObstacleSpawnerExecution>();
@@ -29,7 +31,7 @@ public partial struct ObstacleSpawnerSystem : ISystem
         var ecb = ecbSystemSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var ObstacleEntity = ecb.CreateEntity();
-        var buffer = ecb.AddBuffer<ObstacleArcPrimitive>(ObstacleEntity);
+        ObstaclePrimtitveBuffer = ecb.AddBuffer<ObstacleArcPrimitive>(ObstacleEntity);
 
         Vector2 MapCenter = new Vector2(0.5f, 0.5f);
 
@@ -63,12 +65,98 @@ public partial struct ObstacleSpawnerSystem : ISystem
                     PrototypeObstaclePrim.AngleRange = ((PrototypeObstaclePrim.AngleStart < PrototypeObstaclePrim.AngleEnd) ? (PrototypeObstaclePrim.AngleEnd - PrototypeObstaclePrim.AngleStart) : (PrototypeObstaclePrim.AngleEnd + 2.0f * Mathf.PI - PrototypeObstaclePrim.AngleStart));
 
                     // Actually spawn the collision objects
-                    buffer.Add(PrototypeObstaclePrim);                    
+                    ObstaclePrimtitveBuffer.Add(PrototypeObstaclePrim);                    
 
                     ringAngleStart += ringAngleEndOffset;
                 }
             }
         }
+    }
+
+    public bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in Vector2 direction, out Vector2 CollisionPoint, out float Param)
+    {
+        Param = 1000000000.0f;
+    
+        int PrimIndex = -1;
+        for( int i = 0; i < ObstaclePrimtitveBuffer.Length; i++ )
+        {
+            ObstacleArcPrimitive prim = ObstaclePrimtitveBuffer[i];
+    
+            Vector2 VectorFromCenterToPoint = point - prim.Position;
+            float a = Vector2.Dot(direction, direction);
+            float b = 2.0f * Vector2.Dot(direction, VectorFromCenterToPoint);
+            float c = Vector2.Dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
+    
+            // Solve the quadratic equation
+            float discriminant = b * b - 4.0f * a * c;
+            if (0 > discriminant)
+            {
+                CollisionPoint = point;
+                continue;
+            }
+    
+            discriminant = Mathf.Sqrt(discriminant);
+    
+            float t1 = (-b - discriminant) / (2.0f * a);
+            float t2 = (-b + discriminant) / (2.0f * a);
+    
+            // Calculate the smallest positive T value
+            float t = 0.0f;
+            if ((0.0f > t1) && (0.0f > t2)) continue;
+    
+            if ((0.0f <= t1) && (0.0f <= t2))
+            {
+                t = Mathf.Min(t1, t2);
+            }
+            else if (0.0f <= t1)
+            {
+                t = t1;
+            }
+            else if (0.0f <= t2)
+            {
+                t = t2;
+            }
+    
+            // See if this collision is the closest
+            if (t < Param)
+            {
+                if ((0.0f <= t) && (1.0f >= t))
+                {
+                    Vector2 TestCollPoint = point + t * direction;
+                    Vector2 CollisionDirection = TestCollPoint - prim.Position;
+    
+                    float Angle = Mathf.Atan2(CollisionDirection.y, CollisionDirection.x);
+                    
+    
+                    float AngleStart = prim.AngleStart;
+                    float AngleEnd = prim.AngleEnd;
+    
+                    if (prim.AngleEnd < prim.AngleStart)
+                    {
+                        AngleEnd += Mathf.PI * 2.0f;
+                    }
+                    if (prim.AngleStart > Angle)
+                    {
+                        Angle += Mathf.PI * 2.0f;
+                    }
+    
+                    if ((Angle >= AngleStart) && (Angle <= AngleEnd))
+                    {
+                        Param = t;
+                        PrimIndex = i;
+                    }
+                }
+            }
+        }
+    
+        if (-1 == PrimIndex)
+        {
+            CollisionPoint = point;
+            return false;
+        }
+    
+        CollisionPoint = point + Param * direction;        
+        return true;
     }
 }
 
