@@ -42,47 +42,48 @@ public partial struct StationSpawningSystem : ISystem
             transform.ValueRW.Position = offset;
         }
 
-        var trackEntity = em.CreateEntity();
-        em.AddComponent<Track>(trackEntity);
+        for (int trackCount = 0; trackCount < 2; trackCount++)
+        {
+            var trackEntity = em.CreateEntity();
+            em.AddComponent<Track>(trackEntity);
 #if UNITY_EDITOR
-        em.SetName(trackEntity, "TrackEntity");
+            em.SetName(trackEntity, "TrackEntity");
 #endif
-        var TrackPointBuffer = em.AddBuffer<TrackPoint>(trackEntity);
+            var TrackPointBuffer = em.AddBuffer<TrackPoint>(trackEntity);
 
-        int i = 0;
-        foreach (var transform in
-            SystemAPI.Query<RefRO<LocalTransform>>()
-            .WithAll<StationIDComponent>())
-        {
-            bool isEnd = i == 0 || i == stationConfig.NumStations - 1;
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + new float3(-20, 0, 0) });
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
-            TrackPointBuffer.Add(new TrackPoint { Position = stationConfig.TrackACenter + transform.ValueRO.Position + new float3(+20, 0, 0) });
-            i++;
-        }
-
-        float sleeperSpacing = 1;
-        for (int j = 0; j < TrackPointBuffer.Length - 1; j++)
-        {
-            float distance = math.distance(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position);
-            var numberOfSleepers = (int)(distance / sleeperSpacing);
-
-            var sleepers = CollectionHelper.CreateNativeArray<Entity>(numberOfSleepers, Allocator.Temp);
-            em.Instantiate(stationConfig.TrackEntity, sleepers);
-
-            for (int k = 0; k < sleepers.Length; k++)
+            float3 trackCenter = trackCount % 2 == 0 ? stationConfig.TrackACenter : stationConfig.TrackBCenter;
+            int i = 0;
+            foreach (var transform in
+                     SystemAPI.Query<RefRO<LocalTransform>>()
+                         .WithAll<StationIDComponent>())
             {
-                float3 pos = math.lerp(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position, (float)k / sleepers.Length);
-                LocalTransform lc = new LocalTransform();
-                lc.Position = pos;
-                lc.Scale = 1;
-                lc.Rotation = quaternion.RotateY(math.PI / 2);
-                em.SetComponentData<LocalTransform>(sleepers[k], lc);
+                bool isEnd = i == 0 || i == stationConfig.NumStations - 1;
+                TrackPointBuffer.Add(new TrackPoint { Position = trackCenter + transform.ValueRO.Position + new float3(-20, 0, 0) });
+                TrackPointBuffer.Add(new TrackPoint { Position = trackCenter + transform.ValueRO.Position, IsEnd = isEnd, IsStation = true });
+                TrackPointBuffer.Add(new TrackPoint { Position = trackCenter + transform.ValueRO.Position + new float3(+20, 0, 0) });
+                i++;
+            }
+
+            float sleeperSpacing = 1;
+            for (int j = 0; j < TrackPointBuffer.Length - 1; j++)
+            {
+                float distance = math.distance(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position);
+                var numberOfSleepers = (int)(distance / sleeperSpacing);
+
+                var sleepers = CollectionHelper.CreateNativeArray<Entity>(numberOfSleepers, Allocator.Temp);
+                em.Instantiate(stationConfig.TrackEntity, sleepers);
+
+                for (int k = 0; k < sleepers.Length; k++)
+                {
+                    float3 pos = math.lerp(TrackPointBuffer[j].Position, TrackPointBuffer[j + 1].Position, (float)k / sleepers.Length);
+                    LocalTransform lc = new LocalTransform();
+                    lc.Position = pos;
+                    lc.Scale = 1;
+                    lc.Rotation = quaternion.RotateY(math.PI / 2);
+                    em.SetComponentData<LocalTransform>(sleepers[k], lc);
+                }
             }
         }
-        
-        // Spawn the train for the track
-        
 
         // var tracks = CollectionHelper.CreateNativeArray<Entity>(TrackPointBuffer.Length, Allocator.Temp);
         // em.Instantiate(stationConfig.TrackEntity, tracks);
