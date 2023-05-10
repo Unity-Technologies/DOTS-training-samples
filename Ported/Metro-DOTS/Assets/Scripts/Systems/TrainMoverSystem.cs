@@ -103,6 +103,16 @@ public partial struct TrainMoverSystem  : ISystem
                         
                         if (nextPoint.IsStation)
                         {
+                            var children = em.GetBuffer<LinkedEntityGroup>(entity);
+
+                            foreach (var child in children)
+                            {
+                                if (em.HasComponent<UnloadingComponent>(child.Value))
+                                {
+                                    em.SetComponentEnabled<UnloadingComponent>(child.Value, true);
+                                }
+                            }
+
                             em.SetComponentEnabled<UnloadingComponent>(entity, true);
                             em.SetComponentEnabled<EnRouteComponent>(entity, false);
                             train.ValueRW.Duration = 0;
@@ -145,6 +155,15 @@ public partial struct TrainMoverSystem  : ISystem
                 train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
                 if (train.ValueRW.Duration >= config.UnloadingTime)
                 {
+                    var children = em.GetBuffer<LinkedEntityGroup>(entity);
+                    foreach (var child in children)
+                    {
+                        if (em.HasComponent<DepartingComponent>(child.Value))
+                        {
+                            em.SetComponentEnabled<DepartingComponent>(child.Value, true);
+                        }
+                    }
+
                     train.ValueRW.Duration = 0;
                     em.SetComponentEnabled<LoadingComponent>(entity, false);
                     em.SetComponentEnabled<EnRouteComponent>(entity, true);

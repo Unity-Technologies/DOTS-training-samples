@@ -1,12 +1,14 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
+using Unity.VisualScripting;
 
 namespace Metro
 {
     public class DoorAuthoring : MonoBehaviour
     {
-        public GameObject LeftDoor;
-        public GameObject RightDoor;
+        public float3 OpenPosition;
+        public float3 ClosedPosition;
 
         private class Baker : Baker<DoorAuthoring>
         {
@@ -15,19 +17,24 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new Door
                 {
-                    LeftDoor = GetEntity(authoring.LeftDoor, TransformUsageFlags.Dynamic),
-                    RightDoor = GetEntity(authoring.RightDoor, TransformUsageFlags.Dynamic)
+                    ClosedPosition = authoring.ClosedPosition,
+                    OpenPosition =  authoring.OpenPosition
                 });
+
+                AddComponent<UnloadingComponent>(entity);
+                AddComponent<DepartingComponent>(entity);
             }
         }
     }
 
     public struct Door : IComponentData
     {
-        public Entity LeftDoor;
-        public Entity RightDoor;
-
         public const float DoorWidth = 0.3f;
         public const float OpeningTime = 2.0f;
+
+        public float3 ClosedPosition;
+        public float3 OpenPosition;
+
+        public float Timer;
     }
 }
