@@ -29,14 +29,19 @@ public partial struct AntsSpawnerSystem : ISystem
                 var entity = ecb.Instantiate(spawner.Item1.ValueRO.Prefab);
                 ecb.SetComponent(entity, new LocalTransform() { Position = new float3(0,0,0), Scale = 1});
                 ecb.AddComponent(entity, new AntData() {
+                    SpawnerCenter = { 
+                        x = spawner.Item2.ValueRO.Position.x, 
+                        y = spawner.Item2.ValueRO.Position.y 
+                    },
                     Position = { 
-                        x = spawner.Item2.ValueRO.Position.x + rand.NextFloat(-antSpawnRange,antSpawnRange), 
-                        y = spawner.Item2.ValueRO.Position.y + rand.NextFloat(-antSpawnRange,antSpawnRange) 
+                        x = rand.NextFloat(-antSpawnRange,antSpawnRange), 
+                        y = rand.NextFloat(-antSpawnRange,antSpawnRange) 
                     },
                     FacingAngle = rand.NextFloat() * Mathf.PI * 2f,
                     Speed = 0,
                     HoldingResource = false,
-                    Brightness = rand.NextFloat(.75f, 1.25f)
+                    Brightness = rand.NextFloat(.75f, 1.25f),
+                    Rand = rand
                 });
             }
         }
@@ -51,9 +56,11 @@ public struct AntSpawner : IComponentData
 
 public struct AntData : IComponentData
 {
+    public Vector2 SpawnerCenter;
     public Vector2 Position;
     public float FacingAngle;
     public float Speed;
     public bool HoldingResource;
     public float Brightness;
+    public Unity.Mathematics.Random Rand;
 }
