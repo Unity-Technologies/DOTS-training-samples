@@ -8,6 +8,7 @@ using Unity.Mathematics;
 [WithAll(typeof(Ant))]
 public partial struct SteeringRandomizerJob : IJobEntity
 {
+    [NativeDisableContainerSafetyRestriction]
     public NativeArray<Random> rngs;
     public float randomSteering;
 

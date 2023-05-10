@@ -155,7 +155,7 @@ MonoBehaviour:
   colony:
     antTargetSpeed: 0.1
     antAccel: 0
-    antCount: 100
+    antCount: 50000
     antScale: 2
     pheromoneGrowthRate: 0.3
     pheromoneDecayRate: 0.9985
@@ -164,7 +164,7 @@ MonoBehaviour:
     bucketResolution: 16
     randomSteering: 8
     pheromoneSteerStrength: 0
-    wallSteerStrength: 0.15
+    wallSteerStrength: 8
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}

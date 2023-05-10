@@ -4,18 +4,16 @@ using Unity.Entities;
 using Unity.Jobs;
 
 [BurstCompile]
-public struct PheromoneDecayJob : IJob
+public struct PheromoneDecayJob : IJobParallelFor
 {
     public float pheromoneDecayRate;
+    [NativeDisableParallelForRestriction]
     public DynamicBuffer<Pheromone> pheromones;
 
-    public void Execute()
+    public void Execute(int index)
     {
-        for (var i = 0; i < pheromones.Length; i++)
-        {
-            var pheromone = pheromones[i];
-            pheromone.strength *= pheromoneDecayRate;
-            pheromones[i] = pheromone;
-        }
+        var pheromone = pheromones[index];
+        pheromone.strength *= pheromoneDecayRate;
+        pheromones[index] = pheromone;
     }
 }

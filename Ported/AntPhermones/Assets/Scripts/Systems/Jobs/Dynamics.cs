@@ -1,4 +1,3 @@
-using System;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -21,12 +20,12 @@ public partial struct DynamicsJob : IJobEntity
     {
         // Factor in the steering values
         direction.direction += ant.wallSteering + ant.pheroSteering;
-        localTransform.Rotation = Quaternion.Euler(0, 0, direction.direction);
+        localTransform.Rotation = quaternion.Euler(0, 0, direction.direction);
 
         // Move the ant
         var oldPosition = position.position;
         var speedValue = speed.speed;
-        var directionRad = (direction.direction+180f) / 180f * Math.PI;
+        var directionRad = (direction.direction+180f) / 180f * math.PI;
         var deltaPos = new float2(
             (float)(speedValue * math.sin(-directionRad)),
             (float) (speedValue * math.cos(-directionRad)));  

@@ -15,22 +15,22 @@ public partial struct Spawner: ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Colony>();
+        //Random.InitState(System.DateTime.UtcNow.Millisecond);
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
-        Random.InitState(System.DateTime.UtcNow.Millisecond);
-        SpawnHome(state, colony);
-        SpawnResource(state, colony);
-        SpawnObstacles(state, colony);
-        SpawnAnts(state, colony);
-        SpawnPheromones(state, colony);
+        SpawnHome(ref state, colony);
+        SpawnResource(ref state, colony);
+        SpawnObstacles(ref state, colony);
+        SpawnAnts(ref state, colony);
+        SpawnPheromones(ref state, colony);
         state.Enabled = false;
     }
 
-    void SpawnHome(SystemState state, Colony colony)
+    void SpawnHome(ref SystemState state, Colony colony)
     {
         var home = state.EntityManager.Instantiate(colony.homePrefab);
         var localTransform = SystemAPI.GetComponentRW<LocalTransform>(home, false);
@@ -38,7 +38,7 @@ public partial struct Spawner: ISystem
         localTransform.ValueRW.Rotation = quaternion.Euler(90f, 0f, 0f);
     }
 
-    void SpawnResource(SystemState state, Colony colony)
+    void SpawnResource(ref SystemState state, Colony colony)
     {
         var resource = state.EntityManager.Instantiate(colony.resourcePrefab);
         float mapSize = colony.mapSize;
@@ -48,14 +48,14 @@ public partial struct Spawner: ISystem
         localTransform.ValueRW.Position = new float3(mapSize * 0.5f + Mathf.Cos(resourceAngle) * mapSize * 0.475f, mapSize * 0.5f + Mathf.Sin(resourceAngle) * mapSize * 0.475f, 0);
     }
 
-    void SpawnObstacles(SystemState state, Colony colony)
+    void SpawnObstacles(ref SystemState state, Colony colony)
     {
         float mapSize = colony.mapSize;
         int ringCount = colony.ringCount;
         float obstacleRadius = colony.obstacleSize;
         float maxFillRatio = 0.8f;
 
-        List<float2> obstaclePositions = new List<float2>();
+        NativeList<float2> obstaclePositions = new NativeList<float2>(Allocator.Temp);
 
         for (int i = 1; i <= ringCount; ++i)
         {
@@ -106,7 +106,10 @@ public partial struct Spawner: ISystem
                     {
                         continue;
                     }
-                    buckets[x + y * bucketResolution].Add(position);
+                    int index = x + y * bucketResolution;
+                    var list = buckets[index];
+                    list.Add(position);
+                    buckets[index] = list;
                 }
             }
         }
@@ -114,7 +117,7 @@ public partial struct Spawner: ISystem
         SystemAPI.GetSingletonRW<Colony>().ValueRW.buckets = buckets;
     }
 
-    void SpawnAnts(SystemState state, Colony colony)
+    void SpawnAnts(ref SystemState state, Colony colony)
     {
         var ants = state.EntityManager.Instantiate(colony.antPrefab, colony.antCount, Allocator.Temp);
         var mapSize = colony.mapSize;
@@ -127,7 +130,7 @@ public partial struct Spawner: ISystem
         }
     }
 
-    void SpawnPheromones(SystemState state, Colony colony)
+    void SpawnPheromones(ref SystemState state, Colony colony)
     {
         var pheromones = state.EntityManager.CreateEntity();
         var pheromonesBuffer = state.EntityManager.AddBuffer<Pheromone>(pheromones);
