@@ -132,28 +132,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 124791480}
-  - component: {fileID: 124791479}
+  - component: {fileID: 124791481}
   m_Layer: 0
-  m_Name: AntSpawner
+  m_Name: FoodSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &124791479
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 124791478}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bf6602f380a38db46b87b8d5c396fffe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SpawnCount: 10
-  Prefab: {fileID: 878424242580656261, guid: 3994a36587f4a2e4fb65ffcc6541e816, type: 3}
 --- !u!4 &124791480
 Transform:
   m_ObjectHideFlags: 0
@@ -169,6 +155,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &124791481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124791478}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 695e51be544a273428b66a5ad173f187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnCount: 1
+  Prefab: {fileID: 6884729774733274401, guid: 5043497d055a9324699dcd5e33e485f6, type: 3}
 --- !u!1 &201313567
 GameObject:
   m_ObjectHideFlags: 0
@@ -213,6 +213,53 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &383944080
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 383944082}
+  - component: {fileID: 383944081}
+  m_Layer: 0
+  m_Name: AntSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &383944081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383944080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf6602f380a38db46b87b8d5c396fffe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnCount: 10
+  AntSpawnRange: 1
+  Prefab: {fileID: 878424242580656261, guid: 3994a36587f4a2e4fb65ffcc6541e816, type: 3}
+--- !u!4 &383944082
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383944080}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.033293, y: 0.37932572, z: 0.30148828}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1130009603
 GameObject:
   m_ObjectHideFlags: 0
@@ -244,6 +291,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapSizeX: 128
   MapSizeY: 128
+  FoodBufferSize: 10
+  FoodRadius: 1
+  AntRandomSteering: 0.7853982
+  AntSpeed: 0.2
+  AntAccel: 0.07
+  AntGoalSteerStrength: 0.04
+  TrailAddSpeed: 0.5
+  TrailDecay: 0.01
 --- !u!4 &1130009605
 Transform:
   m_ObjectHideFlags: 0
@@ -289,6 +344,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnBase: 1
+  SpawnFood: 0
   ShowTimeScaleControls: 1
   ObstacleSpawnerControls: 1
 --- !u!4 &1820085672
