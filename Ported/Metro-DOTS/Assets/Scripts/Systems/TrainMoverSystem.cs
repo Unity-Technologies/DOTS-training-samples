@@ -71,54 +71,37 @@ public partial struct TrainMoverSystem  : ISystem
                 if (!em.IsComponentEnabled<ArrivingComponent>(entity) && shouldStop)
                     em.SetComponentEnabled<ArrivingComponent>(entity, true);
 
-                //
-                // else
-                // {
-                    float distanceToNextPoint = math.distance(nextPosition, position);
-                    float totalDistanceToTravel = speed * deltaTime;
-                    while (totalDistanceToTravel > 0)
+                float distanceToNextPoint = math.distance(nextPosition, position);
+                float totalDistanceToTravel = speed * deltaTime;
+                while (totalDistanceToTravel > 0)
+                {
+                    if (totalDistanceToTravel >= distanceToNextPoint)
                     {
-                        if (totalDistanceToTravel >= distanceToNextPoint)
+                        totalDistanceToTravel -= distanceToNextPoint;
+                        position = nextPosition;
+
+                        currentIndex = nextIndex;
+
+                        if (nextPoint.IsEnd)
+                            forward = !forward;
+
+                        if (nextPoint.IsStation)
                         {
-                            totalDistanceToTravel -= distanceToNextPoint;
-                            position = nextPosition;
-
-                            currentIndex = nextIndex;
-
-                            if (nextPoint.IsEnd)
-                                forward = !forward;
-
-                            if (nextPoint.IsStation)
-                            {
-                                ArriveAtStation(entity, train, nextPoint, em);
-                                totalDistanceToTravel = 0;
-                            }
-                        }
-                        else
-                        {
-                            // if (shouldStop && distanceToNextStop <= 0.05f)
-                            // {
-                            //     position = nextPosition;
-                            //     currentIndex = nextIndex;
-                            //
-                            //     if (nextPoint.IsEnd)
-                            //         forward = !forward;
-                            //
-                            //     ArriveAtStation(entity, train, nextPoint, em);
-                            // }
-                            // else
-                            {
-                                float3 movement = directionToNextPoint * totalDistanceToTravel;
-                                var newPos = position + movement;
-                                position = newPos;
-                            }
-
+                            ArriveAtStation(entity, train, nextPoint, em);
                             totalDistanceToTravel = 0;
                         }
-
-                        train.ValueRW.Speed = speed;
                     }
-                // }
+                    else
+                    {
+                        float3 movement = directionToNextPoint * totalDistanceToTravel;
+                        var newPos = position + movement;
+                        position = newPos;
+
+                        totalDistanceToTravel = 0;
+                    }
+
+                    train.ValueRW.Speed = speed;
+                }
 
                 train.ValueRW.Forward = forward;
                 train.ValueRW.TrackPointIndex = currentIndex;
@@ -211,6 +194,7 @@ public partial struct TrainMoverSystem  : ISystem
         return distance;
     }
 
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     float DistanceToNextStop(float3 trainPosition, DynamicBuffer<TrackPoint> track, int currentIndex, int indexDirection)
     {
         int nextIndex = currentIndex + indexDirection;
