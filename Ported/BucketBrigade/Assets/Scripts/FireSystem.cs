@@ -3,22 +3,17 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-namespace Miscellaneous.StateChangeEnableable
-{
-    // Original unchanged version
-#if DONTCOMPILE
-    public partial struct BurnSystem : ISystem
+    public partial struct FireSystem : ISystem
     {
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<Execute.StateChangeEnableable>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            new BurnJob {
+            new FireJob {
                 rate = 0.0f
             }.ScheduleParallel();
         }
@@ -26,7 +21,7 @@ namespace Miscellaneous.StateChangeEnableable
 
     [WithAll(typeof(Burner))]
     [BurstCompile]
-    partial struct BurnJob : IJobEntity
+    partial struct FireJob : IJobEntity
     {
         public float rate;
 
@@ -37,5 +32,3 @@ namespace Miscellaneous.StateChangeEnableable
                 rate = 1.0f;
         }
     }
-#endif
-}

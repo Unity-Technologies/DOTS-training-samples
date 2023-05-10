@@ -1,17 +1,15 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class GridAuthoring : MonoBehaviour
 {
-
-    public int NumRows;
-    public int NumColumns;
+    public int GridSize;
     public float GridCellSize;
 
     public GameObject BotPrefab;
     public GameObject FirePrefab;
     public GameObject WaterPrefab;
-
     public Transform originGrid;
 
     class Baker : Baker<GridAuthoring>
@@ -23,11 +21,11 @@ public class GridAuthoring : MonoBehaviour
             // Each authoring field corresponds to a component field of the same name.
             AddComponent(entity, new Grid
             {
-                NumRows = authoring.NumRows,
-                NumColumns = authoring.NumColumns,
+                GridSize = authoring.GridSize,
                 BotPrefab = GetEntity(authoring.BotPrefab, TransformUsageFlags.Dynamic),
                 FirePrefab = GetEntity(authoring.FirePrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
                 WaterPrefab = GetEntity(authoring.WaterPrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
+                GridOrigin = new float3(authoring.originGrid.position)
             });
         }
     }
@@ -35,12 +33,12 @@ public class GridAuthoring : MonoBehaviour
 
 public struct Grid : IComponentData
 {
-    public int NumRows; 
-    public int NumColumns;
+    public int GridSize; 
     public float GridCellSize;
     public float PlayerOffset;
     public float PlayerSpeed;
     public Entity BotPrefab;
     public Entity FirePrefab;
     public Entity WaterPrefab;
+    public float3 GridOrigin;
 }

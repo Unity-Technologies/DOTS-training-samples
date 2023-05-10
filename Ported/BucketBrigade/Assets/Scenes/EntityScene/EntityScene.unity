@@ -877,7 +877,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 549064479}
-  - component: {fileID: 549064480}
   - component: {fileID: 549064481}
   m_Layer: 0
   m_Name: Config
@@ -901,22 +900,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &549064480
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 549064477}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d95721dc8632e4e21889d8300bdaf86b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Prefab: {fileID: 6831108980965835434, guid: 9c2e47bf0bab24e7cb19d65cdd222fc6, type: 3}
-  origin: {fileID: 348539257}
-  Size: 50
-  Radius: 10
 --- !u!114 &549064481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -929,9 +912,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27df7532c9d4e748950865c0daedc96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumRows: 50
-  NumColumns: 50
-  GridCellSize: 0
+  GridSize: 50
+  GridCellSize: 1
   BotPrefab: {fileID: 0}
   FirePrefab: {fileID: 6831108980965835434, guid: 9c2e47bf0bab24e7cb19d65cdd222fc6,
     type: 3}

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9136664955639692328}
   - component: {fileID: 4726367040540070146}
   - component: {fileID: 1173533399063125237}
-  - component: {fileID: 563207546968303266}
+  - component: {fileID: -3847765418633749626}
   m_Layer: 0
   m_Name: PrefabFireCube
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &563207546968303266
+--- !u!114 &-3847765418633749626
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -93,6 +93,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6831108980965835434}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a9418ca302c54e859117ac1cbbb75ef, type: 3}
+  m_Script: {fileID: 11500000, guid: 364e6e7f128f4cdba1c6d00fa279042b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StartFireNumber: 0

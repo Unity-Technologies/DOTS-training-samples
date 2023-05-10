@@ -5,6 +5,7 @@ using Unity.Transforms;
 
 namespace Miscellaneous.StateChangeEnableable
 {
+#if COMPILE_THIS
     public partial struct CubeSpawnSystem : ISystem
     {
         [BurstCompile]
@@ -46,4 +47,5 @@ namespace Miscellaneous.StateChangeEnableable
             }
         }
     }
+#endif
 }

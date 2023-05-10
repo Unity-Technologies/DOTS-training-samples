@@ -11,7 +11,8 @@ public class FireAuthoring : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
             AddComponent<Fire>(entity);
-            AddComponent<URPMaterialPropertyBaseColor>(entity);
+            AddComponent<Burner>(entity);
+            AddComponent(entity, new URPMaterialPropertyBaseColor { Value = (Vector4)Color.white });
         }
     }
 }
@@ -19,4 +20,10 @@ public class FireAuthoring : MonoBehaviour
 public struct Fire : IComponentData
 {
 
+}
+
+public struct Burner : IComponentData, IEnableableComponent {
+    // (the component should actually be empty, but this dummy field
+    // was added as workaround for a bug in source generation)
+    public float Value;
 }
