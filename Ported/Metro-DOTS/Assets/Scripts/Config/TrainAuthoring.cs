@@ -22,6 +22,7 @@ namespace Metro
                 });
                 AddComponent(entity, new EnRouteComponent());
                 AddComponent(entity, new LoadingComponent());
+                AddComponent(entity, new DepartingComponent());
             }
         }
     }

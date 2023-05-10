@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using Unity.Entities;
-using System.Collections.Generic;
-using Unity.Mathematics;
 
 namespace Metro
 {
@@ -12,6 +10,7 @@ namespace Metro
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
+        public float TrainAcceleration = 0.2f;
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -23,7 +22,8 @@ namespace Metro
                     NumPassengers = authoring.NumPassengers,
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
-                    MaxTrainSpeed = authoring.MaxTrainSpeed
+                    MaxTrainSpeed = authoring.MaxTrainSpeed,
+                    TrainAcceleration = authoring.TrainAcceleration
                 });
             }
         }
@@ -35,5 +35,6 @@ namespace Metro
         public Entity TrainEntity;
         public int NumPassengers;
         public float MaxTrainSpeed;
+        public float TrainAcceleration;
     }
 }

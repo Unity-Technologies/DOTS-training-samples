@@ -43,6 +43,7 @@ public partial struct TrainSpawnerSystem : ISystem
             
             em.SetComponentEnabled<EnRouteComponent>(entity, true);
             em.SetComponentEnabled<LoadingComponent>(entity, false);
+            em.SetComponentEnabled<DepartingComponent>(entity, false);
         }
 
         // var query = SystemAPI.Query<RefRO<LocalTransform>, RefRW<TrainIDComponent>, RefRW<EnRouteComponent>, RefRW<LoadingComponent>>();
