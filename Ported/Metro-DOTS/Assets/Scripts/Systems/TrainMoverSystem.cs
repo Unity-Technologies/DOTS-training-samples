@@ -137,6 +137,15 @@ public partial struct TrainMoverSystem  : ISystem
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     void ArriveAtStation(Entity trainEntity, RefRW<Train> train, TrackPoint trackPoint, EntityManager em)
     {
+		var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
+	    foreach (var child in children)
+	    {
+	        if (em.HasComponent<UnloadingComponent>(child.Value))
+	        {
+	            em.SetComponentEnabled<UnloadingComponent>(child.Value, true);
+	        }
+	    }
+	
         train.ValueRW.Duration = 0;
         train.ValueRW.Speed = 0;
         train.ValueRW.StationEntity = trackPoint.Station;
@@ -164,6 +173,15 @@ public partial struct TrainMoverSystem  : ISystem
             em.SetComponentEnabled<LoadingComponent>(trainEntity, false);
             em.SetComponentEnabled<EnRouteComponent>(trainEntity, true);
             em.SetComponentEnabled<DepartingComponent>(trainEntity, true);
+			
+			var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
+            foreach (var child in children)
+            {
+                if (em.HasComponent<DepartingComponent>(child.Value))
+                {
+                    em.SetComponentEnabled<DepartingComponent>(child.Value, true);
+                }
+            }
         }
     }
 
