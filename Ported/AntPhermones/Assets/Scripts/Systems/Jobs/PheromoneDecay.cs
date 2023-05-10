@@ -1,12 +1,21 @@
-﻿using Unity.Jobs;
+﻿using Unity.Burst;
+using Unity.Collections;
+using Unity.Entities;
+using Unity.Jobs;
 
-namespace Systems.Jobs
+[BurstCompile]
+public struct PheromoneDecayJob : IJob
 {
-    public struct PheromoneDecayJob : IJob
+    public float pheromoneDecayRate;
+    public DynamicBuffer<Pheromone> pheromones;
+
+    public void Execute()
     {
-        public void Execute()
+        for (var i = 0; i < pheromones.Length; i++)
         {
-            throw new System.NotImplementedException();
+            var pheromone = pheromones[i];
+            pheromone.strength *= pheromoneDecayRate;
+            pheromones[i] = pheromone;
         }
     }
 }

@@ -2,6 +2,7 @@ using NUnit.Framework.Internal;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -30,6 +31,7 @@ public partial struct AntAI: ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
 
         // SteeringRandomizer
         var steeringJob = new SteeringRandomizerJob
@@ -37,7 +39,7 @@ public partial struct AntAI: ISystem
             rngs = rngs,
             randomSteering = colony.randomSteering
         };
-        state.Dependency = steeringJob.Schedule(state.Dependency);
+        var steeringJobHandle = steeringJob.Schedule(state.Dependency);
         
         
 
@@ -55,7 +57,7 @@ public partial struct AntAI: ISystem
             steeringStrength = colony.wallSteerStrength,
             obstacles = obstaclesQuery.Build(ref state).ToComponentDataArray<LocalTransform>(Allocator.TempJob)
         };
-        state.Dependency = obstacleJob.Schedule(state.Dependency);
+        var obstacleJobHandle = obstacleJob.Schedule(steeringJobHandle);
         
         
         
@@ -69,25 +71,29 @@ public partial struct AntAI: ISystem
         
         // Dynamics
         var dynamicsJob = new DynamicsJob{ mapSize = colony.mapSize };
-        state.Dependency = dynamicsJob.Schedule(state.Dependency);
+        var dynamicsJobHandle = dynamicsJob.Schedule(obstacleJobHandle); // TODO: combine this handle with pheromone and resource detection handles
+
+
 
         // Drop Pheromones
-        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
         var pheromoneDropJob = new PheromoneDropJob
         {
-            deltaTime = Time.deltaTime,
+            deltaTime = SystemAPI.Time.DeltaTime,
             mapSize = (int)colony.mapSize,
             antTargetSpeed = colony.antTargetSpeed,
             pheromoneGrowthRate = colony.pheromoneGrowthRate,
-            pheromones = pheromones.AsNativeArray()
+            pheromones = pheromones
         };
-        state.Dependency = pheromoneDropJob.Schedule(state.Dependency);
+        var pheromoneDropJobHandle = pheromoneDropJob.Schedule(dynamicsJobHandle);
 
 
 
         // Decay Pheromones
-
-
-
+        var pheromoneDecayJob = new PheromoneDecayJob
+        {
+            pheromoneDecayRate = colony.pheromoneDecayRate,
+            pheromones = pheromones
+        };
+        state.Dependency = pheromoneDecayJob.Schedule(pheromoneDropJobHandle);
     }
 }

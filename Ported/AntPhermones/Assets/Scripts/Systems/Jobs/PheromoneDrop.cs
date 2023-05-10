@@ -11,7 +11,7 @@ public partial struct PheromoneDropJob : IJobEntity
     public int mapSize;
     public float antTargetSpeed;
     public float pheromoneGrowthRate;
-    public NativeArray<Pheromone> pheromones;
+    public DynamicBuffer<Pheromone> pheromones;
 
     public void Execute(in Ant ant, in Position position, in Speed speed)
     {
