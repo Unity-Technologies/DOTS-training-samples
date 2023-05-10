@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -155,16 +155,18 @@ MonoBehaviour:
   colony:
     antTargetSpeed: 0.1
     antAccel: 0
-    antCount: 50000
-    antScale: 2
+    antCount: 10000
+    antScale: 1
     pheromoneGrowthRate: 0.3
     pheromoneDecayRate: 0.9985
     obstacleSize: 0.5
     ringCount: 4
     bucketResolution: 16
     randomSteering: 8
-    pheromoneSteerStrength: 0
-    wallSteerStrength: 8
+    pheromoneSteerStrength: 0.86
+    pheromoneSteerDistance: 1.5
+    wallSteerStrength: 6.87
+    wallSteerDistance: 3
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}

@@ -40,34 +40,42 @@ public partial struct AntAI: ISystem
             randomSteering = colony.randomSteering
         };
         var steeringJobHandle = steeringJob.ScheduleParallel(state.Dependency);
-        
-        
+
+
+
+        // PheromoneDetection
+        var pheromoneDetectionJob = new PheromoneDetectionJob
+        {
+            mapSize = (int)colony.mapSize,
+            steeringStrength = colony.pheromoneSteerStrength,
+            distance = colony.pheromoneSteerDistance,
+            pheromones = pheromones
+        };
+        var pheromoneDetectionJobHandle = pheromoneDetectionJob.ScheduleParallel(steeringJobHandle);
+
+
 
         // ObstacleDetection
         var obstacleJob = new ObstacleDetection
         {
-            distance = 1.25f,
+            distance = colony.wallSteerDistance,
             obstacleSize = colony.obstacleSize,
             mapSize = colony.mapSize,
             steeringStrength = colony.wallSteerStrength,
             bucketResolution = colony.bucketResolution,
             buckets = colony.buckets,
         };
-        var obstacleJobHandle = obstacleJob.ScheduleParallel(steeringJobHandle);
-        
-        
-        
-        // PheromoneDetection
-        
-        
-        
+        var obstacleJobHandle = obstacleJob.ScheduleParallel(pheromoneDetectionJobHandle);
+
+
+
         // ResourceDetection
         
         
         
         // Dynamics
         var dynamicsJob = new DynamicsJob{ mapSize = colony.mapSize };
-        var dynamicsJobHandle = dynamicsJob.ScheduleParallel(obstacleJobHandle); // TODO: combine this handle with pheromone and resource detection handles
+        var dynamicsJobHandle = dynamicsJob.Schedule(obstacleJobHandle);
 
 
         // Drop Pheromones
@@ -91,6 +99,5 @@ public partial struct AntAI: ISystem
             pheromones = pheromones
         };
         state.Dependency = pheromoneDecayJob.Schedule(pheromones.Length, 100, pheromoneDropJobHandle);
-        //state.Dependency = pheromoneDropJobHandle;
     }
 }

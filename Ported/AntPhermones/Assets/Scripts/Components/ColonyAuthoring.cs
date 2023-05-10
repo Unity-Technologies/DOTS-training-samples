@@ -24,7 +24,9 @@ public struct Colony: IComponentData
     public int bucketResolution;
     public float randomSteering;
     public float pheromoneSteerStrength;
+    public float pheromoneSteerDistance;
     public float wallSteerStrength;
+    public float wallSteerDistance;
 
     public float mapSize;
 
