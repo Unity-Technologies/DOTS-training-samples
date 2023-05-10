@@ -83,7 +83,7 @@ public partial struct AntMoveSystem : ISystem
         }
 
 
-        static float PheromoneSteering(float3 position, float facingAngle, float distance, int mapSizeX, DynamicBuffer<PheromoneBufferElement> pheromones)
+        static float PheromoneSteering(float3 position, float facingAngle, float distance, int mapSizeX, int mapSizeY, DynamicBuffer<PheromoneBufferElement> pheromones)
         {
             float output = 0;
 
@@ -94,7 +94,7 @@ public partial struct AntMoveSystem : ISystem
                 float testX = position.x + math.cos(angle) * distance;
                 float testY = position.y + math.sin(angle) * distance;
 
-                if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
+                if (testX < 0 || testY < 0 || testX >= mapSizeX || testY >= mapSizeY)
                 {
                     // Should be empty
                 }
