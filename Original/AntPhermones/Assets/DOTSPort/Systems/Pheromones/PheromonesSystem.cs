@@ -2,8 +2,8 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
-//[UpdateInGroup(typeof(PresentationSystemGroup))]
 [BurstCompile]
 public partial struct PheromonesSystem : ISystem
 {
@@ -21,11 +21,8 @@ public partial struct PheromonesSystem : ISystem
         
         var pheromoneDropJob = new PheromoneDropJob
         {
-            MapSizeX = globalSettings.MapSizeX,
-            MapSizeY = globalSettings.MapSizeY,
-            TotalMapSize = globalSettings.MapSizeX * globalSettings.MapSizeY,
+            GlobalSettings = globalSettings,
             Pheromones = pheromoneBufferElement,
-            TrailAddSpeed = 1f, // TODO: make it in setting
             DeltaTime = SystemAPI.Time.DeltaTime,
         };
         
@@ -35,9 +32,8 @@ public partial struct PheromonesSystem : ISystem
         var pheromoneDecreaseJob = new PheromoneDecreaseJob
         {
             Pheromones = pheromoneBufferElement,
-            TrailDecay = 1 - (0.01f * SystemAPI.Time.DeltaTime) // TODO: make it in setting
+            TrailDecay = 1 - (globalSettings.TrailDecay * SystemAPI.Time.DeltaTime)
         };
-
         
         pheromoneDecreaseJob.Schedule(handle).Complete();
     }
@@ -61,11 +57,8 @@ public partial struct PheromonesSystem : ISystem
     [BurstCompile]
     public partial struct PheromoneDropJob : IJobEntity
     {
-        public int MapSizeX;
-        public int MapSizeY;
-        public int TotalMapSize;
+        public GlobalSettings GlobalSettings;
         public float DeltaTime;
-        public float TrailAddSpeed;
 
         // [NativeDisableParallelForRestriction]
         public DynamicBuffer<PheromoneBufferElement> Pheromones;
@@ -78,17 +71,16 @@ public partial struct PheromonesSystem : ISystem
             {
                 excitement = 1f;
             }
-            excitement *= ant.Speed / 1; // TODO: put `1` into the settings - `antSpeed`
+            excitement *= ant.Speed / GlobalSettings.AntSpeed;
             int x = (int)math.floor(localTransform.Position.x);
             int y = (int)math.floor(localTransform.Position.y);
             
-            if (x < 0 || y < 0 || x >= MapSizeX || y >= MapSizeY)
+            if (x < 0 || y < 0 || x >= GlobalSettings.MapSizeX || y >= GlobalSettings.MapSizeY)
                 return;
             
-            excitement = 1;
-            int index = PheromoneIndex(x , y, TotalMapSize);
+            int index = PheromoneIndex(x , y, GlobalSettings.MapSizeX);
 
-            Pheromones[index] += (TrailAddSpeed * excitement * DeltaTime);//*(1f - Pheromones[index]);
+            Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
             if (Pheromones[index] > 1f)
             {
                 Pheromones[index] = 1;
@@ -96,8 +88,7 @@ public partial struct PheromonesSystem : ISystem
         }
     }
     
-    // TODO: is that correct if we have different size of x and y?
-    static int PheromoneIndex(int x, int y, int totalMapSize) => x + y * totalMapSize;
+    public static int PheromoneIndex(int x, int y, int mapSizeX) => x + y * mapSizeX;
 }
 
 

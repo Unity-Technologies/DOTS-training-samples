@@ -336,16 +336,16 @@ public class ObstacleSpawnerSystem : MonoBehaviour
         // return state;
     }
 
-    public void GenerateObstacles(AntManager manager)
-    {
-        GenerateObstacles();
-
-        manager.obstacleRingCount = ObstacleRingCount;
-        manager.ObstacleMatrices = ObstacleMatrices;
-        manager.ObstacleBuckets = ObstacleBuckets;
-
-        manager.Obstacles = ObstacleList.ToArray();
-    }
+ //   public void GenerateObstacles(AntManager manager)
+ //   {
+ //       GenerateObstacles();
+//
+ //       manager.obstacleRingCount = ObstacleRingCount;
+ //       manager.ObstacleMatrices = ObstacleMatrices;
+ //       manager.ObstacleBuckets = ObstacleBuckets;
+//
+ //       manager.Obstacles = ObstacleList.ToArray();
+ //   }
 }
 
 // public struct ObstacleSpawner : IComponentData

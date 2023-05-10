@@ -38,6 +38,7 @@ public partial struct PheromonesPresentationInitSystem : ISystem
     }
 }
 
+//[UpdateInGroup(typeof(PresentationSystemGroup))]
 public partial struct PheromonesPresentationSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf6602f380a38db46b87b8d5c396fffe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnCount: 1
+  SpawnCount: 10
   Prefab: {fileID: 878424242580656261, guid: 3994a36587f4a2e4fb65ffcc6541e816, type: 3}
 --- !u!4 &124791480
 Transform:
@@ -200,6 +200,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapSizeX: 128
   MapSizeY: 128
+  AntSpeed: 0.2
+  AntAccel: 0.07
+  TrailAddSpeed: 1
+  TrailDecay: 0.01
 --- !u!4 &1130009605
 Transform:
   m_ObjectHideFlags: 0

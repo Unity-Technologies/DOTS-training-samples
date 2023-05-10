@@ -10,19 +10,26 @@ public partial struct AntsSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<AntSpawnerExecution>();
+        state.RequireForUpdate<GlobalSettings>();
     }
 
     public void OnUpdate(ref SystemState state)
     {
-        // TODO : make antSpawnRange configurable
-        const float antSpawnRange = 1f;
         state.Enabled = false;
         
+
         var ecbSystemSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSystemSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
+
         foreach (var spawner in SystemAPI.Query<RefRO<AntSpawner>, RefRW<LocalTransform>>())
         {
+            // Set spawner to the center of the map.
+            // If we have more than one spawner we should find another way to set position
+            spawner.Item2.ValueRW.Position = new float3(globalSettings.MapSizeX / 2f, globalSettings.MapSizeY / 2f, 0); 
+            
+            var antSpawnRange = spawner.Item1.ValueRO.AntSpawnRange;
             for (uint i = 0; i < spawner.Item1.ValueRO.Count; i++)
             {
                 var rand = Unity.Mathematics.Random.CreateFromIndex(i);
@@ -51,6 +58,7 @@ public partial struct AntsSpawnerSystem : ISystem
 public struct AntSpawner : IComponentData
 {
     public int Count;
+    public float AntSpawnRange;
     public Entity Prefab;
 }
 
