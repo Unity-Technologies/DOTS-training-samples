@@ -1,5 +1,4 @@
-﻿using Components;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 
 namespace Metro
@@ -12,6 +11,7 @@ namespace Metro
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent<StationIDComponent>(entity);
+                AddBuffer<StationQueuesElement>(entity);
             }
         }
     }
