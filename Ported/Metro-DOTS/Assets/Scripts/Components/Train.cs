@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Components
 {
-    public struct TrainIDComponent : IComponentData
+    public struct Train : IComponentData
     {
         public int TrainID;
         public int TrackID;

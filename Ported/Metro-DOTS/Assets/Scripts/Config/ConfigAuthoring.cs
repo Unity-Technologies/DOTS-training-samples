@@ -35,5 +35,9 @@ namespace Metro
         public Entity TrainEntity;
         public int NumPassengers;
         public float MaxTrainSpeed;
+
+        public static float TrainWaitingTime; // The total duration that a train waits at a station
+        public static float DoorAnimationTIme; // The duration that it takes for a door to open or close
+
     }
 }

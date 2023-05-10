@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -8,29 +9,29 @@ using UnityEngine;
 
 public partial struct TrainMoverSystem  : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Train>();
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<TrackPoint>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
-        var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
+        var track = SystemAPI.GetSingletonBuffer<TrackPoint>(true);
         var config = SystemAPI.GetSingleton<Config>();
 
-        var q = em.CreateEntityQuery(typeof(TrainIDComponent));
+        var q = em.CreateEntityQuery(typeof(Train), typeof(LocalTransform));
         foreach (var entity in q.ToEntityArray(Allocator.Temp))
         {
             var transform = em.GetComponentData<LocalTransform>(entity);
-            var train = em.GetComponentData<TrainIDComponent>(entity);
-
-        // foreach (var (transform, train) in
-        //          SystemAPI.Query<RefRW<LocalTransform>, RefRW<TrainIDComponent>>())
-        // {
+            var train = em.GetComponentData<Train>(entity);
 
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
@@ -99,7 +100,7 @@ public partial struct TrainMoverSystem  : ISystem
                 var loadingComp = em.GetComponentData<LoadingComponent>(entity);
                 loadingComp.duration += SystemAPI.Time.DeltaTime;
 
-                if (loadingComp.duration >= 2.0f)
+                if (loadingComp.duration >= Config.TrainWaitingTime)
                 {
                     em.SetComponentEnabled<LoadingComponent>(entity, false);
                     em.SetComponentEnabled<EnRouteComponent>(entity, true);

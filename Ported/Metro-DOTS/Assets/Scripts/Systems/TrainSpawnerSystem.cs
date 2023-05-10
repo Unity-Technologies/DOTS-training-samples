@@ -7,49 +7,39 @@ using Unity.Transforms;
 
 public partial struct TrainSpawnerSystem : ISystem
 {
-    private EntityQuery m_Group;
-    // EntityQuery myQuery;
-    // ComponentTypeHandle<LocalTransform> transformHandle;
-    // ComponentTypeHandle<TrainIDComponent> trainIdHandle;
-    // EntityTypeHandle entityHandle;
-    
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
-        
-        // var builder = new EntityQueryBuilder(Allocator.Temp);
-        // builder.WithAll<LocalTransform, TrainIDComponent, EnRouteComponent, LoadingComponent>();
-        // builder.WithNone<Banana>();
-        // myQuery = state.GetEntityQuery(builder);
+        state.RequireForUpdate<StationIDComponent>();
     }
     
     public void OnUpdate(ref SystemState state)
     {
-        var stationConfig = SystemAPI.GetSingleton<Config>();
+        var config = SystemAPI.GetSingleton<Config>();
         var trains = CollectionHelper.CreateNativeArray<Entity>(1, Allocator.Temp);
 
         var em = state.EntityManager;
-        em.Instantiate(stationConfig.TrainEntity, trains);
+        em.Instantiate(config.TrainEntity, trains);
 
-        var q = em.CreateEntityQuery(typeof(TrainIDComponent));
-        foreach (var entity in q.ToEntityArray(Allocator.Temp))
+        foreach (var entity in trains)
         {
+            var track = SystemAPI.GetSingletonBuffer<TrackPoint>(true);
+            TrackPoint currentPoint = track[0];
+
             var transform = em.GetComponentData<LocalTransform>(entity);
+            
             em.SetComponentData(entity, transform);
-            var train = em.GetComponentData<TrainIDComponent>(entity);
+            var train = em.GetComponentData<Train>(entity);
+            
             train.Offset = transform.Position;
+            transform.Position = currentPoint.Position;
+
             em.SetComponentData(entity, train);
             em.SetComponentData(entity, transform);
             
             em.SetComponentEnabled<EnRouteComponent>(entity, true);
             em.SetComponentEnabled<LoadingComponent>(entity, false);
         }
-
-        // var query = SystemAPI.Query<RefRO<LocalTransform>, RefRW<TrainIDComponent>, RefRW<EnRouteComponent>, RefRW<LoadingComponent>>();
-        // foreach (var (transform, train, enRoute, loading) in query)
-        // {
-        //     train.ValueRW.Offset = transform.ValueRO.Position;
-        // }
 
         state.Enabled = false;
     }
