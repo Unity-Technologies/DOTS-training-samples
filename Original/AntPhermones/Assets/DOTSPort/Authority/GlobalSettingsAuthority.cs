@@ -8,7 +8,11 @@ public class GlobalSettingsAuthority : MonoBehaviour
 {
     public int MapSizeX;
     public int MapSizeY;
-    
+    public int FoodBufferSize;
+    public float AntRandomSteering;
+    public float AntSpeed;
+    public float AntAccel;
+
     class Baker : Baker<GlobalSettingsAuthority>
     {
         public override void Bake(GlobalSettingsAuthority authoring)
@@ -18,10 +22,11 @@ public class GlobalSettingsAuthority : MonoBehaviour
             {
                 MapSizeX = authoring.MapSizeX,
                 MapSizeY = authoring.MapSizeY,
-                AntRandomSteering = math.PI / 4f,
-                AntSpeed = 0.2f,
-                AntAccel = 0.07f
-    });
+                FoodBufferSize = authoring.FoodBufferSize,
+                AntRandomSteering = authoring.AntRandomSteering,
+                AntSpeed = authoring.AntSpeed,
+                AntAccel = authoring.AntAccel,
+            });
         }
     }
 }
@@ -30,6 +35,7 @@ public struct GlobalSettings: IComponentData
 {
     public int MapSizeX;
     public int MapSizeY;
+    public int FoodBufferSize;
     public float AntRandomSteering;
     public float AntSpeed;
     public float AntAccel;

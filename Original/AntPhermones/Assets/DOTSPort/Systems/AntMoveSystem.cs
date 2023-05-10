@@ -22,15 +22,15 @@ public partial struct AntMoveSystem : ISystem
         float randomSteering = 0;
         float antSpeed = 0;
         float antAccel = 0;
-        const float mapSize = 1024f;
+        float mapSizeX = 1024f;
+        float mapSizeY = 1024f;
 
-        foreach (var settings in SystemAPI.Query<RefRO<GlobalSettings>>())
-        {
-            randomSteering = settings.ValueRO.AntRandomSteering;
-            antSpeed = settings.ValueRO.AntSpeed;
-            antAccel = settings.ValueRO.AntAccel;
-            break;
-        }
+        var settings = SystemAPI.GetSingleton<GlobalSettings>();
+        randomSteering = settings.AntRandomSteering;
+        antSpeed = settings.AntSpeed;
+        antAccel = settings.AntAccel;
+        mapSizeX = settings.MapSizeX;
+        mapSizeY = settings.MapSizeY;
 
         float dt = SystemAPI.Time.DeltaTime;
 
@@ -61,12 +61,12 @@ public partial struct AntMoveSystem : ISystem
             float dy = vy * dt;
 
             // reverse on map edges
-            if (ant.Item1.ValueRO.Position.x + dx < 0 || ant.Item1.ValueRO.Position.x + dx > mapSize)
+            if (ant.Item1.ValueRO.Position.x + dx < 0 || ant.Item1.ValueRO.Position.x + dx > mapSizeX)
             {
                 vx = -vx;
                 dx = vx * dt;
             }
-            if (ant.Item1.ValueRO.Position.y + dy < 0 || ant.Item1.ValueRO.Position.y + dy > mapSize)
+            if (ant.Item1.ValueRO.Position.y + dy < 0 || ant.Item1.ValueRO.Position.y + dy > mapSizeY)
             {
                 vy = -vy;
                 dy = vy * dt;
