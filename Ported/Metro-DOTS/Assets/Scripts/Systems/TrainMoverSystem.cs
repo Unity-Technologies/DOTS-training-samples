@@ -1,6 +1,8 @@
 using System;
 using Components;
 using Metro;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -8,12 +10,15 @@ using UnityEngine;
 
 public partial struct TrainMoverSystem  : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Train>();
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<TrackPoint>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
     public float DistanceToStop(float speed, float deceleration)
@@ -27,14 +32,14 @@ public partial struct TrainMoverSystem  : ISystem
         return distance;
     }
     
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
-        //var track = SystemAPI.GetSingletonBuffer<TrackPoint>();
         var config = SystemAPI.GetSingleton<Config>();
 
         foreach (var (transform, train, entity) in
-                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<TrainIDComponent>>()
+                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
                      .WithEntityAccess())
         {
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
@@ -78,7 +83,7 @@ public partial struct TrainMoverSystem  : ISystem
                 float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
                 while (totalDistanceToTravel > 0)
                 {
-                    float3 directionToNextPoint = new float3(0, 0, 1);
+                    float3 directionToNextPoint;
                     if (nextPosition.Equals(currentPosition))
                         directionToNextPoint = transform.ValueRO.Forward();
                     else

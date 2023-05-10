@@ -11,8 +11,8 @@ namespace Metro
         {
             public override void Bake(TrainAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.None);
-                AddComponent(entity, new TrainIDComponent()
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                AddComponent(entity, new Train()
                 {
                     TrainID = 0,
                     TrackID = 0,
@@ -21,12 +21,12 @@ namespace Metro
                     Offset = new float3(0, 0, 0),
                     Duration = 0
                 });
-                
-                AddComponent(entity, new EnRouteComponent());
-                AddComponent(entity, new LoadingComponent());
-                AddComponent(entity, new UnloadingComponent());
-                AddComponent(entity, new ArrivingComponent());
-                AddComponent(entity, new DepartingComponent());
+
+                AddComponent<EnRouteComponent>(entity);
+                AddComponent<LoadingComponent>(entity);
+                AddComponent<UnloadingComponent>(entity);
+                AddComponent<ArrivingComponent>(entity);
+                AddComponent<DepartingComponent>(entity);
             }
         }
     }
