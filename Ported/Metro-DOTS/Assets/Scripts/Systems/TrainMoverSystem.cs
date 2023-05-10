@@ -42,21 +42,25 @@ public partial struct TrainMoverSystem  : ISystem
                  SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
                      .WithEntityAccess())
         {
+            var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
+            bool forward = train.ValueRO.Forward;
+            int currentIndex = train.ValueRO.TrackPointIndex;
+            int indexDirection = forward ? 1 : -1;
+            int nextIndex = currentIndex + indexDirection;
+                
+            TrackPoint currentPoint = track[currentIndex];
+            TrackPoint nextPoint = track[nextIndex];
+
+            float3 currentPosition = currentPoint.Position;
+            float3 nextPosition = nextPoint.Position;
+            
+            float3 directionToNextPoint = math.normalize(nextPosition - currentPosition);
+            transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
+            
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
-                var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
                 float3 position = transform.ValueRO.Position - train.ValueRO.Offset;
                 
-                bool forward = train.ValueRO.Forward;
-                int currentIndex = train.ValueRO.TrackPointIndex;
-                int indexDirection = forward ? 1 : -1;
-                int nextIndex = currentIndex + indexDirection;
-                
-                TrackPoint currentPoint = track[currentIndex];
-                TrackPoint nextPoint = track[nextIndex];
-
-                float3 currentPosition = currentPoint.Position;
-                float3 nextPosition = nextPoint.Position;
                 float distanceToNextPoint = math.distance(nextPosition, position);
 
                 float distanceToStop = distanceToNextPoint;
@@ -83,14 +87,6 @@ public partial struct TrainMoverSystem  : ISystem
                 float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
                 while (totalDistanceToTravel > 0)
                 {
-                    float3 directionToNextPoint;
-                    if (nextPosition.Equals(currentPosition))
-                        directionToNextPoint = transform.ValueRO.Forward();
-                    else
-                        directionToNextPoint = math.normalize(nextPosition - currentPosition);
-
-                    transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
-
                     if (totalDistanceToTravel >= distanceToNextPoint)
                     {
                         totalDistanceToTravel -= distanceToNextPoint;
