@@ -5,8 +5,10 @@ using UnityEngine;
 
 public partial struct CameraControlSystem : ISystem, ISystemStartStop
 {
-    float minZoom;
-    float maxZoom;
+    Vector3 m_MousePressPosition;
+    Vector3 m_CameraPressPosition;
+    float m_MinZoom;
+    float m_MaxZoom;
     
     public void OnCreate(ref SystemState state)
     {
@@ -15,8 +17,6 @@ public partial struct CameraControlSystem : ISystem, ISystemStartStop
 
     public void OnUpdate(ref SystemState state)
     {
-        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
-        
         Camera camera = Camera.main;
 
         float scrollInput = Input.mouseScrollDelta.y;
@@ -25,8 +25,20 @@ public partial struct CameraControlSystem : ISystem, ISystemStartStop
         {
             float curZoom = camera.orthographicSize;
             curZoom -= scrollInput * 10;
-            curZoom = Mathf.Clamp(curZoom, minZoom, maxZoom);
+            curZoom = Mathf.Clamp(curZoom, m_MinZoom, m_MaxZoom);
             camera.orthographicSize = curZoom;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            m_MousePressPosition = Input.mousePosition;
+            m_CameraPressPosition = camera.transform.position;
+        }
+        
+        if (Input.GetMouseButton(0))
+        {
+            var delta = m_MousePressPosition - Input.mousePosition;
+            camera.transform.position = m_CameraPressPosition + (delta * (camera.orthographicSize / (128 * 4)));
         }
     }
 
@@ -39,8 +51,8 @@ public partial struct CameraControlSystem : ISystem, ISystemStartStop
         camera.orthographicSize = globalSettings.MapSizeX / 2;
         camera.transform.position = new Vector3(globalSettings.MapSizeX / 2f, globalSettings.MapSizeY / 2f, -10);
         
-        minZoom = globalSettings.MapSizeX / 30f;
-        maxZoom = globalSettings.MapSizeX;
+        m_MinZoom = globalSettings.MapSizeX / 30f;
+        m_MaxZoom = globalSettings.MapSizeX;
     }
 
     public void OnStopRunning(ref SystemState state)

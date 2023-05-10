@@ -386,10 +386,12 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Press 1-9: Change speed
 
-    Scroll wheel: Zoom
+    Scroll wheel: Zoom camera
 
-    Press H: Hide or
-    show this info'
+    Left mouse
+    button: Move camera
+
+    Press H: Hide or show this info'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
