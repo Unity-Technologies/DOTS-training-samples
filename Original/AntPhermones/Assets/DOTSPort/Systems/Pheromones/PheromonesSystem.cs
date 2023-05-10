@@ -1,5 +1,7 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -26,31 +28,27 @@ public partial struct PheromonesSystem : ISystem
             DeltaTime = SystemAPI.Time.DeltaTime,
         };
         
-        var handle = pheromoneDropJob.Schedule(state.Dependency);
-        handle.Complete();
-        
+        state.Dependency = pheromoneDropJob.ScheduleParallel(state.Dependency);
+        state.Dependency.Complete(); // works like await
+
         var pheromoneDecreaseJob = new PheromoneDecreaseJob
         {
-            Pheromones = pheromoneBufferElement,
+            Pheromones = pheromoneBufferElement.AsNativeArray(),
             TrailDecay = 1 - (globalSettings.TrailDecay * SystemAPI.Time.DeltaTime)
         };
         
-        pheromoneDecreaseJob.Schedule(handle).Complete();
+        state.Dependency = pheromoneDecreaseJob.Schedule(pheromoneBufferElement.Length, 100, state.Dependency);
     }
     
     [BurstCompile]
-    public partial struct PheromoneDecreaseJob : IJobEntity
+    public partial struct PheromoneDecreaseJob : IJobParallelFor
     {
         public float TrailDecay;
-        public DynamicBuffer<PheromoneBufferElement> Pheromones;
+        public NativeArray<PheromoneBufferElement> Pheromones;
         
-        [BurstCompile]
-        void Execute()
+        public void Execute(int index)
         {
-            for (int i = 0; i < Pheromones.Length; i++)
-            {
-                Pheromones[i] *= TrailDecay;
-            }
+            Pheromones[index] *= TrailDecay;
         }
     }
     
@@ -60,10 +58,9 @@ public partial struct PheromonesSystem : ISystem
         public GlobalSettings GlobalSettings;
         public float DeltaTime;
 
-        // [NativeDisableParallelForRestriction]
+        [NativeDisableParallelForRestriction]
         public DynamicBuffer<PheromoneBufferElement> Pheromones;
-
-        [BurstCompile]
+        
         void Execute(ref AntData ant, ref LocalTransform localTransform)
         {
             float excitement = .3f;

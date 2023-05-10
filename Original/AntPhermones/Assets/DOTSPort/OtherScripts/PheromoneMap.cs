@@ -19,7 +19,7 @@ public class PheromoneMap : MonoBehaviour
     {
         transform.position = new Vector3(width / 2f, height/ 2f, 0);
         transform.localScale = new Vector3(width, height, 1);
-        m_PheromoneMapTexture = new Texture2D(width, height);
+        m_PheromoneMapTexture = new Texture2D(width, height, TextureFormat.R8, false);
         var pixels = m_PheromoneMapTexture.GetPixels();
         for (int i = 0; i < pixels.Length; i++)
         {

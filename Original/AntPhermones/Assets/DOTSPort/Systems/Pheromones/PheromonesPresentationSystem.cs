@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using UnityEngine;
 
 public partial struct PheromonesPresentationInitSystem : ISystem
@@ -47,12 +49,13 @@ public partial struct PheromonesPresentationSystem : ISystem
         var PheromoneTexture = SystemAPI.ManagedAPI.GetSingleton<PheromoneTextureManaged>();
         
         var colorArray = PheromoneTexture.texture.GetPixels();
-        
+        //  PheromoneTexture.texture.SetPixelData(pheromoneBufferElement.AsNativeArray().Reinterpret<Color>(), 0, 0);
+
         for (int i = 0; i < colorArray.Length; i++)
         {
             colorArray[i].r = pheromoneBufferElement[i];
         }
-        
+       
         PheromoneTexture.texture.SetPixels(colorArray);
         PheromoneTexture.texture.Apply();
     }
