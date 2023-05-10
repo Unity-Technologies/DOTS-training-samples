@@ -26,7 +26,7 @@ public partial struct PheromoneDetectionJob : IJobEntity
 				var gridPosition = math.int2(math.floor(position.position));
 				var index = gridPosition.x + gridPosition.y * mapSize;
 				var value = pheromones[index].strength;
-				ant.pheroSteering += value * i;
+				ant.pheroSteering += value * i * steeringStrength;
 			}
 		}
     }
