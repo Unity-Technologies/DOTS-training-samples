@@ -25,6 +25,7 @@ public partial struct FireSystem : ISystem {
             spreadVal = config.FireSpreadValue,
             startingColor = config.StartingGridColor,
             fullBurnColor = config.FullBurningGridColor,
+            gridSize =  config.GridSize
         };
         state.Dependency = job.ScheduleParallel(state.Dependency);
     }
@@ -38,18 +39,29 @@ public partial struct FireJob : IJobEntity {
     public float4 fullBurnColor;
     public float rate;
     public float spreadVal;
+    public int gridSize;
 
     void Execute([EntityIndexInQuery] int index, ref Fire fire, ref URPMaterialPropertyBaseColor color, ref LocalTransform transform) {
         if (fire.t > 0.0f) {
             fire.t = math.clamp(fire.t + rate, 0.0f, 1.0f);
-		} else {
+		} else
+        {
+            int leftNeighborIndex = index - 1;
+            int rightNeighborIndex = index + 1;
+            int upNeighborIndex = index + gridSize;
+            int downNeighborIndex = index - gridSize;
+            
             // Look at all neighbors for flashpoint.  Watch for boundaries on grid
             bool flashpoint = false;
-            if (index > 0 && neighoringFires[index - 1].t > spreadVal)
+            if (leftNeighborIndex >= 0 && neighoringFires[leftNeighborIndex].t > spreadVal)
                 flashpoint = true;
-            else if (index < neighoringFires.Length - 1 && neighoringFires[index + 1].t > spreadVal)
+            else if (rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
                 flashpoint = true;
-
+            else if (upNeighborIndex < neighoringFires.Length&& neighoringFires[upNeighborIndex].t > spreadVal)
+                flashpoint = true;
+            else if (downNeighborIndex >= 0 && neighoringFires[downNeighborIndex].t > spreadVal)
+                flashpoint = true;
+            
             if (flashpoint) {
                 fire.t = Random.CreateFromIndex((uint)index).NextFloat(math.EPSILON, 0.15f);
             }
