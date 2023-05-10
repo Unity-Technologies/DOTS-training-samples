@@ -15,5 +15,5 @@ public class WaterAuthoring : MonoBehaviour
 
 public struct Water : IComponentData
 {
-
+    public float Volume;
 }
