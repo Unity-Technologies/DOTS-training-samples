@@ -1,4 +1,6 @@
 ﻿using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class WaterAuthoring : MonoBehaviour
@@ -8,12 +10,21 @@ public class WaterAuthoring : MonoBehaviour
         public override void Bake(WaterAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale);
-            AddComponent<Water>(entity);
+            var authTransformLocalScale = authoring.transform.localScale;
+            AddComponent(entity, new Water
+            {
+                TargetScale = new float2(authTransformLocalScale.x, authTransformLocalScale.z),
+                Volume = 0.8f,
+                RefillSpeed = 0.05f
+            });
+            AddComponent(entity, new PostTransformMatrix());
         }
     }
 }
 
 public struct Water : IComponentData
 {
+    public float2 TargetScale;
     public float Volume;
+    public float RefillSpeed;
 }
