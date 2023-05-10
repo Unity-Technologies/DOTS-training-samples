@@ -12,6 +12,7 @@ namespace Metro
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
+        public float MinTrainSpeed = 1f;
         public float TrainAcceleration = 0.2f;
         public float TrainUnloadingTime = 2f;
         public float TrainLoadingTime = 2f;
@@ -27,9 +28,11 @@ namespace Metro
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed,
+                    MinTrainSpeed = authoring.MinTrainSpeed,
                     TrainAcceleration = authoring.TrainAcceleration,
                     LoadingTime = authoring.TrainLoadingTime,
                     UnloadingTime = authoring.TrainUnloadingTime
+                    
                 });
             }
         }
@@ -41,6 +44,7 @@ namespace Metro
         public int NumPassengersPerStation;
         public Entity TrainEntity;
         public float MaxTrainSpeed;
+        public float MinTrainSpeed;
         public float TrainAcceleration;
         public float UnloadingTime;
         public float LoadingTime;

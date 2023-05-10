@@ -1,8 +1,8 @@
 using System;
+using System.Runtime.CompilerServices;
 using Components;
 using Metro;
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -10,9 +10,13 @@ using UnityEngine;
 
 public partial struct TrainMoverSystem  : ISystem
 {
+    float3 m_TrainUp;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        m_TrainUp = new float3(0, 1f, 0);
+        
         state.RequireForUpdate<Train>();
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<TrackPoint>();
@@ -21,22 +25,12 @@ public partial struct TrainMoverSystem  : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
-    public float DistanceToStop(float speed, float deceleration)
-    {
-        float distance = 0;
-        while (speed > 0)
-        {
-            distance += speed;
-            speed -= deceleration;
-        }
-        return distance;
-    }
-
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
         var config = SystemAPI.GetSingleton<Config>();
+        float deltaTime = SystemAPI.Time.DeltaTime;
 
         foreach (var (transform, train, entity) in
                  SystemAPI.Query<RefRW<LocalTransform>, RefRW<Train>>()
@@ -44,6 +38,7 @@ public partial struct TrainMoverSystem  : ISystem
         {
             var track = em.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity);
             bool forward = train.ValueRO.Forward;
+            
             int currentIndex = train.ValueRO.TrackPointIndex;
             int indexDirection = forward ? 1 : -1;
             int nextIndex = currentIndex + indexDirection;
@@ -55,69 +50,75 @@ public partial struct TrainMoverSystem  : ISystem
             float3 nextPosition = nextPoint.Position;
             
             float3 directionToNextPoint = math.normalize(nextPosition - currentPosition);
-            transform.ValueRW.Rotation = quaternion.LookRotation(new float3(1f, 0, 0), new float3(0, 1f, 0));
+            UpdateTrainOrientation(transform, directionToNextPoint);
             
             if (em.IsComponentEnabled<EnRouteComponent>(entity))
             {
                 float3 position = transform.ValueRO.Position - train.ValueRO.Offset;
-                
-                float distanceToNextPoint = math.distance(nextPosition, position);
-
-                float distanceToStop = distanceToNextPoint;
-                int stopIndex = nextIndex;
-                TrackPoint stopPoint = track[stopIndex];
-                while (!stopPoint.IsEnd || !stopPoint.IsStation)
-                {
-                    stopIndex += indexDirection;
-                    var nextStopPoint = track[stopIndex];
-                    stopPoint = track[stopIndex];
-                    var pointDistance = math.distance(stopPoint.Position, nextStopPoint.Position);
-                    distanceToStop += pointDistance;
-                    stopPoint = nextStopPoint;
-                }
-
                 float currentSpeed = train.ValueRO.Speed;
-                float distanceRequiredToStop = DistanceToStop(currentSpeed, config.TrainAcceleration);
                 
-                float speed = math.clamp(train.ValueRO.Speed + (config.TrainAcceleration * SystemAPI.Time.DeltaTime), 0, config.MaxTrainSpeed);
-                // bool departing = Math.Abs(speed - config.MaxTrainSpeed) < float.Epsilon;
-                // if (departing != em.IsComponentEnabled<DepartingComponent>(entity))
-                //     em.SetComponentEnabled<DepartingComponent>(entity, departing);
+                float distanceToNextStop = DistanceToNextStop(position, track, currentIndex, indexDirection);
+                float distanceRequiredToStop = DistanceToStop(currentSpeed, config.TrainAcceleration);
+                bool shouldStop = distanceRequiredToStop >= distanceToNextStop;
+                float acceleration = config.TrainAcceleration;
+                if (shouldStop)
+                    acceleration *= -1;
 
-                float totalDistanceToTravel = speed * SystemAPI.Time.DeltaTime;
-                while (totalDistanceToTravel > 0)
-                {
-                    if (totalDistanceToTravel >= distanceToNextPoint)
+                float speed = math.clamp(train.ValueRO.Speed + (acceleration * deltaTime), config.MinTrainSpeed, config.MaxTrainSpeed);
+                if (em.IsComponentEnabled<DepartingComponent>(entity) && Math.Abs(speed - config.MaxTrainSpeed) < float.Epsilon)
+                    em.SetComponentEnabled<DepartingComponent>(entity, false);
+
+                if (!em.IsComponentEnabled<ArrivingComponent>(entity) && shouldStop)
+                    em.SetComponentEnabled<ArrivingComponent>(entity, true);
+
+                //
+                // else
+                // {
+                    float distanceToNextPoint = math.distance(nextPosition, position);
+                    float totalDistanceToTravel = speed * deltaTime;
+                    while (totalDistanceToTravel > 0)
                     {
-                        totalDistanceToTravel -= distanceToNextPoint;
-                        position = nextPosition;
-
-                        currentIndex = nextIndex;
-
-                        if (nextPoint.IsEnd)
-                            forward = !forward;
-                        
-                        if (nextPoint.IsStation)
+                        if (totalDistanceToTravel >= distanceToNextPoint)
                         {
-                            train.ValueRW.Duration = 0;
-                            train.ValueRW.Speed = 0;
-                            train.ValueRW.StationEntity = nextPoint.Station;
-                            em.SetComponentEnabled<UnloadingComponent>(entity, true);
-                            em.SetComponentEnabled<EnRouteComponent>(entity, false);
-                            Debug.Log($"Travel complete: arrived at station {train.ValueRO.StationEntity}");
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        float3 movement = directionToNextPoint * totalDistanceToTravel;
-                        var newPos = position + movement;
-                        position = newPos;
-                        totalDistanceToTravel = 0;
-                    }
+                            totalDistanceToTravel -= distanceToNextPoint;
+                            position = nextPosition;
 
-                    train.ValueRW.Speed = speed;
-                }
+                            currentIndex = nextIndex;
+
+                            if (nextPoint.IsEnd)
+                                forward = !forward;
+
+                            if (nextPoint.IsStation)
+                            {
+                                ArriveAtStation(entity, train, nextPoint, em);
+                                totalDistanceToTravel = 0;
+                            }
+                        }
+                        else
+                        {
+                            // if (shouldStop && distanceToNextStop <= 0.05f)
+                            // {
+                            //     position = nextPosition;
+                            //     currentIndex = nextIndex;
+                            //
+                            //     if (nextPoint.IsEnd)
+                            //         forward = !forward;
+                            //
+                            //     ArriveAtStation(entity, train, nextPoint, em);
+                            // }
+                            // else
+                            {
+                                float3 movement = directionToNextPoint * totalDistanceToTravel;
+                                var newPos = position + movement;
+                                position = newPos;
+                            }
+
+                            totalDistanceToTravel = 0;
+                        }
+
+                        train.ValueRW.Speed = speed;
+                    }
+                // }
 
                 train.ValueRW.Forward = forward;
                 train.ValueRW.TrackPointIndex = currentIndex;
@@ -126,29 +127,108 @@ public partial struct TrainMoverSystem  : ISystem
             }
             
             else if (em.IsComponentEnabled<UnloadingComponent>(entity))
-            {
-                train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
-                if (train.ValueRW.Duration >= config.UnloadingTime)
-                {
-                    Debug.Log($"Unloading complete at station {train.ValueRO.StationEntity}.  Setting movement state to Loading");
-                    train.ValueRW.Duration = 0;
-                    em.SetComponentEnabled<UnloadingComponent>(entity, false);
-                    em.SetComponentEnabled<LoadingComponent>(entity, true);
-                }
-            }
+                UpdateUnloading(entity, train, config, em, deltaTime);
             
             else if (em.IsComponentEnabled<LoadingComponent>(entity))
+                UpdateLoading(entity, train, config, em, deltaTime);
+        }
+    }
+
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void ArriveAtStation(Entity trainEntity, RefRW<Train> train, TrackPoint trackPoint, EntityManager em)
+    {
+		var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
+	    foreach (var child in children)
+	    {
+	        if (em.HasComponent<UnloadingComponent>(child.Value))
+	        {
+	            em.SetComponentEnabled<UnloadingComponent>(child.Value, true);
+	        }
+	    }
+	
+        train.ValueRW.Duration = 0;
+        train.ValueRW.Speed = 0;
+        train.ValueRW.StationEntity = trackPoint.Station;
+        em.SetComponentEnabled<UnloadingComponent>(trainEntity, true);
+        em.SetComponentEnabled<EnRouteComponent>(trainEntity, false);
+        em.SetComponentEnabled<ArrivingComponent>(trainEntity, false);
+        Debug.Log($"Travel complete: arrived at station {train.ValueRO.StationEntity}");
+    }
+
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void UpdateTrainOrientation(RefRW<LocalTransform> transform, float3 direction)
+    {
+        transform.ValueRW.Rotation = quaternion.LookRotation(direction, m_TrainUp);
+    }
+
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void UpdateLoading(Entity trainEntity, RefRW<Train> train, Config config, EntityManager em, float deltaTime)
+    {
+        train.ValueRW.Duration += deltaTime;
+        if (train.ValueRW.Duration >= config.UnloadingTime)
+        {
+            Debug.Log($"Loading complete at station {train.ValueRO.StationEntity}, Setting movement state to EnRoute");
+            train.ValueRW.Duration = 0;
+            train.ValueRW.StationEntity = Entity.Null;
+            em.SetComponentEnabled<LoadingComponent>(trainEntity, false);
+            em.SetComponentEnabled<EnRouteComponent>(trainEntity, true);
+            em.SetComponentEnabled<DepartingComponent>(trainEntity, true);
+			
+			var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
+            foreach (var child in children)
             {
-                train.ValueRW.Duration += SystemAPI.Time.DeltaTime;
-                if (train.ValueRW.Duration >= config.UnloadingTime)
+                if (em.HasComponent<DepartingComponent>(child.Value))
                 {
-                    Debug.Log($"Loading complete at station {train.ValueRO.StationEntity}, Setting movement state to EnRoute");
-                    train.ValueRW.Duration = 0;
-                    train.ValueRW.StationEntity = Entity.Null;
-                    em.SetComponentEnabled<LoadingComponent>(entity, false);
-                    em.SetComponentEnabled<EnRouteComponent>(entity, true);
+                    em.SetComponentEnabled<DepartingComponent>(child.Value, true);
                 }
             }
         }
+    }
+
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void UpdateUnloading(Entity trainEntity, RefRW<Train> train, Config config, EntityManager em, float deltaTime)
+    {
+        train.ValueRW.Duration += deltaTime;
+        if (train.ValueRW.Duration >= config.UnloadingTime)
+        {
+            Debug.Log($"Unloading complete at station {train.ValueRO.StationEntity}.  Setting movement state to Loading");
+            train.ValueRW.Duration = 0;
+            em.SetComponentEnabled<UnloadingComponent>(trainEntity, false);
+            em.SetComponentEnabled<LoadingComponent>(trainEntity, true);
+            em.SetComponentEnabled<ArrivingComponent>(trainEntity, false);
+        }
+    }
+    
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
+    float DistanceToStop(float speed, float deceleration)
+    {
+        float distance = 0;
+        while (speed > 0)
+        {
+            distance += speed;
+            speed -= deceleration;
+        }
+        return distance;
+    }
+
+    float DistanceToNextStop(float3 trainPosition, DynamicBuffer<TrackPoint> track, int currentIndex, int indexDirection)
+    {
+        int nextIndex = currentIndex + indexDirection;
+        TrackPoint nextPoint = track[nextIndex];
+        float3 nextPosition = nextPoint.Position;
+
+        float distanceToNextStop = math.distance(nextPosition, trainPosition);
+        int stopIndex = nextIndex;
+        TrackPoint stopPoint = track[stopIndex];
+        while (!stopPoint.IsStation)
+        {
+            stopIndex += indexDirection;
+            var nextStopPoint = track[stopIndex];
+            var pointDistance = math.distance(stopPoint.Position, nextStopPoint.Position);
+            distanceToNextStop += pointDistance;
+            stopPoint = nextStopPoint;
+        }
+
+        return distanceToNextStop;
     }
 }
