@@ -15,10 +15,10 @@ public partial struct ObstaclePresentationSystem : ISystem
         state.Enabled = false;
         
         var buffer = SystemAPI.GetSingletonBuffer<ObstacleArcPrimitive>();
-
+        var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
         var obstacleDrawer = MonoBehaviour.FindObjectOfType<ObstacleDrawer>();
 
-        float MapSize = 128;
+        float MapSize = Mathf.Min((float)globalSettings.MapSizeX, (float)globalSettings.MapSizeY);
 
         int PrimIndex = -1;
         for (int i = 0; i < buffer.Length; i++)
