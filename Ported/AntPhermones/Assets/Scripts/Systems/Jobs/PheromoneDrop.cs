@@ -23,7 +23,7 @@ public partial struct PheromoneDropJob : IJobEntity
             return;
         }
 
-        var index = gridPosition.x + gridPosition.y * mapSize;
+        var index = (mapSize - gridPosition.x) + gridPosition.y * mapSize;
         var pheromone = pheromones[index];
         pheromone.strength += math.min(pheromoneGrowthRate*strength*(1f-pheromone.strength)*deltaTime, 1f);
         pheromones[index] = pheromone;
