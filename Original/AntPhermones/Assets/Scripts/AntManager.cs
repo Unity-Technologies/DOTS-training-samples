@@ -388,7 +388,7 @@ public class AntManager : MonoBehaviour {
 		pheromoneTexture.Apply();
 
 		for (int i=0;i<matProps.Length;i++) {
-			matProps[i].SetVectorArray("_Color",antColors[i]);
+			matProps[i].SetVectorArray("_BaseColor",antColors[i]);
 		}
 	}
 	private void Update() {
