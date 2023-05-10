@@ -20,10 +20,12 @@ public partial struct ObstacleDetection : IJobEntity
     {
         int output = 0;
 
+        var directionInRadians = direction.direction / 180f * (float) Math.PI;
+
         // this for loop makes us check the direction * -1 and * 1
         for (int i = -1; i <= 1; i += 2)
         {
-            float angle = direction.direction + i * Mathf.PI * 0.25f;
+            float angle = directionInRadians + i * Mathf.PI * 0.25f;
             float testX = position.position.x + Mathf.Cos(angle) * distance;
             float testY = position.position.y + Mathf.Sin(angle) * distance;
 
@@ -47,6 +49,6 @@ public partial struct ObstacleDetection : IJobEntity
             }
         }
 
-        ant.wallSteering = output * steeringStrength;
+        ant.wallSteering = output * steeringStrength / (float) Math.PI * 180f;
     }
 }

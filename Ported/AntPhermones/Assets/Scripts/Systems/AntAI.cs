@@ -55,9 +55,10 @@ public partial struct AntAI: ISystem
             steeringStrength = colony.wallSteerStrength,
             obstacles = obstaclesQuery.Build(ref state).ToComponentDataArray<LocalTransform>(Allocator.TempJob)
         };
-        obstacleJob.ScheduleParallel();
-
-
+        state.Dependency = obstacleJob.Schedule(state.Dependency);
+        
+        
+        
         // PheromoneDetection
         
         

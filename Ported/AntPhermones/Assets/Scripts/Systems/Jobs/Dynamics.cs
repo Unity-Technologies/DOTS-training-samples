@@ -1,5 +1,6 @@
 using System;
 using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -13,22 +14,24 @@ public partial struct DynamicsJob : IJobEntity
 {
     [BurstCompile]
     public void Execute(
-        [ChunkIndexInQuery] int chunkIndex, 
         Entity entity, 
-        ref Position position, in Direction direction, 
+        ref Position position, 
+        ref Direction direction, 
         in Speed speed,
-        ref LocalTransform localTransform)  
+        ref LocalTransform localTransform,
+        in Ant ant)
     {
-        var directionRad = direction.direction / 180f * Math.PI;
+        direction.direction += ant.wallSteering + ant.pheroSteering;
         localTransform.Rotation = Quaternion.Euler(0, 0, direction.direction);
 
         var oldPosition = position.position;
         var speedValue = speed.speed;
+        var directionRad = (direction.direction+180f) / 180f * Math.PI;
         var deltaPos = new float2(
             (float)(speedValue * math.sin(-directionRad)),
             (float) (speedValue * math.cos(-directionRad)));  
-        
-        var newPosition = oldPosition + deltaPos;// + direction2D * speed.ValueRW.speed;
+
+        var newPosition = oldPosition + deltaPos;
         position.position = newPosition;
         
         localTransform.Position = new float3(newPosition.x, newPosition.y, 0);

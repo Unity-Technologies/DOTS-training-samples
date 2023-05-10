@@ -86,7 +86,7 @@ public partial struct Spawner: ISystem
         {
             position.ValueRW.position = new float2(Random.Range(-5f,5f) + mapSize * 0.5f,Random.Range(-5f,5f) + mapSize * 0.5f);
             direction.ValueRW.direction = Random.Range(0, 360);
-            speed.ValueRW.speed = Random.Range(0, colony.antTargetSpeed);
+            speed.ValueRW.speed = colony.antTargetSpeed;
             localTransform.ValueRW.Scale = colony.antScale;
         }
     }
