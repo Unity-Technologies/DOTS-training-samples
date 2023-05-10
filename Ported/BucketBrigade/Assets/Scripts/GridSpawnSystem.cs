@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 public partial struct GridSpawnSystem : ISystem {
     [BurstCompile]
@@ -19,8 +20,16 @@ public partial struct GridSpawnSystem : ISystem {
         int i = 0;
         int numRandomFires = config.NumStartingFires;
 
-        foreach (var (trans, burn, fire) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Burner>, RefRW<Fire>>()) {
-            fire.ValueRW.t = UnityEngine.Random.value < 0.1f ? UnityEngine.Random.value : 0.0f;
+        foreach (var (trans, fire) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Fire>>()) {
+            if (numRandomFires > 0) {
+                if (UnityEngine.Random.value < 0.01f) {
+                    // Create a fire, but not to the point where it's spreading yet
+                    fire.ValueRW.t = UnityEngine.Random.Range(math.EPSILON, config.FireSpreadValue - math.EPSILON);
+                    numRandomFires--;
+                }
+            } else {
+                fire.ValueRW.t = 0.0f;
+			}
 
             trans.ValueRW.Scale = 1;
             trans.ValueRW.Position.x = pos.x + (i % config.GridSize) * 1.05f;
