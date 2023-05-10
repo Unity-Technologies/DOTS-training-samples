@@ -33,41 +33,32 @@ public partial struct QueingPassengersSystem : ISystem
                 var queueComponent = state.EntityManager.GetComponentData<QueueComponent>(queue);
                 var queueLocation = state.EntityManager.GetComponentData<LocalTransform>(queue);
 
-                // get passenger number in queue
-                var passengerNumInQueue = queueComponent.StartIndex <= queueComponent.EndEndex
-                    ? queueComponent.EndEndex - queueComponent.StartIndex + 1
-                    : 16 - queueComponent.StartIndex + queueComponent.EndEndex + 1;
-                
                 // get queue direction
                 var queueLocalTransform = state.EntityManager.GetComponentData<LocalTransform>(queue);
                 var queueDirection = queueLocalTransform.Forward();
 
-                var passengerId = 0;
-                for (var cnt = 0; cnt < passengerNumInQueue; cnt++)
+                var passengerId = queueComponent.StartIndex;
+                var queueLengthBeforeUpdate = queueComponent.QueueLength;
+
+                for (var cnt = 0; cnt < queueLengthBeforeUpdate; cnt++)
                 {
-                    passengerId = (queueComponent.StartIndex + cnt) % 16;
                     var passenger = passengerElements.ElementAt(passengerId).Passenger;
                     var passengerLocalTransform = state.EntityManager.GetComponentData<LocalTransform>(passenger);
 
+                    // update passenger position
                     passengerLocalTransform.Position += queueDirection * config.PassengerSpeed * SystemAPI.Time.DeltaTime;
-
                     state.EntityManager.SetComponentData(passenger, passengerLocalTransform);
-                }
-
-                passengerId = queueComponent.StartIndex;
-                for (var cnt = 0; cnt < passengerNumInQueue; cnt++)
-                {
-                    var passenger = passengerElements.ElementAt(passengerId).Passenger;
-                    var passengerLocalTransform = state.EntityManager.GetComponentData<LocalTransform>(passenger);
-
+                    
+                    // if passenger has passed queue location
                     if (math.dot(passengerLocalTransform.Position - queueLocation.Position, queueDirection) > 0)
                     {
                         state.EntityManager.SetComponentEnabled<PassengerOnboarded>(passenger, true);
                         queueComponent.StartIndex = (queueComponent.StartIndex + 1) % 16;
+                        queueComponent.QueueLength -= 1;
                     }
-
                     passengerId = (passengerId + 1) % 16;
                 }
+
                 state.EntityManager.SetComponentData(queue, queueComponent);
             }
         }

@@ -128,10 +128,11 @@ public partial struct StationSpawningSystem : ISystem
             }
 
             // init QueueComponent
-            var qc = em.GetComponentData<QueueComponent>(queuePoints[j]);
-            qc.StartIndex = 0;
-            qc.EndEndex = -1;
-            em.SetComponentData<QueueComponent>(queuePoints[j], qc);
+            em.SetComponentData<QueueComponent>(queuePoints[j], new QueueComponent
+            {
+                StartIndex = -1,
+                QueueLength = 0
+            });
         }
 
         float carriadgeLength = 5;

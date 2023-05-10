@@ -5,7 +5,7 @@ using Unity.Mathematics;
 public struct QueueComponent : IComponentData
 {
     public int StartIndex;
-    public int EndEndex;
+    public int QueueLength;
 }
 
 [InternalBufferCapacity(16)]

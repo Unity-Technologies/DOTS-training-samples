@@ -40,15 +40,16 @@ public partial struct PassengerSpawningSystem : ISystem
         {
             var queuePassengersBuffer = state.EntityManager.GetBuffer<QueuePassengers>(queueEntity);
             var queueComp = state.EntityManager.GetComponentData<QueueComponent>(queueEntity);
-
+            queueComp.StartIndex = 0;
+            
             for (int j = 0; j < passengersPerQueue; j++)
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
                 lc.Position += new float3(0, 0, distanceBetweenPassenger * j);
-
-                ++queueComp.EndEndex;
-                queuePassengersBuffer.ElementAt(queueComp.EndEndex).Passenger = passengers[queueId * passengersPerQueue + j];
+                
+                queuePassengersBuffer.ElementAt(queueComp.StartIndex + queueComp.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
+                queueComp.QueueLength++;
 
                 em.SetComponentData<LocalTransform>(passengers[queueId * passengersPerQueue + j], lc);
             }
