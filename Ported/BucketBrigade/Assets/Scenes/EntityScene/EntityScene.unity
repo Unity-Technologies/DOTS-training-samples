@@ -373,7 +373,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284834371}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -878,6 +878,7 @@ GameObject:
   m_Component:
   - component: {fileID: 549064479}
   - component: {fileID: 549064480}
+  - component: {fileID: 549064481}
   m_Layer: 0
   m_Name: Config
   m_TagString: Untagged
@@ -916,6 +917,26 @@ MonoBehaviour:
   origin: {fileID: 348539257}
   Size: 50
   Radius: 10
+--- !u!114 &549064481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549064477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c27df7532c9d4e748950865c0daedc96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumRows: 50
+  NumColumns: 50
+  GridCellSize: 0
+  BotPrefab: {fileID: 0}
+  FirePrefab: {fileID: 6831108980965835434, guid: 9c2e47bf0bab24e7cb19d65cdd222fc6,
+    type: 3}
+  WaterPrefab: {fileID: 0}
+  originGrid: {fileID: 348539257}
 --- !u!1 &552495477
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,7 +1561,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1213405568}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.4, z: 0}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children: []

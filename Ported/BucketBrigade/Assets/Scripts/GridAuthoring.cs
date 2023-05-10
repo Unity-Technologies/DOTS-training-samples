@@ -12,6 +12,8 @@ public class GridAuthoring : MonoBehaviour
     public GameObject FirePrefab;
     public GameObject WaterPrefab;
 
+    public Transform originGrid;
+
     class Baker : Baker<GridAuthoring>
     {
         public override void Bake(GridAuthoring authoring)
