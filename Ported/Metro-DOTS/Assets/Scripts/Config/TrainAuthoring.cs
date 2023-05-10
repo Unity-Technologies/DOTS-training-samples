@@ -24,6 +24,8 @@ namespace Metro
 
                 AddComponent<EnRouteComponent>(entity);
                 AddComponent<LoadingComponent>(entity);
+                AddComponent<UnloadingComponent>(entity);
+                AddComponent<ArrivingComponent>(entity);
                 AddComponent<DepartingComponent>(entity);
             }
         }

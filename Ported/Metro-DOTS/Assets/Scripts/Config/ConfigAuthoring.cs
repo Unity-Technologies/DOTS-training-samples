@@ -11,6 +11,8 @@ namespace Metro
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
         public float TrainAcceleration = 0.2f;
+        public float TrainUnloadingTime = 2f;
+        public float TrainLoadingTime = 2f;
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -23,7 +25,9 @@ namespace Metro
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed,
-                    TrainAcceleration = authoring.TrainAcceleration
+                    TrainAcceleration = authoring.TrainAcceleration,
+                    LoadingTime = authoring.TrainLoadingTime,
+                    UnloadingTime = authoring.TrainUnloadingTime
                 });
             }
         }
@@ -36,8 +40,7 @@ namespace Metro
         public int NumPassengers;
         public float MaxTrainSpeed;
         public float TrainAcceleration;
-
-        public static float TrainWaitingTime; // The total duration that a train waits at a station
-        public static float DoorAnimationTIme; // The duration that it takes for a door to open or close
+        public float UnloadingTime;
+        public float LoadingTime;
     }
 }
