@@ -155,12 +155,12 @@ MonoBehaviour:
   colony:
     antTargetSpeed: 0.1
     antAccel: 0
-    antCount: 1000
+    antCount: 100
     antScale: 2
     pheromoneDecayRate: 0
     obstacleSize: 0.5
     ringCount: 4
-    randomSteering: 10
+    randomSteering: 8
     pheromoneSteerStrength: 0
     wallSteerStrength: 0.15
     mapSize: 128
