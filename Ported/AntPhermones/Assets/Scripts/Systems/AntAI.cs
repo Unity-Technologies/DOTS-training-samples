@@ -95,19 +95,21 @@ public partial struct AntAI: ISystem
             antAcceleration = colony.antAccel,
             antTargetSpeed = colony.antTargetSpeed
         };
-        var dynamicsJobHandle = dynamicsJob.Schedule(combinedDependency);
+        var dynamicsJobHandle = dynamicsJob.ScheduleParallel(combinedDependency);
 
 
         // Drop Pheromones
+        pheromoneDetectionJobHandle.Complete(); // needed before we work witht his native array
+        var nativePheromones = pheromones.AsNativeArray();
         var pheromoneDropJob = new PheromoneDropJob
         {
             deltaTime = SystemAPI.Time.fixedDeltaTime,
             mapSize = (int)colony.mapSize,
             antTargetSpeed = colony.antTargetSpeed,
             pheromoneGrowthRate = colony.pheromoneGrowthRate,
-            pheromones = pheromones
+            pheromones = nativePheromones
         };
-        var pheromoneDropJobHandle = pheromoneDropJob.Schedule(dynamicsJobHandle);
+        var pheromoneDropJobHandle = pheromoneDropJob.ScheduleParallel(dynamicsJobHandle);
         pheromoneDropJobHandle.Complete(); // BUG???
 
         // Decay Pheromones
