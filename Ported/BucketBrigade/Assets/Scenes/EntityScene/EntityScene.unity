@@ -885,13 +885,13 @@ MonoBehaviour:
   RenderSwap: 0
   ShaderGraph: 0
   Splines: 0
-  StateChangeEnableable: 1
+  StateChangeEnableable: 0
   StateChangeStructural: 0
   StateChangeValue: 0
   StateChangeProfiling: 0
   TextureUpdate: 0
-  OmnibotSpawner: 0
-  Omnibotmovement: 0
+  OmnibotSpawner: 1
+  Omnibotmovement: 1
 --- !u!4 &1154956091
 Transform:
   m_ObjectHideFlags: 0
