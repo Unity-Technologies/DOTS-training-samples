@@ -48,7 +48,7 @@ public partial struct StationSpawningSystem : ISystem
 //             transform.ValueRW.Position = offset;
 //         }
         
-        var trackArchetype = em.CreateArchetype(typeof(TrackIDComponent), typeof(Track));
+        var trackArchetype = em.CreateArchetype(typeof(TrackIDComponent));
         var numTracks = stationConfig.NumLines * 2;
         var trackEntities = CollectionHelper.CreateNativeArray<Entity>(numTracks, Allocator.Temp);
         em.CreateEntity(trackArchetype, trackEntities);

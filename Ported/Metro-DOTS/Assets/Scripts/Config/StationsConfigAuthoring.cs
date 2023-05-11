@@ -24,8 +24,8 @@ public class StationsConfigAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new StationConfig
             {
-                StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Dynamic),
-                TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Dynamic),
+                StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Renderable),
+                TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Renderable),
                 Spacing = authoring.Spacing,
                 NumStations = authoring.NumStations,
                 TrackACenter = authoring.TrackACenter,

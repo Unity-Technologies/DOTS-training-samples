@@ -13,12 +13,12 @@ public partial struct TrainSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         var builder = new EntityQueryBuilder(Allocator.Temp);
-        builder.WithAny<Track>();
+        builder.WithAny<TrackIDComponent>();
         m_trackQuery = state.GetEntityQuery(builder);
         entityHandle = state.GetEntityTypeHandle();
         
         state.RequireForUpdate<Config>();
-        state.RequireForUpdate<Track>();
+        state.RequireForUpdate<TrackIDComponent>();
         state.RequireForUpdate<StationIDComponent>();
     }
     
