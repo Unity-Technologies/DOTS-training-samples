@@ -18,7 +18,7 @@ public class OmnibotAuthoring : MonoBehaviour
                 WaterGatherSpeed = .1f,
                 MaxWaterCapacity = .3f,
                 MaxDouseAmount = .5f,
-                DouseRadius = .1f,
+                DouseRadius = 5f,
                // OmnibotPosition = authoring.transform.localPosition
             });
             

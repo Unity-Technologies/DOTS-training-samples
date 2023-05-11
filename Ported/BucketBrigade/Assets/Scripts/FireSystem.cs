@@ -56,7 +56,7 @@ partial struct AddFireJob : IJobEntity {
     }
 }
 
-[WithAll(typeof(Fire))]
+
 [BurstCompile]
 public partial struct FireJob : IJobEntity {
     [ReadOnly] public NativeArray<Fire> neighoringFires;

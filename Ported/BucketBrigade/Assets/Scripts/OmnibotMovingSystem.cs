@@ -197,6 +197,13 @@ public partial struct OmnibotMovingJob : IJobEntity
 
                     break;
                 case OmnibotState.DouseFire:
+                    if (fireLookup[omnibot.TargetFireEntity].t < math.EPSILON)
+                    {
+                        omnibot.OmnibotState = OmnibotState.LookForFire;
+                        return;
+                    }
+                    
+                    
                     // Dump Water
                     omnibot.CurrentWaterCarryingVolume = 0;
 
@@ -223,7 +230,7 @@ public partial struct OmnibotMovingJob : IJobEntity
                             }
                         }
                     }
-                    Debug.LogWarning("HERE");
+                    // Debug.LogWarning("HERE");
                     omnibot.OmnibotState = OmnibotState.LookForWater;
                     break;
             }

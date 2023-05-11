@@ -13,16 +13,16 @@ public partial struct TeambotMovingSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Water>(); 
+        state.RequireForUpdate<Water>();
         state.RequireForUpdate<Fire>();
         state.RequireForUpdate<Grid>();
     }
-
+ 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Grid>();
-        
+
         var teambotLookup = SystemAPI.GetComponentLookup<Teambot>();
         var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>();
         var waterLookup = SystemAPI.GetComponentLookup<Water>();
@@ -69,7 +69,7 @@ public partial struct TeambotMovingSystem : ISystem
                             WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
                                 teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
 
-                            break; 
+                            break;
 
                         case TeamBotState.WaterHolder:
                             if (teambot.ValueRO.waterFillElapsedTime < config.TeambotWaterFillDuration)
@@ -79,7 +79,6 @@ public partial struct TeambotMovingSystem : ISystem
                                 var water = waterLookup[teambot.ValueRO.TargetWaterEntity];
                                 water.Volume -= config.TeambotWaterGatherSpeed * deltaTime;
                                 waterLookup[teambot.ValueRO.TargetWaterEntity] = water;
-                                
                             }
                             else
                             {
@@ -159,7 +158,7 @@ public partial struct TeambotMovingSystem : ISystem
 
                             break;
                         case TeamBotState.WaterHolder:
-                            
+
                             foreach (var (transformFire, fire) in SystemAPI
                                          .Query<RefRO<LocalTransform>, RefRW<Fire>>())
                             {
@@ -175,13 +174,13 @@ public partial struct TeambotMovingSystem : ISystem
                                                           (1 - distance / config.TeambotDouseRadius);
                                         fire.ValueRW.t -= douseAmount;
                                         if (fire.ValueRO.t < 0)
-                                        { 
+                                        {
                                             fire.ValueRW.t = 0;
                                         }
                                     }
                                 }
                             }
-                            
+
                             PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
                                 SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
                             break;
@@ -220,9 +219,11 @@ public partial struct TeambotMovingSystem : ISystem
     }
 
     static void PassWaterToNextTeamate(RefRW<Teambot> teambot, RefRW<LocalTransform> teambotTransform,
-        ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime, float travelSpeed)
+        ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime,
+        float travelSpeed)
     {
-        if (WalkToPosition(teambot, teambotTransform, deltaTime, transformLookup[teambot.ValueRO.PassToTarget].Position, travelSpeed))
+        if (WalkToPosition(teambot, teambotTransform, deltaTime, transformLookup[teambot.ValueRO.PassToTarget].Position,
+                travelSpeed))
         {
             // set next person to be the water holder
             var newWaterHolder = teambotLookup[teambot.ValueRO.PassToTarget];
@@ -232,7 +233,6 @@ public partial struct TeambotMovingSystem : ISystem
             // I'm no longer water holder
             teambot.ValueRW.State = TeamBotState.Idle;
         }
-
     }
 
     static float3 GetPasserPosition(ComponentLookup<LocalTransform> transformLookup,
@@ -244,22 +244,31 @@ public partial struct TeambotMovingSystem : ISystem
         float3 targetWaterPos = default;
         float3 targetFirePos = default;
 
-        try
-        {
-            waterGatherer = teambotLookup[teambot.ValueRO.TeamWaterGatherer];
-            fireDouser = teambotLookup[teambot.ValueRO.TeamFireDouser];
-            targetWaterPos = transformLookup[waterGatherer.TargetWaterEntity].Position;
-            targetWaterPos.y = 0;
-            targetFirePos = transformLookup[fireDouser.TargetFireEntity].Position;
-            targetFirePos.y = 0;
-        }
 
-        catch (Exception e)
+        if (teambot.ValueRO.TeamWaterGatherer == Entity.Null ||
+            teambot.ValueRO.TeamFireDouser == Entity.Null)
         {
             offsetVec = float3.zero;
             offsetMagnitude = 0;
             return float3.zero;
         }
+        
+        waterGatherer = teambotLookup[teambot.ValueRO.TeamWaterGatherer];
+        fireDouser = teambotLookup[teambot.ValueRO.TeamFireDouser];
+
+        if (waterGatherer.TargetWaterEntity == Entity.Null ||
+            fireDouser.TargetFireEntity == Entity.Null)
+        {
+            offsetVec = float3.zero;
+            offsetMagnitude = 0;
+            return float3.zero;
+        }
+
+        targetWaterPos = transformLookup[waterGatherer.TargetWaterEntity].Position;
+        targetWaterPos.y = 0;
+        targetFirePos = transformLookup[fireDouser.TargetFireEntity].Position;
+        targetFirePos.y = 0;
+
 
         var linePos = math.lerp(
             targetWaterPos,
