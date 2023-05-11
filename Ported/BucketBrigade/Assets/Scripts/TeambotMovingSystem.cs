@@ -17,226 +17,301 @@ public partial struct TeambotMovingSystem : ISystem
         state.RequireForUpdate<Fire>();
         state.RequireForUpdate<Grid>();
     }
- 
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var config = SystemAPI.GetSingleton<Grid>();
+        var watersQuery = SystemAPI.QueryBuilder().WithAll<Water, LocalTransform>().Build();
+        var waters = watersQuery.ToComponentDataArray<Water>(state.WorldUpdateAllocator);
+        var waterEntities = watersQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var waterTransform = watersQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
 
+        var fireQuery = SystemAPI.QueryBuilder().WithAll<Fire, LocalTransform>().Build();
+        var fires = fireQuery.ToComponentDataArray<Fire>(state.WorldUpdateAllocator);
+        var fireEntities = fireQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var fireTransform = fireQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+
+        var waterLookup = SystemAPI.GetComponentLookup<Water>();
+        var fireLookup = SystemAPI.GetComponentLookup<Fire>();
         var teambotLookup = SystemAPI.GetComponentLookup<Teambot>();
         var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>();
-        var waterLookup = SystemAPI.GetComponentLookup<Water>();
-        foreach (var (teambotTransform, teambot) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Teambot>>())
+
+        var config = SystemAPI.GetSingleton<Grid>();
+        var deltaTime = SystemAPI.Time.DeltaTime;
+
+        var job = new TeambotMovingJob
         {
-            var teambotRole = teambot.ValueRW.Role;
-            var teambotState = teambot.ValueRW.State;
-            var teambotPosition = teambotTransform.ValueRW.Position;
-            // var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
-            switch (teambotRole)
-            {
-                case TeamBotRole.WaterGatherer:
+            waters = waters,
+            waterEntities = waterEntities,
+            waterTransforms = waterTransform,
 
-                    switch (teambotState)
-                    {
-                        case TeamBotState.Init:
-                            var nearestWaterDistance = math.INFINITY;
-                            Entity foundEntity = default;
-                            foreach (var (transformWater, water, waterEntity) in SystemAPI
-                                         .Query<RefRO<LocalTransform>, RefRW<Water>>().WithEntityAccess())
+            fires = fires,
+            fireEntities = fireEntities,
+            fireTransforms = fireTransform,
+            transformLookup = transformLookup,
+
+            waterLookup = waterLookup,
+            fireLookup = fireLookup,
+            teambotLookup = teambotLookup,
+
+            config = config,
+            deltaTime = deltaTime,
+        };
+        state.Dependency = job.Schedule(state.Dependency);
+
+
+        // var config = SystemAPI.GetSingleton<Grid>();
+        //
+        // var teambotLookup = SystemAPI.GetComponentLookup<Teambot>();
+        // var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>();
+        // var waterLookup = SystemAPI.GetComponentLookup<Water>();
+        // foreach (var (teambotTransform, teambot) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Teambot>>())
+        // {
+        //     
+        // }
+    }
+}
+
+[WithAll(typeof(Teambot))]
+[BurstCompile] 
+public partial struct TeambotMovingJob : IJobEntity
+{
+    // Water
+    [ReadOnly] public NativeArray<Water> waters;
+    [ReadOnly] public NativeArray<Entity> waterEntities;
+    [ReadOnly] public NativeArray<LocalTransform> waterTransforms;
+
+    // Fire
+    [ReadOnly] public NativeArray<Fire> fires;
+    [ReadOnly] public NativeArray<Entity> fireEntities;
+    [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
+
+    // Lookups
+    public ComponentLookup<Water> waterLookup;
+    public ComponentLookup<Fire> fireLookup;
+    public ComponentLookup<Teambot> teambotLookup;
+    public ComponentLookup<LocalTransform> transformLookup;
+
+    // config
+    public Grid config;
+    public float deltaTime;
+
+    void Execute(Entity teambotEnity)
+    {
+        var teambot = teambotLookup[teambotEnity];
+        var teambotTransform = transformLookup[teambotEnity];
+
+        var teambotRole = teambot.Role;
+        var teambotState = teambot.State;
+        var teambotPosition = teambotTransform.Position;
+        // var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
+        switch (teambotRole)
+        {
+            case TeamBotRole.WaterGatherer: 
+
+                switch (teambotState)
+                {
+                    case TeamBotState.Init:
+                        var nearestWaterDistance = math.INFINITY;
+                        Entity foundEntity = default;
+                        for (var i = 0; i < waters.Length; i++)
+                        {
+                            var waterPos = waterTransforms[i].Position;
+                            waterPos.y = 0; // only travel to ground level
+                            var distance = math.distance(waterPos, teambotPosition);
+                            if (distance < nearestWaterDistance)
                             {
-                                var waterPos = transformWater.ValueRO.Position;
-                                waterPos.y = 0; // only travel to ground level
-                                var distance = math.distance(waterPos, teambotPosition);
-                                if (distance < nearestWaterDistance)
+                                nearestWaterDistance = distance;
+                                foundEntity = waterEntities[i];
+                            }
+                        }
+
+                        if (!float.IsPositiveInfinity(nearestWaterDistance))
+                        {
+                            teambot.TargetWaterEntity = foundEntity;
+                            teambot.TargetPosition = transformLookup[foundEntity].Position;
+                            teambot.TargetPosition.y = 0;
+                            teambot.State = TeamBotState.WaterHolder;
+                        }
+
+                        break;
+
+                    case TeamBotState.Idle:
+                        teambot.waterFillElapsedTime = 0;
+                        WalkToPosition(ref teambot, ref teambotTransform, deltaTime,
+                            teambot.TargetPosition, config.TeambotTravelSpeed);
+
+                        break;
+
+                    case TeamBotState.WaterHolder:
+                        if (teambot.waterFillElapsedTime < config.TeambotWaterFillDuration)
+                        {
+                            teambot.waterFillElapsedTime += deltaTime;
+                            var water = waterLookup[teambot.TargetWaterEntity];
+                            water.Volume -= config.TeambotWaterGatherSpeed * deltaTime;
+                            waterLookup[teambot.TargetWaterEntity] = water;
+                        }
+                        else
+                        {
+                            PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
+                                deltaTime, config.TeambotTravelSpeed);
+                        }
+
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                break;
+            case TeamBotRole.PassTowardsFire:
+                switch (teambotState)
+                {
+                    case TeamBotState.Init:
+                        teambot.State = TeamBotState.Idle;
+                        break;
+                    case TeamBotState.Idle:
+                        var linePos = GetPasserPosition(transformLookup, teambotLookup, ref teambot, out var offsetVec,
+                            out var offsetMagnitude, false);
+
+                        teambot.TargetPosition = linePos + (offsetVec * offsetMagnitude);
+                        WalkToPosition(ref teambot, ref teambotTransform, deltaTime,
+                            teambot.TargetPosition, config.TeambotTravelSpeed);
+                        break;
+                    case TeamBotState.WaterHolder:
+                        PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
+                            deltaTime, config.TeambotTravelSpeed);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                break;
+            case TeamBotRole.FireDouser:
+                switch (teambotState)
+                {
+                    case TeamBotState.Init:
+                        teambot.State = TeamBotState.Idle;
+                        break;
+                    case TeamBotState.Idle:
+                        var waterGatherer = teambotLookup[teambot.TeamWaterGatherer];
+                        var targetWaterPos = transformLookup[waterGatherer.TargetWaterEntity].Position;
+
+                        // find nearest fire
+                        float nearestFireDistance = math.INFINITY;
+                        Entity foundFireEntity = default;
+                        for (var i = 0; i < fires.Length; i++)
+                        {
+                            if (fires[i].t > math.EPSILON)
+                            {
+                                var firePos = fireTransforms[i].Position;
+                                firePos.y = 0; // only travel to ground level
+                                var distance = math.distance(firePos, targetWaterPos);
+                                if (distance < nearestFireDistance)
                                 {
-                                    nearestWaterDistance = distance;
-                                    foundEntity = waterEntity;
+                                    nearestFireDistance = distance;
+                                    foundFireEntity = fireEntities[i];
                                 }
                             }
+                        }
 
-                            if (!float.IsPositiveInfinity(nearestWaterDistance))
+                        if (!float.IsPositiveInfinity(nearestFireDistance))
+                        {
+                            teambot.TargetFireEntity = foundFireEntity;
+                            teambot.TargetPosition = transformLookup[foundFireEntity].Position;
+                            teambot.TargetPosition.y = 0;
+                        }
+
+                        // Go to fire
+                        WalkToPosition(ref teambot, ref teambotTransform, deltaTime,
+                            teambot.TargetPosition, config.TeambotTravelSpeed);
+
+                        break;
+                    case TeamBotState.WaterHolder:
+
+                        for (var i = 0; i < fires.Length; i++)
+                        {
+                            var fire = fires[i];
+                            if (fire.t > math.EPSILON)
                             {
-                                teambot.ValueRW.TargetWaterEntity = foundEntity;
-                                teambot.ValueRW.TargetPosition = transformLookup[foundEntity].Position;
-                                teambot.ValueRW.TargetPosition.y = 0;
-                                teambot.ValueRW.State = TeamBotState.WaterHolder;
-                            }
+                                var firePos = fireTransforms[i].Position;
+                                firePos.y = 0;
 
-                            break;
-
-                        case TeamBotState.Idle:
-                            teambot.ValueRW.waterFillElapsedTime = 0;
-                            WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
-
-                            break;
-
-                        case TeamBotState.WaterHolder:
-                            if (teambot.ValueRO.waterFillElapsedTime < config.TeambotWaterFillDuration)
-                            {
-                                var deltaTime = SystemAPI.Time.DeltaTime;
-                                teambot.ValueRW.waterFillElapsedTime += deltaTime;
-                                var water = waterLookup[teambot.ValueRO.TargetWaterEntity];
-                                water.Volume -= config.TeambotWaterGatherSpeed * deltaTime;
-                                waterLookup[teambot.ValueRO.TargetWaterEntity] = water;
-                            }
-                            else
-                            {
-                                PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                    SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
-                            }
-
-                            break;
-
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    break;
-                case TeamBotRole.PassTowardsFire:
-                    switch (teambotState)
-                    {
-                        case TeamBotState.Init:
-                            teambot.ValueRW.State = TeamBotState.Idle;
-                            break;
-                        case TeamBotState.Idle:
-                            var linePos = GetPasserPosition(transformLookup, teambotLookup, teambot, out var offsetVec,
-                                out var offsetMagnitude, false);
-
-                            teambot.ValueRW.TargetPosition = linePos + (offsetVec * offsetMagnitude);
-                            WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
-                            break;
-                        case TeamBotState.WaterHolder:
-                            PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-
-                    break;
-                case TeamBotRole.FireDouser:
-                    switch (teambotState)
-                    {
-                        case TeamBotState.Init:
-                            teambot.ValueRW.State = TeamBotState.Idle;
-                            break;
-                        case TeamBotState.Idle:
-                            var waterGatherer = teambotLookup[teambot.ValueRO.TeamWaterGatherer];
-                            var targetWaterPos = transformLookup[waterGatherer.TargetWaterEntity].Position;
-
-                            // find nearest fire
-                            float nearestFireDistance = math.INFINITY;
-                            Entity foundFireEntity = default;
-                            foreach (var (transformFire, fire, fireEntity) in SystemAPI
-                                         .Query<RefRO<LocalTransform>, RefRW<Fire>>().WithEntityAccess())
-                            {
-                                if (fire.ValueRO.t > math.EPSILON)
+                                var distance = math.distance(firePos, teambotPosition);
+                                if (distance < config.TeambotDouseRadius)
                                 {
-                                    var firePos = transformFire.ValueRO.Position;
-                                    firePos.y = 0; // only travel to ground level
-                                    var distance = math.distance(firePos, targetWaterPos);
-                                    if (distance < nearestFireDistance)
+                                    var douseAmount = config.TeambotMaxDouseAmount *
+                                                      (1 - distance / config.TeambotDouseRadius);
+                                    fire.t -= douseAmount;
+                                    if (fire.t < 0)
                                     {
-                                        nearestFireDistance = distance;
-                                        foundFireEntity = fireEntity;
+                                        fire.t = 0;
                                     }
+
+                                    fireLookup[fireEntities[i]] = fire;
                                 }
                             }
+                        }
 
-                            if (!float.IsPositiveInfinity(nearestFireDistance))
-                            {
-                                teambot.ValueRW.TargetFireEntity = foundFireEntity;
-                                teambot.ValueRW.TargetPosition = transformLookup[foundFireEntity].Position;
-                                teambot.ValueRW.TargetPosition.y = 0;
-                            }
-
-                            // Go to fire
-                            WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
-
-                            break;
-                        case TeamBotState.WaterHolder:
-
-                            foreach (var (transformFire, fire) in SystemAPI
-                                         .Query<RefRO<LocalTransform>, RefRW<Fire>>())
-                            {
-                                if (fire.ValueRO.t > math.EPSILON)
-                                {
-                                    var firePos = transformFire.ValueRO.Position;
-                                    firePos.y = 0;
-
-                                    var distance = math.distance(firePos, teambotPosition);
-                                    if (distance < config.TeambotDouseRadius)
-                                    {
-                                        var douseAmount = config.TeambotMaxDouseAmount *
-                                                          (1 - distance / config.TeambotDouseRadius);
-                                        fire.ValueRW.t -= douseAmount;
-                                        if (fire.ValueRO.t < 0)
-                                        {
-                                            fire.ValueRW.t = 0;
-                                        }
-                                    }
-                                }
-                            }
-
-                            PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                        PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
+                            deltaTime, config.TeambotTravelSpeed);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
 
-                    break;
-                case TeamBotRole.PassTowardsWater:
-                    switch (teambotState)
-                    {
-                        case TeamBotState.Init:
-                            teambot.ValueRW.State = TeamBotState.Idle;
-                            break;
-                        case TeamBotState.Idle:
-                            var linePos = GetPasserPosition(transformLookup, teambotLookup, teambot, out var offsetVec,
-                                out var offsetMagnitude, true);
-                            teambot.ValueRW.TargetPosition = linePos + (offsetVec * offsetMagnitude);
-                            WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
-                            break;
-                        case TeamBotState.WaterHolder:
-                            PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                break;
+            case TeamBotRole.PassTowardsWater:
+                switch (teambotState)
+                {
+                    case TeamBotState.Init:
+                        teambot.State = TeamBotState.Idle;
+                        break;
+                    case TeamBotState.Idle:
+                        var linePos = GetPasserPosition(transformLookup, teambotLookup,ref  teambot, out var offsetVec,
+                            out var offsetMagnitude, true);
+                        teambot.TargetPosition = linePos + (offsetVec * offsetMagnitude);
+                        WalkToPosition(ref teambot, ref teambotTransform, deltaTime,
+                            teambot.TargetPosition, config.TeambotTravelSpeed);
+                        break;
+                    case TeamBotState.WaterHolder:
+                        PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
+                            deltaTime, config.TeambotTravelSpeed);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
+
+
+        teambotLookup[teambotEnity] = teambot;
+        transformLookup[teambotEnity] = teambotTransform;
     }
 
-    static void PassWaterToNextTeamate(RefRW<Teambot> teambot, RefRW<LocalTransform> teambotTransform,
+    static void PassWaterToNextTeamate(ref Teambot teambot, ref LocalTransform teambotTransform,
         ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime,
         float travelSpeed)
     {
-        if (WalkToPosition(teambot, teambotTransform, deltaTime, transformLookup[teambot.ValueRO.PassToTarget].Position,
+        if (WalkToPosition(ref teambot, ref teambotTransform, deltaTime, transformLookup[teambot.PassToTarget].Position,
                 travelSpeed))
         {
             // set next person to be the water holder
-            var newWaterHolder = teambotLookup[teambot.ValueRO.PassToTarget];
+            var newWaterHolder = teambotLookup[teambot.PassToTarget];
             newWaterHolder.State = TeamBotState.WaterHolder;
-            teambotLookup[teambot.ValueRO.PassToTarget] = newWaterHolder;
+            teambotLookup[teambot.PassToTarget] = newWaterHolder;
 
             // I'm no longer water holder
-            teambot.ValueRW.State = TeamBotState.Idle;
+            teambot.State = TeamBotState.Idle;
         }
     }
 
     static float3 GetPasserPosition(ComponentLookup<LocalTransform> transformLookup,
-        ComponentLookup<Teambot> teambotLookup, RefRW<Teambot> teambot, out float3 offsetVec,
+        ComponentLookup<Teambot> teambotLookup, ref Teambot teambot, out float3 offsetVec,
         out float offsetMagnitude, bool flip)
     {
         Teambot waterGatherer = default;
@@ -245,16 +320,16 @@ public partial struct TeambotMovingSystem : ISystem
         float3 targetFirePos = default;
 
 
-        if (teambot.ValueRO.TeamWaterGatherer == Entity.Null ||
-            teambot.ValueRO.TeamFireDouser == Entity.Null)
+        if (teambot.TeamWaterGatherer == Entity.Null ||
+            teambot.TeamFireDouser == Entity.Null)
         {
             offsetVec = float3.zero;
             offsetMagnitude = 0;
             return float3.zero;
         }
-        
-        waterGatherer = teambotLookup[teambot.ValueRO.TeamWaterGatherer];
-        fireDouser = teambotLookup[teambot.ValueRO.TeamFireDouser];
+
+        waterGatherer = teambotLookup[teambot.TeamWaterGatherer];
+        fireDouser = teambotLookup[teambot.TeamFireDouser];
 
         if (waterGatherer.TargetWaterEntity == Entity.Null ||
             fireDouser.TargetFireEntity == Entity.Null)
@@ -273,7 +348,7 @@ public partial struct TeambotMovingSystem : ISystem
         var linePos = math.lerp(
             targetWaterPos,
             targetFirePos,
-            teambot.ValueRO.PositionInLine);
+            teambot.PositionInLine);
 
         var flipVal = flip ? -1 : 1;
 
@@ -282,31 +357,31 @@ public partial struct TeambotMovingSystem : ISystem
             math.normalize(targetFirePos - targetWaterPos);
         offsetVec = math.mul(rotation, originalVector);
 
-        float value = teambot.ValueRO.PositionInLine;
+        float value = teambot.PositionInLine;
         offsetMagnitude = 4 * value * (1 - value) * 2;
 
         return linePos;
     }
 
-    static bool WalkToPosition(RefRW<Teambot> teambot, RefRW<LocalTransform> teambotTransform, float deltaTime,
+    static bool WalkToPosition(ref Teambot teambot, ref LocalTransform teambotTransform, float deltaTime,
         float3 TargetPos, float travelSpeed)
     {
         var frameTravelDistance = travelSpeed * deltaTime;
         var remainingDistToWater =
-            math.distance(teambotTransform.ValueRW.Position, TargetPos);
+            math.distance(teambotTransform.Position, TargetPos);
 
         // reached destination
         if (frameTravelDistance >= remainingDistToWater)
         {
-            teambotTransform.ValueRW.Position = TargetPos;
+            teambotTransform.Position = TargetPos;
             return true;
         }
         // continue walking
         else
         {
             var travelVecNormalized =
-                math.normalize(TargetPos - teambotTransform.ValueRW.Position);
-            teambotTransform.ValueRW.Position += travelVecNormalized * frameTravelDistance;
+                math.normalize(TargetPos - teambotTransform.Position);
+            teambotTransform.Position += travelVecNormalized * frameTravelDistance;
             return false;
         }
     }

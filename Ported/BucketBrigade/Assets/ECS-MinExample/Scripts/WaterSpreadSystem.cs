@@ -9,7 +9,7 @@ public partial struct WaterSpreadSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // state.RequireForUpdate<Water>();
+        state.RequireForUpdate<Grid>();
     }
 
     [BurstCompile]
