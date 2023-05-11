@@ -19,7 +19,6 @@ public struct QuadrantSingleton : IComponentData
     public NativeParallelMultiHashMap<int, QuadrantData> quadrantMultiHashMap;
 }
 
-
 //[DisableAutoCreation]
 public partial struct QuadrantSystem : ISystem
 {
@@ -66,7 +65,7 @@ public partial struct QuadrantSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-       zMult = 100;
+       zMult = 1000;
        
 
        state.EntityManager.AddComponentData(state.SystemHandle, new QuadrantSingleton{
@@ -86,7 +85,7 @@ public partial struct QuadrantSystem : ISystem
             .quadrantMultiHashMap;
         
         var config = SystemAPI.GetSingleton<Config>();
-        radius = config.heatRadius*config.cellSize*2;
+        radius = config.heatRadius*config.cellSize*1.5f;
         
         EntityQuery tileEntities = SystemAPI.QueryBuilder().WithAll<Tile,OnFire>().Build();
 
