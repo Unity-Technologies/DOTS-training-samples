@@ -156,6 +156,8 @@ MonoBehaviour:
     type: 3}
   TrackPrefab: {fileID: 59487317104500460, guid: 22dbc0a64aa1fc7428e1611803758ce9,
     type: 3}
+  QueuePrefab: {fileID: 1572788466017150334, guid: 1a8ed6d9df0cb0a49894ac6247bfe3de,
+    type: 3}
   NumStations: 10
   Spacing: 50
   TrackACenter:
@@ -169,7 +171,7 @@ MonoBehaviour:
   StationWidth: 32
   NumLines: 5
   LineSpacing: 24
-  NumCarriadges: 4
+  NumCarriadges: 5
   SpawnPointOffsetFromCenterPoint:
     x: 0
     y: 1.5
