@@ -59,7 +59,7 @@ public partial struct FireJob : IJobEntity {
                 flashpoint = true;
             else if (rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
                 flashpoint = true;
-            else if (upNeighborIndex < neighoringFires.Length&& neighoringFires[upNeighborIndex].t > spreadVal)
+            else if (upNeighborIndex < neighoringFires.Length && neighoringFires[upNeighborIndex].t > spreadVal)
                 flashpoint = true;
             else if (downNeighborIndex >= 0 && neighoringFires[downNeighborIndex].t > spreadVal)
                 flashpoint = true;
