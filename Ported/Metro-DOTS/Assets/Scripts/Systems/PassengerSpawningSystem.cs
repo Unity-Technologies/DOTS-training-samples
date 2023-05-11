@@ -1,9 +1,8 @@
+using Components;
 using Metro;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateAfter(typeof(StationSpawningSystem))]
 public partial struct PassengerSpawningSystem : ISystem
@@ -26,47 +25,35 @@ public partial struct PassengerSpawningSystem : ISystem
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
-        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations, Allocator.Temp);
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerPlatform * stationConfig.NumStations * 2, Allocator.Temp);
         em.Instantiate(config.PassengerEntity, passengers);
 
-        int passengersPerQueue = config.NumPassengersPerStation / stationConfig.NumQueingPoints;
-        float distanceBetweenPassenger = 1;
+        int passengersPerQueue = config.NumPassengersPerPlatform / stationConfig.NumQueingPointsPerPlatform;
 
         int queueId = 0;
-        foreach (var (transform, queueEntity) in
-                 SystemAPI.Query<RefRO<LocalTransform>>()
-                     .WithAll<QueueComponent>()
+        foreach (var (transform, queueComp, queueEntity) in
+                 SystemAPI.Query<RefRO<LocalTransform>, RefRW<QueueComponent>>()
                      .WithEntityAccess())
         {
             var queuePassengersBuffer = state.EntityManager.GetBuffer<QueuePassengers>(queueEntity);
-            var queueComp = state.EntityManager.GetComponentData<QueueComponent>(queueEntity);
-            queueComp.StartIndex = 0;
+            queueComp.ValueRW.StartIndex = 0;
             
             for (int j = 0; j < passengersPerQueue; j++)
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
-                lc.Position += new float3(0, 0, distanceBetweenPassenger * j);
+                lc.Position -= transform.ValueRO.Forward() * config.DistanceBetweenPassengers * j;
                 
-                queuePassengersBuffer.ElementAt(queueComp.StartIndex + queueComp.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
-                queueComp.QueueLength++;
+                queuePassengersBuffer.ElementAt(queueComp.ValueRW.StartIndex + queueComp.ValueRW.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
+                queueComp.ValueRW.QueueLength++;
 
-                em.SetComponentData<LocalTransform>(passengers[queueId * passengersPerQueue + j], lc);
+                var passenger = passengers[queueId * passengersPerQueue + j];
+                em.SetComponentData<LocalTransform>(passenger, lc);
+                em.SetComponentData<PassengerTravel>(passenger, new PassengerTravel { Station = queueComp.ValueRW.Station });
             }
-            em.SetComponentData<QueueComponent>(queueEntity, queueComp);
             queueId++;
         }
 
         state.Enabled = false;
-
-        // i = 0;
-        // foreach (var transform in
-        //             SystemAPI.Query<RefRO<LocalTransform>>()
-        //             .WithAll<StationIDComponent>())
-        // {
-        //     ecb.SetComponent<LocalTransform>(passengers[i], transform.ValueRO);
-        //     i++;
-        // }
-
     }
 }

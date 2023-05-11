@@ -18,7 +18,12 @@ public class PassengerAuthoring : MonoBehaviour
                 Height = authoring.MaxHeight
             });
             AddComponent(entity, new PassengerOnboarded());
+            AddComponent(entity, new PassengerOffboarded());
+            AddComponent(entity, new PassengerWalkingToQueue());
+            AddComponent(entity, new PassengerTravel());
             SetComponentEnabled<PassengerOnboarded>(entity, false);
+            SetComponentEnabled<PassengerOffboarded>(entity, false);
+            SetComponentEnabled<PassengerWalkingToQueue>(entity, false);
         }
     }
 }
