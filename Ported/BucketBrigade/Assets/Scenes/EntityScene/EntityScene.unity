@@ -282,12 +282,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c27df7532c9d4e748950865c0daedc96, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridSize: 50
+  GridSize: 75
   MinGridY: -2
   GridCellSize: 1
-  NumOmnibot: 4
+  NumOmnibot: 6
   BotScale: 3
-  NumTeams: 1
+  NumTeams: 3
   NumTeambotPassTowardsWater: 6
   NumTeambotPassTowardsFire: 6
   TeambotTravelSpeed: 5
