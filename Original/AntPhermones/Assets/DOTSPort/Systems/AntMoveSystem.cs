@@ -188,17 +188,22 @@ public partial struct AntMoveSystem : ISystem
             float dy = vy * DeltaTime;
 
             // reverse on map edges
+            bool flip = false;
             if (ant.Position.x + dx < 0 || ant.Position.x + dx > mapSizeX)
             {
-                //ant.FacingAngle += math.PI;
+                flip = true;
                 vx = -vx;
                 dx = vx * DeltaTime;
             }
             if (ant.Position.y + dy < 0 || ant.Position.y + dy > mapSizeY)
             {
-                //ant.FacingAngle += math.PI;
+                flip = true;
                 vy = -vy;
                 dy = vy * DeltaTime;
+            }
+            if (flip)
+            {
+                ant.FacingAngle += math.PI;
             }
             ant.Position.x += dx;
             ant.Position.y += dy;
