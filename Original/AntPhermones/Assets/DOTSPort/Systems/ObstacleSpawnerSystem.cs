@@ -76,6 +76,9 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
                     PrototypeObstaclePrim.AngleRange = ((PrototypeObstaclePrim.AngleStart < PrototypeObstaclePrim.AngleEnd) ? (PrototypeObstaclePrim.AngleEnd - PrototypeObstaclePrim.AngleStart) : (PrototypeObstaclePrim.AngleEnd + 2.0f * Mathf.PI - PrototypeObstaclePrim.AngleStart));
 
+                    PrototypeObstaclePrim.VectorToStart = new float2(math.cos(PrototypeObstaclePrim.AngleStart), math.sin(PrototypeObstaclePrim.AngleStart));
+                    PrototypeObstaclePrim.VectorToEnd = new float2(math.cos(PrototypeObstaclePrim.AngleEnd), math.sin(PrototypeObstaclePrim.AngleEnd));
+
                     // Actually spawn the collision objects
                     ObstaclePrimtitveBuffer.Add(PrototypeObstaclePrim);                    
 
@@ -92,65 +95,29 @@ public partial struct ObstacleSpawnerSystem : ISystem
         k_ProfileMarker_CalculateRayCollision.Begin();
 
         Param = 1000000000.0f;
+
         int PrimIndex = -1;
-        for( int i = 0; i < ObstaclePrimtitveBuffer.Length; i++ )
+        for (int i = 0; i < ObstaclePrimtitveBuffer.Length; i++)
         {
             ObstacleArcPrimitive prim = ObstaclePrimtitveBuffer[i];
-            float2 VectorFromCenterToPoint = point - prim.Position;
-            float a = math.dot(direction, direction);
-            float b = 2.0f * math.dot(direction, VectorFromCenterToPoint);
-            float c = math.dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
-            // Solve the quadratic equation
-            float discriminant = b * b - 4.0f * a * c;
-            if (0 > discriminant)
+            float t;
+            if( CalculateRayCollisionWithPrimitive(prim, point, direction, out t) )
             {
-                CollisionPoint = point;
-                continue;
-            }
-            discriminant = Mathf.Sqrt(discriminant);
-            float t1 = (-b - discriminant) / (2.0f * a);
-            float t2 = (-b + discriminant) / (2.0f * a);
-            // Calculate the smallest positive T value
-            float t = 0.0f;
-            if ((0.0f > t1) && (0.0f > t2)) continue;
-            if ((0.0f <= t1) && (0.0f <= t2))
-            {
-                t = Mathf.Min(t1, t2);
-            }
-            else if (0.0f <= t1)
-            {
-                t = t1;
-            }
-            else if (0.0f <= t2)
-            {
-                t = t2;
-            }
-            // See if this collision is the closest
-            if (t < Param)
-            {
-                if ((0.0f <= t) && (1.0f >= t))
+                if (t < Param)
                 {
-                    float2 TestCollPoint = point + t * direction;
-                    float2 CollisionDirection = TestCollPoint - prim.Position;
-                    float Angle = Mathf.Atan2(CollisionDirection.y, CollisionDirection.x);
-                    float AngleStart = prim.AngleStart;
-                    float AngleEnd = prim.AngleEnd;
-                    if (prim.AngleEnd < prim.AngleStart)
+                    if ((0.0f <= t) && (1.0f >= t))
                     {
-                        AngleEnd += Mathf.PI * 2.0f;
-                    }
-                    if (prim.AngleStart > Angle)
-                    {
-                        Angle += Mathf.PI * 2.0f;
-                    }
-                    if ((Angle >= AngleStart) && (Angle <= AngleEnd))
-                    {
-                        Param = t;
-                        PrimIndex = i;
+                        float2 TestCollPoint = point + t * direction;
+                        if (CalculateCollisionOnPrimitive(prim, TestCollPoint))
+                        {
+                            Param = t;
+                            PrimIndex = i;
+                        }
                     }
                 }
             }
         }
+
         bool ReturnValue = false;
         if (-1 == PrimIndex)
         {
@@ -165,6 +132,93 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
         k_ProfileMarker_CalculateRayCollision.End();
         return ReturnValue;
+    }
+
+    public static bool CalculateCollisionOnPrimitive(in ObstacleArcPrimitive prim, in float2 CollisionPoint)
+    {
+        float2 CollisionDirection = CollisionPoint - prim.Position;
+        bool bOldTest = false;
+        if (bOldTest)
+        {
+            float Angle = Mathf.Atan2(CollisionDirection.y, CollisionDirection.x);
+            float AngleStart = prim.AngleStart;
+            float AngleEnd = prim.AngleEnd;
+            if (prim.AngleEnd < prim.AngleStart)
+            {
+                AngleEnd += Mathf.PI * 2.0f;
+            }
+            if (prim.AngleStart > Angle)
+            {
+                Angle += Mathf.PI * 2.0f;
+            }
+            if ((Angle >= AngleStart) && (Angle <= AngleEnd))
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if (math.PI < prim.AngleRange)
+            {
+                float DetStart = CollisionDirection.x * prim.VectorToEnd.y - CollisionDirection.y * prim.VectorToEnd.x;
+                float DetEnd = CollisionDirection.x * prim.VectorToStart.y - CollisionDirection.y * prim.VectorToStart.x;
+
+                return !((DetStart <= 0.0f) && (DetEnd >= 0.0f));
+            }
+            else
+            {
+                float DetStart = CollisionDirection.x * prim.VectorToStart.y - CollisionDirection.y * prim.VectorToStart.x;
+                float DetEnd = CollisionDirection.x * prim.VectorToEnd.y - CollisionDirection.y * prim.VectorToEnd.x;
+
+                return ((DetStart <= 0.0f) && (DetEnd >= 0.0f));
+            }
+        }
+
+        return false;
+    }
+
+    public static bool CalculateRayCollisionWithPrimitive(in ObstacleArcPrimitive prim, in float2 point, in float2 direction, out float Param)
+    {
+        Param = 1000000000f;
+
+        int PrimIndex = -1;
+        {
+            float2 VectorFromCenterToPoint = point - prim.Position;
+            float a = math.dot(direction, direction);
+            float b = 2.0f * math.dot(direction, VectorFromCenterToPoint);
+            float c = math.dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
+            // Solve the quadratic equation
+            float discriminant = b * b - 4.0f * a * c;
+            if (0 > discriminant)
+            {
+                return false;
+            }
+            discriminant = Mathf.Sqrt(discriminant);
+            float t1 = (-b - discriminant) / (2.0f * a);
+            float t2 = (-b + discriminant) / (2.0f * a);
+            // Calculate the smallest positive T value
+            float t = 0.0f;
+            if ((0.0f > t1) && (0.0f > t2))
+            {
+                return false;
+            }
+
+            if ((0.0f <= t1) && (0.0f <= t2))
+            {
+                Param = Mathf.Min(t1, t2);
+            }
+            else if (0.0f <= t1)
+            {
+                Param = t1;
+            }
+            else if (0.0f <= t2)
+            {
+                Param = t2;
+            }
+            // See if this collision is the closest
+        }
+
+        return true;
     }
 }
 
@@ -185,7 +239,7 @@ public struct ObstacleArcPrimitive : IBufferElementData
     public float AngleEnd;
     public float AngleRange;
 
-    public float iAnglePerObstacle;
-    public int iNumObstacles;
+    public float2 VectorToStart;
+    public float2 VectorToEnd;
 }
 
