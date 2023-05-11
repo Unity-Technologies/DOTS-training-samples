@@ -2,9 +2,7 @@ using Components;
 using Metro;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateAfter(typeof(StationSpawningSystem))]
 public partial struct PassengerSpawningSystem : ISystem
@@ -27,10 +25,10 @@ public partial struct PassengerSpawningSystem : ISystem
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
-        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations, Allocator.Temp);
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerPlatform * stationConfig.NumStations * 2, Allocator.Temp);
         em.Instantiate(config.PassengerEntity, passengers);
 
-        int passengersPerQueue = config.NumPassengersPerStation / stationConfig.NumQueingPoints;
+        int passengersPerQueue = config.NumPassengersPerPlatform / stationConfig.NumQueingPointsPerPlatform;
 
         int queueId = 0;
         foreach (var (transform, queueComp, queueEntity) in
@@ -44,7 +42,7 @@ public partial struct PassengerSpawningSystem : ISystem
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
-                lc.Position += new float3(0, 0, config.DistanceBetweenPassengers * j);
+                lc.Position -= transform.ValueRO.Forward() * config.DistanceBetweenPassengers * j;
                 
                 queuePassengersBuffer.ElementAt(queueComp.ValueRW.StartIndex + queueComp.ValueRW.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
                 queueComp.ValueRW.QueueLength++;

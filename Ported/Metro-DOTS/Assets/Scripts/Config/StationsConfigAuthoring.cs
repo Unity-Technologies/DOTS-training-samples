@@ -31,7 +31,7 @@ public class StationsConfigAuthoring : MonoBehaviour
                 TrackACenter = authoring.TrackACenter,
                 TrackBCenter = authoring.TrackBCenter,
                 SpawnPointOffsetFromCenterPoint = authoring.SpawnPointOffsetFromCenterPoint,
-                NumQueingPoints = authoring.NumCarriadges,
+                NumQueingPointsPerPlatform = authoring.NumCarriadges,
                 StationWidth = authoring.StationWidth
             });
         }
@@ -48,6 +48,6 @@ public struct StationConfig : IComponentData
     public float3 TrackACenter;
     public float3 TrackBCenter;
     public float3 SpawnPointOffsetFromCenterPoint;
-    public int NumQueingPoints;
+    public int NumQueingPointsPerPlatform;
     public float StationWidth;
 }

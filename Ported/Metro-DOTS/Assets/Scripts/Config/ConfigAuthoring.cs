@@ -24,7 +24,7 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.None);
                 AddComponent(entity, new Config
                 {
-                    NumPassengersPerStation = authoring.NumPassengersPerStation,
+                    NumPassengersPerPlatform = authoring.NumPassengersPerStation,
                     PassengerSpeed = authoring.PassengerSpeed,
                     MaxPassengerPerQueue = authoring.MaxPassengerPerQueue,
                     DistanceBetweenPassengers = authoring.DistanceBetweenPassengers,
@@ -44,7 +44,7 @@ namespace Metro
     public struct Config : IComponentData
     {
         public Entity PassengerEntity;
-        public int NumPassengersPerStation;
+        public int NumPassengersPerPlatform;
         public int MaxPassengerPerQueue;
         public float DistanceBetweenPassengers;
         public float PassengerSpeed; // unit per second

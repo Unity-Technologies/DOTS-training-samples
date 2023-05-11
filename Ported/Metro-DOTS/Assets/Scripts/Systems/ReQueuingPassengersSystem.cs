@@ -68,8 +68,8 @@ public partial struct ReQueuingPassengersSystem : ISystem
                 queueInfo.QueueLength++;
                 state.EntityManager.SetComponentData<QueueComponent>(queue, queueInfo);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, false);
-                
-                passengerLocalTransform.ValueRW.Rotation = quaternion.RotateY(math.PI);
+
+                passengerLocalTransform.ValueRW.Rotation = queueLocalTransform.Rotation;
             }
             else
             {

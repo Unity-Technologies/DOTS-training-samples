@@ -105,8 +105,8 @@ public partial struct StationSpawningSystem : ISystem
             }
         }
 
-        // TODO Add random spawn points between 3-5 for same number of carriadges
-        int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPoints /** 2*/);
+        // TODO Add random spawn points between 3-5 for same number of carriages
+        int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPointsPerPlatform * 2);
         var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
         em.Instantiate(stationConfig.QueueEntity, queuePoints);
 
@@ -133,14 +133,18 @@ public partial struct StationSpawningSystem : ISystem
         {
             var stationsQueueBuffer = em.GetBuffer<StationQueuesElement>(stations[i]);
 
-            for (int k = 0; k < stationConfig.NumQueingPoints; k++)
+            for (int k = 0; k < stationConfig.NumQueingPointsPerPlatform; k++)
             {
-                LocalTransform lc = new LocalTransform();
-                float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
-                lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
-                lc.Scale = 1;
-                lc.Rotation = quaternion.RotateY(math.PI);
-                var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
+                float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPointsPerPlatform - 1f)) / 2f;
+                LocalTransform lc = new LocalTransform
+                {
+                    Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint +
+                               transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
+                               new float3(k * carriadgeLength, 0, 0),
+                    Scale = 1f,
+                    Rotation = quaternion.RotateY(math.PI)
+                };
+                var queuePointIndex = i * stationConfig.NumQueingPointsPerPlatform * 2 + k * 2;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
 
                 var queueComponent = em.GetComponentData<QueueComponent>(queuePoints[queuePointIndex]);
@@ -148,13 +152,24 @@ public partial struct StationSpawningSystem : ISystem
                 em.SetComponentData(queuePoints[queuePointIndex], queueComponent);
 
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointIndex] });
+                
+                LocalTransform lcB = new LocalTransform
+                {
+                    Position = stationConfig.TrackBCenter + stationConfig.SpawnPointOffsetFromCenterPoint * new float3(1f, 1f, -1f) +
+                               transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
+                               new float3(k * carriadgeLength, 0, 0),
+                    Scale = 1f
+                };
+                var queuePointBIndex = i * stationConfig.NumQueingPointsPerPlatform * 2 + k * 2 + 1;
+                em.SetComponentData<LocalTransform>(queuePoints[queuePointBIndex], lcB);
+
+                var queueBInfo = em.GetComponentData<QueueComponent>(queuePoints[queuePointIndex]);
+                queueBInfo.Station = station;
+                em.SetComponentData(queuePoints[queuePointBIndex], queueBInfo);
+
+                stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointBIndex] });
             }
             i++;
-
-            //for (int k = 0; k < stationConfig.NumCarriadges; k++)
-            //{
-            //    // make the x negative
-            //}
         }
 
         state.Enabled = false;
