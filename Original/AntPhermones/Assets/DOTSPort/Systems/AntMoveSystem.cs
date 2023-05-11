@@ -73,11 +73,11 @@ public partial struct AntMoveSystem : ISystem
                     targetPos.x - ant.Item1.ValueRW.Position.x);
                 if (targetAngle - ant.Item1.ValueRW.FacingAngle > math.PI)
                 {
-                    ant.Item1.ValueRW.FacingAngle += math.PI / 2f;
+                    ant.Item1.ValueRW.FacingAngle += math.PI * 2f;
                 }
                 else if (targetAngle - ant.Item1.ValueRW.FacingAngle < -math.PI)
                 {
-                    ant.Item1.ValueRW.FacingAngle -= math.PI / 2f;
+                    ant.Item1.ValueRW.FacingAngle -= math.PI * 2f;
                 }
                 else
                 {
