@@ -1,20 +1,85 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
 
 public partial struct AntMoveSystem : ISystem
 {
+    // DynamicBuffer<ObstacleArcPrimitive> ObstacleArcPrimitiveBuffer;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<AntData>();
         state.RequireForUpdate<FoodData>();
         state.RequireForUpdate<GlobalSettings>();
+        // state.RequireForUpdate<ObstacleArcPrimitive>();
     }
     public void OnDestroy(ref SystemState state)
     {
 
     }
+
+    // int ParametricWallSteering(RefRW<AntData> ant, float distance, float mapSize)
+    // {
+    //     int output = 0;
+    // 
+    //     float2 Direction, OutCollision;
+    //     for (int i = -1; i <= 1; i += 2)
+    //     {
+    //         float angle = ant.ValueRO.FacingAngle + i * math.PI * .25f;
+    //         while (angle < 0.0f) angle += 2.0f * math.PI;
+    // 
+    //         float dx = math.cos(angle);
+    //         float dy = math.sin(angle);
+    // 
+    //         Direction.x = dx * distance;
+    //         Direction.y = dy * distance;
+    // 
+    //         float2 AntWorldSpace = ant.ValueRO.Position / mapSize;
+    //         if (ParametricLineCast(AntWorldSpace, AntWorldSpace + Direction, out OutCollision))
+    //         {
+    //             float2 DirectionVec = OutCollision - AntWorldSpace;
+    // 
+    //             if (math.dot(DirectionVec, DirectionVec) > (distance * distance))
+    //             {
+    //                 continue;
+    //             }
+    // 
+    //             float DirectionDist = math.length( DirectionVec );
+    //             float value = 4.0f * (1.0f - DirectionDist / distance);
+    //             output -= i * (int)math.floor(value);
+    //         }
+    //     }
+    //     return output;
+    // }
+    // 
+    // bool ParametricLineCast(float2 point1, float2 point2)
+    // {
+    //     float2 collisionPoint;
+    //     return ParametricLineCast(point1, point2, out collisionPoint);
+    // }
+    // bool ParametricLineCast(float2 point1, float2 point2, out float2 OutCollision)
+    // {
+    //     if (0 != ObstacleArcPrimitiveBuffer.Length)
+    //     {
+    //         float OutParam;
+    //         float2 RayVec = point2 - point1;
+    //         if (ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, point1, RayVec, out OutCollision, out OutParam))
+    //         {
+    //             float2 DeltaVec = OutCollision - point1;
+    //             if (math.dot(DeltaVec, DeltaVec) < math.dot(RayVec, RayVec))
+    //             {
+    //                 // Debug.DrawRay(point1, (point2 - point1), Color.red, 0.05f);
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    // 
+    //     // Debug.DrawRay(point1, (point2 - point1), Color.green, 0.05f);
+    //     OutCollision = point2;
+    //     return false;
+    // }
+
     public void OnUpdate(ref SystemState state)
     {
         // make consts configurable
@@ -24,6 +89,7 @@ public partial struct AntMoveSystem : ISystem
         float mapSizeX = 1024f;
         float mapSizeY = 1024f;
         float goalSteerStrength = 0.04f;
+        // float wallSteerStrength = 0.15f;
 
         var settings = SystemAPI.GetSingleton<GlobalSettings>();
         randomSteering = settings.AntRandomSteering;
@@ -32,8 +98,12 @@ public partial struct AntMoveSystem : ISystem
         goalSteerStrength = settings.AntGoalSteerStrength;
         mapSizeX = settings.MapSizeX;
         mapSizeY = settings.MapSizeY;
+        // float mapSize = math.min(mapSizeX, mapSizeY);
+
+        // float antSightDistance = 5.0f;
 
         var food = SystemAPI.GetSingleton<FoodData>();
+        // ObstacleArcPrimitiveBuffer = SystemAPI.GetSingletonBuffer<ObstacleArcPrimitive>();
 
         float dt = SystemAPI.Time.DeltaTime;
 
@@ -115,6 +185,9 @@ public partial struct AntMoveSystem : ISystem
             ant.Item1.ValueRW.Position.y += dy;
 
             // TODO: push ant away from walls
+            // int wallSteering = ParametricWallSteering(ant.Item1, antSightDistance / mapSize, mapSize);
+            // ant.Item1.ValueRW.FacingAngle += pheroSteering * pheromoneSteerStrength;
+            // ant.Item1.ValueRW.FacingAngle += wallSteering * wallSteerStrength;
 
             // flip ant when it hits target
             if (math.distance(ant.Item1.ValueRW.Position, targetPos) < targetRadius)
