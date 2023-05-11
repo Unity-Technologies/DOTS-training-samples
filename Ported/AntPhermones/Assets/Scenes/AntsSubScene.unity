@@ -164,9 +164,9 @@ MonoBehaviour:
     bucketResolution: 16
     randomSteerStrength: 8.021409
     pheromoneSteerStrength: 1.718873
-    pheromoneSteerDistance: 6
+    pheromoneSteerDistance: 3
     wallSteerStrength: 13.75099
-    wallSteerDistance: 3
+    wallSteerDistance: 1.5
     resourceSteerStrength: 4.583662
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
