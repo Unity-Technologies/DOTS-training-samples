@@ -42,7 +42,7 @@ public partial struct ObstaclePresentationSystem : ISystem
                 centerPoints.Add(NextPoint);
             }
             
-            obstacleDrawer.AddObstacle(centerPoints, buffer[i].Radius);
+            obstacleDrawer.AddObstacle(centerPoints, globalSettings.WallThickness * 100);
         }
     }
 }
