@@ -24,11 +24,6 @@ namespace Metro
         }
 
         [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        }
-
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var em = state.EntityManager;
@@ -130,9 +125,9 @@ namespace Metro
             var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
             foreach (var child in children)
             {
-                if (em.HasComponent<UnloadingComponent>(child.Value))
+                if (em.HasComponent<Door>(child.Value))
                 {
-                    ecb.SetComponentEnabled<UnloadingComponent>(child.Value, true);
+                    ecb.SetComponentEnabled<Door>(child.Value, true);
                 }
             }
 
@@ -142,7 +137,7 @@ namespace Metro
             em.SetComponentEnabled<UnloadingComponent>(trainEntity, true);
             em.SetComponentEnabled<EnRouteComponent>(trainEntity, false);
             em.SetComponentEnabled<ArrivingComponent>(trainEntity, false);
-            Debug.Log($"Travel complete: arrived at station {train.ValueRO.StationEntity}");
+            //Debug.Log($"Travel complete: arrived at station {train.ValueRO.StationEntity}");
         }
 
         [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -158,8 +153,8 @@ namespace Metro
             train.ValueRW.Duration += deltaTime;
             if (train.ValueRW.Duration >= config.UnloadingTime)
             {
-                Debug.Log(
-                    $"Loading complete at station {train.ValueRO.StationEntity}, Setting movement state to EnRoute");
+                //Debug.Log(
+                //    $"Loading complete at station {train.ValueRO.StationEntity}, Setting movement state to EnRoute");
                 train.ValueRW.Duration = 0;
                 train.ValueRW.StationEntity = Entity.Null;
                 em.SetComponentEnabled<LoadingComponent>(trainEntity, false);
@@ -172,9 +167,9 @@ namespace Metro
                 var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
                 foreach (var child in children)
                 {
-                    if (em.HasComponent<DepartingComponent>(child.Value))
+                    if (em.HasComponent<Door>(child.Value))
                     {
-                        ecb.SetComponentEnabled<DepartingComponent>(child.Value, true);
+                        ecb.SetComponentEnabled<Door>(child.Value, true);
                     }
                 }
             }
@@ -186,8 +181,8 @@ namespace Metro
             train.ValueRW.Duration += deltaTime;
             if (train.ValueRW.Duration >= config.UnloadingTime)
             {
-                Debug.Log(
-                    $"Unloading complete at station {train.ValueRO.StationEntity}.  Setting movement state to Loading");
+                //Debug.Log(
+                //    $"Unloading complete at station {train.ValueRO.StationEntity}.  Setting movement state to Loading");
                 train.ValueRW.Duration = 0;
                 em.SetComponentEnabled<UnloadingComponent>(trainEntity, false);
                 em.SetComponentEnabled<LoadingComponent>(trainEntity, true);
