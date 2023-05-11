@@ -153,19 +153,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colony:
-    antTargetSpeed: 0.05
+    antTargetSpeed: 0.04
     antAccel: 0
     antCount: 10000
     antScale: 1
-    pheromoneGrowthRate: 0.3
+    pheromoneGrowthRate: 3
     pheromoneDecayRate: 0.9985
     obstacleSize: 1.5
     ringCount: 4
     bucketResolution: 16
-    randomSteering: 8
+    randomSteerStrength: 8
     pheromoneSteerStrength: 0.86
     pheromoneSteerDistance: 1.5
-    wallSteerStrength: 6.87
+    wallSteerStrength: 6.88
     wallSteerDistance: 3
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,

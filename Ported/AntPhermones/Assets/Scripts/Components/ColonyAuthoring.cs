@@ -22,7 +22,7 @@ public struct Colony: IComponentData
     public float obstacleSize;
     public int ringCount;
     public int bucketResolution;
-    public float randomSteering;
+    public float randomSteerStrength;
     public float pheromoneSteerStrength;
     public float pheromoneSteerDistance;
     public float wallSteerStrength;

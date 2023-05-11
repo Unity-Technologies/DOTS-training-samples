@@ -37,7 +37,7 @@ public partial struct AntAI: ISystem
         var steeringJob = new SteeringRandomizerJob
         {
             rngs = rngs,
-            randomSteering = colony.randomSteering
+            steeringStrength = colony.randomSteerStrength
         };
         var steeringJobHandle = steeringJob.ScheduleParallel(state.Dependency);
 

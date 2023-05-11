@@ -15,9 +15,12 @@ public partial struct PheromoneDetectionJob : IJobEntity
 
     public void Execute(ref Ant ant, in Position position, in Direction direction)
     {
+	    var output = 0f;
+	    var directionRadians = direction.direction / 180f * math.PI;
+
 		for (var i=-1;i<=1;i+=2)
 		{
-			var angle = direction.direction + i * math.PI*.25f;
+			var angle = directionRadians + i * math.PI * 0.25f;
 			var testX = position.position.x + math.cos(angle) * distance;
 			var testY = position.position.y + math.sin(angle) * distance;
 
@@ -26,8 +29,10 @@ public partial struct PheromoneDetectionJob : IJobEntity
 				var gridPosition = math.int2(math.floor(position.position));
 				var index = gridPosition.x + gridPosition.y * mapSize;
 				var value = pheromones[index].strength;
-				ant.pheroSteering += value * i * steeringStrength;
+				output += value * i;
 			}
 		}
+
+		ant.pheroSteering += output * steeringStrength / 180f * math.PI;
     }
 }

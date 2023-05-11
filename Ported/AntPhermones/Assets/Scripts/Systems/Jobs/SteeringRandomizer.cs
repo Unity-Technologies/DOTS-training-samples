@@ -10,7 +10,7 @@ public partial struct SteeringRandomizerJob : IJobEntity
 {
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<Random> rngs;
-    public float randomSteering;
+    public float steeringStrength;
 
     [NativeSetThreadIndex] private int threadId;
 
@@ -18,7 +18,7 @@ public partial struct SteeringRandomizerJob : IJobEntity
     public void Execute(ref Direction direction)
     {
         var rng = rngs[threadId];
-        direction.direction += rng.NextFloat(-randomSteering, randomSteering);
+        direction.direction += rng.NextFloat(-steeringStrength, steeringStrength);
         rngs[threadId] = rng; // this is necessary because its a struct so we must update the state
     }
 }
