@@ -15,7 +15,7 @@ public class StationsConfigAuthoring : MonoBehaviour
     public int NumLines = 5;
     public int LineSpacing = 20;
 
-    public int NumCarriadges = 4;
+    public int NumCarriadges = 5;
     public float3 SpawnPointOffsetFromCenterPoint;
 
     class Baker : Baker<StationsConfigAuthoring>

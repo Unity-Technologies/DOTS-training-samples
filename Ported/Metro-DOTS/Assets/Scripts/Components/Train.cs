@@ -4,6 +4,7 @@ using Unity.Mathematics;
 
 public struct Train : IComponentData
 {
+    public int LineID;
     public int TrainId;
     public bool OnPlatformA;
     public Entity StationEntity;

@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 984b2423582a485da9405d707c74b545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumPassengersPerStation: 20
+  NumPassengersPerStation: 80
   PassengerSpeed: 2
   MaxPassengerPerQueue: 16
   DistanceBetweenPassengers: 0.4

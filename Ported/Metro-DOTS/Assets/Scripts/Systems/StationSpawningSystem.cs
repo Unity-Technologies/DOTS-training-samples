@@ -32,7 +32,7 @@ public partial struct StationSpawningSystem : ISystem
         var numTracks = stationConfig.NumLines * 2;
         var trackEntities = CollectionHelper.CreateNativeArray<Entity>(numTracks, Allocator.Temp);
         em.CreateEntity(trackArchetype, trackEntities);
-
+        
         for (int t = 0; t < trackEntities.Length; t++)
         {
 			bool isTrackA = t % 2 == 0;
@@ -41,7 +41,11 @@ public partial struct StationSpawningSystem : ISystem
             em.SetName(trackEntity, $"TrackEntity{(isTrackA ? "A" : "B")}");
 #endif
             em.AddBuffer<TrackPoint>(trackEntity);
-			em.SetComponentData<Track>(trackEntity, new Track { OnPlatformA = isTrackA});
+			em.SetComponentData<Track>(trackEntity, new Track
+            {
+                OnPlatformA = isTrackA,
+                LineID = t / 2
+            });
         }
 
         var random = Random.CreateFromIndex(12314);
@@ -56,6 +60,8 @@ public partial struct StationSpawningSystem : ISystem
             .WithEntityAccess())
         {
 			stationID.ValueRW.StationID = stationIdCount;
+            stationID.ValueRW.LineID = lineIndex;
+
             stationIdCount++;
 		
             var randomVal = random.NextFloat();
@@ -134,11 +140,11 @@ public partial struct StationSpawningSystem : ISystem
             });
         }
 
-        float carriageLength = 5;
+        float carriageLength = 5.251f;
 
         i = 0;
-        foreach (var (transform, station) in
-            SystemAPI.Query<RefRO<LocalTransform>>()
+        foreach (var (transform, stationInfo, station) in
+            SystemAPI.Query<RefRO<LocalTransform>, RefRO<StationIDComponent>>()
                 .WithEntityAccess()
                 .WithAll<StationIDComponent>())
         {
@@ -162,6 +168,7 @@ public partial struct StationSpawningSystem : ISystem
                 var queueComponent = em.GetComponentData<QueueComponent>(queuePoints[queuePointAIndex]);
                 queueComponent.Station = station;
                 queueComponent.OnPlatformA = true;
+                queueComponent.LineID = stationInfo.ValueRO.LineID;
                 em.SetComponentData(queuePoints[queuePointAIndex], queueComponent);
 
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointAIndex] });
@@ -180,6 +187,7 @@ public partial struct StationSpawningSystem : ISystem
                 var queueBInfo = em.GetComponentData<QueueComponent>(queuePoints[queuePointAIndex]);
                 queueBInfo.Station = station;
                 queueBInfo.OnPlatformA = false;
+                queueBInfo.LineID = stationInfo.ValueRO.LineID;
                 em.SetComponentData(queuePoints[queuePointBIndex], queueBInfo);
 
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointBIndex] });
