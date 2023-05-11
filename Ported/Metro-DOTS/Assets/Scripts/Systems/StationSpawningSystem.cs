@@ -2,7 +2,10 @@ using Components;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial struct StationSpawningSystem : ISystem
 {
@@ -39,7 +42,7 @@ public partial struct StationSpawningSystem : ISystem
 
             var val = random.NextFloat();
             accumulatedValue += (math.max(val * stationConfig.Spacing, 10)) + stationConfig.StationWidth;// + width of the platform
-            float3 offset = new float3(accumulatedValue, 0, 0);
+            var offset = new float3(accumulatedValue, 0, 0);
             transform.ValueRW.Position = offset;
         }
 
@@ -115,7 +118,7 @@ public partial struct StationSpawningSystem : ISystem
 #endif
         em.CreateEntity(queueArchetype, queuePoints);
 
-        float carriadgeLength = 5;
+        float carriageLength = 5;
 
         i = 0;
         foreach (var transform in
@@ -125,8 +128,8 @@ public partial struct StationSpawningSystem : ISystem
             for (int k = 0; k < stationConfig.NumQueingPoints; k++)
             {
                 LocalTransform lc = new LocalTransform();
-                float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
-                lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
+                float totalQueuePointsSpan = (carriageLength * (stationConfig.NumQueingPoints - 1)) / 2;
+                lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriageLength, 0, 0);
                 lc.Scale = 1;
                 var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
@@ -166,6 +169,38 @@ public partial struct StationSpawningSystem : ISystem
             }
         }
         */
+        
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        var query = SystemAPI.QueryBuilder().WithAll<URPMaterialPropertyBaseColor>().Build();
+        var queryMask = query.GetEntityQueryMask();
+        
+        // This system will only run once, so the random seed can be hard-coded.
+        // Using an arbitrary constant seed makes the behavior deterministic.
+        var hue = random.NextFloat();
+
+        // Set the color of the station
+        // Helper to create any amount of colors as distinct from each other as possible.
+        // The logic behind this approach is detailed at the following address:
+        // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+        URPMaterialPropertyBaseColor RandomColor()
+        {
+            // Note: if you are not familiar with this concept, this is a "local function".
+            // You can search for that term on the internet for more information.
+
+            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+            hue = (hue + 0.618034005f) % 1;
+            var color = Color.HSVToRGB(hue, 1.0f, 1.0f);
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
+
+        var stationColor = RandomColor();
+
+        foreach (var station in stations)
+        {
+            ecb.SetComponentForLinkedEntityGroup(station, queryMask, stationColor);
+        }
 
         state.Enabled = false;
     }
