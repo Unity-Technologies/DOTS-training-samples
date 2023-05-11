@@ -22,7 +22,13 @@ public partial struct DynamicsJob : IJobEntity
     {
         // Factor in the steering values
         direction.direction += ant.wallSteering + ant.pheroSteering;
+
+        while (direction.direction > 360f)
+            direction.direction -= 360f;
         
+        while (direction.direction < 0f)
+            direction.direction += 360f;
+
         // Manage speed
         // Slower when steering
         var steeringInRad = (ant.wallSteering + ant.pheroSteering) / 180f * math.PI;
