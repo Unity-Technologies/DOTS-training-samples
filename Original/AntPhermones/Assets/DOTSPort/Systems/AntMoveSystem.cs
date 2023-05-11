@@ -215,16 +215,28 @@ public partial struct AntMoveSystem : ISystem
             ant.Item2.ValueRW.Position.y = ant.Item1.ValueRW.Position.y;
             ant.Item2.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1f), ant.Item1.ValueRW.FacingAngle);
         }
+        
+     //   // TODO: uncomment for jobs
+     //   AntsMoveJob moveJob = new AntsMoveJob()
+     //   {
+     //       Pheromones = pheromoneBuffer.AsNativeArray(),
+     //      // Obstacles = ObstacleArcPrimitiveBuffer.AsNativeArray(),
+     //       GlobalSettings = settings
+     //   };
+     //   
+     //   state.Dependency = moveJob.ScheduleParallel(state.Dependency);
     }
     
     [BurstCompile]
     public partial struct AntsMoveJob : IJobEntity
     {
         [ReadOnly] public NativeArray<PheromoneBufferElement> Pheromones;
+       // [ReadOnly] public NativeArray<ObstacleArcPrimitive> Obstacles;
         [ReadOnly] public GlobalSettings GlobalSettings;
+        
         void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
         {
-               
+               // TODO: move all code here
         }
     }
     
