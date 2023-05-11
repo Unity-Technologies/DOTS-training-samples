@@ -106,20 +106,9 @@ public partial struct StationSpawningSystem : ISystem
         }
 
         // TODO Add random spawn points between 3-5 for same number of carriadges
-        // var random = Random.CreateFromIndex(12314);
-        // var val = random.NextFloat();
         int numQueuePoints = stationConfig.NumStations * (stationConfig.NumQueingPoints /** 2*/);
         var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
-
-        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform), typeof(QueuePassengers));
-#if UNITY_EDITOR
-        // todo: make naming work
-        for (var k = 0; k < queuePoints.Length; k++)
-        {
-            em.SetName(queuePoints[k], "QueueEntity");
-        }
-#endif
-        em.CreateEntity(queueArchetype, queuePoints);
+        em.Instantiate(stationConfig.QueueEntity, queuePoints);
 
         for (int j = 0; j < queuePoints.Length; j++)
         {
