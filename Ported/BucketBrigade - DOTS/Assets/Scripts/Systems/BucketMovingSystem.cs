@@ -78,11 +78,12 @@ public partial struct BucketMovingSystem : ISystem
                 Entity closestBotE = Entity.Null;
 
                 //We need to know if the bucket is full or empty
-                if (SystemAPI.IsComponentEnabled<FreeTag>(currentTeamBucket))
+                if (true)
                 {
+                    //Debug.Log("The bucket is free");
                     var minDist = float.MaxValue;
                     foreach (var (botTransform, tag, botEntity) in SystemAPI.Query<LocalTransform, BotTag>().WithAll<Team>().WithNone<BucketFetcherBotTag>()
-                        .WithDisabled<FrontBotTag, BackBotTag, CarryingBotTag>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
+                        .WithDisabled<FrontBotTag, BackBotTag>().WithSharedComponentFilter(teamList[i]).WithEntityAccess())
                     {
                         //Check if I should even go for this bucket
                         var isBackward = state.EntityManager.IsComponentEnabled<BackwardPassingBotTag>(botEntity);
@@ -122,7 +123,9 @@ public partial struct BucketMovingSystem : ISystem
                 }
 
                 if (closestBotE == Entity.Null)
-                    return;
+                {
+                    continue;
+                }
 
                 //At this point we should have the closest bot to our team's bucket
                 //Set it to being occupied and the corresponding bot to be carrying 
@@ -141,7 +144,7 @@ public partial struct BucketMovingSystem : ISystem
                     //Get the next guy in line (using the no In chain)
 
                     //For the bots with a bucket we should move to the next bot in line (the i-1 bot)
-                    foreach (var (botTransform, botTag, t) in SystemAPI.Query<LocalTransform, BotTag, Team>().WithAll<CarryingBotTag>()
+                    foreach (var (botTransform, botTag, t) in SystemAPI.Query<LocalTransform, BotTag, Team>()
                         .WithNone<BucketFetcherBotTag>().WithSharedComponentFilter(teamList[i]))
                     {
 
@@ -270,7 +273,7 @@ public partial struct MoveToNextInChainJob : IJob
             }
             
             // Make the bucket free 
-            ECB.SetComponentEnabled<FreeTag>(bucket,true);            
+            ECB.SetComponentEnabled<FreeTag>(bucket,true);    
         }
     }
     

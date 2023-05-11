@@ -11,11 +11,18 @@ using UnityEngine;
 [UpdateAfter(typeof(BucketSpawningSystem))]
 public partial struct BucketFetcherSystem : ISystem
 {
+    private NativeArray<Entity> teamBuckets;
     //[BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
+        teamBuckets = new NativeArray<Entity>(10,Allocator.Persistent); //Hardcoded max for number of teams
 
+    }
+
+    public void OnDestroy(ref SystemState state)
+    {
+        teamBuckets.Dispose();
     }
 
     //[BurstCompile]
@@ -42,14 +49,17 @@ public partial struct BucketFetcherSystem : ISystem
             //Necessary queries 
             EntityQuery backBotsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, Team, BackBotTag>().Build();
             backBotsQ.SetSharedComponentFilter(team);
+            
+            EntityQuery teamBucketsQ = SystemAPI.QueryBuilder().WithAll<LocalTransform, Team, Bucket>().Build();
+            backBotsQ.SetSharedComponentFilter(team);
 
             if (backBotsQ.IsEmpty)
                 continue;
 
             EntityQuery bucketsQ = SystemAPI.QueryBuilder().WithAll<Bucket>().WithNone<Team>().Build();
-
+            
             // If all buckets are assigned to teams, the system is not useful anymore          
-            if (bucketsQ.IsEmpty)
+            if (bucketsQ.IsEmpty || teamBucketsQ.CalculateEntityCount() == config.TotalTeams)
             {
                 Debug.Log("All buckets are assigned. My work here is done !");
                 state.Enabled = false;
@@ -59,22 +69,37 @@ public partial struct BucketFetcherSystem : ISystem
             LocalTransform backBotTransform = backBotsQ.ToComponentDataArray<LocalTransform>(Allocator.TempJob)[0];
             Entity backBot = backBotsQ.ToEntityArray(Allocator.TempJob)[0];
 
-            float minDist = float.MaxValue;
             Entity closestBucketToBackE = Entity.Null;
-
-            foreach (var (bucketTransform, entity) in SystemAPI.Query<LocalTransform>().WithAll<Bucket, FreeTag, EmptyTag>().WithNone<Team>().WithEntityAccess())
+            if (teamBuckets[team.Value] == Entity.Null)
             {
-                var distToBack = Vector3.Distance(backBotTransform.Position, bucketTransform.Position);
-                if (distToBack < minDist)
+                float minDist = float.MaxValue;
+                
+                foreach (var (bucketTransform, entity) in SystemAPI.Query<LocalTransform>().WithAll<Bucket, FreeTag, EmptyTag>().WithNone<Team>().WithEntityAccess())
                 {
-                    minDist = distToBack;
-                    closestBucketToBackE = entity;
+                    var distToBack = Vector3.Distance(backBotTransform.Position, bucketTransform.Position);
+                    if (distToBack < minDist)
+                    {
+                        minDist = distToBack;
+                        closestBucketToBackE = entity;
+                    }
+                }
+
+                if (closestBucketToBackE == Entity.Null || backBot == Entity.Null)
+                {
+                    continue;
+                } else
+                {
+                    state.EntityManager.SetComponentEnabled<FreeTag>(closestBucketToBackE,false);
+                    teamBuckets[team.Value] = closestBucketToBackE;
+                    
                 }
             }
-
-            if (closestBucketToBackE == Entity.Null || backBot == Entity.Null)
-                continue;
-
+            else
+            {
+                closestBucketToBackE = teamBuckets[team.Value];
+            }
+            
+            
             //The Bucket Fetcher should get a bucket, fill it, and assign it to the team 
             LocalTransform closestBucketToBackT = SystemAPI.GetComponent<LocalTransform>(closestBucketToBackE);
 
@@ -83,7 +108,8 @@ public partial struct BucketFetcherSystem : ISystem
 
             var jobFreeFetcherQuery = SystemAPI.QueryBuilder().WithAll<BucketFetcherBotTag, Team>().WithNone<CarryingBotTag>().Build();
             jobFreeFetcherQuery.SetSharedComponentFilter(team);
-
+            
+            
             JobHandle bucketFetcherToBucket = new FetchBucket
             {
                 arriveThreshold = config.arriveThreshold,
@@ -96,7 +122,7 @@ public partial struct BucketFetcherSystem : ISystem
                 ecb = ECB,
                 teamId = team
             }.Schedule(jobFreeFetcherQuery, state.Dependency);
-
+            
             JobHandle bucketFetcherToBackBot = new FetchBucketCarrying
             {
                 arriveThreshold = config.arriveThreshold,
@@ -108,7 +134,7 @@ public partial struct BucketFetcherSystem : ISystem
                 dt = Time.deltaTime,
                 ecb = ECB,
                 teamId = team
-            }.Schedule(jobCarryingFetcherQuery, bucketFetcherToBucket);
+            }.Schedule(jobCarryingFetcherQuery,bucketFetcherToBucket);
             bucketFetcherToBackBot.Complete();
 
         }
@@ -159,7 +185,7 @@ public partial struct FetchBucketCarrying : IJobEntity
         // Drop Bucket
         else if (distToBackBot <= arriveThreshold)
         {
-            closestBucketTransform.Position = new float3(fetcherTransform.Position.x, 0f, fetcherTransform.Position.z);
+            closestBucketTransform.Position = new float3(backBotTransform.Position.x, 0.5f, backBotTransform.Position.z);
             ecb.SetComponent(closestBucket, closestBucketTransform);
 
             // Find the teams BackBot, move to it, drop bucket
@@ -189,7 +215,7 @@ public partial struct FetchBucket : IJobEntity
     {
         if (fetcherE == Entity.Null)
             return;
-
+        
         Vector3 bucketPosXZ = new Vector3(closestBucketTransform.Position.x, 0f, closestBucketTransform.Position.z);
         Vector3 fetcherPosXZ = new Vector3(fetcherTransform.Position.x, 0f, fetcherTransform.Position.z);
 
@@ -208,6 +234,7 @@ public partial struct FetchBucket : IJobEntity
         {
             ecb.SetComponentEnabled<FreeTag>(closestBucket, false);
             ecb.SetComponentEnabled<CarryingBotTag>(fetcherE, true);
+            Debug.Log("I have arrived at a bucket!");
         }
     }
 }

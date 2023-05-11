@@ -86,25 +86,18 @@ public partial struct BotSpawningSystem : ISystem
                 botTransform.Scale = 1f; //This is the scale of the bot pls change this
                 ECB.SetComponent(instance, botTransform);
 
-                if (i < Unity.Mathematics.math.ceil(totalBots / 2) || i == totalBots - 1) //If it is part of the first half
+                if (i < (totalBots / 2) || i == totalBots - 1) //If it is part of the first half
                 {
                     ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, ForwardColor());
                 }
 
-                if (i > Unity.Mathematics.math.ceil(totalBots / 2) || i == 0) //If it is part of the last half
+                if (i >= (totalBots / 2) || i == 0) //If it is part of the last half
                 {
                     ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, BackwardColor());
                 }
-
-                if (i == Unity.Mathematics.math.ceil(totalBots / 2)) //The middle dude is the bucket fetcher
-                {
-                    ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
-                    ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
-                    ECB.AddComponent<BucketFetcherBotTag>(instance);
-                    ECB.SetComponent(instance, FetcherColor());
-                }
+                
 
                 if (i != 0) //If it is not the first one
                 {
@@ -127,7 +120,7 @@ public partial struct BotSpawningSystem : ISystem
                     ECB.AddComponent<TeamReadyTag>(instance);
                     ECB.SetComponentEnabled<TeamReadyTag>(instance, false);
                 }
-
+                
                 //This is not really useful yet
                 ECB.SetComponentEnabled<ReachedTarget>(instance, false);
                 ECB.SetComponentEnabled<CarryingBotTag>(instance, false);
@@ -142,6 +135,26 @@ public partial struct BotSpawningSystem : ISystem
                 ECB.AddSharedComponent(instance, new Team { Value = t });
 
             }
+            
+            //Add the fetcher guy independently
+            var fetcher = ECB.Instantiate(botPrefab);
+            //Set its transform
+            var fetcherTransform = LocalTransform.FromPosition(
+                randomComponent.Value.NextFloat(-0.1f, numCol * config.cellSize + 0.1f),
+                config.botStartingYPosition,
+                randomComponent.Value.NextFloat(-0.1f, numRow * config.cellSize + 0.1f));
+            fetcherTransform.Scale = 1f; //This is the scale of the bot pls change this
+            ECB.SetComponent(fetcher, fetcherTransform);
+            ECB.SetComponentEnabled<BackwardPassingBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<ForwardPassingBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<BackBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<FrontBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<ReachedTarget>(fetcher, false);
+            ECB.SetComponentEnabled<CarryingBotTag>(fetcher, false);
+            ECB.AddSharedComponent(fetcher, new Team { Value = t });
+            ECB.AddComponent<BucketFetcherBotTag>(fetcher);
+            ECB.SetComponent(fetcher, FetcherColor());
+            
         }
     
 
