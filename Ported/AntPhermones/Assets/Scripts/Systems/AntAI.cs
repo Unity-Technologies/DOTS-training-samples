@@ -74,7 +74,12 @@ public partial struct AntAI: ISystem
         
         
         // Dynamics
-        var dynamicsJob = new DynamicsJob{ mapSize = colony.mapSize };
+        var dynamicsJob = new DynamicsJob
+        {
+            mapSize = colony.mapSize, 
+            antAcceleration = colony.antAccel,
+            antTargetSpeed = colony.antTargetSpeed
+        };
         var dynamicsJobHandle = dynamicsJob.Schedule(obstacleJobHandle);
 
 
