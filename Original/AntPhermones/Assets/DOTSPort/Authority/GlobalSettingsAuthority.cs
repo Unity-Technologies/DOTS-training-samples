@@ -16,6 +16,8 @@ public class GlobalSettingsAuthority : MonoBehaviour
     public float AntGoalSteerStrength = 0.04f;
     public float TrailAddSpeed = 0.5f;
     public float TrailDecay = 0.01f;
+    public Color ExitedColor = Color.yellow;
+    public Color RegularColor = Color.white;
 
     class Baker : Baker<GlobalSettingsAuthority>
     {
@@ -33,7 +35,9 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 AntAccel = authoring.AntAccel,
                 AntGoalSteerStrength = authoring.AntGoalSteerStrength,
                 TrailAddSpeed = authoring.TrailAddSpeed,
-                TrailDecay = authoring.TrailDecay
+                TrailDecay = authoring.TrailDecay,
+                ExitedColor = authoring.ExitedColor,
+                RegularColor = authoring.RegularColor
             });
         }
     }
@@ -51,4 +55,6 @@ public struct GlobalSettings: IComponentData
     public float AntGoalSteerStrength;
     public float TrailAddSpeed;
     public float TrailDecay;
+    public Vector4 ExitedColor;
+    public Vector4 RegularColor;
 }

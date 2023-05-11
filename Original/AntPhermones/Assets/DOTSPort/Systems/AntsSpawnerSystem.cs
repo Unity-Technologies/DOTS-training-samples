@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Unity.Rendering;
 
 public partial struct AntsSpawnerSystem : ISystem
 {
@@ -50,6 +51,8 @@ public partial struct AntsSpawnerSystem : ISystem
                     Brightness = rand.NextFloat(.75f, 1.25f),
                     Rand = rand
                 });
+                
+                ecb.AddComponent(entity, new URPMaterialPropertyBaseColor() { Value = globalSettings.RegularColor });
             }
         }
     }

@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Rendering;
 
 public partial struct AntMoveSystem : ISystem
 {
@@ -36,7 +37,7 @@ public partial struct AntMoveSystem : ISystem
 
         float dt = SystemAPI.Time.DeltaTime;
 
-        foreach (var ant in SystemAPI.Query<RefRW<AntData>, RefRW<LocalTransform>>())
+        foreach (var ant in SystemAPI.Query<RefRW<AntData>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
         {
             // random walk
             ant.Item1.ValueRW.FacingAngle += ant.Item1.ValueRW.Rand.NextFloat(-randomSteering, randomSteering) * dt * 4;
@@ -116,8 +117,10 @@ public partial struct AntMoveSystem : ISystem
             // TODO: push ant away from walls
 
             // flip ant when it hits target
-            if (math.distance(ant.Item1.ValueRW.Position, targetPos) < targetRadius) {
-                ant.Item1.ValueRW.HoldingResource = !ant.Item1.ValueRW.HoldingResource;
+            if (math.distance(ant.Item1.ValueRW.Position, targetPos) < targetRadius)
+            {
+                ant.Item1.ValueRW.HoldingResource = !ant.Item1.ValueRO.HoldingResource;
+                ant.Item3.ValueRW.Value = ant.Item1.ValueRO.HoldingResource ? settings.ExitedColor : settings.RegularColor;
                 ant.Item1.ValueRW.FacingAngle += math.PI;
             }
             // clamp angle to +-180 degrees
