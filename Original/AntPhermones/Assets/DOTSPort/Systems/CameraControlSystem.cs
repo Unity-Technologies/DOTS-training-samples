@@ -13,6 +13,7 @@ public partial struct CameraControlSystem : ISystem, ISystemStartStop
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GlobalSettings>();
+        //state.RequireForUpdate<CameraMoveByMouseExecution>();
     }
 
     public void OnUpdate(ref SystemState state)
@@ -29,17 +30,17 @@ public partial struct CameraControlSystem : ISystem, ISystemStartStop
             camera.orthographicSize = curZoom;
         }
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            m_MousePressPosition = Input.mousePosition;
-            m_CameraPressPosition = camera.transform.position;
-        }
-        
-        if (Input.GetMouseButton(0))
-        {
-            var delta = m_MousePressPosition - Input.mousePosition;
-            camera.transform.position = m_CameraPressPosition + (delta * (camera.orthographicSize / (128 * 4)));
-        }
+      //  if (Input.GetMouseButtonDown(0))
+      //  {
+      //      m_MousePressPosition = Input.mousePosition;
+      //      m_CameraPressPosition = camera.transform.position;
+      //  }
+      //  
+      //  if (Input.GetMouseButton(0))
+      //  {
+      //      var delta = m_MousePressPosition - Input.mousePosition;
+      //      camera.transform.position = m_CameraPressPosition + (delta * (camera.orthographicSize / (128 * 4)));
+      //  }
     }
 
     public void OnStartRunning(ref SystemState state)
