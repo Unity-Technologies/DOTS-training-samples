@@ -1,4 +1,5 @@
 ﻿using Components;
+using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -7,6 +8,8 @@ namespace Metro
 {
     public class TrainAuthoring : MonoBehaviour
     {
+        public List<GameObject> Seats;
+
         class Baker : Baker<TrainAuthoring>
         {
             public override void Bake(TrainAuthoring authoring)
@@ -25,6 +28,12 @@ namespace Metro
                 AddComponent<UnloadingComponent>(entity);
                 AddComponent<ArrivingComponent>(entity);
                 AddComponent<DepartingComponent>(entity);
+                var buffer = AddBuffer<SeatingComponentElement>(entity);
+
+                for (int i = 0; i < authoring.Seats.Count; i++)
+                {
+                    buffer.Add(new SeatingComponentElement() { SeatPosition = new float3(authoring.Seats[i].transform.position) });
+                }
             }
         }
     }

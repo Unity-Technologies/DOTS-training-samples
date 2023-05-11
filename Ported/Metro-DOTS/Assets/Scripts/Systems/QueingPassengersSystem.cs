@@ -11,11 +11,11 @@ public partial struct QueingPassengersSystem : ISystem
     {
         state.RequireForUpdate<Config>();
     }
-    
+
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
-        
+
         foreach (var train in
                  SystemAPI.Query<RefRO<Train>>()
                      .WithAll<LoadingComponent>())
@@ -48,10 +48,14 @@ public partial struct QueingPassengersSystem : ISystem
                     // update passenger position
                     passengerLocalTransform.Position += queueDirection * config.PassengerSpeed * SystemAPI.Time.DeltaTime;
                     state.EntityManager.SetComponentData(passenger, passengerLocalTransform);
-                    
+
                     // if passenger has passed queue location
                     if (math.dot(passengerLocalTransform.Position - queueLocation.Position, queueDirection) > 0)
                     {
+                        var passengerOnboardComp = state.EntityManager.GetComponentData<PassengerOnboarded>(passenger);
+                        passengerOnboardComp.StationTrackPointIndex = train.ValueRO.TrackPointIndex;
+                        state.EntityManager.SetComponentData<PassengerOnboarded>(passenger, passengerOnboardComp);
+
                         state.EntityManager.SetComponentEnabled<PassengerOnboarded>(passenger, true);
                         queueComponent.StartIndex = (queueComponent.StartIndex + 1) % 16;
                         queueComponent.QueueLength -= 1;

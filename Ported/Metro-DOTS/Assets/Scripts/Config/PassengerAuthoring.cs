@@ -27,5 +27,6 @@ public struct PassengerComponent : IComponentData
 {
     public float3 Color;
     public float Height;
+    public int TrainId;
 }
 
