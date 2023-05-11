@@ -72,6 +72,8 @@ public partial struct TrainSpawnerSystem : ISystem
             em.SetComponentEnabled<UnloadingComponent>(entity, startStopped);
             em.SetComponentEnabled<ArrivingComponent>(entity, false);
             em.SetComponentEnabled<DepartingComponent>(entity, false);
+            
+            
         }
 
         state.Enabled = false;
