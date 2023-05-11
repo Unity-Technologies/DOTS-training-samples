@@ -13,7 +13,7 @@ public class StationsConfigAuthoring : MonoBehaviour
     public float3 TrackBCenter;
     public float StationWidth = 32;
 
-    public int NumCarriadges = 4;
+    public int NumCarriadges = 5;
     public float3 SpawnPointOffsetFromCenterPoint;
 
     class Baker : Baker<StationsConfigAuthoring>

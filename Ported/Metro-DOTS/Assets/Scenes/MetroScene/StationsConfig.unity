@@ -163,17 +163,17 @@ MonoBehaviour:
   TrackACenter:
     x: 10
     y: -2
-    z: 0
+    z: 0.24
   TrackBCenter:
     x: 10
     y: -2
-    z: -8
+    z: -8.24
   StationWidth: 32
-  NumCarriadges: 4a
+  NumCarriadges: 5
   SpawnPointOffsetFromCenterPoint:
     x: 0
     y: 1.5
-    z: 3
+    z: 1
 --- !u!4 &694108412
 Transform:
   m_ObjectHideFlags: 0
@@ -182,7 +182,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 694108410}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.35651493, y: 1.0313755, z: 1.0855231}
+  m_LocalPosition: {x: 0.35651493, y: 1.0313755, z: 0.85}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

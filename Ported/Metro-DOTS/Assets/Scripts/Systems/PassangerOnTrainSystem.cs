@@ -1,3 +1,4 @@
+using Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -12,7 +13,7 @@ public partial struct PassangerOnTrainSystem : ISystem
 
         // onboarding
         foreach (var (train, trainTransform, entity) in
-                 SystemAPI.Query<RefRO<Train>, RefRW<LocalTransform>>()
+                 SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>()
                  .WithAll<LoadingComponent>()
                  .WithEntityAccess())
         {
@@ -49,19 +50,20 @@ public partial struct PassangerOnTrainSystem : ISystem
 
                 if (passenger.ValueRW.HasSeat)
                 {
-                    transform.ValueRW.Position = passenger.ValueRW.SeatPosition + trainTransform.ValueRW.Position;
+                    transform.ValueRW.Position = passenger.ValueRW.SeatPosition + trainTransform.ValueRO.Position;
                 }
                 else
                 {
                     // Offboarded
                     em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                    em.SetComponentEnabled<PassengerOffboarded>(entity, true);
                 }
             }
         }
 
         // onboard moving
         foreach (var (train, trainTransform) in
-                 SystemAPI.Query<RefRO<Train>, RefRW<LocalTransform>>()
+                 SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>()
                  .WithAll<EnRouteComponent>())
         {
             foreach (var (passengerOnboardedComp, transform, passenger) in
@@ -69,17 +71,23 @@ public partial struct PassangerOnTrainSystem : ISystem
             {
                 if (passenger.ValueRW.HasSeat)
                 {
-                    transform.ValueRW.Position = passenger.ValueRW.SeatPosition + trainTransform.ValueRW.Position;
+                    transform.ValueRW.Position = passenger.ValueRW.SeatPosition + trainTransform.ValueRO.Position;
                     passenger.ValueRW.HasJustUnloaded = true;
                 }
             }
         }
 
         //offboarding
-        foreach (var train in SystemAPI.Query<RefRO<Train>>().WithAll<UnloadingComponent>())
+        foreach (var (train, trainEntity) in SystemAPI.Query<RefRO<Train>>().WithAll<UnloadingComponent>().WithEntityAccess())
         {
+            DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainEntity);
+            for (int i = 0; i < seatBuffer.Length; i++)
+            {
+                seatBuffer.ElementAt(i).Occupied = false;
+            }
+
             foreach (var (passengerOnboardedComp, transform, passenger, entity) in
-                SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>>().WithEntityAccess())
+                     SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>>().WithEntityAccess())
             {
                 float minDistance = float.MaxValue;
                 foreach (var (queue, queueTr, queueEntity) in
@@ -91,12 +99,20 @@ public partial struct PassangerOnTrainSystem : ISystem
                         minDistance = dist;
                         passenger.ValueRW.TargetPosition = queueTr.ValueRO.Position;
                         passenger.ValueRW.MoveToPosition = true;
+                        passenger.ValueRW.HasSeat = false;
                     }
                 }
 
                 transform.ValueRW.Position = passenger.ValueRW.TargetPosition;
+
+                var travelInfo = em.GetComponentData<PassengerTravel>(entity);
+                travelInfo.Station = train.ValueRO.StationEntity;
+                em.SetComponentData(entity, travelInfo);
                 em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                em.SetComponentEnabled<PassengerOffboarded>(entity, true);
             }
         }
     }
 }
+
+
