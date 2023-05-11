@@ -15,7 +15,6 @@ public class WaterAuthoring : MonoBehaviour
             {
                 TargetScale = new float2(authTransformLocalScale.x, authTransformLocalScale.z),
                 Volume = 0.8f,
-                RefillSpeed = 0.05f
             });
             AddComponent(entity, new PostTransformMatrix());
         }
@@ -26,5 +25,4 @@ public struct Water : IComponentData
 {
     public float2 TargetScale;
     public float Volume;
-    public float RefillSpeed;
 }

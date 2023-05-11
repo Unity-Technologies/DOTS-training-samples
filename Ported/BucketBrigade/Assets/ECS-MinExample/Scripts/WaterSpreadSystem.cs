@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(Grid))]
 public partial struct WaterSpreadSystem : ISystem
 {
     [BurstCompile]
@@ -14,10 +15,11 @@ public partial struct WaterSpreadSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var elapsedTime = math.sin((float)SystemAPI.Time.ElapsedTime);
+        var config = SystemAPI.GetSingleton<Grid>();
+        var elapsedTime = math.sin((float)SystemAPI.Time.ElapsedTime); 
         foreach (var water in SystemAPI.Query<RefRW<Water>>().WithAll<Water>())
         {
-            water.ValueRW.Volume = math.clamp(water.ValueRO.Volume + water.ValueRO.RefillSpeed * SystemAPI.Time.DeltaTime,0,1);
+            water.ValueRW.Volume = math.clamp(water.ValueRO.Volume + config.WaterRefillSpeed * SystemAPI.Time.DeltaTime,0,1);
         }
 
         foreach (var (water, ptMatrix) in SystemAPI.Query<RefRO<Water>, RefRW<PostTransformMatrix>>().WithAll<Water>())

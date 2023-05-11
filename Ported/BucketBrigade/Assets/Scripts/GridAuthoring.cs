@@ -22,6 +22,9 @@ public class GridAuthoring : MonoBehaviour
     public float TeambotWaterFillDuration = 2;
     public float TeambotWaterGatherSpeed = 0.1f;
 
+    [Header("Water")]
+    public float WaterRefillSpeed = 0.05f;
+
     [Header("Fire settings")]
     public int NumStartingFires;
     public float FireSpreadValue;
@@ -66,8 +69,6 @@ public class GridAuthoring : MonoBehaviour
                     authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
 
                 RadiusClickFire = authoring.RadiusClickFire,
-                StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
-                FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
                 
                 // Teambot
                 TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
@@ -80,6 +81,9 @@ public class GridAuthoring : MonoBehaviour
                 TeambotWaterFillDuration = authoring.TeambotWaterFillDuration,
                 // TeambotWaterFillElapsedTime = authoring.TeambotWaterFillElapsedTime,
                 TeambotWaterGatherSpeed = authoring.TeambotWaterGatherSpeed,
+                
+                // Water
+                WaterRefillSpeed = authoring.WaterRefillSpeed,
             });
             AddComponent<MouseHit>(entity);
         }
@@ -116,6 +120,9 @@ public struct Grid : IComponentData
     public float TeambotMaxDouseAmount;
     public float TeambotWaterFillDuration;
     public float TeambotWaterGatherSpeed;
+    
+    // Water 
+    public float WaterRefillSpeed;
 }
 
 // For mouse hit
