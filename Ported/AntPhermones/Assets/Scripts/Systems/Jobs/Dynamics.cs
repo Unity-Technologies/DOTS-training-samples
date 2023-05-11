@@ -21,12 +21,15 @@ public partial struct DynamicsJob : IJobEntity
         in Ant ant)
     {
         // Factor in the steering values
-        direction.direction += ant.wallSteering + ant.pheroSteering;
+        if (ant.resourceSteering > math.EPSILON)
+            direction.direction += ant.resourceSteering;
+        else
+            direction.direction += ant.wallSteering + ant.pheroSteering + ant.resourceSteering;
 
-        while (direction.direction > 360f)
+        while (direction.direction > 180f)
             direction.direction -= 360f;
         
-        while (direction.direction < 0f)
+        while (direction.direction < -180f)
             direction.direction += 360f;
 
         // Manage speed
@@ -44,8 +47,8 @@ public partial struct DynamicsJob : IJobEntity
         var oldPosition = position.position;
         var speedValue = speed.speed;
         var deltaPos = new float2(
-            (float)(speedValue * math.sin(-directionRad)),
-            (float) (speedValue * math.cos(-directionRad)));  
+            (float)(speedValue * math.cos(directionRad)),
+            (float) (speedValue * math.sin(directionRad)));  
         var newPosition = oldPosition + deltaPos;
 
         // If ants are moving out of bounds, flip them 180 degrees
@@ -56,5 +59,6 @@ public partial struct DynamicsJob : IJobEntity
             position.position = newPosition;
             localTransform.Position = new float3(newPosition.x, newPosition.y, 0);
         }
+
     }
 }

@@ -35,6 +35,7 @@ public partial struct Spawner: ISystem
         var home = state.EntityManager.Instantiate(colony.homePrefab);
         var localTransform = SystemAPI.GetComponentRW<LocalTransform>(home, false);
         localTransform.ValueRW.Position = new float3(colony.mapSize / 2f, colony.mapSize / 2f, 0f);
+        state.EntityManager.AddComponent<Home>(home);
     }
 
     void SpawnResource(ref SystemState state, Colony colony)

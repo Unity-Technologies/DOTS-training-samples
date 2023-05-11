@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Rendering;
 
 [BurstCompile]
 [WithAll(typeof(Ant))]
@@ -19,7 +20,7 @@ public partial struct ResourceDetection : IJobEntity
     [ReadOnly]
     public NativeArray<UnsafeList<float2>> buckets;
 
-    public void Execute(ref Ant ant, in Position position, in Direction direction)
+    public void Execute(ref Ant ant, in Position position, in Direction direction, ref URPMaterialPropertyBaseColor color)
     {
         float2 targetPosition = ant.hasResource ? homePosition : resourcePosition;
 
@@ -29,10 +30,11 @@ public partial struct ResourceDetection : IJobEntity
 
 
         // we are at the target
-        if (dist < 0.5f)
+        if (dist < 4f)
         {
             ant.hasResource = !ant.hasResource;
             ant.resourceSteering = 180f;
+            return;
         }
 
 
@@ -52,24 +54,28 @@ public partial struct ResourceDetection : IJobEntity
         if (blocked)
         {
             ant.resourceSteering = 0;
+//            color.Value = new float4(0, 0, 0, 1);
         }
         else
         {
             float directionInRad = math.radians(direction.direction);
 
             float targetAngle = math.atan2(targetPosition.y - position.position.y, targetPosition.x - position.position.x);
-            if (targetAngle - directionInRad > math.PI)
+            
+            if (targetAngle - directionInRad > math.PI/2f)
             {
-                ant.resourceSteering = 90f;
+                ant.resourceSteering = 2f;
+  //              color.Value = new float4(1, 0, 0, 1);
             }
-            else if (targetAngle - directionInRad < -math.PI)
+            else if (targetAngle - directionInRad < -math.PI/2f)
             {
-                ant.resourceSteering = -90f;
+                ant.resourceSteering = -2f;
+    //            color.Value = new float4(0, 1, 0, 1);
             }
             else
             {
-                if (math.abs(targetAngle - directionInRad) < math.PI * .5f)
-                    ant.resourceSteering = math.degrees((targetAngle - directionInRad) * steeringStrength);
+                ant.resourceSteering = math.degrees(targetAngle - directionInRad)/30f;
+                //          color.Value = new float4(0, 0, 1, 1);
             }
         }
     }

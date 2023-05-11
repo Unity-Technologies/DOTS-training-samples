@@ -20,6 +20,7 @@ public partial struct AntAI: ISystem
     {
         state.RequireForUpdate<Colony>();
         state.RequireForUpdate<Ant>();
+        state.RequireForUpdate<Home>();
 
         rngs = new NativeArray<Random>(JobsUtility.MaxJobThreadCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         for (var i = 0; i < JobsUtility.MaxJobThreadCount; i++)
@@ -72,6 +73,7 @@ public partial struct AntAI: ISystem
 
         // ResourceDetection
         var resourceTransform = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Resource>());
+        var homePosition = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Home>());
         var resourceJob = new ResourceDetection
         {
             obstacleSize = colony.obstacleSize,
@@ -79,7 +81,7 @@ public partial struct AntAI: ISystem
             steeringStrength = colony.resourceSteerStrength,
             bucketResolution = colony.bucketResolution,
             buckets = colony.buckets,
-            homePosition = new float2(0, 0),
+            homePosition = new float2(homePosition.Position.x, homePosition.Position.y),
             resourcePosition = new float2(resourceTransform.Position.x, resourceTransform.Position.y)
         };
         var resourceJobHandle = resourceJob.ScheduleParallel(obstacleJobHandle);
