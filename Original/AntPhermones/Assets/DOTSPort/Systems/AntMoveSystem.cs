@@ -143,7 +143,7 @@ public partial struct AntMoveSystem : ISystem
             float2 collisionPoint = float2.zero;
             float param = 0;
             float2 targetVector = targetPos - ant.Item1.ValueRW.Position;
-            if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, ant.Item1.ValueRW.Position, targetVector, out collisionPoint, out param))
+            if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, ant.Item1.ValueRW.Position / mapSize, targetVector / mapSize, out collisionPoint, out param))
             {
                 float targetAngle = math.atan2(
                     targetPos.y - ant.Item1.ValueRW.Position.y, 
