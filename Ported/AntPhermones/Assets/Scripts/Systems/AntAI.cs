@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial struct AntAI: ISystem
 {
     private NativeArray<Random> rngs;
@@ -81,7 +82,7 @@ public partial struct AntAI: ISystem
         // Drop Pheromones
         var pheromoneDropJob = new PheromoneDropJob
         {
-            deltaTime = SystemAPI.Time.DeltaTime,
+            deltaTime = SystemAPI.Time.fixedDeltaTime,
             mapSize = (int)colony.mapSize,
             antTargetSpeed = colony.antTargetSpeed,
             pheromoneGrowthRate = colony.pheromoneGrowthRate,

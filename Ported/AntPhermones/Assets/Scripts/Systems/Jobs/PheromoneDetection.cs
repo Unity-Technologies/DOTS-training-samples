@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
 [BurstCompile]
 [WithAll(typeof(Ant))]
@@ -26,8 +27,7 @@ public partial struct PheromoneDetectionJob : IJobEntity
 
 			if (testX >= 0 && testY >= 0 && testX < mapSize && testY < mapSize)
 			{
-				var gridPosition = math.int2(math.floor(position.position));
-				var index = gridPosition.x + gridPosition.y * mapSize;
+				var index = (int)testX + (int)testY * mapSize;
 				var value = pheromones[index].strength;
 				output += value * i;
 			}
