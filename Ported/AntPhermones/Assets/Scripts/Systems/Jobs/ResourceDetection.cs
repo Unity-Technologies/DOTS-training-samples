@@ -27,6 +27,15 @@ public partial struct ResourceDetection : IJobEntity
         float dy = targetPosition.y - position.position.y;
         float dist = math.sqrt(dx * dx + dy * dy);
 
+
+        // we are at the target
+        if (dist < 0.5f)
+        {
+            ant.hasResource = !ant.hasResource;
+            ant.resourceSteering = 180f;
+        }
+
+
         int stepCount = (int)math.ceil(dist * .5f);
         bool blocked = false;
         for (int i = 0; i < stepCount; ++i)
