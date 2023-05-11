@@ -24,7 +24,7 @@ public partial struct PheromoneDetectionJob : IJobEntity
 			var testX = position.position.x + math.cos(angle) * distance;
 			var testY = position.position.y + math.sin(angle) * distance;
 
-			if (testX >=0 || testY>= 0 || testX < mapSize || testY < mapSize)
+			if (testX >= 0 && testY >= 0 && testX < mapSize && testY < mapSize)
 			{
 				var gridPosition = math.int2(math.floor(position.position));
 				var index = gridPosition.x + gridPosition.y * mapSize;
@@ -33,6 +33,6 @@ public partial struct PheromoneDetectionJob : IJobEntity
 			}
 		}
 
-		ant.pheroSteering += output * steeringStrength / 180f * math.PI;
+		ant.pheroSteering += math.sign(output) * steeringStrength / 180f * math.PI;
     }
 }
