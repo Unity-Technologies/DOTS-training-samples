@@ -18,6 +18,7 @@ public class GlobalSettingsAuthority : MonoBehaviour
     public float TrailDecay = 0.01f;
     public Color ExitedColor = Color.yellow;
     public Color RegularColor = Color.white;
+    public float PheromoneSteerStrength = 1f;
 
     class Baker : Baker<GlobalSettingsAuthority>
     {
@@ -37,7 +38,8 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 TrailAddSpeed = authoring.TrailAddSpeed,
                 TrailDecay = authoring.TrailDecay,
                 ExitedColor = authoring.ExitedColor,
-                RegularColor = authoring.RegularColor
+                RegularColor = authoring.RegularColor,
+                PheromoneSteerStrength = authoring.PheromoneSteerStrength
             });
         }
     }
@@ -57,4 +59,5 @@ public struct GlobalSettings: IComponentData
     public float TrailDecay;
     public Vector4 ExitedColor;
     public Vector4 RegularColor;
+    public float PheromoneSteerStrength;
 }

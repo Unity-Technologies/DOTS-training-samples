@@ -307,6 +307,9 @@ MonoBehaviour:
   AntGoalSteerStrength: 0.1
   TrailAddSpeed: 0.5
   TrailDecay: 0.01
+  ExitedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  RegularColor: {r: 1, g: 1, b: 1, a: 1}
+  PheromoneSteerStrength: 0.015
 --- !u!4 &1130009605
 Transform:
   m_ObjectHideFlags: 0

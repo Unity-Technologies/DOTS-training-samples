@@ -1,3 +1,5 @@
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -10,6 +12,7 @@ public partial struct AntMoveSystem : ISystem
         state.RequireForUpdate<AntData>();
         state.RequireForUpdate<FoodData>();
         state.RequireForUpdate<GlobalSettings>();
+        state.RequireForUpdate<PheromoneBufferElement>();
     }
     public void OnDestroy(ref SystemState state)
     {
@@ -21,8 +24,8 @@ public partial struct AntMoveSystem : ISystem
         float randomSteering = 0;
         float antSpeed = 0;
         float antAccel = 0;
-        float mapSizeX = 1024f;
-        float mapSizeY = 1024f;
+        int mapSizeX = 1024;
+        int mapSizeY = 1024;
         float goalSteerStrength = 0.04f;
 
         var settings = SystemAPI.GetSingleton<GlobalSettings>();
@@ -34,6 +37,7 @@ public partial struct AntMoveSystem : ISystem
         mapSizeY = settings.MapSizeY;
 
         var food = SystemAPI.GetSingleton<FoodData>();
+        var pheromoneBuffer = SystemAPI.GetSingletonBuffer<PheromoneBufferElement>();
 
         float dt = SystemAPI.Time.DeltaTime;
 
@@ -43,9 +47,9 @@ public partial struct AntMoveSystem : ISystem
             ant.Item1.ValueRW.FacingAngle += ant.Item1.ValueRW.Rand.NextFloat(-randomSteering, randomSteering) * dt * 4;
 
             // TODO: adjust for pheremone and walls
-            //float pheroSteering = PheromoneSteering(ant, 3f);
+            float pheroSteering = PheromoneSteering(ant.Item2.ValueRO.Position, ant.Item1.ValueRO.FacingAngle, 3f, mapSizeX, mapSizeY, pheromoneBuffer);
             //int wallSteering = WallSteering(ant, 1.5f);
-            //ant.facingAngle += pheroSteering * pheromoneSteerStrength;
+            ant.Item1.ValueRW.FacingAngle += pheroSteering * settings.PheromoneSteerStrength;
             //ant.facingAngle += wallSteering * wallSteerStrength;
 
             float targetSpeed = antSpeed;
@@ -137,6 +141,17 @@ public partial struct AntMoveSystem : ISystem
             ant.Item2.ValueRW.Position.x = ant.Item1.ValueRW.Position.x;
             ant.Item2.ValueRW.Position.y = ant.Item1.ValueRW.Position.y;
             ant.Item2.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1f), ant.Item1.ValueRW.FacingAngle);
+        }
+    }
+    
+    [BurstCompile]
+    public partial struct AntsMoveJob : IJobEntity
+    {
+        [ReadOnly] public NativeArray<PheromoneBufferElement> Pheromones;
+        [ReadOnly] public GlobalSettings GlobalSettings;
+        void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
+        {
+               
         }
     }
     

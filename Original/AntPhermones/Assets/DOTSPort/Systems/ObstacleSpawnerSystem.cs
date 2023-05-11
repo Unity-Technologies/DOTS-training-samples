@@ -31,6 +31,12 @@ public partial struct ObstacleSpawnerSystem : ISystem
         var ecb = ecbSystemSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var ObstacleEntity = ecb.CreateEntity();
+        
+                
+#if UNITY_EDITOR
+        ecb.SetName(ObstacleEntity, $"__Buffer_ObstacleArcPrimitive");
+#endif
+        
         ObstaclePrimtitveBuffer = ecb.AddBuffer<ObstacleArcPrimitive>(ObstacleEntity);
 
         Vector2 MapCenter = new Vector2(0.5f, 0.5f);
