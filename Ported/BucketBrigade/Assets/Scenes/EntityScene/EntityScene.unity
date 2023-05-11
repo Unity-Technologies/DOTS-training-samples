@@ -605,6 +605,11 @@ MonoBehaviour:
   NumTeams: 1
   NumTeambotPassTowardsWater: 6
   NumTeambotPassTowardsFire: 6
+  TeambotTravelSpeed: 5
+  TeambotDouseRadius: 7
+  TeambotMaxDouseAmount: 1.8
+  TeambotWaterFillDuration: 2
+  TeambotWaterGatherSpeed: 0.1
   NumStartingFires: 8
   FireSpreadValue: 0.4
   FireGrowthRate: 0.2

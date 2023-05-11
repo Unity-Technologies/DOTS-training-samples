@@ -12,12 +12,12 @@ public class TeamBotAuthoring : MonoBehaviour
             AddComponent(entity, new Teambot
             {
                 State = TeamBotState.Init,
-                TravelSpeed = 5f,
-                DouseRadius = 7,
-                MaxDouseAmount = 1.8f,
-                waterFillDuration = 2,
+                // TravelSpeed = 5f,
+                // DouseRadius = 7,
+                // MaxDouseAmount = 1.8f,
+                // waterFillDuration = 2,
                 waterFillElapsedTime = 0,
-                WaterGatherSpeed = 0.1f,
+                // WaterGatherSpeed = 0.1f,
                     
             });
             
@@ -54,15 +54,15 @@ public struct Teambot : IComponentData
     public Entity TargetWaterEntity;
     public Entity TargetFireEntity;
 
-    public float TravelSpeed;
-
-    public float DouseRadius;
-    public float MaxDouseAmount;
-
-    public float waterFillDuration;
+    // public float TravelSpeed;
+    //
+    // public float DouseRadius;
+    // public float MaxDouseAmount;
+    //
+    // public float waterFillDuration;
     public float waterFillElapsedTime;
-    
-    public float WaterGatherSpeed;
+    //
+    // public float WaterGatherSpeed;
     // public float t;
     //
     // public float3 TargetPos;

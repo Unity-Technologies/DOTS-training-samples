@@ -1,4 +1,5 @@
 ﻿using System;
+using Miscellaneous.StateChangeEnableable;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Collections;
@@ -6,19 +7,22 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-// [UpdateAfter(typeof(OmnibotSpawnerSystem))]
+[UpdateAfter(typeof(Grid))]
 public partial struct TeambotMovingSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Water>();
+        state.RequireForUpdate<Water>(); 
         state.RequireForUpdate<Fire>();
+        state.RequireForUpdate<Grid>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Grid>();
+        
         var teambotLookup = SystemAPI.GetComponentLookup<Teambot>();
         var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>();
         var waterLookup = SystemAPI.GetComponentLookup<Water>();
@@ -63,24 +67,24 @@ public partial struct TeambotMovingSystem : ISystem
                         case TeamBotState.Idle:
                             teambot.ValueRW.waterFillElapsedTime = 0;
                             WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition);
+                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
 
-                            break;
+                            break; 
 
                         case TeamBotState.WaterHolder:
-                            if (teambot.ValueRO.waterFillElapsedTime < teambot.ValueRO.waterFillDuration)
+                            if (teambot.ValueRO.waterFillElapsedTime < config.TeambotWaterFillDuration)
                             {
                                 var deltaTime = SystemAPI.Time.DeltaTime;
                                 teambot.ValueRW.waterFillElapsedTime += deltaTime;
                                 var water = waterLookup[teambot.ValueRO.TargetWaterEntity];
-                                water.Volume -= teambot.ValueRO.WaterGatherSpeed * deltaTime;
+                                water.Volume -= config.TeambotWaterGatherSpeed * deltaTime;
                                 waterLookup[teambot.ValueRO.TargetWaterEntity] = water;
                                 
                             }
                             else
                             {
                                 PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                    SystemAPI.Time.DeltaTime);
+                                    SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
                             }
 
                             break;
@@ -102,11 +106,11 @@ public partial struct TeambotMovingSystem : ISystem
 
                             teambot.ValueRW.TargetPosition = linePos + (offsetVec * offsetMagnitude);
                             WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition);
+                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
                             break;
                         case TeamBotState.WaterHolder:
                             PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime);
+                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -151,7 +155,7 @@ public partial struct TeambotMovingSystem : ISystem
 
                             // Go to fire
                             WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition);
+                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
 
                             break;
                         case TeamBotState.WaterHolder:
@@ -165,10 +169,10 @@ public partial struct TeambotMovingSystem : ISystem
                                     firePos.y = 0;
 
                                     var distance = math.distance(firePos, teambotPosition);
-                                    if (distance < teambot.ValueRO.DouseRadius)
+                                    if (distance < config.TeambotDouseRadius)
                                     {
-                                        var douseAmount = teambot.ValueRO.MaxDouseAmount *
-                                                          (1 - distance / teambot.ValueRO.DouseRadius);
+                                        var douseAmount = config.TeambotMaxDouseAmount *
+                                                          (1 - distance / config.TeambotDouseRadius);
                                         fire.ValueRW.t -= douseAmount;
                                         if (fire.ValueRO.t < 0)
                                         { 
@@ -179,7 +183,7 @@ public partial struct TeambotMovingSystem : ISystem
                             }
                             
                             PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime);
+                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -198,11 +202,11 @@ public partial struct TeambotMovingSystem : ISystem
                                 out var offsetMagnitude, true);
                             teambot.ValueRW.TargetPosition = linePos + (offsetVec * offsetMagnitude);
                             WalkToPosition(teambot, teambotTransform, SystemAPI.Time.DeltaTime,
-                                teambot.ValueRW.TargetPosition);
+                                teambot.ValueRW.TargetPosition, config.TeambotTravelSpeed);
                             break;
                         case TeamBotState.WaterHolder:
                             PassWaterToNextTeamate(teambot, teambotTransform, transformLookup, teambotLookup,
-                                SystemAPI.Time.DeltaTime);
+                                SystemAPI.Time.DeltaTime, config.TeambotTravelSpeed);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -216,10 +220,9 @@ public partial struct TeambotMovingSystem : ISystem
     }
 
     static void PassWaterToNextTeamate(RefRW<Teambot> teambot, RefRW<LocalTransform> teambotTransform,
-        ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime)
+        ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime, float travelSpeed)
     {
-        if (WalkToPosition(teambot, teambotTransform, deltaTime,
-                transformLookup[teambot.ValueRO.PassToTarget].Position))
+        if (WalkToPosition(teambot, teambotTransform, deltaTime, transformLookup[teambot.ValueRO.PassToTarget].Position, travelSpeed))
         {
             // set next person to be the water holder
             var newWaterHolder = teambotLookup[teambot.ValueRO.PassToTarget];
@@ -277,9 +280,9 @@ public partial struct TeambotMovingSystem : ISystem
     }
 
     static bool WalkToPosition(RefRW<Teambot> teambot, RefRW<LocalTransform> teambotTransform, float deltaTime,
-        float3 TargetPos)
+        float3 TargetPos, float travelSpeed)
     {
-        var frameTravelDistance = teambot.ValueRO.TravelSpeed * deltaTime;
+        var frameTravelDistance = travelSpeed * deltaTime;
         var remainingDistToWater =
             math.distance(teambotTransform.ValueRW.Position, TargetPos);
 

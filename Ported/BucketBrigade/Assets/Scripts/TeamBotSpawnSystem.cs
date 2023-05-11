@@ -6,11 +6,14 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
 
+[UpdateAfter(typeof(Grid))]
+
 public partial struct TeamBotSpawnerSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Grid>();
     }
 
     [BurstCompile]

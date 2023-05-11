@@ -11,11 +11,16 @@ public class GridAuthoring : MonoBehaviour
 
     [Header("Bot settings")]
     public int NumOmnibot;
-    
+
     [Header("Team Bot settings")]
-    public int NumTeams;
-    public int NumTeambotPassTowardsWater;
-    public int NumTeambotPassTowardsFire;
+    public int NumTeams = 1;
+    public int NumTeambotPassTowardsWater = 6;
+    public int NumTeambotPassTowardsFire = 6;
+    public float TeambotTravelSpeed = 5;
+    public float TeambotDouseRadius = 7;
+    public float TeambotMaxDouseAmount = 1.8f;
+    public float TeambotWaterFillDuration = 2;
+    public float TeambotWaterGatherSpeed = 0.1f;
 
     [Header("Fire settings")]
     public int NumStartingFires;
@@ -45,21 +50,31 @@ public class GridAuthoring : MonoBehaviour
                 NumStartingFires = authoring.NumStartingFires,
                 MinGridY = authoring.MinGridY,
                 BotPrefab = GetEntity(authoring.BotPrefab, TransformUsageFlags.Dynamic),
-                FirePrefab = GetEntity(authoring.FirePrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
-                WaterPrefab = GetEntity(authoring.WaterPrefab,TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
+                FirePrefab = GetEntity(authoring.FirePrefab,
+                    TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
+                WaterPrefab = GetEntity(authoring.WaterPrefab,
+                    TransformUsageFlags.Dynamic | TransformUsageFlags.NonUniformScale),
                 OmnibotPrefab = GetEntity(authoring.OmnibotPrefab, TransformUsageFlags.Dynamic),
                 GridOrigin = new float3(authoring.originGrid.position),
                 NumOmnibot = authoring.NumOmnibot,
                 FireSpreadValue = authoring.FireSpreadValue,
                 FireGrowthRate = authoring.FireGrowthRate,
-                StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
-                FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
-                
+                StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g,
+                    authoring.StartingGridColor.b, authoring.StartingGridColor.a),
+                FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g,
+                    authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
+
                 // Teambot
                 TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
                 NumTeams = authoring.NumTeams,
                 NumTeambotPassTowardsWater = authoring.NumTeambotPassTowardsWater,
                 NumTeambotPassTowardsFire = authoring.NumTeambotPassTowardsFire,
+                TeambotTravelSpeed = authoring.TeambotTravelSpeed,
+                TeambotDouseRadius = authoring.TeambotDouseRadius,
+                TeambotMaxDouseAmount = authoring.TeambotMaxDouseAmount,
+                TeambotWaterFillDuration = authoring.TeambotWaterFillDuration,
+                // TeambotWaterFillElapsedTime = authoring.TeambotWaterFillElapsedTime,
+                TeambotWaterGatherSpeed = authoring.TeambotWaterGatherSpeed,
             });
         }
     }
@@ -83,10 +98,16 @@ public struct Grid : IComponentData
     public float FireGrowthRate;
     public float4 StartingGridColor;
     public float4 FullBurningGridColor;
-    
+
     // Teambot
     public Entity TeambotPrefab;
     public int NumTeams;
     public int NumTeambotPassTowardsWater;
     public int NumTeambotPassTowardsFire;
+    public float TeambotTravelSpeed;
+    public float TeambotDouseRadius;
+    public float TeambotMaxDouseAmount;
+    public float TeambotWaterFillDuration;
+    // public float TeambotWaterFillElapsedTime;
+    public float TeambotWaterGatherSpeed;
 }
