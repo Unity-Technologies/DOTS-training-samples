@@ -19,6 +19,8 @@ public class ObstacleSpawnerAuthority : MonoBehaviour
                 ObstaclePercentPerRing = authoring.ObstaclePercentPerRing,
                 ObstacleRadius = authoring.ObstacleRadius
             });
+            
+            AddComponent<CollisionHashSet>(entity);
         }
     }
 }

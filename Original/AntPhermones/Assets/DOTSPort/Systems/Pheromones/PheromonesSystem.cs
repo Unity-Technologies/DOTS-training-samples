@@ -37,7 +37,7 @@ public partial struct PheromonesSystem : ISystem
             TrailDecay = 1 - (globalSettings.TrailDecay * SystemAPI.Time.DeltaTime)
         };
         
-        state.Dependency = pheromoneDecreaseJob.Schedule(pheromoneBufferElement.Length, 100, state.Dependency);
+        state.Dependency = pheromoneDecreaseJob.Schedule(pheromoneBufferElement.Length, 1000, state.Dependency);
     }
 
     public void OnDestroy(ref SystemState state)
@@ -69,7 +69,7 @@ public partial struct PheromonesSystem : ISystem
         void Execute(ref AntData ant, ref LocalTransform localTransform)
         {
             float excitement = GlobalSettings.RegularExcitement;
-            float maxPheromones = 0.5f;
+            float maxPheromones = 1f;
             if (ant.HoldingResource) 
             {
                 excitement = GlobalSettings.TrailExcitement;
