@@ -69,7 +69,7 @@ public partial struct TeamBotSpawnerSystem : ISystem
             else
             {
                 teambot.ValueRW.Role = TeamBotRole.PassTowardsFire;
-                teambot.ValueRW.PositionInLine = (float)(botIndexInTeam - config.NumTeambotPassTowardsWater - 1) / (config.NumTeambotPassTowardsWater + 1); 
+                teambot.ValueRW.PositionInLine = 1 - (float)(botIndexInTeam - config.NumTeambotPassTowardsWater - 1) / (config.NumTeambotPassTowardsWater + 1); 
             }
 
             // Assign pass to target

@@ -23,7 +23,7 @@ public enum TeamBotState
 {
     Init,
     Idle,
-    Active,
+    WaterHolder,
 }
 
 public enum TeamBotRole
