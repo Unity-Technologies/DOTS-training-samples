@@ -4,12 +4,14 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
+using Random = Unity.Mathematics.Random;
 
 public partial struct TrainSpawnerSystem : ISystem
 {
     EntityQuery m_trackQuery;
     EntityTypeHandle entityHandle;
-    
+
+    private Random random;
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -21,6 +23,8 @@ public partial struct TrainSpawnerSystem : ISystem
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<Track>();
         state.RequireForUpdate<StationIDComponent>();
+
+        random = Random.CreateFromIndex(401);
     }
     
     [BurstCompile]
@@ -45,14 +49,16 @@ public partial struct TrainSpawnerSystem : ISystem
             train.ValueRW.TrackEntity = trackEntity;
             train.ValueRW.Offset = transform.ValueRO.Position;
 
-            for (int i = 0; i < track.Length; i++)
+            var startIndex = (int)(random.NextFloat() * track.Length / 2);
+            for (int i = startIndex; i < track.Length; i++)
             {
                 var trackPoint = track[i];
-                if (trackPoint.IsEnd)
+                if (trackPoint.IsStation)
                 {
                     transform.ValueRW.Position = trackPoint.Position;
                     train.ValueRW.TrackPointIndex = i;
                     train.ValueRW.StationEntity = trackPoint.Station;
+                    train.ValueRW.OnPlatformA = em.GetComponentData<Track>(trackEntity).OnPlatformA;
 
                     bool isStation = trackPoint.IsStation;
                     em.SetComponentEnabled<EnRouteComponent>(entity, !isStation);
@@ -60,7 +66,6 @@ public partial struct TrainSpawnerSystem : ISystem
                     em.SetComponentEnabled<UnloadingComponent>(entity, isStation);
                     em.SetComponentEnabled<ArrivingComponent>(entity, false);
                     em.SetComponentEnabled<DepartingComponent>(entity, false);
-                    
                     break;
                 }
             }

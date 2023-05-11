@@ -52,6 +52,8 @@ public partial struct StationSpawningSystem : ISystem
         var trackArchetype = em.CreateArchetype(typeof(TrackIDComponent), typeof(Track));
         var trackEntityA = em.CreateEntity(trackArchetype);
         var trackEntityB = em.CreateEntity(trackArchetype);
+        em.SetComponentData<Track>(trackEntityA, new Track { OnPlatformA = true});
+        em.SetComponentData<Track>(trackEntityB, new Track { OnPlatformA = false});
 #if UNITY_EDITOR
         em.SetName(trackEntityA, "TrackEntityA");
         em.SetName(trackEntityB, "TrackEntityB");
@@ -149,6 +151,7 @@ public partial struct StationSpawningSystem : ISystem
 
                 var queueComponent = em.GetComponentData<QueueComponent>(queuePoints[queuePointIndex]);
                 queueComponent.Station = station;
+                queueComponent.OnPlatformA = true;
                 em.SetComponentData(queuePoints[queuePointIndex], queueComponent);
 
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointIndex] });
@@ -165,6 +168,7 @@ public partial struct StationSpawningSystem : ISystem
 
                 var queueBInfo = em.GetComponentData<QueueComponent>(queuePoints[queuePointIndex]);
                 queueBInfo.Station = station;
+                queueBInfo.OnPlatformA = false;
                 em.SetComponentData(queuePoints[queuePointBIndex], queueBInfo);
 
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointBIndex] });
