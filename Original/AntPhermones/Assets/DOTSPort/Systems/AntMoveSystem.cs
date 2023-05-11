@@ -1,15 +1,13 @@
-//using System.Collections;
-//using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-//using UnityEngine;
 
 public partial struct AntMoveSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<AntData>();
+        state.RequireForUpdate<FoodData>();
         state.RequireForUpdate<GlobalSettings>();
     }
     public void OnDestroy(ref SystemState state)
@@ -24,13 +22,17 @@ public partial struct AntMoveSystem : ISystem
         float antAccel = 0;
         float mapSizeX = 1024f;
         float mapSizeY = 1024f;
+        float goalSteerStrength = 0.04f;
 
         var settings = SystemAPI.GetSingleton<GlobalSettings>();
         randomSteering = settings.AntRandomSteering;
         antSpeed = settings.AntSpeed;
         antAccel = settings.AntAccel;
+        goalSteerStrength = settings.AntGoalSteerStrength;
         mapSizeX = settings.MapSizeX;
         mapSizeY = settings.MapSizeY;
+
+        var food = SystemAPI.GetSingleton<FoodData>();
 
         float dt = SystemAPI.Time.DeltaTime;
 
@@ -48,9 +50,44 @@ public partial struct AntMoveSystem : ISystem
             float targetSpeed = antSpeed;
             targetSpeed *= 1f /*- (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f*/;
 
-            ant.Item1.ValueRW.Speed += (targetSpeed - ant.Item1.ValueRO.Speed) * antAccel;
+            ant.Item1.ValueRW.Speed += (targetSpeed - ant.Item1.ValueRW.Speed) * antAccel;
 
-            // TODO: adjust for goal
+            // adjust for goal
+            float2 targetPos;
+            float targetRadius;
+            if (ant.Item1.ValueRW.HoldingResource)
+            {
+                targetPos = ant.Item1.ValueRO.SpawnerCenter;
+                targetRadius = 1.0f;
+            } else
+            {
+                targetPos = food.Center;
+                targetRadius = food.Radius;
+            }
+            // TODO: linecast to target to see if the ant sees it
+            if (true)
+            {
+                float targetAngle = math.atan2(
+                    targetPos.y - ant.Item1.ValueRW.Position.y, 
+                    targetPos.x - ant.Item1.ValueRW.Position.x);
+                if (targetAngle - ant.Item1.ValueRW.FacingAngle > math.PI)
+                {
+                    ant.Item1.ValueRW.FacingAngle += math.PI / 2f;
+                }
+                else if (targetAngle - ant.Item1.ValueRW.FacingAngle < -math.PI)
+                {
+                    ant.Item1.ValueRW.FacingAngle -= math.PI / 2f;
+                }
+                else
+                {
+                    if (math.abs(targetAngle - ant.Item1.ValueRW.FacingAngle) < math.PI * .5f)
+                    {
+                        ant.Item1.ValueRW.FacingAngle += (targetAngle - ant.Item1.ValueRW.FacingAngle) * goalSteerStrength;
+                        //ant.Item1.ValueRW.FacingAngle = targetAngle;
+                    }
+                }
+                //Debug.DrawLine(ant.position/mapSize,targetPos/mapSize,color);
+            }
 
             float vx = math.cos(ant.Item1.ValueRW.FacingAngle) * ant.Item1.ValueRW.Speed;
             float vy = math.sin(ant.Item1.ValueRW.FacingAngle) * ant.Item1.ValueRW.Speed;
@@ -63,11 +100,13 @@ public partial struct AntMoveSystem : ISystem
             // reverse on map edges
             if (ant.Item1.ValueRO.Position.x + dx < 0 || ant.Item1.ValueRO.Position.x + dx > mapSizeX)
             {
+                //ant.Item1.ValueRW.FacingAngle += math.PI;
                 vx = -vx;
                 dx = vx * dt;
             }
             if (ant.Item1.ValueRO.Position.y + dy < 0 || ant.Item1.ValueRO.Position.y + dy > mapSizeY)
             {
+                //ant.Item1.ValueRW.FacingAngle += math.PI;
                 vy = -vy;
                 dy = vy * dt;
             }
@@ -76,9 +115,24 @@ public partial struct AntMoveSystem : ISystem
 
             // TODO: push ant away from walls
 
+            // flip ant when it hits target
+            if (math.distance(ant.Item1.ValueRW.Position, targetPos) < targetRadius) {
+                ant.Item1.ValueRW.HoldingResource = !ant.Item1.ValueRW.HoldingResource;
+                ant.Item1.ValueRW.FacingAngle += math.PI;
+            }
+            // clamp angle to +-180 degrees
+            while (ant.Item1.ValueRW.FacingAngle < -math.PI)
+            {
+                ant.Item1.ValueRW.FacingAngle += math.PI * 2;
+            }
+            while (ant.Item1.ValueRW.FacingAngle > math.PI)
+            {
+                ant.Item1.ValueRW.FacingAngle -= math.PI * 2;
+            }
+
             // TODO: need to scale simulation space to render space
-            ant.Item2.ValueRW.Position.x = ant.Item1.ValueRO.SpawnerCenter.x + ant.Item1.ValueRW.Position.x;
-            ant.Item2.ValueRW.Position.y = ant.Item1.ValueRO.SpawnerCenter.y + ant.Item1.ValueRW.Position.y;
+            ant.Item2.ValueRW.Position.x = ant.Item1.ValueRW.Position.x;
+            ant.Item2.ValueRW.Position.y = ant.Item1.ValueRW.Position.y;
             ant.Item2.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1f), ant.Item1.ValueRW.FacingAngle);
         }
     }

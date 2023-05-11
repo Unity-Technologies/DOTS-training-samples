@@ -41,8 +41,8 @@ public partial struct AntsSpawnerSystem : ISystem
                         y = spawner.Item2.ValueRO.Position.y 
                     },
                     Position = { 
-                        x = rand.NextFloat(-antSpawnRange,antSpawnRange), 
-                        y = rand.NextFloat(-antSpawnRange,antSpawnRange) 
+                        x = spawner.Item2.ValueRO.Position.x + rand.NextFloat(-antSpawnRange,antSpawnRange), 
+                        y = spawner.Item2.ValueRO.Position.y + rand.NextFloat(-antSpawnRange,antSpawnRange) 
                     },
                     FacingAngle = rand.NextFloat() * Mathf.PI * 2f,
                     Speed = 0,
