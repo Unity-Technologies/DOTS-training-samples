@@ -115,13 +115,6 @@ public partial struct AntMoveSystem : ISystem
             var mapSizeX = GlobalSettings.MapSizeX;
             var mapSizeY = GlobalSettings.MapSizeY;
             float mapSize = math.min(mapSizeX, mapSizeY);
-
-            // foreach (var ant in
-           // SystemAPI.Query<
-           
-           // RefRW<AntData>,
-           // RefRW<LocalTransform>,
-           // RefRW<URPMaterialPropertyBaseColor>>())
            
            // random walk
            
@@ -129,9 +122,9 @@ public partial struct AntMoveSystem : ISystem
 
             // TODO: adjust for pheremone and walls
             float pheroSteering = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
-            //int wallSteering = WallSteering(ant, 1.5f);
+            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ant, GlobalSettings.AntSightDistance / mapSize, mapSize, GlobalSettings.WallThickness);
             ant.FacingAngle += pheroSteering * GlobalSettings.PheromoneSteerStrength;
-            //ant.facingAngle += wallSteering * wallSteerStrength;
+            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
 
             float targetSpeed = antSpeed;
             targetSpeed *= 1f /*- (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f*/;
@@ -200,11 +193,6 @@ public partial struct AntMoveSystem : ISystem
             }
             ant.Position.x += dx;
             ant.Position.y += dy;
-
-            // TODO: push ant away from walls
-            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ant, GlobalSettings.AntSightDistance / mapSize, mapSize, GlobalSettings.WallThickness);
-            // ant.FacingAngle += pheroSteering * pheromoneSteerStrength;
-            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
 
             // flip ant when it hits target
             if (math.distance(ant.Position, targetPos) < targetRadius)
