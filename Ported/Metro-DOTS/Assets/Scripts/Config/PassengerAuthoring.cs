@@ -32,5 +32,13 @@ public struct PassengerComponent : IComponentData
 {
     public float3 Color;
     public float Height;
+    public int TrainId;
+    public float3 SeatPosition;
+    public bool HasSeat;
+    public bool MoveToPosition;
+    public float3 TargetPosition;
+    public float3 InitialPosition;
+    public float T;
+    public bool HasJustUnloaded;
 }
 

@@ -8,7 +8,7 @@ public partial struct TrainSpawnerSystem : ISystem
 {
     EntityQuery m_trackQuery;
     EntityTypeHandle entityHandle;
-    
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -16,18 +16,18 @@ public partial struct TrainSpawnerSystem : ISystem
         builder.WithAny<Track>();
         m_trackQuery = state.GetEntityQuery(builder);
         entityHandle = state.GetEntityTypeHandle();
-        
+
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<Track>();
         state.RequireForUpdate<StationIDComponent>();
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
         entityHandle.Update(ref state);
-        
+
         var trackEntities = m_trackQuery.ToEntityArray(Allocator.Temp);
 
         var config = SystemAPI.GetSingleton<Config>();
@@ -43,6 +43,11 @@ public partial struct TrainSpawnerSystem : ISystem
             var track = em.GetBuffer<TrackPoint>(trackEntity);
             train.ValueRW.TrackEntity = trackEntity;
             train.ValueRW.Offset = transform.ValueRO.Position;
+
+            train.ValueRW.TrainId = -1;
+
+            // one train per track at the moment, could there be more that one train on a track?
+            train.ValueRW.TrainId = trackIndex;
 
             for (int i = 0; i < track.Length; i++)
             {
@@ -60,7 +65,7 @@ public partial struct TrainSpawnerSystem : ISystem
                     em.SetComponentEnabled<UnloadingComponent>(entity, isStation);
                     em.SetComponentEnabled<ArrivingComponent>(entity, false);
                     em.SetComponentEnabled<DepartingComponent>(entity, false);
-                    
+
                     break;
                 }
             }
