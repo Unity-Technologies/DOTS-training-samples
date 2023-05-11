@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 
 namespace Metro
 {
@@ -17,23 +16,25 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new Door
                 {
+                    Timer = 0f,
                     ClosedPosition = authoring.ClosedPosition,
-                    OpenPosition =  authoring.OpenPosition
+                    OpenPosition =  authoring.OpenPosition,
+                    IsOpening = true
                 });
-
-                AddComponent<UnloadingComponent>(entity);
-                AddComponent<DepartingComponent>(entity);
             }
         }
     }
 
-    public struct Door : IComponentData
+    public struct Door : IComponentData, IEnableableComponent
     {
         public const float OpeningTime = 2.0f;
+        
+        public float Timer;
 
         public float3 ClosedPosition;
         public float3 OpenPosition;
 
-        public float Timer;
+        public bool IsOpening;
+
     }
 }

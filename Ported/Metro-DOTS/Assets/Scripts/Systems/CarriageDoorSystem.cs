@@ -4,55 +4,49 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-public partial struct DoorSystem : ISystem
+public partial struct OpenDoorSystem : ISystem
 {
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
-    {
-        //transformTypeHandle = state.GetComponentTypeHandle<LocalTransform>();
-        // This makes the system not update unless at least one entity exists that has the Door component.
-        state.RequireForUpdate<Door>();
-    }
-
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state) { }
-
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var em = state.EntityManager;
+        // Get an EntityCommandBuffer from the BeginSimulationEntityCommandBufferSystem.
+        var ecbSingleton = SystemAPI.GetSingleton<
+            BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        foreach (var (transform, door, entity) in
-                 SystemAPI.Query<RefRW<LocalTransform>, RefRW<Door>>()
-                     .WithEntityAccess())
+        // Create the job.
+        var openJob = new OpenDoorJob
         {
-            if (em.IsComponentEnabled<UnloadingComponent>(entity))
-            {
-                door.ValueRW.Timer += SystemAPI.Time.DeltaTime;
+            DeltaTime = SystemAPI.Time.DeltaTime,
+            Ecb = ecb.AsParallelWriter()
+        };
+        var openJobHandle = openJob.Schedule(state.Dependency);
 
-                var lerp = math.min(1f, door.ValueRW.Timer / Door.OpeningTime);
-                transform.ValueRW.Position = math.lerp(door.ValueRO.ClosedPosition, door.ValueRO.OpenPosition, lerp);
+        // Schedule the job. Source generation creates and passes the query implicitly.
+        state.Dependency = openJobHandle;
+    }
+}
 
-                if (lerp >= 1f)
-                {
-                    door.ValueRW.Timer = 0f;
-                    em.SetComponentEnabled<UnloadingComponent>(entity, false);
-                }
-            }
+[WithAll(typeof(Door), typeof(LocalTransform))]
+[BurstCompile]
+public partial struct OpenDoorJob : IJobEntity
+{
+    public float DeltaTime;
+    public EntityCommandBuffer.ParallelWriter Ecb;
 
-            if (em.IsComponentEnabled<DepartingComponent>(entity))
-            {
-                door.ValueRW.Timer += SystemAPI.Time.DeltaTime;
+    [BurstCompile]
+    public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Door door, ref LocalTransform transform)
+    {
+        door.Timer += DeltaTime;
 
-                var lerp = math.min(1f, door.ValueRW.Timer / Door.OpeningTime);
-                transform.ValueRW.Position = math.lerp(door.ValueRO.OpenPosition, door.ValueRO.ClosedPosition, lerp);
+        var lerp = math.min(1f, door.Timer / Door.OpeningTime);
+        transform.Position = door.IsOpening ? math.lerp(door.ClosedPosition, door.OpenPosition, lerp) : math.lerp(door.OpenPosition, door.ClosedPosition, lerp);
 
-                if (lerp >= 1f)
-                {
-                    door.ValueRW.Timer = 0f;
-                    em.SetComponentEnabled<DepartingComponent>(entity, false);
-                }
-            }
+        if (lerp >= 1f)
+        {
+            door.Timer = 0f;
+            door.IsOpening ^= true;
+            Ecb.SetComponentEnabled<Door>(chunkIndex, entity, false);
         }
     }
 }

@@ -24,11 +24,6 @@ namespace Metro
         }
 
         [BurstCompile]
-        public void OnDestroy(ref SystemState state)
-        {
-        }
-
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             var em = state.EntityManager;
@@ -130,9 +125,9 @@ namespace Metro
             var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
             foreach (var child in children)
             {
-                if (em.HasComponent<UnloadingComponent>(child.Value))
+                if (em.HasComponent<Door>(child.Value))
                 {
-                    ecb.SetComponentEnabled<UnloadingComponent>(child.Value, true);
+                    ecb.SetComponentEnabled<Door>(child.Value, true);
                 }
             }
 
@@ -172,9 +167,9 @@ namespace Metro
                 var children = em.GetBuffer<LinkedEntityGroup>(trainEntity);
                 foreach (var child in children)
                 {
-                    if (em.HasComponent<DepartingComponent>(child.Value))
+                    if (em.HasComponent<Door>(child.Value))
                     {
-                        ecb.SetComponentEnabled<DepartingComponent>(child.Value, true);
+                        ecb.SetComponentEnabled<Door>(child.Value, true);
                     }
                 }
             }
