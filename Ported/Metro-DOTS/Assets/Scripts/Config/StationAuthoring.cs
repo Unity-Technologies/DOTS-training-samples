@@ -1,5 +1,4 @@
-﻿using Components;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 
 namespace Metro

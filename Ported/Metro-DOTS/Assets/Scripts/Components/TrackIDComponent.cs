@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-namespace Components
+namespace Metro
 {
     public struct TrackIDComponent : IComponentData
     {

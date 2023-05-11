@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
 
-namespace Components
+namespace Metro
 {
     public struct Train : IComponentData
     {
