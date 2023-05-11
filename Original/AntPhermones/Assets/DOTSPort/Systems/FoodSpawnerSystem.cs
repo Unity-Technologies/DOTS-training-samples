@@ -50,7 +50,7 @@ public partial struct FoodSpawnerSystem : ISystem
                 {
                     yPos = rand.NextFloat(settings.MapSizeY - settings.FoodBufferSize, settings.MapSizeY);
                 }
-                ecb.SetComponent(entity, new LocalTransform() { Position = new float3(xPos, yPos, 0), Scale = radius });
+                ecb.SetComponent(entity, new LocalTransform() { Position = new float3(xPos, yPos, 4), Scale = radius });
                 ecb.AddComponent(entity, new FoodData() {
                     Center = { x = xPos, y = yPos},
                     Radius = radius

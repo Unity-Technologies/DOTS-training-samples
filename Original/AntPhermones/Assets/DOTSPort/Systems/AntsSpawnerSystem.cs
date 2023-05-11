@@ -27,7 +27,7 @@ public partial struct AntsSpawnerSystem : ISystem
         {
             // Set spawner to the center of the map.
             // If we have more than one spawner we should find another way to set position
-            spawner.Item2.ValueRW.Position = new float3(globalSettings.MapSizeX / 2f, globalSettings.MapSizeY / 2f, 0); 
+            spawner.Item2.ValueRW.Position = new float3(globalSettings.MapSizeX / 2f, globalSettings.MapSizeY / 2f, 4); 
             
             var antSpawnRange = spawner.Item1.ValueRO.AntSpawnRange;
             for (uint i = 0; i < spawner.Item1.ValueRO.Count; i++)

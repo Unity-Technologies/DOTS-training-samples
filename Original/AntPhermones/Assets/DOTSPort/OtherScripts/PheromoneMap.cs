@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class PheromoneMap : MonoBehaviour
 {
+    [SerializeField]
+    float zOffset = 5;
+    
     Material m_PheromoneMaterial;
     Texture2D m_PheromoneMapTexture;
     
@@ -17,7 +20,7 @@ public class PheromoneMap : MonoBehaviour
 
     public void CreateTexture(int width, int height)
     {
-        transform.position = new Vector3(width / 2f, height/ 2f, 0.1f);
+        transform.position = new Vector3(width / 2f, height/ 2f, zOffset);
         transform.localScale = new Vector3(width, height, 1);
         m_PheromoneMapTexture = new Texture2D(width, height, TextureFormat.R8, false);
         var pixels = m_PheromoneMapTexture.GetPixels();

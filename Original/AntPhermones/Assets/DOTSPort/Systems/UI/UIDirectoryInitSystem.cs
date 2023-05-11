@@ -7,7 +7,7 @@ public partial struct UIDirectoryInitSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<TimeScaleControls>();
+        state.RequireForUpdate<TimeScaleControlsExecution>();
     }
 
     public void OnDestroy(ref SystemState state)
