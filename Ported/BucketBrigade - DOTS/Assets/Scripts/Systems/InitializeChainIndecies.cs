@@ -27,7 +27,7 @@ namespace Systems
             state.RequireForUpdate<Config>();
         }
         
-        
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             
@@ -91,7 +91,7 @@ namespace Systems
 
             }
             
-            Debug.Log("Ran InitializeChainIndex System" + " i: " + i + " j: " + j);
+            //Debug.Log("Ran InitializeChainIndex System" + " i: " + i + " j: " + j);
             
             state.Enabled = false;
             

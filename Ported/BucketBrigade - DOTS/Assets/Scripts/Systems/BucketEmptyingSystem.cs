@@ -6,6 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(EmptyAndFillSystemGroup))]
 [UpdateBefore(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BucketEmptyingSystem : ISystem
@@ -86,6 +87,7 @@ public partial struct BucketEmptyingSystem : ISystem
 }
 
 [BurstCompile]
+[WithAll(typeof(OnFire))]
 public partial struct FireExtuinguishJob: IJobEntity
 {
     [ReadOnly] public Tile centerFire;

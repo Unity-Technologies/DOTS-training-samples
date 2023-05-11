@@ -7,7 +7,7 @@ using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
 using UnityEngine.UIElements;
-
+[UpdateInGroup(typeof(SpawnSystemGroup))]
 [BurstCompile]
 public partial struct GridTilesSpawningSystem : ISystem
 {

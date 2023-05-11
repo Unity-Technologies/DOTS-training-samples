@@ -6,8 +6,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(BucketSpawningSystem))]
-[UpdateAfter(typeof(WaterSpawningSystem))]
+[UpdateInGroup(typeof(EmptyAndFillSystemGroup))]
+[UpdateBefore(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BucketFillingSystem : ISystem
 {
