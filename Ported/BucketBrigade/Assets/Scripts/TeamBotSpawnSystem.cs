@@ -94,6 +94,10 @@ public partial struct TeamBotSpawnerSystem : ISystem
         }
 
         // Assign Fire Dousers
+        var startPoint = config.GridOrigin;
+        var endPoint = new float3(startPoint.x + config.GridSize * 1.05f, 0, startPoint.z + config.GridSize * 1.05f);
+
+        
         i = 0;
         foreach (var (trans, teambot, teambotEntity) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Teambot>>()
                      .WithEntityAccess())
@@ -107,10 +111,10 @@ public partial struct TeamBotSpawnerSystem : ISystem
 
             // move to random position
             
-            trans.ValueRW.Scale = 1;
-            trans.ValueRW.Position.x = Random.Range(-30f,30f);
+            trans.ValueRW.Scale = config.BotScale;
+            trans.ValueRW.Position.x = Random.Range(startPoint.x,endPoint.x);
             trans.ValueRW.Position.y = 0;
-            trans.ValueRW.Position.z = Random.Range(0,75f);
+            trans.ValueRW.Position.z = Random.Range(startPoint.z,endPoint.z);
             
             
             // increment

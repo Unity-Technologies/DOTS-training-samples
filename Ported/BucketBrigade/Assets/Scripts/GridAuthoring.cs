@@ -11,6 +11,7 @@ public class GridAuthoring : MonoBehaviour
 
     [Header("Bot settings")]
     public int NumOmnibot;
+    public int BotScale;
 
     [Header("Team Bot settings")]
     public int NumTeams = 1;
@@ -69,7 +70,9 @@ public class GridAuthoring : MonoBehaviour
                     authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
 
                 RadiusClickFire = authoring.RadiusClickFire,
-                
+
+                BotScale = authoring.BotScale,
+
                 // Teambot
                 TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
                 NumTeams = authoring.NumTeams,
@@ -81,7 +84,7 @@ public class GridAuthoring : MonoBehaviour
                 TeambotWaterFillDuration = authoring.TeambotWaterFillDuration,
                 // TeambotWaterFillElapsedTime = authoring.TeambotWaterFillElapsedTime,
                 TeambotWaterGatherSpeed = authoring.TeambotWaterGatherSpeed,
-                
+
                 // Water
                 WaterRefillSpeed = authoring.WaterRefillSpeed,
             });
@@ -109,6 +112,7 @@ public struct Grid : IComponentData
     public float RadiusClickFire;
     public float4 StartingGridColor;
     public float4 FullBurningGridColor;
+    public float BotScale;
 
     // Teambot
     public Entity TeambotPrefab;
@@ -120,14 +124,14 @@ public struct Grid : IComponentData
     public float TeambotMaxDouseAmount;
     public float TeambotWaterFillDuration;
     public float TeambotWaterGatherSpeed;
-    
+
     // Water 
     public float WaterRefillSpeed;
 }
 
 // For mouse hit
-public struct MouseHit : IComponentData {
+public struct MouseHit : IComponentData
+{
     public float3 Value;
     public bool ChangedThisFrame;
-
 }

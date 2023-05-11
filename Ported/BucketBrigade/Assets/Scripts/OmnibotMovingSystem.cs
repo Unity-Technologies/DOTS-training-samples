@@ -6,6 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(OmnibotSpawnerSystem))]
+[BurstCompile]
 public partial struct OmnibotMovingSystem : ISystem 
 {
     [BurstCompile]

@@ -13,10 +13,9 @@ public class WaterAuthoring : MonoBehaviour
             var authTransformLocalScale = authoring.transform.localScale;
             AddComponent(entity, new Water
             {
-                TargetScale = new float2(authTransformLocalScale.x, authTransformLocalScale.z),
                 Volume = 0.8f,
             });
-            AddComponent(entity, new PostTransformMatrix());
+            AddComponent(entity, new PostTransformMatrix()); 
         }
     }
 }
