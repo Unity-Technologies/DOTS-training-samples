@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Components;
+using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -16,6 +17,8 @@ public class PassengerAuthoring : MonoBehaviour
                 Color = new float3(1, 0, 1),
                 Height = authoring.MaxHeight
             });
+            AddComponent(entity, new PassengerOnboarded());
+            SetComponentEnabled<PassengerOnboarded>(entity, false);
         }
     }
 }

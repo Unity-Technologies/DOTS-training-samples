@@ -167,6 +167,8 @@ MonoBehaviour:
     y: -2
     z: -8
   StationWidth: 32
+  NumLines: 5
+  LineSpacing: 24
   NumCarriadges: 4
   SpawnPointOffsetFromCenterPoint:
     x: 0

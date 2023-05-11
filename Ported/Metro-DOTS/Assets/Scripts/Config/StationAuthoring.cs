@@ -11,6 +11,7 @@ namespace Metro
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent<StationIDComponent>(entity);
+                AddBuffer<StationQueuesElement>(entity);
             }
         }
     }
