@@ -301,15 +301,17 @@ MonoBehaviour:
   MapSizeY: 128
   FoodBufferSize: 20
   FoodRadius: 5
-  AntRandomSteering: 0.3
-  AntSpeed: 0.8
+  AntRandomSteering: 0.14
+  AntSpeed: 2
   AntAccel: 0.07
-  AntGoalSteerStrength: 0.1
-  TrailAddSpeed: 0.5
-  TrailDecay: 0.05
+  AntGoalSteerStrength: 0.04
+  TrailAddSpeed: 0.1
+  TrailDecay: 0.0025
+  RegularExcitement: 0.3
+  TrailExcitement: 1
   ExitedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  RegularColor: {r: 1, g: 1, b: 1, a: 1}
-  PheromoneSteerStrength: 0.015
+  RegularColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
+  PheromoneSteerStrength: 0.02
 --- !u!4 &1130009605
 Transform:
   m_ObjectHideFlags: 0

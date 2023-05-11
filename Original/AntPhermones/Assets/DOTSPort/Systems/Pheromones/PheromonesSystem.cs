@@ -68,10 +68,10 @@ public partial struct PheromonesSystem : ISystem
         
         void Execute(ref AntData ant, ref LocalTransform localTransform)
         {
-            float excitement = .3f;
+            float excitement = GlobalSettings.RegularExcitement;
             if (ant.HoldingResource) 
             {
-                excitement = 1f;
+                excitement = GlobalSettings.TrailExcitement;
             }
             excitement *= ant.Speed / GlobalSettings.AntSpeed;
             int x = (int)math.floor(localTransform.Position.x);

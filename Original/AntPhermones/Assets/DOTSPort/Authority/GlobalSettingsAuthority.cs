@@ -16,6 +16,8 @@ public class GlobalSettingsAuthority : MonoBehaviour
     public float AntGoalSteerStrength = 0.04f;
     public float TrailAddSpeed = 0.5f;
     public float TrailDecay = 0.01f;
+    public float RegularExcitement = 0.3f;
+    public float TrailExcitement = 1f;
     public Color ExitedColor = Color.yellow;
     public Color RegularColor = Color.white;
     public float PheromoneSteerStrength = 1f;
@@ -37,6 +39,8 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 AntGoalSteerStrength = authoring.AntGoalSteerStrength,
                 TrailAddSpeed = authoring.TrailAddSpeed,
                 TrailDecay = authoring.TrailDecay,
+                RegularExcitement = authoring.RegularExcitement,
+                TrailExcitement = authoring.TrailExcitement,
                 ExitedColor = authoring.ExitedColor,
                 RegularColor = authoring.RegularColor,
                 PheromoneSteerStrength = authoring.PheromoneSteerStrength,
@@ -60,6 +64,8 @@ public struct GlobalSettings: IComponentData
     public float AntGoalSteerStrength;
     public float TrailAddSpeed;
     public float TrailDecay;
+    public float RegularExcitement;
+    public float TrailExcitement;
     public Vector4 ExitedColor;
     public Vector4 RegularColor;
     public float PheromoneSteerStrength;
