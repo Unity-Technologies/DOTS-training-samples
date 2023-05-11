@@ -22,7 +22,7 @@ public partial struct AntMoveSystem : ISystem
 
     }
 
-    int ParametricWallSteering(RefRW<AntData> ant, float distance, float mapSize)
+    int ParametricWallSteering(RefRW<AntData> ant, float distance, float mapSize, float WallThickness)
     {
         int output = 0;
     
@@ -47,8 +47,8 @@ public partial struct AntMoveSystem : ISystem
                 {
                     continue;
                 }
-    
-                float DirectionDist = math.length( DirectionVec );
+
+                float DirectionDist = math.length(DirectionVec) - WallThickness;
                 float value = 4.0f * (1.0f - DirectionDist / distance);
                 output -= i * (int)math.floor(value);
             }
@@ -102,6 +102,7 @@ public partial struct AntMoveSystem : ISystem
         mapSizeX = settings.MapSizeX;
         mapSizeY = settings.MapSizeY;
         float mapSize = math.min(mapSizeX, mapSizeY);
+        float WallThickness = 0.1f;
 
         float antSightDistance = 5.0f;
 
@@ -191,7 +192,7 @@ public partial struct AntMoveSystem : ISystem
             ant.Item1.ValueRW.Position.y += dy;
 
             // TODO: push ant away from walls
-            int wallSteering = ParametricWallSteering(ant.Item1, antSightDistance / mapSize, mapSize);
+            int wallSteering = ParametricWallSteering(ant.Item1, antSightDistance / mapSize, mapSize, WallThickness);
             // ant.Item1.ValueRW.FacingAngle += pheroSteering * pheromoneSteerStrength;
             ant.Item1.ValueRW.FacingAngle += wallSteering * wallSteerStrength;
 
