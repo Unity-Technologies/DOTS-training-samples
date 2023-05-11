@@ -10,7 +10,7 @@ namespace Metro
         {
             public override void Bake(PlatformAAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                var entity = GetEntity(TransformUsageFlags.Renderable);
                 AddComponent<PlatformA>(entity);
             }
         }

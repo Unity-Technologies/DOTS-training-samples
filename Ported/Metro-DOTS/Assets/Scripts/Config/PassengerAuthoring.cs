@@ -11,7 +11,7 @@ public class PassengerAuthoring : MonoBehaviour
     {
         public override void Bake(PassengerAuthoring authoring)
         {
-            var entity = GetEntity(TransformUsageFlags.None);
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new PassengerComponent
             {
                 Color = new float3(1, 0, 1),
