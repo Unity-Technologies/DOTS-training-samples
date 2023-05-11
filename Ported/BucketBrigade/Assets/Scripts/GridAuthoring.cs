@@ -11,6 +11,11 @@ public class GridAuthoring : MonoBehaviour
 
     [Header("Bot settings")]
     public int NumOmnibot;
+    
+    [Header("Team Bot settings")]
+    public int NumTeams;
+    public int NumTeambotPassTowardsWater;
+    public int NumTeambotPassTowardsFire;
 
     [Header("Fire settings")]
     public int NumStartingFires;
@@ -24,6 +29,7 @@ public class GridAuthoring : MonoBehaviour
     public GameObject FirePrefab;
     public GameObject WaterPrefab;
     public GameObject OmnibotPrefab;
+    public GameObject TeambotPrefab;
     public Transform originGrid;
 
     class Baker : Baker<GridAuthoring>
@@ -48,6 +54,12 @@ public class GridAuthoring : MonoBehaviour
                 FireGrowthRate = authoring.FireGrowthRate,
                 StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
                 FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
+                
+                // Teambot
+                TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
+                NumTeams = authoring.NumTeams,
+                NumTeambotPassTowardsWater = authoring.NumTeambotPassTowardsWater,
+                NumTeambotPassTowardsFire = authoring.NumTeambotPassTowardsFire,
             });
         }
     }
@@ -71,4 +83,10 @@ public struct Grid : IComponentData
     public float FireGrowthRate;
     public float4 StartingGridColor;
     public float4 FullBurningGridColor;
+    
+    // Teambot
+    public Entity TeambotPrefab;
+    public int NumTeams;
+    public int NumTeambotPassTowardsWater;
+    public int NumTeambotPassTowardsFire;
 }

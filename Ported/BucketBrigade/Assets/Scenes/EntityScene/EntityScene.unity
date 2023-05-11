@@ -601,9 +601,12 @@ MonoBehaviour:
   GridSize: 50
   MinGridY: -2
   GridCellSize: 1
-  NumOmnibot: 4
-  NumStartingFires: 5
-  FireSpreadValue: 0.8
+  NumOmnibot: 6
+  NumTeams: 1
+  NumTeambotPassTowardsWater: 6
+  NumTeambotPassTowardsFire: 6
+  NumStartingFires: 8
+  FireSpreadValue: 0.4
   FireGrowthRate: 0.2
   StartingGridColor: {r: 0.32133323, g: 0.7830189, b: 0.44297495, a: 1}
   FullBurningGridColor: {r: 0.7264151, g: 0, b: 0, a: 1}
@@ -612,6 +615,8 @@ MonoBehaviour:
     type: 3}
   WaterPrefab: {fileID: 0}
   OmnibotPrefab: {fileID: 1821148559735918, guid: 678514d2466455644a64dc4be1795968,
+    type: 3}
+  TeambotPrefab: {fileID: 1821148559735918, guid: bcaa528a4eb25d146ab7321a5559d5e9,
     type: 3}
   originGrid: {fileID: 348539257}
 --- !u!1 &639796932
