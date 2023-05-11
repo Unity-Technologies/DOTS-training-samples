@@ -21,6 +21,7 @@ namespace Metro
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Config>();
+            state.RequireForUpdate<StationConfig>();
 
             _randomStation = Random.CreateFromIndex(1234);
             _randomTrain = Random.CreateFromIndex(7348);

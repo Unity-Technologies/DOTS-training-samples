@@ -20,8 +20,6 @@ public partial struct DoorSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        state.GetComponentLookup<Parent>(true);
-
         var em = state.EntityManager;
 
         foreach (var (transform, door, entity) in

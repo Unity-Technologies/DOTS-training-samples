@@ -25,7 +25,7 @@ public partial struct PassengerSpawningSystem : ISystem
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
-        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerPlatform * stationConfig.NumStations * 2, Allocator.Temp);
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerPlatform * stationConfig.NumStations * 2 * stationConfig.NumLines, Allocator.Temp);
         em.Instantiate(config.PassengerEntity, passengers);
 
         int passengersPerQueue = config.NumPassengersPerPlatform / stationConfig.NumQueingPointsPerPlatform;
