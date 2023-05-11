@@ -67,6 +67,9 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
+    m_FinalGather: 0
+    m_FinalGatherFiltering: 1
+    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -163,6 +166,9 @@ MonoBehaviour:
     x: 10
     y: -2
     z: -8
+  StationWidth: 32
+  NumLines: 5
+  LineSpacing: 24
   NumCarriadges: 4
   SpawnPointOffsetFromCenterPoint:
     x: 0

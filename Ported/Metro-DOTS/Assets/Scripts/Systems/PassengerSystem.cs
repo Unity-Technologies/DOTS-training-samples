@@ -28,7 +28,7 @@ public partial struct PassengerSystem : ISystem
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
-        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations, Allocator.Temp);
+        var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations * stationConfig.NumLines, Allocator.Temp);
         ecb.Instantiate(config.PassengerEntity, passengers);
 
 

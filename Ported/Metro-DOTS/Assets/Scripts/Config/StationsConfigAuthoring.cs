@@ -11,6 +11,8 @@ public class StationsConfigAuthoring : MonoBehaviour
     public float3 TrackACenter;
     public float3 TrackBCenter;
     public float StationWidth = 32;
+    public int NumLines = 5;
+    public int LineSpacing = 20;
 
     public int NumCarriadges = 4;
     public float3 SpawnPointOffsetFromCenterPoint;
@@ -30,7 +32,9 @@ public class StationsConfigAuthoring : MonoBehaviour
                 TrackBCenter = authoring.TrackBCenter,
                 SpawnPointOffsetFromCenterPoint = authoring.SpawnPointOffsetFromCenterPoint,
                 NumQueingPoints = authoring.NumCarriadges,
-                StationWidth = authoring.StationWidth
+                StationWidth = authoring.StationWidth,
+                NumLines = authoring.NumLines,
+                LineSpacing = authoring.LineSpacing
             });
         }
     }
@@ -46,5 +50,7 @@ public struct StationConfig : IComponentData
     public float3 TrackBCenter;
     public float3 SpawnPointOffsetFromCenterPoint;
     public int NumQueingPoints;
+    public int NumLines;
     public float StationWidth;
+    public float LineSpacing;
 }
