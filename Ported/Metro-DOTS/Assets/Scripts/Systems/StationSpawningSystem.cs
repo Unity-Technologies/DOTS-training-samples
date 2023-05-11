@@ -134,7 +134,7 @@ public partial struct StationSpawningSystem : ISystem
             });
         }
 
-        float carriageLength = 5;
+        float carriageLength = 5.251f;
 
         i = 0;
         foreach (var (transform, station) in
