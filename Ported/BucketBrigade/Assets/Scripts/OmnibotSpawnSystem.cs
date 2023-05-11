@@ -11,8 +11,8 @@ public partial struct OmnibotSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        // state.RequireForUpdate<OmnibotSpawner>();
-        // state.RequireForUpdate<Grid>();
+        state.RequireForUpdate<OmnibotSpawner>();
+        state.RequireForUpdate<Grid>();
     }
 
     [BurstCompile]
