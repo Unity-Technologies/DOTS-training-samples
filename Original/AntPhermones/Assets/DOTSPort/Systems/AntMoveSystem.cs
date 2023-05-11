@@ -102,7 +102,7 @@ public partial struct AntMoveSystem : ISystem
         mapSizeX = settings.MapSizeX;
         mapSizeY = settings.MapSizeY;
         float mapSize = math.min(mapSizeX, mapSizeY);
-        float WallThickness = 0.1f;
+        float WallThickness = 0.01f;
 
         float antSightDistance = 5.0f;
 

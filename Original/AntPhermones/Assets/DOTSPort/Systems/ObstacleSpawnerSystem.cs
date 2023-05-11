@@ -70,6 +70,8 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
                     PrototypeObstaclePrim.AngleRange = ((PrototypeObstaclePrim.AngleStart < PrototypeObstaclePrim.AngleEnd) ? (PrototypeObstaclePrim.AngleEnd - PrototypeObstaclePrim.AngleStart) : (PrototypeObstaclePrim.AngleEnd + 2.0f * Mathf.PI - PrototypeObstaclePrim.AngleStart));
 
+                    PrototypeObstaclePrim.ObstacleThickness = spawner.ValueRO.ObstacleRadius;
+
                     // Actually spawn the collision objects
                     ObstaclePrimtitveBuffer.Add(PrototypeObstaclePrim);                    
 
@@ -79,20 +81,20 @@ public partial struct ObstacleSpawnerSystem : ISystem
         }
     }
 
-    public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in float2 direction, out float2 CollisionPoint, out float Param)
-    {
-        Vector2 outColl;
-        float outParam;
-        bool result = CalculateRayCollision(ObstaclePrimtitveBuffer, point, direction, out outColl, out outParam);
+    // public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in float2 direction, out float2 CollisionPoint, out float Param)
+    // {
+    //     Vector2 outColl;
+    //     float outParam;
+    //     bool result = CalculateRayCollision(ObstaclePrimtitveBuffer, point, direction, out outColl, out outParam);
+    // 
+    //     CollisionPoint.x = outColl.x;
+    //     CollisionPoint.y = outColl.y;
+    //     Param = outParam;
+    // 
+    //     return result;
+    // }
 
-        CollisionPoint.x = outColl.x;
-        CollisionPoint.y = outColl.y;
-        Param = outParam;
-
-        return result;
-    }
-
-    public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in Vector2 direction, out Vector2 CollisionPoint, out float Param)
+    public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in float2 point, in float2 direction, out float2 CollisionPoint, out float Param)
     {
         Param = 1000000000.0f;
     
@@ -101,10 +103,10 @@ public partial struct ObstacleSpawnerSystem : ISystem
         {
             ObstacleArcPrimitive prim = ObstaclePrimtitveBuffer[i];
     
-            Vector2 VectorFromCenterToPoint = point - prim.Position;
-            float a = Vector2.Dot(direction, direction);
-            float b = 2.0f * Vector2.Dot(direction, VectorFromCenterToPoint);
-            float c = Vector2.Dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
+            float2 VectorFromCenterToPoint = point - prim.Position;
+            float a = math.dot(direction, direction);
+            float b = 2.0f * math.dot(direction, VectorFromCenterToPoint);
+            float c = math.dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
     
             // Solve the quadratic equation
             float discriminant = b * b - 4.0f * a * c;
@@ -141,8 +143,8 @@ public partial struct ObstacleSpawnerSystem : ISystem
             {
                 if ((0.0f <= t) && (1.0f >= t))
                 {
-                    Vector2 TestCollPoint = point + t * direction;
-                    Vector2 CollisionDirection = TestCollPoint - prim.Position;
+                    float2 TestCollPoint = point + t * direction;
+                    float2 CollisionDirection = TestCollPoint - prim.Position;
     
                     float Angle = Mathf.Atan2(CollisionDirection.y, CollisionDirection.x);
                     
@@ -525,14 +527,16 @@ public struct ObstacleSpawner : IComponentData
 
 public struct ObstacleArcPrimitive : IBufferElementData
 {
-    public Vector2 Position;
+    public float2 Position;
     public float Radius;
     public float AngleStart;
     public float AngleEnd;
     public float AngleRange;
 
-    public float iAnglePerObstacle;
-    public int iNumObstacles;
+    public float ObstacleThickness;
+
+    // public float iAnglePerObstacle;
+    // public int iNumObstacles;
 }
 
 public struct ObstacleSpawnerOld
