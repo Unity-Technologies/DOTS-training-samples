@@ -169,6 +169,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumPassengersPerStation: 20
   PassengerSpeed: 2
+  MaxPassengerPerQueue: 16
+  DistanceBetweenPassengers: 0.4
   PassengerPrefab: {fileID: 7372287293309593553, guid: df855cd7b2133f544b6ffac4a9be7dce,
     type: 3}
   TrainPrefab: {fileID: 5703372225319551209, guid: 2b7394df6315fe84d84da18a4213442e,

@@ -54,10 +54,10 @@ public partial struct QueingPassengersSystem : ISystem
                     {
                         // state.EntityManager.SetComponentEnabled<PassengerOnboarded>(passenger, true);
                         state.EntityManager.SetComponentEnabled<PassengerOffboarded>(passenger, true);
-                        queueComponent.StartIndex = (queueComponent.StartIndex + 1) % 16;
+                        queueComponent.StartIndex = (queueComponent.StartIndex + 1) % config.MaxPassengerPerQueue;
                         queueComponent.QueueLength -= 1;
                     }
-                    passengerId = (passengerId + 1) % 16;
+                    passengerId = (passengerId + 1) % config.MaxPassengerPerQueue;
                 }
 
                 state.EntityManager.SetComponentData(queue, queueComponent);

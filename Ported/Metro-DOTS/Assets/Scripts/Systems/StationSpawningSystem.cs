@@ -1,4 +1,5 @@
 using Components;
+using Metro;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ public partial struct StationSpawningSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<StationConfig>();
+        state.RequireForUpdate<Config>();
     }
 
     public void OnDestroy(ref SystemState state) { }
@@ -16,6 +18,7 @@ public partial struct StationSpawningSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
+        var config = SystemAPI.GetSingleton<Config>();
         var stations = CollectionHelper.CreateNativeArray<Entity>(stationConfig.NumStations, Allocator.Temp);
 
         var em = state.EntityManager;
@@ -120,12 +123,8 @@ public partial struct StationSpawningSystem : ISystem
 
         for (int j = 0; j < queuePoints.Length; j++)
         {
-            // Todo is there a better way to initialize 16 elemtns into a buffer?
             var buffer = em.GetBuffer<QueuePassengers>(queuePoints[j]);
-            for (int k = 0; k < 16; k++)
-            {
-                buffer.Add(new QueuePassengers());
-            }
+            buffer.ResizeUninitialized(config.MaxPassengerPerQueue);
 
             // init QueueComponent
             em.SetComponentData<QueueComponent>(queuePoints[j], new QueueComponent

@@ -31,7 +31,6 @@ public partial struct PassengerSpawningSystem : ISystem
         em.Instantiate(config.PassengerEntity, passengers);
 
         int passengersPerQueue = config.NumPassengersPerStation / stationConfig.NumQueingPoints;
-        float distanceBetweenPassenger = 1;
 
         int queueId = 0;
         foreach (var (transform, queueComp, queueEntity) in
@@ -45,7 +44,7 @@ public partial struct PassengerSpawningSystem : ISystem
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
-                lc.Position += new float3(0, 0, distanceBetweenPassenger * j);
+                lc.Position += new float3(0, 0, config.DistanceBetweenPassengers * j);
                 
                 queuePassengersBuffer.ElementAt(queueComp.ValueRW.StartIndex + queueComp.ValueRW.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
                 queueComp.ValueRW.QueueLength++;

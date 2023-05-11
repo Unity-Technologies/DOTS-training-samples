@@ -3,7 +3,6 @@ using Metro;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 public partial struct ReQueuingPassengersSystem : ISystem
@@ -13,12 +12,15 @@ public partial struct ReQueuingPassengersSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
         random = Random.CreateFromIndex(12314);
         Y = new float3(0, 1f, 0);
     }
     
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
+
         // assign off boarded passenger new queues
         foreach (var (travelInfo, passenger) in
                  SystemAPI.Query<RefRW<PassengerTravel>>()
@@ -33,7 +35,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
             var queue = queues.ElementAt(nextQueueId).Queue;
             var queueInfo = state.EntityManager.GetComponentData<QueueComponent>(queue);
 
-            if (queueInfo.QueueLength < 16)
+            if (queueInfo.QueueLength < config.MaxPassengerPerQueue)
             {
                 state.EntityManager.SetComponentEnabled<PassengerOffboarded>(passenger, false);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, true);
@@ -52,7 +54,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
             var queueLocalTransform = state.EntityManager.GetComponentData<LocalTransform>(queue);
             var queueInfo = state.EntityManager.GetComponentData<QueueComponent>(queue);
             var queueTailPosition =
-                queueLocalTransform.Position - queueInfo.QueueLength * queueLocalTransform.Forward();
+                queueLocalTransform.Position - queueInfo.QueueLength * queueLocalTransform.Forward() * config.DistanceBetweenPassengers;
 
             var passengerPosition = passengerLocalTransform.ValueRO.Position;
 
@@ -62,7 +64,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
             if (distToQueueTail < 0.01f)
             {
                 var queuePassengers = state.EntityManager.GetBuffer<QueuePassengers>(queue);
-                queuePassengers.ElementAt((queueInfo.StartIndex + queueInfo.QueueLength) % 16) = new QueuePassengers{Passenger =  passenger};
+                queuePassengers.ElementAt((queueInfo.StartIndex + queueInfo.QueueLength) % config.MaxPassengerPerQueue) = new QueuePassengers{Passenger =  passenger};
                 queueInfo.QueueLength++;
                 state.EntityManager.SetComponentData<QueueComponent>(queue, queueInfo);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, false);
@@ -71,7 +73,6 @@ public partial struct ReQueuingPassengersSystem : ISystem
             }
             else
             {
-                var config = SystemAPI.GetSingleton<Config>();
                 var toQueueTailDirection = math.normalize(toQueueTail);
                 passengerLocalTransform.ValueRW.Position += toQueueTailDirection * config.PassengerSpeed * SystemAPI.Time.DeltaTime;
 
