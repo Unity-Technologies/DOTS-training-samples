@@ -4,10 +4,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Rendering;
+using Unity.Profiling;
 
 public partial struct AntMoveSystem : ISystem
 {
-    //DynamicBuffer<ObstacleArcPrimitive> ObstacleArcPrimitiveBuffer;
+    static readonly ProfilerMarker k_AntsMoveJob_Execute = new ProfilerMarker("AntsMoveJob: Execute");
+    static readonly ProfilerMarker k_AntsMoveJob_PheromoneSteering = new ProfilerMarker("AntsMoveJob: PheromoneSteering");
+    static readonly ProfilerMarker k_AntsMoveJob_WallSteering = new ProfilerMarker("AntsMoveJob: ParametricWallSteering");
 
     public void OnCreate(ref SystemState state)
     {
@@ -24,6 +27,8 @@ public partial struct AntMoveSystem : ISystem
 
     static int ParametricWallSteering(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, AntData ant, float distance, float mapSize, float WallThickness)
     {
+        k_AntsMoveJob_WallSteering.Begin();
+
         int output = 0;
     
         float2 Direction, OutCollision;
@@ -53,6 +58,9 @@ public partial struct AntMoveSystem : ISystem
                 output -= i * (int)math.floor(value);
             }
         }
+
+        k_AntsMoveJob_WallSteering.End();
+
         return output;
     }
     
@@ -105,9 +113,11 @@ public partial struct AntMoveSystem : ISystem
         [ReadOnly] public GlobalSettings GlobalSettings;
         [ReadOnly] public float DeltaTime;
         [ReadOnly] public FoodData Food;
-        
+
         void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
         {
+            k_AntsMoveJob_Execute.Begin();
+
             var randomSteering = GlobalSettings.AntRandomSteering;
             var antSpeed = GlobalSettings.AntSpeed;
             var antAccel = GlobalSettings.AntAccel;
@@ -115,23 +125,15 @@ public partial struct AntMoveSystem : ISystem
             var mapSizeX = GlobalSettings.MapSizeX;
             var mapSizeY = GlobalSettings.MapSizeY;
             float mapSize = math.min(mapSizeX, mapSizeY);
-
-            // foreach (var ant in
-           // SystemAPI.Query<
-           
-           // RefRW<AntData>,
-           // RefRW<LocalTransform>,
-           // RefRW<URPMaterialPropertyBaseColor>>())
            
            // random walk
            
             ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering) * DeltaTime * 4;
 
-            // TODO: adjust for pheremone and walls
             float pheroSteering = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
-            //int wallSteering = WallSteering(ant, 1.5f);
+            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ant, GlobalSettings.AntSightDistance / mapSize, mapSize, GlobalSettings.WallThickness);
             ant.FacingAngle += pheroSteering * GlobalSettings.PheromoneSteerStrength;
-            //ant.facingAngle += wallSteering * wallSteerStrength;
+            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
 
             float targetSpeed = antSpeed;
             targetSpeed *= 1f /*- (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f*/;
@@ -201,11 +203,6 @@ public partial struct AntMoveSystem : ISystem
             ant.Position.x += dx;
             ant.Position.y += dy;
 
-            // TODO: push ant away from walls
-            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ant, GlobalSettings.AntSightDistance / mapSize, mapSize, GlobalSettings.WallThickness);
-            // ant.FacingAngle += pheroSteering * pheromoneSteerStrength;
-            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
-
             // flip ant when it hits target
             if (math.distance(ant.Position, targetPos) < targetRadius)
             {
@@ -227,11 +224,15 @@ public partial struct AntMoveSystem : ISystem
             localTransform.Position.x = ant.Position.x;
             localTransform.Position.y = ant.Position.y;
             localTransform.Rotation = quaternion.AxisAngle(new float3(0, 0, 1f), ant.FacingAngle);
+
+            k_AntsMoveJob_Execute.End();
         }
     }
     
     static float PheromoneSteering(float3 position, float facingAngle, float distance, int mapSizeX, int mapSizeY, NativeArray<PheromoneBufferElement> pheromones)
     {
+        k_AntsMoveJob_PheromoneSteering.Begin();
+
         float output = 0;
 
         for (int i = -1; i <= 1; i += 2)
@@ -252,6 +253,8 @@ public partial struct AntMoveSystem : ISystem
                 output += value * i;
             }
         }
+
+        k_AntsMoveJob_PheromoneSteering.End();
 
         return math.sign(output);
     }
