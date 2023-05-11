@@ -1,9 +1,9 @@
-
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
+
 [UpdateInGroup(typeof(SpawnSystemGroup))]
 [UpdateAfter(typeof(BucketSpawningSystem))]
 [BurstCompile]
@@ -64,11 +64,14 @@ public partial struct BotSpawningSystem : ISystem
             return new URPMaterialPropertyBaseColor { Value = (UnityEngine.Vector4)color };
         }
 
-
+        URPMaterialPropertyBaseColor FetcherColor()
+        {
+            var color = Color.green;
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
 
         for (int t = 0; t < numTeams; t++)
-        {
-            
+        { 
             //Loop through and spawn bots at a random position
             for (int i = 0; i < totalBots; i++)
             {
@@ -83,17 +86,18 @@ public partial struct BotSpawningSystem : ISystem
                 botTransform.Scale = 1f; //This is the scale of the bot pls change this
                 ECB.SetComponent(instance, botTransform);
 
-                if (i < totalBots / 2 || i == totalBots - 1) //If it is part of the first half
+                if (i < (totalBots / 2) || i == totalBots - 1) //If it is part of the first half
                 {
                     ECB.SetComponentEnabled<BackwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, ForwardColor());
                 }
 
-                if (i >= totalBots / 2 || i == 0) //If it is part of the last half
+                if (i >= (totalBots / 2) || i == 0) //If it is part of the last half
                 {
                     ECB.SetComponentEnabled<ForwardPassingBotTag>(instance, false);
                     ECB.SetComponent(instance, BackwardColor());
                 }
+                
 
                 if (i != 0) //If it is not the first one
                 {
@@ -116,21 +120,41 @@ public partial struct BotSpawningSystem : ISystem
                     ECB.AddComponent<TeamReadyTag>(instance);
                     ECB.SetComponentEnabled<TeamReadyTag>(instance, false);
                 }
-
+                
                 //This is not really useful yet
                 ECB.SetComponentEnabled<ReachedTarget>(instance, false);
                 ECB.SetComponentEnabled<CarryingBotTag>(instance, false);
 
-                ECB.SetComponent<BotTag>(instance, new BotTag
+                ECB.SetComponent(instance, new BotTag
                 {
                     cooldown = 0.0f,
                     noInChain = i,
-                    indexInChain = 0
+                    indexInChain = 0,
                 });
 
                 ECB.AddSharedComponent(instance, new Team { Value = t });
 
             }
+            
+            //Add the fetcher guy independently
+            var fetcher = ECB.Instantiate(botPrefab);
+            //Set its transform
+            var fetcherTransform = LocalTransform.FromPosition(
+                randomComponent.Value.NextFloat(-0.1f, numCol * config.cellSize + 0.1f),
+                config.botStartingYPosition,
+                randomComponent.Value.NextFloat(-0.1f, numRow * config.cellSize + 0.1f));
+            fetcherTransform.Scale = 1f; //This is the scale of the bot pls change this
+            ECB.SetComponent(fetcher, fetcherTransform);
+            ECB.SetComponentEnabled<BackwardPassingBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<ForwardPassingBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<BackBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<FrontBotTag>(fetcher, false);
+            ECB.SetComponentEnabled<ReachedTarget>(fetcher, false);
+            ECB.SetComponentEnabled<CarryingBotTag>(fetcher, false);
+            ECB.AddSharedComponent(fetcher, new Team { Value = t });
+            ECB.AddComponent<BucketFetcherBotTag>(fetcher);
+            ECB.SetComponent(fetcher, FetcherColor());
+            
         }
     
 
@@ -152,7 +176,6 @@ public partial struct BotSpawningSystem : ISystem
         }
         
       
-        
         //Disable state after spawning for now 
         state.Enabled = false;
         var TransitionManager = SystemAPI.GetSingletonEntity<Transition>();
