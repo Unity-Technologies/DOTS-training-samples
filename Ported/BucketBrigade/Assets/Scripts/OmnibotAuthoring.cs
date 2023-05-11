@@ -11,8 +11,13 @@ public class OmnibotAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new Omnibot
             {
-                omnibotState = OmnibotState.LookForWater, 
-                t = 0
+                OmnibotState = OmnibotState.LookForWater, 
+                t = 0,
+                TravelSpeed = 5f,
+                WaterGatherSpeed = .1f,
+                MaxWaterCapacity = .3f,
+                MaxDouseAmount = 2f,
+                DouseRadius = 5
             });
             
         }
@@ -26,14 +31,24 @@ public enum OmnibotState
     GatherWater,
     LookForFire,
     TravelToFire,
-    TurnOffFire
+    DouseFire
 }
 
 public struct Omnibot : IComponentData
 {
     public float t;
-    public float3 OmniboatTargetPos;
-    public Entity targetEntity;
+    
+    public float3 TargetPos;
+    public Entity TargetWaterEntity;
+    public Entity TargetFireEntity;
 
-    public OmnibotState omnibotState;
+    public OmnibotState OmnibotState;
+    public float TravelSpeed;
+    
+    public float MaxWaterCapacity;
+    public float WaterGatherSpeed;
+    public float CurrentWaterCarryingVolume;
+
+    public float DouseRadius;
+    public float MaxDouseAmount;
 }
