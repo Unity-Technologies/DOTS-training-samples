@@ -54,7 +54,8 @@ public partial struct PassangerOnTrainSystem : ISystem
                 else
                 {
                     // Offboarded
-                    em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                    // Jeremy M.  Commented this line out as entity is in relation to a train entity and not a passenger entity.
+                    //em.SetComponentEnabled<PassengerOnboarded>(entity, false);
                 }
             }
         }
