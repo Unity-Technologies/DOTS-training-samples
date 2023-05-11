@@ -71,17 +71,29 @@ public partial struct AntAI: ISystem
 
 
         // ResourceDetection
-        
-        
-        
+        var resourceTransform = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Resource>());
+        var resourceJob = new ResourceDetection
+        {
+            obstacleSize = colony.obstacleSize,
+            mapSize = colony.mapSize,
+            steeringStrength = colony.resourceSteerStrength,
+            bucketResolution = colony.bucketResolution,
+            buckets = colony.buckets,
+            homePosition = new float2(0, 0),
+            resourcePosition = new float2(resourceTransform.Position.x, resourceTransform.Position.y)
+        };
+        var resourceJobHandle = resourceJob.ScheduleParallel(obstacleJobHandle);
+
+
         // Dynamics
+        var combinedDependency = JobHandle.CombineDependencies(pheromoneDetectionJobHandle, obstacleJobHandle, resourceJobHandle);
         var dynamicsJob = new DynamicsJob
         {
             mapSize = colony.mapSize, 
             antAcceleration = colony.antAccel,
             antTargetSpeed = colony.antTargetSpeed
         };
-        var dynamicsJobHandle = dynamicsJob.Schedule(obstacleJobHandle);
+        var dynamicsJobHandle = dynamicsJob.Schedule(combinedDependency);
 
 
         // Drop Pheromones
@@ -95,8 +107,6 @@ public partial struct AntAI: ISystem
         };
         var pheromoneDropJobHandle = pheromoneDropJob.Schedule(dynamicsJobHandle);
         pheromoneDropJobHandle.Complete(); // BUG???
-
-
 
         // Decay Pheromones
         var pheromoneDecayJob = new PheromoneDecayJob

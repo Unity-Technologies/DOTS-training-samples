@@ -16,6 +16,36 @@ public partial struct ObstacleDetection : IJobEntity
     [ReadOnly]
     public NativeArray<UnsafeList<float2>> buckets;
 
+    public static bool DetectPositionInBuckets(float x, float y, in NativeArray<UnsafeList<float2>> buckets, float obstacleSize, float mapSize, int bucketResolution)
+    {
+        // test map boundaries
+        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
+        {
+            return true;
+        }
+        else
+        {
+            int xIndex = (int)(x / mapSize * bucketResolution);
+            int yIndex = (int)(y / mapSize * bucketResolution);
+            if (xIndex < 0 || yIndex < 0 || xIndex >= bucketResolution || yIndex >= bucketResolution)
+            {
+                return true; // ???
+            }
+            var obstacles = buckets[xIndex + yIndex * bucketResolution];
+            foreach (var obstaclePosition in obstacles)
+            {
+                float circleX = obstaclePosition.x;
+                float circleY = obstaclePosition.y;
+                if (math.pow(x - circleX, 2) + math.pow(y - circleY, 2) <= obstacleSize)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void Execute(Entity entity, ref Ant ant, in Position position, in Direction direction)
     {
         int output = 0; 
@@ -29,30 +59,9 @@ public partial struct ObstacleDetection : IJobEntity
             float testX = position.position.x + math.cos(angle) * distance;
             float testY = position.position.y + math.sin(angle) * distance;
 
-            // test map boundaries
-            if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
+            if (DetectPositionInBuckets(testX, testY, buckets, obstacleSize, mapSize, bucketResolution))
             {
-
-            }
-            else
-            {
-                int x = (int)(testX / mapSize * bucketResolution);
-                int y = (int)(testY / mapSize * bucketResolution);
-                if (x < 0 || y < 0 || x >= bucketResolution || y >= bucketResolution)
-                {
-                    continue;
-                }
-                var obstacles = buckets[x + y * bucketResolution];
-                foreach (var obstaclePosition in obstacles)
-                {
-                    float circleX = obstaclePosition.x;
-                    float circleY = obstaclePosition.y;
-                    if ((testX - circleX) * (testX - circleX) + (testY - circleY) * (testY - circleY) <= obstacleSize)
-                    {
-                        output -= i;
-                        break;
-                    }
-                }
+                output -= i;
             }
         }
 

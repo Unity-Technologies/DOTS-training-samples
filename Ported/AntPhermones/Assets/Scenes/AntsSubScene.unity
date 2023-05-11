@@ -167,6 +167,7 @@ MonoBehaviour:
     pheromoneSteerDistance: 1.5
     wallSteerStrength: 6.88
     wallSteerDistance: 3
+    resourceSteerStrength: 5
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}
