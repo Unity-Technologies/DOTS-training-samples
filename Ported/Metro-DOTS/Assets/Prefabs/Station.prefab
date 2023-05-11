@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4507913817377028450}
   - component: {fileID: 1801258642694740277}
   - component: {fileID: 2296564349348321914}
+  - component: {fileID: 3364131243534432814}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -105,6 +106,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3364131243534432814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330489767662567312}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &345685095460444593
 GameObject:
   m_ObjectHideFlags: 0
@@ -117,6 +131,7 @@ GameObject:
   - component: {fileID: 8074934067238105633}
   - component: {fileID: 8915016107963684219}
   - component: {fileID: 3356681248307269051}
+  - component: {fileID: 9118223057975678419}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -210,6 +225,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9118223057975678419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 345685095460444593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &410639889765449148
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +250,7 @@ GameObject:
   - component: {fileID: 2651591446774136479}
   - component: {fileID: 2168507828993328797}
   - component: {fileID: 5301647318386657419}
+  - component: {fileID: 3550421585220791097}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -315,6 +344,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3550421585220791097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 410639889765449148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &471274664450263935
 GameObject:
   m_ObjectHideFlags: 0
@@ -327,6 +369,7 @@ GameObject:
   - component: {fileID: 369406673949316094}
   - component: {fileID: 8163874355114399341}
   - component: {fileID: 3911687604590353210}
+  - component: {fileID: 4282432862175351017}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -420,6 +463,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4282432862175351017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471274664450263935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &475001627493279573
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,6 +488,7 @@ GameObject:
   - component: {fileID: 8125644426502988123}
   - component: {fileID: 4657881475733774237}
   - component: {fileID: 2854921204804470225}
+  - component: {fileID: 2512794206366001645}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -525,6 +582,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2512794206366001645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475001627493279573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &477576564071996734
 GameObject:
   m_ObjectHideFlags: 0
@@ -537,6 +607,7 @@ GameObject:
   - component: {fileID: 6368484317645163300}
   - component: {fileID: 701326814273668411}
   - component: {fileID: 7742091665006528683}
+  - component: {fileID: 7286390249745067420}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -630,6 +701,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7286390249745067420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 477576564071996734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &621353347474261749
 GameObject:
   m_ObjectHideFlags: 0
@@ -642,6 +726,7 @@ GameObject:
   - component: {fileID: 5476642132240254882}
   - component: {fileID: 4234734066977074604}
   - component: {fileID: 5587415955224850713}
+  - component: {fileID: 8179852390694928298}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -735,6 +820,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8179852390694928298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 621353347474261749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &623396441602358486
 GameObject:
   m_ObjectHideFlags: 0
@@ -747,6 +845,7 @@ GameObject:
   - component: {fileID: 3240433655900581854}
   - component: {fileID: 4430351169349790182}
   - component: {fileID: 5421292683635414909}
+  - component: {fileID: 616473842363325760}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -840,6 +939,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &616473842363325760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623396441602358486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &692263079363032302
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,6 +964,7 @@ GameObject:
   - component: {fileID: 4056329452215747876}
   - component: {fileID: 4700557605638076310}
   - component: {fileID: 7309050405074654143}
+  - component: {fileID: 59362323851387297}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -945,6 +1058,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &59362323851387297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 692263079363032302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &699378616065398530
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,6 +1083,7 @@ GameObject:
   - component: {fileID: 4921400754947208533}
   - component: {fileID: 5984076742968016937}
   - component: {fileID: 2684779364350713762}
+  - component: {fileID: 7080062483253751797}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -1050,6 +1177,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7080062483253751797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699378616065398530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &793657297280791146
 GameObject:
   m_ObjectHideFlags: 0
@@ -1062,6 +1202,7 @@ GameObject:
   - component: {fileID: 939877826753519245}
   - component: {fileID: 3125870577945660532}
   - component: {fileID: 8497161468052917897}
+  - component: {fileID: 3852410016604649828}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -1155,6 +1296,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3852410016604649828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 793657297280791146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &838647490476983586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1167,6 +1321,7 @@ GameObject:
   - component: {fileID: 8289762622312179265}
   - component: {fileID: 3286715066916846719}
   - component: {fileID: 1766659441427468349}
+  - component: {fileID: 2745431172384221930}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -1260,6 +1415,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2745431172384221930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 838647490476983586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1038250095183479122
 GameObject:
   m_ObjectHideFlags: 0
@@ -1272,6 +1440,7 @@ GameObject:
   - component: {fileID: 6686364555545554520}
   - component: {fileID: 5972344009064617919}
   - component: {fileID: 4038188879011511159}
+  - component: {fileID: 2662853041217057326}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -1365,6 +1534,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2662853041217057326
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1038250095183479122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1039495461938805166
 GameObject:
   m_ObjectHideFlags: 0
@@ -1377,6 +1559,7 @@ GameObject:
   - component: {fileID: 6836433729728241671}
   - component: {fileID: 5312916140121165957}
   - component: {fileID: 6614693969419504898}
+  - component: {fileID: 8714707346924809564}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -1470,6 +1653,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8714707346924809564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039495461938805166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1083015804186265147
 GameObject:
   m_ObjectHideFlags: 0
@@ -1482,6 +1678,7 @@ GameObject:
   - component: {fileID: 8196857893478943333}
   - component: {fileID: 9163517120936116356}
   - component: {fileID: 6341380609644715613}
+  - component: {fileID: 5506274972150856289}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -1575,6 +1772,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5506274972150856289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1083015804186265147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1124212193901613175
 GameObject:
   m_ObjectHideFlags: 0
@@ -1587,6 +1797,7 @@ GameObject:
   - component: {fileID: 9060416363568445529}
   - component: {fileID: 3469874700050846290}
   - component: {fileID: 6868823739744620214}
+  - component: {fileID: 6871156287072387428}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -1680,6 +1891,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6871156287072387428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124212193901613175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1324299005932836734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,6 +1916,7 @@ GameObject:
   - component: {fileID: 5837418704768671832}
   - component: {fileID: 2357522637596222196}
   - component: {fileID: 237165478103915659}
+  - component: {fileID: 8757968251615557795}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -1785,6 +2010,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8757968251615557795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1324299005932836734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1371169704757624897
 GameObject:
   m_ObjectHideFlags: 0
@@ -1797,6 +2035,7 @@ GameObject:
   - component: {fileID: 7831494341352918628}
   - component: {fileID: 5881004750811686945}
   - component: {fileID: 1394664496537701379}
+  - component: {fileID: 5845160493907759665}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -1890,6 +2129,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5845160493907759665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371169704757624897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1418051006827877900
 GameObject:
   m_ObjectHideFlags: 0
@@ -1902,6 +2154,7 @@ GameObject:
   - component: {fileID: 2832740016005801811}
   - component: {fileID: 5662219051643159360}
   - component: {fileID: 8979422300656623784}
+  - component: {fileID: 1429664118150809724}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -1995,6 +2248,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1429664118150809724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418051006827877900}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1592980871619374945
 GameObject:
   m_ObjectHideFlags: 0
@@ -2007,6 +2273,7 @@ GameObject:
   - component: {fileID: 2815541976976440587}
   - component: {fileID: 2143633486845581255}
   - component: {fileID: 7774567680089681997}
+  - component: {fileID: 288994974920092277}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -2100,6 +2367,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &288994974920092277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592980871619374945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1649088614896672674
 GameObject:
   m_ObjectHideFlags: 0
@@ -2112,6 +2392,7 @@ GameObject:
   - component: {fileID: 7844302746705735545}
   - component: {fileID: 8803672514670742010}
   - component: {fileID: 6046990230829086153}
+  - component: {fileID: 1024427826021557158}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -2205,6 +2486,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1024427826021557158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1649088614896672674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1680035728528390997
 GameObject:
   m_ObjectHideFlags: 0
@@ -2217,6 +2511,7 @@ GameObject:
   - component: {fileID: 6800540090651275409}
   - component: {fileID: 6566177805622777950}
   - component: {fileID: 4399068195258213444}
+  - component: {fileID: 8725173698998016026}
   m_Layer: 0
   m_Name: stair (20)
   m_TagString: Untagged
@@ -2310,6 +2605,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8725173698998016026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1680035728528390997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1692178219341337107
 GameObject:
   m_ObjectHideFlags: 0
@@ -2322,6 +2630,7 @@ GameObject:
   - component: {fileID: 4948727865387781098}
   - component: {fileID: 1447104136663204831}
   - component: {fileID: 2763732265755766516}
+  - component: {fileID: 7665745359749932720}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -2415,6 +2724,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7665745359749932720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692178219341337107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1718138778506750908
 GameObject:
   m_ObjectHideFlags: 0
@@ -2427,6 +2749,7 @@ GameObject:
   - component: {fileID: 3777554481196907116}
   - component: {fileID: 4275512584735860024}
   - component: {fileID: 2406314970209722738}
+  - component: {fileID: 7002385909235767800}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -2520,6 +2843,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7002385909235767800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1718138778506750908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1824731949306769939
 GameObject:
   m_ObjectHideFlags: 0
@@ -2532,6 +2868,7 @@ GameObject:
   - component: {fileID: 2137169856175833430}
   - component: {fileID: 7199282187014121425}
   - component: {fileID: 4225500441009290971}
+  - component: {fileID: 1917935808354076820}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -2625,6 +2962,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1917935808354076820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1824731949306769939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1828609085260643501
 GameObject:
   m_ObjectHideFlags: 0
@@ -2637,6 +2987,7 @@ GameObject:
   - component: {fileID: 195956552984180265}
   - component: {fileID: 2415268486272981197}
   - component: {fileID: 2816039393800068325}
+  - component: {fileID: 1662010728633605835}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -2730,6 +3081,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1662010728633605835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828609085260643501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1842816369105824388
 GameObject:
   m_ObjectHideFlags: 0
@@ -2742,6 +3106,7 @@ GameObject:
   - component: {fileID: 4895117788663527264}
   - component: {fileID: 143520432817613254}
   - component: {fileID: 3954111865510134396}
+  - component: {fileID: 6002034809929266017}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -2835,6 +3200,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6002034809929266017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1842816369105824388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &1925945109712225588
 GameObject:
   m_ObjectHideFlags: 0
@@ -2897,6 +3275,7 @@ GameObject:
   - component: {fileID: 8427266696758643656}
   - component: {fileID: 8171936033373196450}
   - component: {fileID: 1295741120906541772}
+  - component: {fileID: 5598680608542130640}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -2990,6 +3369,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5598680608542130640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123879493853268975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2324320912082300775
 GameObject:
   m_ObjectHideFlags: 0
@@ -3002,6 +3394,7 @@ GameObject:
   - component: {fileID: 6829902130379784324}
   - component: {fileID: 6368748334272816304}
   - component: {fileID: 7788656174838158442}
+  - component: {fileID: 3206810570202757113}
   m_Layer: 0
   m_Name: stair (20)
   m_TagString: Untagged
@@ -3095,6 +3488,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3206810570202757113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2324320912082300775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2325765248585382793
 GameObject:
   m_ObjectHideFlags: 0
@@ -3107,6 +3513,7 @@ GameObject:
   - component: {fileID: 5198544137136618958}
   - component: {fileID: 7936932800503266720}
   - component: {fileID: 5651622239224418875}
+  - component: {fileID: 6999067120643887847}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -3200,6 +3607,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6999067120643887847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2325765248585382793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2346632675893195699
 GameObject:
   m_ObjectHideFlags: 0
@@ -3212,6 +3632,7 @@ GameObject:
   - component: {fileID: 1582247866799779876}
   - component: {fileID: 9115754835024588644}
   - component: {fileID: 2083817406761618331}
+  - component: {fileID: 1173455429915763104}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -3305,6 +3726,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1173455429915763104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2346632675893195699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2400896424568999490
 GameObject:
   m_ObjectHideFlags: 0
@@ -3317,6 +3751,7 @@ GameObject:
   - component: {fileID: 8497400630024356747}
   - component: {fileID: 8940496847538091353}
   - component: {fileID: 2374664797272200166}
+  - component: {fileID: 219546802705279816}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -3410,6 +3845,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &219546802705279816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2400896424568999490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2411368138438309829
 GameObject:
   m_ObjectHideFlags: 0
@@ -3472,6 +3920,7 @@ GameObject:
   - component: {fileID: 2636389422083488784}
   - component: {fileID: 8012461443799346160}
   - component: {fileID: 419901429770083796}
+  - component: {fileID: 154649601751100786}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -3565,6 +4014,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &154649601751100786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2430633041054710335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2690679163751989827
 GameObject:
   m_ObjectHideFlags: 0
@@ -3577,6 +4039,7 @@ GameObject:
   - component: {fileID: 4733187921199588355}
   - component: {fileID: 2326306350926415937}
   - component: {fileID: 8444523946988570473}
+  - component: {fileID: 1331409452800893795}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -3670,6 +4133,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1331409452800893795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2690679163751989827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2795249893442169412
 GameObject:
   m_ObjectHideFlags: 0
@@ -3682,6 +4158,7 @@ GameObject:
   - component: {fileID: 2766418438579676463}
   - component: {fileID: 9026462933993344233}
   - component: {fileID: 4116370021249555463}
+  - component: {fileID: 7262872985212478365}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -3775,6 +4252,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7262872985212478365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2795249893442169412}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2816260819289205283
 GameObject:
   m_ObjectHideFlags: 0
@@ -3787,6 +4277,7 @@ GameObject:
   - component: {fileID: 2230871555675994391}
   - component: {fileID: 6022132037018553241}
   - component: {fileID: 4107637266333652400}
+  - component: {fileID: 469039991872838971}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -3880,6 +4371,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &469039991872838971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2816260819289205283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2943187020346912274
 GameObject:
   m_ObjectHideFlags: 0
@@ -3892,6 +4396,7 @@ GameObject:
   - component: {fileID: 4215613382954106920}
   - component: {fileID: 8003279542107302305}
   - component: {fileID: 4606411514351099702}
+  - component: {fileID: 6934382937586798656}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -3985,6 +4490,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6934382937586798656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2943187020346912274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2956039199633534975
 GameObject:
   m_ObjectHideFlags: 0
@@ -3997,6 +4515,7 @@ GameObject:
   - component: {fileID: 792196422643438382}
   - component: {fileID: 4048600988562101425}
   - component: {fileID: 7193256128367413331}
+  - component: {fileID: 8445914635939763004}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -4090,6 +4609,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8445914635939763004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2956039199633534975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &2999376653011649135
 GameObject:
   m_ObjectHideFlags: 0
@@ -4102,6 +4634,7 @@ GameObject:
   - component: {fileID: 5173964822982746462}
   - component: {fileID: 5323340648293867352}
   - component: {fileID: 1997069924542136777}
+  - component: {fileID: 3311316661993369720}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -4195,6 +4728,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3311316661993369720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2999376653011649135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3085939107921442344
 GameObject:
   m_ObjectHideFlags: 0
@@ -4207,6 +4753,7 @@ GameObject:
   - component: {fileID: 4645007937792821193}
   - component: {fileID: 813732898891558913}
   - component: {fileID: 7660432573446323484}
+  - component: {fileID: 6086809554417838049}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -4300,6 +4847,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6086809554417838049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3085939107921442344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3147768257640835855
 GameObject:
   m_ObjectHideFlags: 0
@@ -4312,6 +4872,7 @@ GameObject:
   - component: {fileID: 7419937820751424347}
   - component: {fileID: 4719918906419624414}
   - component: {fileID: 940467292636528568}
+  - component: {fileID: 5455359633664725342}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -4405,6 +4966,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5455359633664725342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3147768257640835855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3200244194052695185
 GameObject:
   m_ObjectHideFlags: 0
@@ -4417,6 +4991,7 @@ GameObject:
   - component: {fileID: 8903445888571524299}
   - component: {fileID: 7648387665219154909}
   - component: {fileID: 3227946365846163169}
+  - component: {fileID: 1311713322756303228}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -4510,6 +5085,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1311713322756303228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3200244194052695185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3233032361248462553
 GameObject:
   m_ObjectHideFlags: 0
@@ -4522,6 +5110,7 @@ GameObject:
   - component: {fileID: 4021628252476438459}
   - component: {fileID: 7485585280598249091}
   - component: {fileID: 5977680737426582136}
+  - component: {fileID: 2503143251069203494}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -4615,6 +5204,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2503143251069203494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3233032361248462553}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3248760803494231816
 GameObject:
   m_ObjectHideFlags: 0
@@ -4627,6 +5229,7 @@ GameObject:
   - component: {fileID: 3153972668251369261}
   - component: {fileID: 1179136964877117741}
   - component: {fileID: 1601024187062670521}
+  - component: {fileID: 7859748941798113908}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -4720,6 +5323,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7859748941798113908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3248760803494231816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3358506544823863608
 GameObject:
   m_ObjectHideFlags: 0
@@ -4732,6 +5348,7 @@ GameObject:
   - component: {fileID: 6949867012457399344}
   - component: {fileID: 774459377558524122}
   - component: {fileID: 4254744463769708297}
+  - component: {fileID: 8435396714754146049}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -4825,6 +5442,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8435396714754146049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3358506544823863608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3457275632953252911
 GameObject:
   m_ObjectHideFlags: 0
@@ -4837,6 +5467,7 @@ GameObject:
   - component: {fileID: 319904914892039291}
   - component: {fileID: 4414663818100547649}
   - component: {fileID: 3894953423794077544}
+  - component: {fileID: 1082968895171516263}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -4930,6 +5561,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1082968895171516263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3457275632953252911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3471780450554696020
 GameObject:
   m_ObjectHideFlags: 0
@@ -4942,6 +5586,7 @@ GameObject:
   - component: {fileID: 1824565341698153830}
   - component: {fileID: 2896218927167896917}
   - component: {fileID: 8467131879203995300}
+  - component: {fileID: 188417635194127277}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -5035,6 +5680,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &188417635194127277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3471780450554696020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3498573816485712634
 GameObject:
   m_ObjectHideFlags: 0
@@ -5047,6 +5705,7 @@ GameObject:
   - component: {fileID: 6412977759052606183}
   - component: {fileID: 2468923421705674006}
   - component: {fileID: 8723611165765037749}
+  - component: {fileID: 8635407967934718960}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -5140,6 +5799,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8635407967934718960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3498573816485712634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3623092668569993102
 GameObject:
   m_ObjectHideFlags: 0
@@ -5152,6 +5824,7 @@ GameObject:
   - component: {fileID: 3289507442494168575}
   - component: {fileID: 5734970758376083330}
   - component: {fileID: 4497735125190919795}
+  - component: {fileID: 2210421054195020780}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -5245,6 +5918,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2210421054195020780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3623092668569993102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3709931978271937606
 GameObject:
   m_ObjectHideFlags: 0
@@ -5257,6 +5943,7 @@ GameObject:
   - component: {fileID: 7995082279936274254}
   - component: {fileID: 2331710941824930922}
   - component: {fileID: 5532954183892281664}
+  - component: {fileID: 1360955396123020558}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -5350,6 +6037,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1360955396123020558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3709931978271937606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &3796243957044018689
 GameObject:
   m_ObjectHideFlags: 0
@@ -5362,6 +6062,7 @@ GameObject:
   - component: {fileID: 31071228478754537}
   - component: {fileID: 5705375999134398516}
   - component: {fileID: 2772611881383957323}
+  - component: {fileID: 5500747915423720466}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -5455,6 +6156,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5500747915423720466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3796243957044018689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4012945916333758897
 GameObject:
   m_ObjectHideFlags: 0
@@ -5467,6 +6181,7 @@ GameObject:
   - component: {fileID: 8733503720626347648}
   - component: {fileID: 8179118776533287148}
   - component: {fileID: 2538805019346098731}
+  - component: {fileID: 5999438470058115337}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -5560,6 +6275,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5999438470058115337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4012945916333758897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4035474251658544384
 GameObject:
   m_ObjectHideFlags: 0
@@ -5572,6 +6300,7 @@ GameObject:
   - component: {fileID: 1997037994612337319}
   - component: {fileID: 7409262725060733786}
   - component: {fileID: 2017805848353760786}
+  - component: {fileID: 5507906298335742809}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -5665,6 +6394,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5507906298335742809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4035474251658544384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4037224054719969343
 GameObject:
   m_ObjectHideFlags: 0
@@ -5677,6 +6419,7 @@ GameObject:
   - component: {fileID: 6536862476816579852}
   - component: {fileID: 7926490293804053948}
   - component: {fileID: 2154094343676716038}
+  - component: {fileID: 1039842912461068238}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -5770,6 +6513,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1039842912461068238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4037224054719969343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4079165277282874438
 GameObject:
   m_ObjectHideFlags: 0
@@ -5782,6 +6538,7 @@ GameObject:
   - component: {fileID: 3660695132427687471}
   - component: {fileID: 4676729428660062678}
   - component: {fileID: 6942107233021722917}
+  - component: {fileID: 3792948374552841537}
   m_Layer: 0
   m_Name: stair (19)
   m_TagString: Untagged
@@ -5875,6 +6632,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3792948374552841537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4079165277282874438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4255908415426508007
 GameObject:
   m_ObjectHideFlags: 0
@@ -5887,6 +6657,7 @@ GameObject:
   - component: {fileID: 7545582303967524786}
   - component: {fileID: 496360466360917357}
   - component: {fileID: 136285332064850640}
+  - component: {fileID: 4324726483527808638}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -5980,6 +6751,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4324726483527808638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4255908415426508007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4266740301132417642
 GameObject:
   m_ObjectHideFlags: 0
@@ -5992,6 +6776,7 @@ GameObject:
   - component: {fileID: 5172423648358714646}
   - component: {fileID: 6890485272905621922}
   - component: {fileID: 4479647927608705240}
+  - component: {fileID: 3766476126383119723}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -6085,6 +6870,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3766476126383119723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4266740301132417642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4316323309934945499
 GameObject:
   m_ObjectHideFlags: 0
@@ -6097,6 +6895,7 @@ GameObject:
   - component: {fileID: 1729998673681608534}
   - component: {fileID: 1564033769665999579}
   - component: {fileID: 9080164088151247702}
+  - component: {fileID: 5940385185304556461}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -6190,6 +6989,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5940385185304556461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4316323309934945499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4346241018281600263
 GameObject:
   m_ObjectHideFlags: 0
@@ -6202,6 +7014,7 @@ GameObject:
   - component: {fileID: 5819662574351476219}
   - component: {fileID: 173820939053387131}
   - component: {fileID: 5793438786137075066}
+  - component: {fileID: 8233326123170188308}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -6295,6 +7108,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8233326123170188308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4346241018281600263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4594704946640720872
 GameObject:
   m_ObjectHideFlags: 0
@@ -6307,6 +7133,7 @@ GameObject:
   - component: {fileID: 1528908335315306712}
   - component: {fileID: 4458233259997136140}
   - component: {fileID: 4432218301893600685}
+  - component: {fileID: 734782521703238314}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -6400,6 +7227,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &734782521703238314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4594704946640720872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4643218477621610483
 GameObject:
   m_ObjectHideFlags: 0
@@ -6412,6 +7252,7 @@ GameObject:
   - component: {fileID: 758582382625379175}
   - component: {fileID: 1494600966717016878}
   - component: {fileID: 8043480995917127918}
+  - component: {fileID: 80118975230989755}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -6505,6 +7346,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &80118975230989755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4643218477621610483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4648797137621657095
 GameObject:
   m_ObjectHideFlags: 0
@@ -6517,6 +7371,7 @@ GameObject:
   - component: {fileID: 2694782230354720063}
   - component: {fileID: 1122705564952275599}
   - component: {fileID: 619782091359610406}
+  - component: {fileID: 1855037129198794963}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -6610,6 +7465,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1855037129198794963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4648797137621657095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4689802421660175877
 GameObject:
   m_ObjectHideFlags: 0
@@ -6622,6 +7490,7 @@ GameObject:
   - component: {fileID: 965390366317994515}
   - component: {fileID: 7262658640757582022}
   - component: {fileID: 4238382985431956179}
+  - component: {fileID: 7830539299075034659}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -6715,6 +7584,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7830539299075034659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4689802421660175877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4885810574292761769
 GameObject:
   m_ObjectHideFlags: 0
@@ -6727,6 +7609,7 @@ GameObject:
   - component: {fileID: 4787964907308683356}
   - component: {fileID: 5950240035512197710}
   - component: {fileID: 270494262012447437}
+  - component: {fileID: 1752949199295635670}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -6820,6 +7703,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1752949199295635670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4885810574292761769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &4907660635606829678
 GameObject:
   m_ObjectHideFlags: 0
@@ -6937,6 +7833,7 @@ GameObject:
   - component: {fileID: 8906582551189431291}
   - component: {fileID: 8974188424996195407}
   - component: {fileID: 8030052626418028814}
+  - component: {fileID: 125308793547021912}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -7030,6 +7927,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &125308793547021912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4977442418089459728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5050649330604485973
 GameObject:
   m_ObjectHideFlags: 0
@@ -7042,6 +7952,7 @@ GameObject:
   - component: {fileID: 5868920705585307913}
   - component: {fileID: 2286412981185328742}
   - component: {fileID: 7724736311348162121}
+  - component: {fileID: 404834721881361428}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -7135,6 +8046,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &404834721881361428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5050649330604485973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5079934751504905284
 GameObject:
   m_ObjectHideFlags: 0
@@ -7147,6 +8071,7 @@ GameObject:
   - component: {fileID: 5715922682183541511}
   - component: {fileID: 2032283037697895033}
   - component: {fileID: 747764484228376098}
+  - component: {fileID: 2657026953324198626}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -7240,6 +8165,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2657026953324198626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5079934751504905284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5087414240772099669
 GameObject:
   m_ObjectHideFlags: 0
@@ -7252,6 +8190,7 @@ GameObject:
   - component: {fileID: 8721969268624531649}
   - component: {fileID: 5553037375916183739}
   - component: {fileID: 672619657144655344}
+  - component: {fileID: 3988055855249938409}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -7345,6 +8284,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3988055855249938409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5087414240772099669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5098868184690679568
 GameObject:
   m_ObjectHideFlags: 0
@@ -7357,6 +8309,7 @@ GameObject:
   - component: {fileID: 6190126400030350267}
   - component: {fileID: 5712537101531410945}
   - component: {fileID: 7106947375083985727}
+  - component: {fileID: 5320529979356558844}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -7450,6 +8403,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5320529979356558844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5098868184690679568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5167913293809814228
 GameObject:
   m_ObjectHideFlags: 0
@@ -7462,6 +8428,7 @@ GameObject:
   - component: {fileID: 6590099126790534325}
   - component: {fileID: 2206575472547795910}
   - component: {fileID: 102101114756207930}
+  - component: {fileID: 6455514539148360191}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -7555,6 +8522,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6455514539148360191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5167913293809814228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5173598992060545702
 GameObject:
   m_ObjectHideFlags: 0
@@ -7567,6 +8547,7 @@ GameObject:
   - component: {fileID: 7172028340348312231}
   - component: {fileID: 1954962922685406967}
   - component: {fileID: 2652274681942661944}
+  - component: {fileID: 6924871144766968270}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -7660,6 +8641,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6924871144766968270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5173598992060545702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5235040510067345096
 GameObject:
   m_ObjectHideFlags: 0
@@ -7672,6 +8666,7 @@ GameObject:
   - component: {fileID: 1739791152818397357}
   - component: {fileID: 591475974345815179}
   - component: {fileID: 9187875371622409139}
+  - component: {fileID: 6070677439374104653}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -7765,6 +8760,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6070677439374104653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5235040510067345096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5261601356606472357
 GameObject:
   m_ObjectHideFlags: 0
@@ -7777,6 +8785,7 @@ GameObject:
   - component: {fileID: 2891446852449106161}
   - component: {fileID: 692581025121611975}
   - component: {fileID: 5301143649586037680}
+  - component: {fileID: 536338908978790644}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -7870,6 +8879,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &536338908978790644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5261601356606472357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5275691587607377834
 GameObject:
   m_ObjectHideFlags: 0
@@ -7929,6 +8951,7 @@ GameObject:
   - component: {fileID: 8585392961464509407}
   - component: {fileID: 8026231290921297932}
   - component: {fileID: 3201943007594274451}
+  - component: {fileID: 1075668563672051737}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -8022,6 +9045,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1075668563672051737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5417160989271863751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5441126786135281324
 GameObject:
   m_ObjectHideFlags: 0
@@ -8034,6 +9070,7 @@ GameObject:
   - component: {fileID: 5927313376773376660}
   - component: {fileID: 1119397404067461450}
   - component: {fileID: 5946856577580855940}
+  - component: {fileID: 7172675912384460023}
   m_Layer: 0
   m_Name: stair (20)
   m_TagString: Untagged
@@ -8127,6 +9164,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7172675912384460023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5441126786135281324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5489321633963365980
 GameObject:
   m_ObjectHideFlags: 0
@@ -8139,6 +9189,7 @@ GameObject:
   - component: {fileID: 3253999497976047912}
   - component: {fileID: 8432711615353917960}
   - component: {fileID: 2326909131933240807}
+  - component: {fileID: 3760118769589882922}
   m_Layer: 0
   m_Name: stair (10)
   m_TagString: Untagged
@@ -8232,6 +9283,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3760118769589882922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5489321633963365980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5580352912160042860
 GameObject:
   m_ObjectHideFlags: 0
@@ -8244,6 +9308,7 @@ GameObject:
   - component: {fileID: 1309058353993303740}
   - component: {fileID: 8272625257565254908}
   - component: {fileID: 1514255242500272736}
+  - component: {fileID: 2615175411242225725}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -8337,6 +9402,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2615175411242225725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5580352912160042860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5612889659506391015
 GameObject:
   m_ObjectHideFlags: 0
@@ -8349,6 +9427,7 @@ GameObject:
   - component: {fileID: 5297429978920230483}
   - component: {fileID: 2009526651473438346}
   - component: {fileID: 5017515109662940726}
+  - component: {fileID: 7616480944299754695}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -8442,6 +9521,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7616480944299754695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5612889659506391015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5625880135147914747
 GameObject:
   m_ObjectHideFlags: 0
@@ -8454,6 +9546,7 @@ GameObject:
   - component: {fileID: 8439348154649597627}
   - component: {fileID: 8764251753903714753}
   - component: {fileID: 3346972844971949029}
+  - component: {fileID: 4916973161811360892}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -8547,6 +9640,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4916973161811360892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5625880135147914747}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5741088731468166795
 GameObject:
   m_ObjectHideFlags: 0
@@ -8559,6 +9665,7 @@ GameObject:
   - component: {fileID: 6765554738144296452}
   - component: {fileID: 3671320062128897504}
   - component: {fileID: 7994489707525677814}
+  - component: {fileID: 3081030041696439658}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -8652,6 +9759,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3081030041696439658
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5741088731468166795}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5805385402751329040
 GameObject:
   m_ObjectHideFlags: 0
@@ -8664,6 +9784,7 @@ GameObject:
   - component: {fileID: 607116185569525197}
   - component: {fileID: 7480167475310569174}
   - component: {fileID: 64181189439379512}
+  - component: {fileID: 3993528220800130777}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -8757,6 +9878,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3993528220800130777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5805385402751329040}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5818227926113124197
 GameObject:
   m_ObjectHideFlags: 0
@@ -8769,6 +9903,7 @@ GameObject:
   - component: {fileID: 2717199213939820608}
   - component: {fileID: 1625847975876446312}
   - component: {fileID: 1537677002206115272}
+  - component: {fileID: 6858176520252045715}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -8862,6 +9997,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6858176520252045715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818227926113124197}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &5970646054956131933
 GameObject:
   m_ObjectHideFlags: 0
@@ -8874,6 +10022,7 @@ GameObject:
   - component: {fileID: 4676990526608238090}
   - component: {fileID: 4675177662235919231}
   - component: {fileID: 7174917776803375910}
+  - component: {fileID: 5637581085541243103}
   m_Layer: 0
   m_Name: stair (18)
   m_TagString: Untagged
@@ -8967,6 +10116,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5637581085541243103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5970646054956131933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6156790332780811534
 GameObject:
   m_ObjectHideFlags: 0
@@ -8979,6 +10141,7 @@ GameObject:
   - component: {fileID: 9145558735053035837}
   - component: {fileID: 7097395598663758750}
   - component: {fileID: 7514739732137105729}
+  - component: {fileID: 7825122844889390168}
   m_Layer: 0
   m_Name: stair (11)
   m_TagString: Untagged
@@ -9072,6 +10235,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7825122844889390168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6156790332780811534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6173643452145349063
 GameObject:
   m_ObjectHideFlags: 0
@@ -9084,6 +10260,7 @@ GameObject:
   - component: {fileID: 3911475060946163236}
   - component: {fileID: 1285369761615238414}
   - component: {fileID: 4876199257371387572}
+  - component: {fileID: 4685705781168590307}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -9177,6 +10354,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4685705781168590307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6173643452145349063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6373503638656474391
 GameObject:
   m_ObjectHideFlags: 0
@@ -9240,6 +10430,7 @@ GameObject:
   - component: {fileID: 6901260328436883019}
   - component: {fileID: 3582621029364090925}
   - component: {fileID: 5637550542217152659}
+  - component: {fileID: 6301950623818242891}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -9333,6 +10524,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6301950623818242891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6395203486417224240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6684409728447448666
 GameObject:
   m_ObjectHideFlags: 0
@@ -9396,6 +10600,7 @@ GameObject:
   - component: {fileID: 6051842047024785328}
   - component: {fileID: 5829313426148052073}
   - component: {fileID: 8703421393033209258}
+  - component: {fileID: 6384883510950117040}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -9489,6 +10694,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6384883510950117040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6775206913146002099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6803780998082213352
 GameObject:
   m_ObjectHideFlags: 0
@@ -9501,6 +10719,7 @@ GameObject:
   - component: {fileID: 6120459232174523788}
   - component: {fileID: 871621619670988957}
   - component: {fileID: 1561030509382651055}
+  - component: {fileID: 6444514049782548525}
   m_Layer: 0
   m_Name: stair (20)
   m_TagString: Untagged
@@ -9594,6 +10813,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6444514049782548525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803780998082213352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6955679443240188706
 GameObject:
   m_ObjectHideFlags: 0
@@ -9606,6 +10838,7 @@ GameObject:
   - component: {fileID: 6162779688222610077}
   - component: {fileID: 3287323196282594887}
   - component: {fileID: 4618567869188334692}
+  - component: {fileID: 6608112542723904800}
   m_Layer: 0
   m_Name: stair (7)
   m_TagString: Untagged
@@ -9699,6 +10932,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6608112542723904800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955679443240188706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &6956803541467861047
 GameObject:
   m_ObjectHideFlags: 0
@@ -9711,6 +10957,7 @@ GameObject:
   - component: {fileID: 4828540285121349040}
   - component: {fileID: 6599528689519701455}
   - component: {fileID: 6091331060797805341}
+  - component: {fileID: 8743620049685736684}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -9804,6 +11051,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8743620049685736684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6956803541467861047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7025375366974052391
 GameObject:
   m_ObjectHideFlags: 0
@@ -9816,6 +11076,7 @@ GameObject:
   - component: {fileID: 3544141196101824012}
   - component: {fileID: 8738140020298806416}
   - component: {fileID: 7440286222650721065}
+  - component: {fileID: 5045047147831746053}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -9909,6 +11170,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5045047147831746053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7025375366974052391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7158823454174351641
 GameObject:
   m_ObjectHideFlags: 0
@@ -9921,6 +11195,7 @@ GameObject:
   - component: {fileID: 1973893719247849563}
   - component: {fileID: 8820007071399882476}
   - component: {fileID: 4975270592666499427}
+  - component: {fileID: 3106645001239276337}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -10014,6 +11289,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3106645001239276337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7158823454174351641}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7162295702662337449
 GameObject:
   m_ObjectHideFlags: 0
@@ -10077,6 +11365,7 @@ GameObject:
   - component: {fileID: 2855288111382500827}
   - component: {fileID: 3521747839577543845}
   - component: {fileID: 8655876235903356195}
+  - component: {fileID: 3990055588286129481}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -10170,6 +11459,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3990055588286129481
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7233375690423204909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7257834177675627499
 GameObject:
   m_ObjectHideFlags: 0
@@ -10182,6 +11484,7 @@ GameObject:
   - component: {fileID: 7009162139189501706}
   - component: {fileID: 8668902252786558289}
   - component: {fileID: 4498617950768196502}
+  - component: {fileID: 734731490179030998}
   m_Layer: 0
   m_Name: stair
   m_TagString: Untagged
@@ -10275,6 +11578,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &734731490179030998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7257834177675627499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7276841892306523323
 GameObject:
   m_ObjectHideFlags: 0
@@ -10423,6 +11739,7 @@ GameObject:
   - component: {fileID: 6853473518302312140}
   - component: {fileID: 2421286388686346778}
   - component: {fileID: 4324872792138480037}
+  - component: {fileID: 2211556885681193699}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -10516,6 +11833,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2211556885681193699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7477672123045844738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7595832676056391536
 GameObject:
   m_ObjectHideFlags: 0
@@ -10528,6 +11858,7 @@ GameObject:
   - component: {fileID: 4833568496051557631}
   - component: {fileID: 5534889555198394781}
   - component: {fileID: 5247305502370799936}
+  - component: {fileID: 2351118985461468693}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -10621,6 +11952,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2351118985461468693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7595832676056391536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7613806285090975506
 GameObject:
   m_ObjectHideFlags: 0
@@ -10633,6 +11977,7 @@ GameObject:
   - component: {fileID: 9185824352553151794}
   - component: {fileID: 8946890465264451543}
   - component: {fileID: 4626746867103317930}
+  - component: {fileID: 954597799827650002}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -10726,6 +12071,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &954597799827650002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7613806285090975506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7684217720367727410
 GameObject:
   m_ObjectHideFlags: 0
@@ -10738,6 +12096,7 @@ GameObject:
   - component: {fileID: 9104860625996708941}
   - component: {fileID: 88998278598191284}
   - component: {fileID: 211017516998687898}
+  - component: {fileID: 2293124756920732043}
   m_Layer: 0
   m_Name: stair (3)
   m_TagString: Untagged
@@ -10831,6 +12190,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2293124756920732043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7684217720367727410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7726139216957163100
 GameObject:
   m_ObjectHideFlags: 0
@@ -10843,6 +12215,7 @@ GameObject:
   - component: {fileID: 7219015991286798916}
   - component: {fileID: 6420980098699009992}
   - component: {fileID: 2715531436145784698}
+  - component: {fileID: 1942873005033763385}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -10936,6 +12309,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1942873005033763385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7726139216957163100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7834137476419786116
 GameObject:
   m_ObjectHideFlags: 0
@@ -10948,6 +12334,7 @@ GameObject:
   - component: {fileID: 8050698320515179663}
   - component: {fileID: 7926169102357280434}
   - component: {fileID: 7252956978459932860}
+  - component: {fileID: 4001285494408033145}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -11041,6 +12428,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4001285494408033145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834137476419786116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7856952006335564109
 GameObject:
   m_ObjectHideFlags: 0
@@ -11053,6 +12453,7 @@ GameObject:
   - component: {fileID: 240070803191031980}
   - component: {fileID: 8500727731461257555}
   - component: {fileID: 5130148032232759489}
+  - component: {fileID: 5309540940757154513}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -11146,6 +12547,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5309540940757154513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7856952006335564109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7864278807818768365
 GameObject:
   m_ObjectHideFlags: 0
@@ -11207,6 +12621,7 @@ GameObject:
   - component: {fileID: 702976491794384641}
   - component: {fileID: 3913385577534880352}
   - component: {fileID: 153793393353076053}
+  - component: {fileID: 3686749417032526495}
   m_Layer: 0
   m_Name: stair (8)
   m_TagString: Untagged
@@ -11300,6 +12715,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3686749417032526495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7893243663701688988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7951848566138364653
 GameObject:
   m_ObjectHideFlags: 0
@@ -11312,6 +12740,7 @@ GameObject:
   - component: {fileID: 3984087588170284022}
   - component: {fileID: 7474945180475649054}
   - component: {fileID: 4731120551428805754}
+  - component: {fileID: 8059132195495151436}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -11405,6 +12834,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8059132195495151436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7951848566138364653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &7974079175634873954
 GameObject:
   m_ObjectHideFlags: 0
@@ -11417,6 +12859,7 @@ GameObject:
   - component: {fileID: 339627503046289310}
   - component: {fileID: 5740212485257623058}
   - component: {fileID: 4470488547196420415}
+  - component: {fileID: 5777908948063414642}
   m_Layer: 0
   m_Name: stair (5)
   m_TagString: Untagged
@@ -11510,6 +12953,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5777908948063414642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7974079175634873954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8052237741471316333
 GameObject:
   m_ObjectHideFlags: 0
@@ -11522,6 +12978,7 @@ GameObject:
   - component: {fileID: 6038701394046494226}
   - component: {fileID: 5747070327061991717}
   - component: {fileID: 6601115498185728182}
+  - component: {fileID: 8060420750915252542}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -11615,6 +13072,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8060420750915252542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8052237741471316333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8127124028969911527
 GameObject:
   m_ObjectHideFlags: 0
@@ -11627,6 +13097,7 @@ GameObject:
   - component: {fileID: 8801447781131808350}
   - component: {fileID: 8108781314020489854}
   - component: {fileID: 5641012367833293864}
+  - component: {fileID: 8670329262760953476}
   m_Layer: 0
   m_Name: stair (4)
   m_TagString: Untagged
@@ -11720,6 +13191,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8670329262760953476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8127124028969911527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8179335743190486826
 GameObject:
   m_ObjectHideFlags: 0
@@ -11732,6 +13216,7 @@ GameObject:
   - component: {fileID: 5028344364276547341}
   - component: {fileID: 6051567530401212447}
   - component: {fileID: 1321867064955651532}
+  - component: {fileID: 2795798206007005948}
   m_Layer: 0
   m_Name: stair (17)
   m_TagString: Untagged
@@ -11825,6 +13310,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2795798206007005948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8179335743190486826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8266059650214014107
 GameObject:
   m_ObjectHideFlags: 0
@@ -11837,6 +13335,7 @@ GameObject:
   - component: {fileID: 6031526765493946655}
   - component: {fileID: 3992738106137009967}
   - component: {fileID: 1393489528053630961}
+  - component: {fileID: 9216487879438878365}
   m_Layer: 0
   m_Name: stair (13)
   m_TagString: Untagged
@@ -11930,6 +13429,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &9216487879438878365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8266059650214014107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8433947944513867910
 GameObject:
   m_ObjectHideFlags: 0
@@ -11942,6 +13454,7 @@ GameObject:
   - component: {fileID: 2343910433831810271}
   - component: {fileID: 5130966403505924165}
   - component: {fileID: 3640128812345907511}
+  - component: {fileID: 3408560037906876044}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -12035,6 +13548,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3408560037906876044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8433947944513867910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8509729824423307228
 GameObject:
   m_ObjectHideFlags: 0
@@ -12047,6 +13573,7 @@ GameObject:
   - component: {fileID: 2357935253084594394}
   - component: {fileID: 3059940222136708934}
   - component: {fileID: 5760620187348318401}
+  - component: {fileID: 7612957454770154862}
   m_Layer: 0
   m_Name: stair (6)
   m_TagString: Untagged
@@ -12140,6 +13667,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7612957454770154862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8509729824423307228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8556183762767839445
 GameObject:
   m_ObjectHideFlags: 0
@@ -12152,6 +13692,7 @@ GameObject:
   - component: {fileID: 5999737487722331290}
   - component: {fileID: 4488599570147990569}
   - component: {fileID: 3254172385941373298}
+  - component: {fileID: 5511004248323044118}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -12245,6 +13786,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5511004248323044118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8556183762767839445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8605115465879254400
 GameObject:
   m_ObjectHideFlags: 0
@@ -12257,6 +13811,7 @@ GameObject:
   - component: {fileID: 6094171746347802780}
   - component: {fileID: 2264586367716682851}
   - component: {fileID: 8257881366201981971}
+  - component: {fileID: 7201007387133021996}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -12350,6 +13905,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7201007387133021996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8605115465879254400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8765981894765210247
 GameObject:
   m_ObjectHideFlags: 0
@@ -12362,6 +13930,7 @@ GameObject:
   - component: {fileID: 2086230636811240262}
   - component: {fileID: 3318965612023960820}
   - component: {fileID: 2638351982238524132}
+  - component: {fileID: 4156594491632632153}
   m_Layer: 0
   m_Name: stair (12)
   m_TagString: Untagged
@@ -12455,6 +14024,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4156594491632632153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8765981894765210247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8878526684834610737
 GameObject:
   m_ObjectHideFlags: 0
@@ -12518,6 +14100,7 @@ GameObject:
   - component: {fileID: 723075033282797338}
   - component: {fileID: 3165347892392852169}
   - component: {fileID: 2390007085831549802}
+  - component: {fileID: 2369840713935406072}
   m_Layer: 0
   m_Name: stair (1)
   m_TagString: Untagged
@@ -12611,6 +14194,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2369840713935406072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8929934496223190978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &8938728293606834367
 GameObject:
   m_ObjectHideFlags: 0
@@ -12623,6 +14219,7 @@ GameObject:
   - component: {fileID: 7046331777235402429}
   - component: {fileID: 7162949239349858891}
   - component: {fileID: 6560688710093010910}
+  - component: {fileID: 5148917470473424816}
   m_Layer: 0
   m_Name: stair (14)
   m_TagString: Untagged
@@ -12716,6 +14313,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5148917470473424816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8938728293606834367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &9017233898478111635
 GameObject:
   m_ObjectHideFlags: 0
@@ -12728,6 +14338,7 @@ GameObject:
   - component: {fileID: 3629381121255627683}
   - component: {fileID: 4909040636779667285}
   - component: {fileID: 6405092918247647055}
+  - component: {fileID: 4305164984845178831}
   m_Layer: 0
   m_Name: stair (16)
   m_TagString: Untagged
@@ -12821,6 +14432,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4305164984845178831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9017233898478111635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &9069380940249997300
 GameObject:
   m_ObjectHideFlags: 0
@@ -12833,6 +14457,7 @@ GameObject:
   - component: {fileID: 3871321423185682039}
   - component: {fileID: 5373890574477917172}
   - component: {fileID: 216924699826596802}
+  - component: {fileID: 5828453095189760657}
   m_Layer: 0
   m_Name: stair (2)
   m_TagString: Untagged
@@ -12926,6 +14551,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5828453095189760657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9069380940249997300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}
 --- !u!1 &9124492264590785119
 GameObject:
   m_ObjectHideFlags: 0
@@ -12985,6 +14623,7 @@ GameObject:
   - component: {fileID: 7905725450740265804}
   - component: {fileID: 6438146531913904402}
   - component: {fileID: 6052765123694170196}
+  - component: {fileID: 2064615690051183693}
   m_Layer: 0
   m_Name: stair (15)
   m_TagString: Untagged
@@ -13078,3 +14717,16 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2064615690051183693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9187634593480999705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0.4716981, b: 0.28945106, a: 0}

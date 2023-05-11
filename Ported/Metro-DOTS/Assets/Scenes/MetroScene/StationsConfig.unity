@@ -161,12 +161,13 @@ MonoBehaviour:
   TrackACenter:
     x: 10
     y: -2
-    z: -1
+    z: 0
   TrackBCenter:
     x: 10
     y: -2
     z: -8
-  NumCarriadges: 1
+  StationWidth: 32
+  NumCarriadges: 4
   SpawnPointOffsetFromCenterPoint:
     x: 0
     y: 1.5
