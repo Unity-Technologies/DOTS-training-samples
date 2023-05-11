@@ -23,6 +23,7 @@ public class GridAuthoring : MonoBehaviour
     public float FireGrowthRate;
     public Color StartingGridColor;
     public Color FullBurningGridColor;
+    public float RadiusClickFire;
 
     [Header("Prefabs")]
     public GameObject BotPrefab;
@@ -52,6 +53,7 @@ public class GridAuthoring : MonoBehaviour
                 NumOmnibot = authoring.NumOmnibot,
                 FireSpreadValue = authoring.FireSpreadValue,
                 FireGrowthRate = authoring.FireGrowthRate,
+                RadiusClickFire = authoring.RadiusClickFire,
                 StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
                 FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
                 
@@ -61,6 +63,7 @@ public class GridAuthoring : MonoBehaviour
                 NumTeambotPassTowardsWater = authoring.NumTeambotPassTowardsWater,
                 NumTeambotPassTowardsFire = authoring.NumTeambotPassTowardsFire,
             });
+            AddComponent<MouseHit>(entity);
         }
     }
 }
@@ -81,6 +84,7 @@ public struct Grid : IComponentData
     public int NumOmnibot;
     public float FireSpreadValue;
     public float FireGrowthRate;
+    public float RadiusClickFire;
     public float4 StartingGridColor;
     public float4 FullBurningGridColor;
     
@@ -89,4 +93,10 @@ public struct Grid : IComponentData
     public int NumTeams;
     public int NumTeambotPassTowardsWater;
     public int NumTeambotPassTowardsFire;
+}
+
+// For mouse hit
+public struct MouseHit : IComponentData {
+    public float3 Value;
+    public bool ChangedThisFrame;
 }
