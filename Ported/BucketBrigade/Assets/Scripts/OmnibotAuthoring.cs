@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
 public class OmnibotAuthoring : MonoBehaviour
@@ -16,8 +17,9 @@ public class OmnibotAuthoring : MonoBehaviour
                 TravelSpeed = 5f,
                 WaterGatherSpeed = .1f,
                 MaxWaterCapacity = .3f,
-                MaxDouseAmount = 1.5f,
-                DouseRadius = 6
+                MaxDouseAmount = .5f,
+                DouseRadius = .1f,
+               // OmnibotPosition = authoring.transform.localPosition
             });
             
         }
@@ -51,4 +53,6 @@ public struct Omnibot : IComponentData
 
     public float DouseRadius;
     public float MaxDouseAmount;
+
+    //public float3 OmnibotPosition;
 }

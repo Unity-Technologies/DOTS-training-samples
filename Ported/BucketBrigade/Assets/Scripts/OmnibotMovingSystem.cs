@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-// [UpdateAfter(typeof(OmnibotSpawnerSystem))]
+[UpdateAfter(typeof(OmnibotSpawnerSystem))]
 public partial struct OmnibotMovingSystem : ISystem 
 {
     [BurstCompile]
@@ -20,175 +20,212 @@ public partial struct OmnibotMovingSystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Grid>();
         var waterLookup = SystemAPI.GetComponentLookup<Water>();
-        foreach (var (omnibotTransform, omnibot) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Omnibot>>())
+        var fireLookup = SystemAPI.GetComponentLookup<Fire>();
+        var watersQuery = SystemAPI.QueryBuilder().WithAll<Water, LocalTransform>().Build();
+        var waterEntities = watersQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var waterTransform = watersQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+        var waters = watersQuery.ToComponentDataArray<Water>(state.WorldUpdateAllocator);
+        var fireQuery = SystemAPI.QueryBuilder().WithAll<Fire, LocalTransform>().Build();
+        var fireEntities = fireQuery.ToEntityArray(state.WorldUpdateAllocator);
+        var fireTransform = fireQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
+
+        var fires = fireQuery.ToComponentDataArray<Fire>(state.WorldUpdateAllocator);
+
+        var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
+        var frameTravelDistanceToWater = 5 * SystemAPI.Time.DeltaTime;
+        var deltaTime = SystemAPI.Time.DeltaTime;
+
+        var job = new OmnibotMovingJob
         {
-            var omnibotState = omnibot.ValueRW.OmnibotState;
-            var omnibotPosition = omnibotTransform.ValueRW.Position;
-            var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
-            switch (omnibotState)
+            waters = waters,
+            waterEntities = waterEntities,
+            fires = fires,
+            rate = 0,
+            spreadVal = 0,
+            waterLookup = waterLookup,
+            elapsedTime = elapsedTime,
+            frameTravelDistanceToWater = frameTravelDistanceToWater,
+            deltaTime = deltaTime,
+            fireEntities = fireEntities,
+            fireLookup = fireLookup,
+            waterTransforms = waterTransform,
+            fireTransforms = fireTransform
+        };
+        state.Dependency = job.Schedule(state.Dependency);
+    }
+}
+
+[WithAll(typeof(Omnibot))]
+[BurstCompile]
+public partial struct OmnibotMovingJob : IJobEntity
+{
+    [ReadOnly] public NativeArray<Water> waters;
+    [ReadOnly] public NativeArray<Entity> waterEntities;
+    [ReadOnly] public NativeArray<LocalTransform> waterTransforms;
+    [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
+
+    [ReadOnly] public NativeArray<Fire> fires;
+    public float rate;
+    public float spreadVal;
+    public ComponentLookup<Water> waterLookup;
+    public float elapsedTime;
+    public float frameTravelDistanceToWater;
+    public float deltaTime;
+    [ReadOnly] public NativeArray<Entity> fireEntities; 
+    public ComponentLookup<Fire> fireLookup;
+
+    void Execute(ref Omnibot omnibot,
+        ref LocalTransform omnibotTransform)
+    {
+        
+            switch (omnibot.OmnibotState)
             {
                 case OmnibotState.LookForWater:
                     var nearestWaterDistance = math.INFINITY;
                     float3 omniBotTargetPosition = default;
                     Entity foundEntity = default;
-                    foreach (var (transformWater, water, waterEntity) in SystemAPI
-                                 .Query<RefRO<LocalTransform>, RefRW<Water>>().WithEntityAccess())
+                    for (var index = 0; index < waters.Length; index++)
                     {
-                        var waterPos = transformWater.ValueRO.Position;
+                        var water = waters[index];
+                        var waterPos = waterTransforms[index].Position;
                         waterPos.y = 0; // only travel to ground level
-                        var distance = math.distance(waterPos, omnibotPosition);
+                        var distance = math.distance(waterPos, omnibotTransform.Position);
                         if (distance < nearestWaterDistance)
                         {
                             nearestWaterDistance = distance;
                             omniBotTargetPosition = waterPos;
-                            foundEntity = waterEntity;
+                            foundEntity = waterEntities[index];
                         }
                     }
 
                     if (!float.IsPositiveInfinity(nearestWaterDistance))
                     {
-                        omnibot.ValueRW.TargetPos = omniBotTargetPosition;
-                        omnibot.ValueRW.OmnibotState = OmnibotState.TravelToWater;
-                        omnibot.ValueRW.TargetWaterEntity = foundEntity;
+                        omnibot.TargetPos = omniBotTargetPosition;
+                        omnibot.OmnibotState = OmnibotState.TravelToWater;
+                        omnibot.TargetWaterEntity = foundEntity;
                     }
 
                     break;
                 case OmnibotState.TravelToWater:
                     // TODO How do i get Transform from waterLookup[omnibot.ValueRW.targetEntity]
 
-                    var frameTravelDistanceToWater = omnibot.ValueRO.TravelSpeed * SystemAPI.Time.DeltaTime;
+                    
                     var remainingDistToWater =
-                        math.distance(omnibotTransform.ValueRW.Position, omnibot.ValueRW.TargetPos);
+                        math.distance(omnibotTransform.Position, omnibot.TargetPos);
 
                     // reached destination
                     if (frameTravelDistanceToWater >= remainingDistToWater)
                     {
-                        omnibotTransform.ValueRW.Position = omnibot.ValueRW.TargetPos;
-                        omnibot.ValueRW.OmnibotState = OmnibotState.GatherWater;
+                        omnibotTransform.Position = omnibot.TargetPos;
+                        omnibot.OmnibotState = OmnibotState.GatherWater;
                     }
                     // continue walking
                     else
                     {
                         var travelVecNormalized =
-                            math.normalize(omnibot.ValueRW.TargetPos - omnibotTransform.ValueRW.Position);
-                        omnibotTransform.ValueRW.Position += travelVecNormalized * frameTravelDistanceToWater;
+                            math.normalize(omnibot.TargetPos - omnibotTransform.Position);
+                        omnibotTransform.Position += travelVecNormalized * frameTravelDistanceToWater;
                     }
 
                     break;
                 case OmnibotState.GatherWater:
-                    var targetWater = waterLookup[omnibot.ValueRW.TargetWaterEntity];
-                    var waterGatherStillNeeded = omnibot.ValueRO.MaxWaterCapacity - omnibot.ValueRW.CurrentWaterCarryingVolume;
-                    var waterVolumeTransfer = omnibot.ValueRO.WaterGatherSpeed * SystemAPI.Time.DeltaTime;
+                    var targetWater = waterLookup[omnibot.TargetWaterEntity];
+                    var waterGatherStillNeeded = omnibot.MaxWaterCapacity - omnibot.CurrentWaterCarryingVolume;
+                    var waterVolumeTransfer = omnibot.WaterGatherSpeed * elapsedTime;
 
                     // Gathered enough water
                     if (waterVolumeTransfer > waterGatherStillNeeded)
                     {
                         waterVolumeTransfer = waterGatherStillNeeded;
-                        omnibot.ValueRW.OmnibotState = OmnibotState.LookForFire;
+                        omnibot.OmnibotState = OmnibotState.LookForFire;
                     }
 
                     targetWater.Volume -= waterVolumeTransfer;
-                    omnibot.ValueRW.CurrentWaterCarryingVolume += waterVolumeTransfer;
+                    omnibot.CurrentWaterCarryingVolume += waterVolumeTransfer;
 
                     // reassign the new component values back to the entity.
-                    waterLookup[omnibot.ValueRW.TargetWaterEntity] = targetWater;
+                    waterLookup[omnibot.TargetWaterEntity] = targetWater;
 
                     break;
                 case OmnibotState.LookForFire:
                     float nearestFireDistance = math.INFINITY;
                     float3 fireTargetPosition = default;
                     Entity foundFireEntity = default;
-                    foreach (var (transformFire, fire, fireEntity) in SystemAPI
-                                 .Query<RefRO<LocalTransform>, RefRW<Fire>>().WithEntityAccess())
+                    for (var index = 0; index < fires.Length; index++)
                     {
-                        if (fire.ValueRO.t > math.EPSILON)
+                        var fire = fires[index];
+                        if (fire.t > math.EPSILON)
                         {
-                            var firePos = transformFire.ValueRO.Position;
+                            var firePos = fireTransforms[index].Position;
                             firePos.y = 0; // only travel to ground level
-                            var distance = math.distance(firePos, omnibotPosition);
+                            var distance = math.distance(firePos, omnibotTransform.Position);
                             if (distance < nearestFireDistance)
                             {
                                 nearestFireDistance = distance;
                                 fireTargetPosition = firePos;
-                                foundFireEntity = fireEntity;
+                                foundFireEntity = fireEntities[index];
                             }
                         }
                     }
 
                     if (!float.IsPositiveInfinity(nearestFireDistance))
                     {
-                        omnibot.ValueRW.TargetPos = fireTargetPosition;
-                        omnibot.ValueRW.OmnibotState = OmnibotState.TravelToFire;
-                        omnibot.ValueRW.TargetFireEntity = foundFireEntity;
+                        omnibot.TargetPos = fireTargetPosition;
+                        omnibot.OmnibotState = OmnibotState.TravelToFire;
+                        omnibot.TargetFireEntity = foundFireEntity;
                     }
 
                     break;
                 case OmnibotState.TravelToFire:
-                    var frameTravelDistanceToFire = omnibot.ValueRO.TravelSpeed * SystemAPI.Time.DeltaTime;
+                    var frameTravelDistanceToFire = omnibot.TravelSpeed * deltaTime;
                     var remainingDistToFire =
-                        math.distance(omnibotTransform.ValueRW.Position, omnibot.ValueRW.TargetPos);
+                        math.distance(omnibotTransform.Position, omnibot.TargetPos);
 
                     // reached destination
                     if (frameTravelDistanceToFire >= remainingDistToFire)
                     {
-                        omnibotTransform.ValueRW.Position = omnibot.ValueRW.TargetPos;
-                        omnibot.ValueRW.OmnibotState = OmnibotState.DouseFire;
+                        omnibotTransform.Position = omnibot.TargetPos;
+                        omnibot.OmnibotState = OmnibotState.DouseFire;
                     }
                     // continue walking
                     else
                     {
                         var travelVecNormalized =
-                            math.normalize(omnibot.ValueRW.TargetPos - omnibotTransform.ValueRW.Position);
-                        omnibotTransform.ValueRW.Position += travelVecNormalized * frameTravelDistanceToFire;
+                            math.normalize(omnibot.TargetPos - omnibotTransform.Position);
+                        omnibotTransform.Position += travelVecNormalized * frameTravelDistanceToFire;
                     }
 
                     break;
                 case OmnibotState.DouseFire:
                     // Dump Water
-                    omnibot.ValueRW.CurrentWaterCarryingVolume = 0;
+                    omnibot.CurrentWaterCarryingVolume = 0;
 
-                    // Douse Fire
-                    foreach (var (transformFire, fire) in SystemAPI
-                                 .Query<RefRO<LocalTransform>, RefRW<Fire>>())
+                    for (var index = 0; index < fires.Length; index++)
                     {
-                        if (fire.ValueRO.t > math.EPSILON)
+                        var fire = fires[index];
+                        if (fire.t > math.EPSILON)
                         {
-                            var firePos = transformFire.ValueRO.Position;
+                            var firePos = fireTransforms[index].Position;
                             firePos.y = 0;
-
-                            var distance = math.distance(firePos, omnibotPosition);
-                            if (distance < omnibot.ValueRO.DouseRadius)
+                    
+                            var distance = math.distance(firePos, omnibotTransform.Position);
+                            if (distance < omnibot.DouseRadius)
                             {
-                                var douseAmount = omnibot.ValueRO.MaxDouseAmount *
-                                                  (1 - distance / omnibot.ValueRO.DouseRadius);
-                                fire.ValueRW.t -= douseAmount;
-                                if (fire.ValueRO.t < 0)
-                                { 
-                                    fire.ValueRW.t = 0;
+                                var douseAmount = omnibot.MaxDouseAmount *
+                                                  (1 - distance / omnibot.DouseRadius);
+                                fire.t -= douseAmount;
+                                if (fire.t < 0)
+                                {
+                                    fire.t = 0;
                                 }
+                    
+                                fireLookup[fireEntities[index]] = fire;
                             }
                         }
                     }
-
-
-                    
-                    omnibot.ValueRW.OmnibotState = OmnibotState.LookForWater;
-
+                    Debug.LogWarning("HERE");
+                    omnibot.OmnibotState = OmnibotState.LookForWater;
                     break;
             }
-        }
-    }
-}
-
-[WithAll(typeof(Water))]
-[BurstCompile]
-public partial struct OmnibotMovingJob : IJobEntity
-{
-    [ReadOnly] public Water waterEntity;
-    public float rate;
-    public float spreadVal;
-
-    void Execute([EntityIndexInQuery] int index, ref Fire fire, ref Water water)
-    {
     }
 }
