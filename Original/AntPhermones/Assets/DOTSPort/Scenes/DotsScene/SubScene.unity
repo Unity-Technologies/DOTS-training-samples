@@ -302,9 +302,9 @@ MonoBehaviour:
   FoodBufferSize: 20
   FoodRadius: 5
   AntRandomSteering: 0.7853982
-  AntSpeed: 0.2
+  AntSpeed: 0.4
   AntAccel: 0.07
-  AntGoalSteerStrength: 0.04
+  AntGoalSteerStrength: 0.1
   TrailAddSpeed: 0.5
   TrailDecay: 0.01
 --- !u!4 &1130009605

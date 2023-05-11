@@ -73,7 +73,7 @@ public partial struct ObstacleSpawnerSystem : ISystem
         }
     }
 
-    public bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in Vector2 direction, out Vector2 CollisionPoint, out float Param)
+    public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in Vector2 direction, out Vector2 CollisionPoint, out float Param)
     {
         Param = 1000000000.0f;
     
