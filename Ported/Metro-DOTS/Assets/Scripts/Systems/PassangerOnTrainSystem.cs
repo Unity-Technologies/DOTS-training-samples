@@ -17,7 +17,7 @@ public partial struct PassangerOnTrainSystem : ISystem
                  .WithEntityAccess())
         {
             DynamicBuffer<TrackPoint> trackPointsBuffer = state.EntityManager.GetBuffer<TrackPoint>(train.ValueRO.TrackEntity, true);
-            TrackPoint trackPoint = trackPointsBuffer.ElementAt(train.ValueRO.TrackPointIndex);
+            TrackPoint trackPoint = trackPointsBuffer[train.ValueRO.TrackPointIndex];
             var station = trackPoint.Station;
 
             foreach (var (passengerOnboardedComp, transform, passenger) in
