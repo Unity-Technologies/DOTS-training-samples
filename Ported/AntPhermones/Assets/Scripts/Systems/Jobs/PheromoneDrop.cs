@@ -1,4 +1,5 @@
 ﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -10,7 +11,8 @@ public partial struct PheromoneDropJob : IJobEntity
     public int mapSize;
     public float antTargetSpeed;
     public float pheromoneGrowthRate;
-    public DynamicBuffer<Pheromone> pheromones;
+    [NativeDisableParallelForRestriction]
+    public NativeArray<Pheromone> pheromones;
 
     public void Execute(in Ant ant, in Position position, in Speed speed)
     {
