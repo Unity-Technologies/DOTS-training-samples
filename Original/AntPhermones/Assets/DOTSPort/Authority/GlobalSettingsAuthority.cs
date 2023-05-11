@@ -39,7 +39,10 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 TrailDecay = authoring.TrailDecay,
                 ExitedColor = authoring.ExitedColor,
                 RegularColor = authoring.RegularColor,
-                PheromoneSteerStrength = authoring.PheromoneSteerStrength
+                PheromoneSteerStrength = authoring.PheromoneSteerStrength,
+                WallThickness = 0.01f,
+                AntSightDistance = 5.0f,
+                WallSteerStrength = 0.15f
             });
         }
     }
@@ -60,4 +63,7 @@ public struct GlobalSettings: IComponentData
     public Vector4 ExitedColor;
     public Vector4 RegularColor;
     public float PheromoneSteerStrength;
+    public float WallThickness;
+    public float AntSightDistance;
+    public float WallSteerStrength;
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -32,7 +33,6 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
         var ObstacleEntity = ecb.CreateEntity();
         
-                
 #if UNITY_EDITOR
         ecb.SetName(ObstacleEntity, $"__Buffer_ObstacleArcPrimitive");
 #endif
@@ -70,8 +70,6 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
                     PrototypeObstaclePrim.AngleRange = ((PrototypeObstaclePrim.AngleStart < PrototypeObstaclePrim.AngleEnd) ? (PrototypeObstaclePrim.AngleEnd - PrototypeObstaclePrim.AngleStart) : (PrototypeObstaclePrim.AngleEnd + 2.0f * Mathf.PI - PrototypeObstaclePrim.AngleStart));
 
-                    PrototypeObstaclePrim.ObstacleThickness = spawner.ValueRO.ObstacleRadius;
-
                     // Actually spawn the collision objects
                     ObstaclePrimtitveBuffer.Add(PrototypeObstaclePrim);                    
 
@@ -81,33 +79,17 @@ public partial struct ObstacleSpawnerSystem : ISystem
         }
     }
 
-    // public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in Vector2 point, in float2 direction, out float2 CollisionPoint, out float Param)
-    // {
-    //     Vector2 outColl;
-    //     float outParam;
-    //     bool result = CalculateRayCollision(ObstaclePrimtitveBuffer, point, direction, out outColl, out outParam);
-    // 
-    //     CollisionPoint.x = outColl.x;
-    //     CollisionPoint.y = outColl.y;
-    //     Param = outParam;
-    // 
-    //     return result;
-    // }
-
-    public static bool CalculateRayCollision(in DynamicBuffer<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in float2 point, in float2 direction, out float2 CollisionPoint, out float Param)
+    public static bool CalculateRayCollision(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in float2 point, in float2 direction, out float2 CollisionPoint, out float Param)
     {
         Param = 1000000000.0f;
-    
         int PrimIndex = -1;
         for( int i = 0; i < ObstaclePrimtitveBuffer.Length; i++ )
         {
             ObstacleArcPrimitive prim = ObstaclePrimtitveBuffer[i];
-    
             float2 VectorFromCenterToPoint = point - prim.Position;
             float a = math.dot(direction, direction);
             float b = 2.0f * math.dot(direction, VectorFromCenterToPoint);
             float c = math.dot(VectorFromCenterToPoint, VectorFromCenterToPoint) - prim.Radius * prim.Radius;
-    
             // Solve the quadratic equation
             float discriminant = b * b - 4.0f * a * c;
             if (0 > discriminant)
@@ -115,16 +97,12 @@ public partial struct ObstacleSpawnerSystem : ISystem
                 CollisionPoint = point;
                 continue;
             }
-    
             discriminant = Mathf.Sqrt(discriminant);
-    
             float t1 = (-b - discriminant) / (2.0f * a);
             float t2 = (-b + discriminant) / (2.0f * a);
-    
             // Calculate the smallest positive T value
             float t = 0.0f;
             if ((0.0f > t1) && (0.0f > t2)) continue;
-    
             if ((0.0f <= t1) && (0.0f <= t2))
             {
                 t = Mathf.Min(t1, t2);
@@ -137,7 +115,6 @@ public partial struct ObstacleSpawnerSystem : ISystem
             {
                 t = t2;
             }
-    
             // See if this collision is the closest
             if (t < Param)
             {
@@ -145,13 +122,9 @@ public partial struct ObstacleSpawnerSystem : ISystem
                 {
                     float2 TestCollPoint = point + t * direction;
                     float2 CollisionDirection = TestCollPoint - prim.Position;
-    
                     float Angle = Mathf.Atan2(CollisionDirection.y, CollisionDirection.x);
-                    
-    
                     float AngleStart = prim.AngleStart;
                     float AngleEnd = prim.AngleEnd;
-    
                     if (prim.AngleEnd < prim.AngleStart)
                     {
                         AngleEnd += Mathf.PI * 2.0f;
@@ -160,7 +133,6 @@ public partial struct ObstacleSpawnerSystem : ISystem
                     {
                         Angle += Mathf.PI * 2.0f;
                     }
-    
                     if ((Angle >= AngleStart) && (Angle <= AngleEnd))
                     {
                         Param = t;
@@ -169,14 +141,12 @@ public partial struct ObstacleSpawnerSystem : ISystem
                 }
             }
         }
-    
         if (-1 == PrimIndex)
         {
             CollisionPoint = point;
             return false;
         }
-    
-        CollisionPoint = point + Param * direction;        
+        CollisionPoint = point + Param * direction;
         return true;
     }
 }
@@ -533,10 +503,8 @@ public struct ObstacleArcPrimitive : IBufferElementData
     public float AngleEnd;
     public float AngleRange;
 
-    public float ObstacleThickness;
-
-    // public float iAnglePerObstacle;
-    // public int iNumObstacles;
+    public float iAnglePerObstacle;
+    public int iNumObstacles;
 }
 
 public struct ObstacleSpawnerOld
