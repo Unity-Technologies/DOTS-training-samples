@@ -55,9 +55,9 @@ public partial struct FireJob : IJobEntity {
             
             // Look at all neighbors for flashpoint.  Watch for boundaries on grid
             bool flashpoint = false;
-            if (leftNeighborIndex >= 0 && neighoringFires[leftNeighborIndex].t > spreadVal)
+            if (index % gridSize != 0 && leftNeighborIndex >= 0 && neighoringFires[leftNeighborIndex].t > spreadVal)
                 flashpoint = true;
-            else if (rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
+            else if (rightNeighborIndex % gridSize != 0 && rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
                 flashpoint = true;
             else if (upNeighborIndex < neighoringFires.Length && neighoringFires[upNeighborIndex].t > spreadVal)
                 flashpoint = true;
