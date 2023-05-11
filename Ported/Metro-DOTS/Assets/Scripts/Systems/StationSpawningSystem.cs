@@ -138,9 +138,10 @@ public partial struct StationSpawningSystem : ISystem
         float carriadgeLength = 5;
 
         i = 0;
-        foreach (var transform in
+        foreach (var (transform, station) in
             SystemAPI.Query<RefRO<LocalTransform>>()
-            .WithAll<StationIDComponent>())
+                .WithEntityAccess()
+                .WithAll<StationIDComponent>())
         {
             var stationsQueueBuffer = em.GetBuffer<StationQueuesElement>(stations[i]);
 
@@ -154,6 +155,10 @@ public partial struct StationSpawningSystem : ISystem
                 var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
 
+                var queueComponent = em.GetComponentData<QueueComponent>(queuePoints[queuePointIndex]);
+                queueComponent.Station = station;
+                em.SetComponentData(queuePoints[queuePointIndex], queueComponent);
+
                 stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointIndex] });
             }
             i++;
@@ -163,34 +168,6 @@ public partial struct StationSpawningSystem : ISystem
             //    // make the x negative
             //}
         }
-
-        // var tracks = CollectionHelper.CreateNativeArray<Entity>(TrackPointBuffer.Length, Allocator.Temp);
-        // em.Instantiate(stationConfig.TrackEntity, tracks);
-
-        // i = 0;
-        // foreach (var transform in
-        //     SystemAPI.Query<RefRW<LocalTransform>>()
-        //     .WithAll<SleeperTag>())
-        // {
-        //     transform.ValueRW.Position = TrackPointBuffer[i].Position;
-        //     transform.ValueRW.Rotation = quaternion.RotateY(math.PI / 2);
-        //     i++;
-        // }
-
-
-        /*
-        var query = SystemAPI.QueryBuilder().WithAll<StationConfig>().Build();
-        var chunks = query.ToArchetypeChunkArray(Allocator.Temp);
-        var localTransformHandle = SystemAPI.GetComponentTypeHandle<LocalTransform>();
-        foreach (var chunk in chunks)
-        {
-            var localTransformVals = chunk.GetNativeArray(localTransformHandle);
-            for (int j = 0; j < chunk.Count; j++)
-            {
-                var v = localTransformVals[j];
-            }
-        }
-        */
 
         state.Enabled = false;
     }

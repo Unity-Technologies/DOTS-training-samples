@@ -167,7 +167,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 984b2423582a485da9405d707c74b545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumPassengersPerStation: 10
+  NumPassengersPerStation: 20
   PassengerSpeed: 2
   PassengerPrefab: {fileID: 7372287293309593553, guid: df855cd7b2133f544b6ffac4a9be7dce,
     type: 3}

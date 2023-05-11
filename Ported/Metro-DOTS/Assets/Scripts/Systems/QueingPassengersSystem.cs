@@ -52,7 +52,8 @@ public partial struct QueingPassengersSystem : ISystem
                     // if passenger has passed queue location
                     if (math.dot(passengerLocalTransform.Position - queueLocation.Position, queueDirection) > 0)
                     {
-                        state.EntityManager.SetComponentEnabled<PassengerOnboarded>(passenger, true);
+                        // state.EntityManager.SetComponentEnabled<PassengerOnboarded>(passenger, true);
+                        state.EntityManager.SetComponentEnabled<PassengerOffboarded>(passenger, true);
                         queueComponent.StartIndex = (queueComponent.StartIndex + 1) % 16;
                         queueComponent.QueueLength -= 1;
                     }

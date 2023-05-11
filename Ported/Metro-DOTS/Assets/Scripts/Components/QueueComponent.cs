@@ -6,6 +6,7 @@ public struct QueueComponent : IComponentData
 {
     public int StartIndex;
     public int QueueLength;
+    public Entity Station;
 }
 
 [InternalBufferCapacity(16)]
