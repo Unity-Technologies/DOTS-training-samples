@@ -1,5 +1,4 @@
-﻿using Components;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -32,7 +31,8 @@ namespace Metro
 
                 for (int i = 0; i < authoring.Seats.Count; i++)
                 {
-                    buffer.Add(new SeatingComponentElement() { SeatPosition = new float3(authoring.Seats[i].transform.position) });
+                    float3 localOffsetToTrainGo = authoring.gameObject.transform.position - authoring.Seats[i].transform.position;
+                    buffer.Add(new SeatingComponentElement() { SeatPosition = new float3(localOffsetToTrainGo.z, math.abs(localOffsetToTrainGo.y), localOffsetToTrainGo.x) });
                 }
             }
         }

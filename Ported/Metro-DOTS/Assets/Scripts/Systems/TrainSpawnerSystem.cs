@@ -1,5 +1,4 @@
-﻿using Components;
-using Metro;
+﻿using Metro;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -44,6 +43,8 @@ public partial struct TrainSpawnerSystem : ISystem
             var track = em.GetBuffer<TrackPoint>(trackEntity);
             train.ValueRW.TrackEntity = trackEntity;
             train.ValueRW.Offset = transform.ValueRO.Position;
+
+            train.ValueRW.TrainId = -1;
 
             // one train per track at the moment, could there be more that one train on a track?
             train.ValueRW.TrainId = trackIndex;
