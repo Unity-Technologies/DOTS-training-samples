@@ -203,7 +203,7 @@ public partial struct AntMoveSystem : ISystem
             }
             if (flip)
             {
-                ant.FacingAngle += math.PI;
+                ant.FacingAngle = math.atan2(dy, dx);
             }
             ant.Position.x += dx;
             ant.Position.y += dy;
