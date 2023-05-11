@@ -601,7 +601,7 @@ MonoBehaviour:
   GridSize: 50
   MinGridY: -2
   GridCellSize: 1
-  NumOmnibot: 6
+  NumOmnibot: 4
   NumTeams: 1
   NumTeambotPassTowardsWater: 6
   NumTeambotPassTowardsFire: 6
@@ -615,6 +615,7 @@ MonoBehaviour:
   FireGrowthRate: 0.2
   StartingGridColor: {r: 0.32133323, g: 0.7830189, b: 0.44297495, a: 1}
   FullBurningGridColor: {r: 0.7264151, g: 0, b: 0, a: 1}
+  RadiusClickFire: 2.05
   BotPrefab: {fileID: 1821148559735918, guid: cf7dff3f497d07a40a18ca0848db91e7, type: 3}
   FirePrefab: {fileID: 6831108980965835434, guid: f0fb49b1979a6c94bacfa853a03a2045,
     type: 3}

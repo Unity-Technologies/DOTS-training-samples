@@ -12,14 +12,16 @@ public partial struct FireSystem : ISystem {
     [BurstCompile]
     public void OnCreate(ref SystemState state) {
         state.RequireForUpdate<Fire>();
+        state.RequireForUpdate<MouseHit>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state) {
         var config = SystemAPI.GetSingleton<Grid>();
         var targetQuery = SystemAPI.QueryBuilder().WithAll<Fire>().Build();
+        var hit = SystemAPI.GetSingleton<MouseHit>();
 
-        var job = new FireJob {
+        var mainFireJob = new FireJob {
             neighoringFires = targetQuery.ToComponentDataArray<Fire>(state.WorldUpdateAllocator),
             rate = SystemAPI.Time.DeltaTime * config.FireGrowthRate,
             spreadVal = config.FireSpreadValue,
@@ -28,7 +30,29 @@ public partial struct FireSystem : ISystem {
             elapsedTime = (float)SystemAPI.Time.ElapsedTime,
             gridSize =  config.GridSize
         };
-        state.Dependency = job.ScheduleParallel(state.Dependency);
+        state.Dependency = mainFireJob.ScheduleParallel(state.Dependency);
+
+        if (hit.ChangedThisFrame) {
+            var jobAddFire = new AddFireJob {
+                SqRadius = config.RadiusClickFire * config.RadiusClickFire,
+                Hit = hit.Value,
+            };
+
+            state.Dependency = jobAddFire.ScheduleParallel(state.Dependency);
+        }
+
+    }
+}
+[WithAll(typeof(Fire))]
+[BurstCompile]
+partial struct AddFireJob : IJobEntity {
+    public float SqRadius;
+    public float3 Hit;
+
+    void Execute(ref Fire fire, ref LocalTransform transform) {
+        if (math.distancesq(transform.Position, Hit) <= SqRadius) {
+            fire.t = 0.5f;
+        }
     }
 }
 
@@ -55,9 +79,9 @@ public partial struct FireJob : IJobEntity {
             
             // Look at all neighbors for flashpoint.  Watch for boundaries on grid
             bool flashpoint = false;
-            if (leftNeighborIndex >= 0 && neighoringFires[leftNeighborIndex].t > spreadVal)
+            if (index % gridSize != 0 && leftNeighborIndex >= 0 && neighoringFires[leftNeighborIndex].t > spreadVal)
                 flashpoint = true;
-            else if (rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
+            else if (rightNeighborIndex % gridSize != 0 && rightNeighborIndex < neighoringFires.Length && neighoringFires[rightNeighborIndex].t > spreadVal)
                 flashpoint = true;
             else if (upNeighborIndex < neighoringFires.Length && neighoringFires[upNeighborIndex].t > spreadVal)
                 flashpoint = true;

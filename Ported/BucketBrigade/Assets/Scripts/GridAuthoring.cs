@@ -28,6 +28,7 @@ public class GridAuthoring : MonoBehaviour
     public float FireGrowthRate;
     public Color StartingGridColor;
     public Color FullBurningGridColor;
+    public float RadiusClickFire;
 
     [Header("Prefabs")]
     public GameObject BotPrefab;
@@ -64,6 +65,10 @@ public class GridAuthoring : MonoBehaviour
                 FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g,
                     authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
 
+                RadiusClickFire = authoring.RadiusClickFire,
+                StartingGridColor = new float4(authoring.StartingGridColor.r, authoring.StartingGridColor.g, authoring.StartingGridColor.b, authoring.StartingGridColor.a),
+                FullBurningGridColor = new float4(authoring.FullBurningGridColor.r, authoring.FullBurningGridColor.g, authoring.FullBurningGridColor.b, authoring.FullBurningGridColor.a),
+                
                 // Teambot
                 TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
                 NumTeams = authoring.NumTeams,
@@ -76,6 +81,7 @@ public class GridAuthoring : MonoBehaviour
                 // TeambotWaterFillElapsedTime = authoring.TeambotWaterFillElapsedTime,
                 TeambotWaterGatherSpeed = authoring.TeambotWaterGatherSpeed,
             });
+            AddComponent<MouseHit>(entity);
         }
     }
 }
@@ -96,6 +102,7 @@ public struct Grid : IComponentData
     public int NumOmnibot;
     public float FireSpreadValue;
     public float FireGrowthRate;
+    public float RadiusClickFire;
     public float4 StartingGridColor;
     public float4 FullBurningGridColor;
 
@@ -108,6 +115,12 @@ public struct Grid : IComponentData
     public float TeambotDouseRadius;
     public float TeambotMaxDouseAmount;
     public float TeambotWaterFillDuration;
-    // public float TeambotWaterFillElapsedTime;
     public float TeambotWaterGatherSpeed;
+}
+
+// For mouse hit
+public struct MouseHit : IComponentData {
+    public float3 Value;
+    public bool ChangedThisFrame;
+
 }
