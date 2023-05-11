@@ -4,6 +4,7 @@ using Unity.Mathematics;
 
 public struct QueueComponent : IComponentData
 {
+    public int LineID;
     public bool OnPlatformA;
     public int StartIndex;
     public int QueueLength;

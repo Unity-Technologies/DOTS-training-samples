@@ -43,6 +43,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
                 state.EntityManager.SetComponentEnabled<PassengerOffboarded>(passenger, false);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, true);
                 travelInfo.ValueRW.Queue = queue;
+                travelInfo.ValueRW.OnPlatformA = queueInfo.OnPlatformA;
             }
 
         }

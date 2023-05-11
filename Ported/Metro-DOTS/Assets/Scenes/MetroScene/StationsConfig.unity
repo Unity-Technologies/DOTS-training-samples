@@ -158,7 +158,7 @@ MonoBehaviour:
     type: 3}
   QueuePrefab: {fileID: 1572788466017150334, guid: 1a8ed6d9df0cb0a49894ac6247bfe3de,
     type: 3}
-  NumStations: 10
+  NumStations: 7
   Spacing: 50
   TrackACenter:
     x: 10
@@ -169,7 +169,7 @@ MonoBehaviour:
     y: -2
     z: -8.24
   StationWidth: 32
-  NumLines: 5
+  NumLines: 10
   LineSpacing: 24
   NumCarriadges: 5
   SpawnPointOffsetFromCenterPoint:

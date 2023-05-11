@@ -49,7 +49,12 @@ public partial struct PassengerSpawningSystem : ISystem
 
                 var passenger = passengers[queueId * passengersPerQueue + j];
                 em.SetComponentData<LocalTransform>(passenger, lc);
-                em.SetComponentData<PassengerTravel>(passenger, new PassengerTravel { Station = queueComp.ValueRW.Station });
+                em.SetComponentData<PassengerTravel>(passenger, new PassengerTravel
+                {
+                    LineID = queueComp.ValueRO.LineID,
+                    Station = queueComp.ValueRW.Station,
+                    OnPlatformA = queueComp.ValueRW.OnPlatformA
+                });
             }
             queueId++;
         }

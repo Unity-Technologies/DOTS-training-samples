@@ -65,6 +65,7 @@ public partial struct TrainSpawnerSystem : ISystem
             train.ValueRW.TrackPointIndex = trackPointIndex;
             train.ValueRW.StationEntity = trackPoint.Station;
             train.ValueRW.OnPlatformA = em.GetComponentData<Track>(trackEntity).OnPlatformA;
+            train.ValueRW.LineID = em.GetComponentData<Track>(trackEntity).LineID;
             train.ValueRW.Forward = forward;
 
             em.SetComponentEnabled<EnRouteComponent>(entity, !startStopped);
