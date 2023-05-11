@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(EmptyAndFillSystemGroup))]
-[UpdateBefore(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BucketEmptyingSystem : ISystem
 {

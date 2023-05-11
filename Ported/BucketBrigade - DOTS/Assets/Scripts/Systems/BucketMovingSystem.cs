@@ -27,8 +27,6 @@ public partial struct BucketMovingSystem : ISystem
     private EntityQuery backBotsQ;
     private EntityQuery botsQ;
 
-    private ComponentLookup<FullTag> fullBuckets;
-    
     //This is to find the bot and bucket, which are the closest to each other 
     Entity closestBotE;
     LocalTransform closestBotETransform;
@@ -55,12 +53,7 @@ public partial struct BucketMovingSystem : ISystem
         isFull = false;
         teamBuckets = new NativeArray<Entity>(10, Allocator.Persistent);
         teamBucketTransforms = new NativeArray<LocalTransform>(10, Allocator.Persistent);
-        
-        
-        
-        //Needed ComponentLookups
-        fullBuckets = SystemAPI.GetComponentLookup<FullTag>();
-        
+
         teamList = new NativeList<Team>(numTeams, Allocator.Persistent);
         hasCreatedTeamList = false;
         
@@ -167,10 +160,6 @@ public partial struct BucketMovingSystem : ISystem
                 } 
                 
             }
-
-
-           //Update changed lookups 
-           fullBuckets.Update(ref state);
            
            
             //For the bots without a bucket we should find our closest free team bucket

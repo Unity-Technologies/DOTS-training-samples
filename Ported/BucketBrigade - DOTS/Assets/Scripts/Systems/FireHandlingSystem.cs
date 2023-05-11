@@ -11,7 +11,6 @@ using UnityEngine;
 
 [BurstCompile]
 [UpdateAfter(typeof(InitializeChainIndecies))]
-[UpdateAfter(typeof(GridTilesSpawningSystem))]
 [UpdateAfter(typeof(QuadrantSystem))]
 public partial struct FireHandlingSystem : ISystem
 {
@@ -32,24 +31,29 @@ public partial struct FireHandlingSystem : ISystem
         if (fireSimUpdateRateCounter >= config.fireSimUpdateRate) fireSimUpdateRateCounter = 0; 
         fireSimUpdateRateCounter += SystemAPI.Time.DeltaTime;
 
-        
-        //For the regular fire propagation job
-        /*var firePropagationJob = new FirePropagationJob
+        var firePropagationJob = new JobHandle();
+        if (config.rows > 200)
         {
-            fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
-            config = config,
-            shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate
-        }.ScheduleParallel(state.Dependency);
-        */
-        
-        //For the hash map fire propagation job
-        var quadrants = QuadrantSystem.quadrantMultiHashMap;
-        var firePropagationJob = new FirePropagationQuadrantSystemJob
+            //For the hash map fire propagation job
+            var quadrants = SystemAPI.GetSingleton<QuadrantSingleton>().quadrantMultiHashMap;
+             firePropagationJob = new FirePropagationQuadrantSystemJob
+            {
+                config = config,
+                shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate,
+                quadrantMultiHashMap = quadrants
+            }.ScheduleParallel(tileQuery, state.Dependency);
+        }
+        else
         {
-            config = config,
-            shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate,
-            quadrantMultiHashMap = quadrants
-        }.ScheduleParallel(tileQuery, state.Dependency);
+            //For the regular fire propagation job
+            firePropagationJob = new FirePropagationJob
+            {
+                fireTiles = fireQuery.ToComponentDataArray<Tile>(Allocator.TempJob),
+                config = config,
+                shouldUpdate = fireSimUpdateRateCounter >= config.fireSimUpdateRate
+            }.ScheduleParallel(state.Dependency); 
+        }
+  
         
         
         // Create and schedule a Job that tests if the GroundTiles should be on fire

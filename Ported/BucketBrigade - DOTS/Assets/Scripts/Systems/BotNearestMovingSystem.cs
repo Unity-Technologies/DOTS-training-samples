@@ -8,7 +8,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(MovementSystemGroup))]
-[UpdateAfter(typeof(FireHandlingSystem))]
 [BurstCompile]
 public partial struct BotNearestMovementSystem : ISystem
 {

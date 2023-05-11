@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -10,8 +11,16 @@ using UnityEngine;
 public struct QuadrantData
 {
     public Tile tile;
+    public float3 position;
 }
 
+public struct QuadrantSingleton : IComponentData
+{
+    public NativeParallelMultiHashMap<int, QuadrantData> quadrantMultiHashMap;
+}
+
+
+//[DisableAutoCreation]
 public partial struct QuadrantSystem : ISystem
 {
 
@@ -25,10 +34,10 @@ public partial struct QuadrantSystem : ISystem
         return (int)(math.floor(position.x / radius) + (zMult * math.floor(position.z / radius)));
     }
 
-    private void DebugDrawQuadrant(float3 position)
+    public static void DebugDrawQuadrant(float3 position)
     {
         Vector3 lowerLeft = new Vector3(math.floor(position.x / radius) * radius,
-            0,math.floor(position.x / radius) * radius);
+            +0,math.floor(position.z / radius) * radius);
         Debug.DrawLine(lowerLeft,lowerLeft+new Vector3(+1,+0,+0)*radius);
         Debug.DrawLine(lowerLeft,lowerLeft+new Vector3(+0,+0,+1)*radius);
         Debug.DrawLine(lowerLeft+new Vector3(+1,+0,+0)*radius,lowerLeft+new Vector3(+1,+0,+1)*radius);
@@ -57,10 +66,12 @@ public partial struct QuadrantSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-       zMult = 1000;
+       zMult = 100;
        
-        
-       quadrantMultiHashMap = new NativeParallelMultiHashMap<int, QuadrantData>(0,Allocator.Persistent);
+
+       state.EntityManager.AddComponentData(state.SystemHandle, new QuadrantSingleton{
+           quadrantMultiHashMap = new NativeParallelMultiHashMap<int, QuadrantData>(0,Allocator.Persistent)
+       });
     }
 
     public void OnDestroy(ref SystemState state)
@@ -70,13 +81,16 @@ public partial struct QuadrantSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+
+        quadrantMultiHashMap = SystemAPI.GetComponentRW<QuadrantSingleton>(state.SystemHandle).ValueRW
+            .quadrantMultiHashMap;
         
         var config = SystemAPI.GetSingleton<Config>();
-        radius = config.heatRadius * config.cellSize;
+        radius = config.heatRadius*config.cellSize*2;
         
         EntityQuery tileEntities = SystemAPI.QueryBuilder().WithAll<Tile,OnFire>().Build();
 
-        quadrantMultiHashMap.Clear();
+        quadrantMultiHashMap.Clear();   
         if (tileEntities.CalculateEntityCount() > quadrantMultiHashMap.Capacity)
         {
             quadrantMultiHashMap.Capacity = tileEntities.CalculateEntityCount();
@@ -89,7 +103,17 @@ public partial struct QuadrantSystem : ISystem
 
         JobHandle jobHandle =  setQuadrantHashMapJob.ScheduleParallel(tileEntities,state.Dependency);
         jobHandle.Complete();
-
+        
+        
+        /*using (var enumerator = quadrantMultiHashMap.GetEnumerator())
+        {
+            while (enumerator.MoveNext())
+            {
+                KeyValue<int, QuadrantData> kvp = enumerator.Current;
+                DebugDrawQuadrant(kvp.Value.position);
+            }
+        }
+        */
     }
     
     public partial struct SetQuadrantHashMapJob : IJobEntity
@@ -102,7 +126,8 @@ public partial struct QuadrantSystem : ISystem
             
             quadrantMultiHashMap.Add(key,new QuadrantData
             {
-                tile = tile
+                tile = tile,
+                position = localTransform.Position
             });
         }
     }

@@ -7,10 +7,7 @@ using UnityEngine;
 
 namespace Systems
 {
-    [UpdateAfter(typeof(BotSpawningSystem))]
-    [UpdateAfter(typeof(GridTilesSpawningSystem))]
-    [UpdateAfter(typeof(WaterSpawningSystem))]
-    [UpdateAfter(typeof(BucketSpawningSystem))]
+    [UpdateAfter(typeof(SpawnSystemGroup))]
     [BurstCompile]
     public partial struct InitializeChainIndecies : ISystem
     {

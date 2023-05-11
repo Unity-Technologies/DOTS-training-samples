@@ -4,10 +4,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Unity.Burst;
 
+[UpdateAfter(typeof(SpawnSystemGroup))]
 [UpdateInGroup(typeof(OmniworkerSystemGroup))]
-[UpdateAfter(typeof(BotSpawningSystem))]
-[UpdateAfter(typeof(WaterSpawningSystem))]
-[UpdateAfter(typeof(GridTilesSpawningSystem))]
 [BurstCompile]
 public partial struct OmniworkerBucketSystem : ISystem
 {
