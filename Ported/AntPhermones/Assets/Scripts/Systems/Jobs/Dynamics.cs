@@ -9,17 +9,28 @@ using UnityEngine;
 public partial struct DynamicsJob : IJobEntity
 {
     public float mapSize;
+    public float antAcceleration;
+    public float antTargetSpeed;
     
     [BurstCompile]
     public void Execute(
         ref Position position, 
         ref Direction direction, 
-        in Speed speed,
+        ref Speed speed,
         ref LocalTransform localTransform,
         in Ant ant)
     {
         // Factor in the steering values
         direction.direction += ant.wallSteering + ant.pheroSteering;
+        
+        // Manage speed
+        // Slower when steering
+        var steeringInRad = (ant.wallSteering + ant.pheroSteering) / 180f * math.PI;
+        var oldSpeed = speed.speed;
+        var targetSpeed = antTargetSpeed;
+        targetSpeed *= 1f - Mathf.Abs(steeringInRad) / 3f;
+        speed.speed += (targetSpeed - oldSpeed) * antAcceleration;
+
         var directionRad = direction.direction / 180f * math.PI;
         localTransform.Rotation = quaternion.Euler(0, 0, directionRad);
 

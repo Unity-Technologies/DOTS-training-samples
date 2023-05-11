@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   colony:
     antTargetSpeed: 0.1
-    antAccel: 0
+    antAccel: 0.007
     antCount: 1000
     antScale: 1
     pheromoneGrowthRate: 3
