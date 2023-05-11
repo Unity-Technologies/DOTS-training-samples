@@ -1,4 +1,4 @@
-﻿using Components;
+﻿using Metro;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -14,6 +14,7 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new Train()
                 {
+                    OnPlatformA = false,
                     TrackPointIndex = 1,
                     Forward = true,
                     Offset = new float3(0, 0, 0),

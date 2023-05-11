@@ -1,5 +1,4 @@
-﻿using Components;
-using Metro;
+﻿using Metro;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -53,6 +52,7 @@ public partial struct TrainSpawnerSystem : ISystem
                     transform.ValueRW.Position = trackPoint.Position;
                     train.ValueRW.TrackPointIndex = i;
                     train.ValueRW.StationEntity = trackPoint.Station;
+                    train.ValueRW.OnPlatformA = em.GetComponentData<Track>(trackEntity).OnPlatformA;
 
                     bool isStation = trackPoint.IsStation;
                     em.SetComponentEnabled<EnRouteComponent>(entity, !isStation);
