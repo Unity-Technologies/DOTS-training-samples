@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf6602f380a38db46b87b8d5c396fffe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnCount: 1000
+  SpawnCount: 10000
   AntSpawnRange: 4
   Prefab: {fileID: 878424242580656261, guid: 3994a36587f4a2e4fb65ffcc6541e816, type: 3}
 --- !u!4 &383944082
@@ -301,17 +301,20 @@ MonoBehaviour:
   MapSizeY: 128
   FoodBufferSize: 20
   FoodRadius: 5
-  AntRandomSteering: 0.14
-  AntSpeed: 2
+  AntRandomSteering: 0.02
+  AntSpeed: 0.2
   AntAccel: 0.07
-  AntGoalSteerStrength: 0.04
-  TrailAddSpeed: 0.1
-  TrailDecay: 0.0025
-  RegularExcitement: 0.3
+  AntGoalSteerStrength: 0.065
+  TrailAddSpeed: 0.3
+  TrailDecay: 0.004
+  RegularExcitement: 0.2
   TrailExcitement: 1
   ExitedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   RegularColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
-  PheromoneSteerStrength: 0.02
+  PheromoneSteerStrength: 0.03
+  AntSightDistance: 5
+  WallSteerStrength: 0.12
+  WallThickness: 0.01
 --- !u!4 &1130009605
 Transform:
   m_ObjectHideFlags: 0

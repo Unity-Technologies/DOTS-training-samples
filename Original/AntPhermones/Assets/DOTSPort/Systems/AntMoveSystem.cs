@@ -6,6 +6,7 @@ using Unity.Transforms;
 using Unity.Rendering;
 using Unity.Profiling;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial struct AntMoveSystem : ISystem
 {
     static readonly ProfilerMarker k_AntsMoveJob_Execute = new ProfilerMarker("AntsMoveJob: Execute");
@@ -128,7 +129,7 @@ public partial struct AntMoveSystem : ISystem
            
            // random walk
            
-            ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering) * DeltaTime * 4;
+            ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering) * 4; //DeltaTime
 
             float pheroSteering = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
             int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ant, GlobalSettings.AntSightDistance / mapSize, mapSize, GlobalSettings.WallThickness);
@@ -136,7 +137,7 @@ public partial struct AntMoveSystem : ISystem
             ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
 
             float targetSpeed = antSpeed;
-            targetSpeed *= 1f /*- (Mathf.Abs(pheroSteering) + Mathf.Abs(wallSteering)) / 3f*/;
+            targetSpeed *= 1f;// - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
 
             ant.Speed += (targetSpeed - ant.Speed) * antAccel;
 
@@ -179,13 +180,13 @@ public partial struct AntMoveSystem : ISystem
                 //Debug.DrawLine(ant.position/mapSize,targetPos/mapSize,color);
             }
 
-            float vx = math.cos(ant.FacingAngle) * ant.Speed;
-            float vy = math.sin(ant.FacingAngle) * ant.Speed;
+            float vx = math.cos(ant.FacingAngle) * ant.Speed;// * DeltaTime;
+            float vy = math.sin(ant.FacingAngle) * ant.Speed;// * DeltaTime;
             float ovx = vx;
             float ovy = vy;
 
-            float dx = vx * DeltaTime;
-            float dy = vy * DeltaTime;
+            float dx = vx;// * DeltaTime;
+            float dy = vy;// * DeltaTime;
 
             // reverse on map edges
             bool flip = false;
@@ -193,13 +194,13 @@ public partial struct AntMoveSystem : ISystem
             {
                 flip = true;
                 vx = -vx;
-                dx = vx * DeltaTime;
+                dx = vx;// * DeltaTime;
             }
             if (ant.Position.y + dy < 0 || ant.Position.y + dy > mapSizeY)
             {
                 flip = true;
                 vy = -vy;
-                dy = vy * DeltaTime;
+                dy = vy;// * DeltaTime;
             }
             if (flip)
             {

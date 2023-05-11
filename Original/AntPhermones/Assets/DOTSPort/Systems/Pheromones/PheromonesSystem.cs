@@ -27,7 +27,7 @@ public partial struct PheromonesSystem : ISystem
             Pheromones = pheromoneBufferElement,
             DeltaTime = SystemAPI.Time.DeltaTime,
         };
-        
+
         state.Dependency = pheromoneDropJob.ScheduleParallel(state.Dependency);
         state.Dependency.Complete(); // works like await
 
@@ -69,9 +69,11 @@ public partial struct PheromonesSystem : ISystem
         void Execute(ref AntData ant, ref LocalTransform localTransform)
         {
             float excitement = GlobalSettings.RegularExcitement;
+            float maxPheromones = 0.5f;
             if (ant.HoldingResource) 
             {
                 excitement = GlobalSettings.TrailExcitement;
+                maxPheromones = 1;
             }
             excitement *= ant.Speed / GlobalSettings.AntSpeed;
             int x = (int)math.floor(localTransform.Position.x);
@@ -82,10 +84,13 @@ public partial struct PheromonesSystem : ISystem
             
             int index = PheromoneIndex(x , y, GlobalSettings.MapSizeX);
 
-            Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
-            if (Pheromones[index] > 1f)
+            if (Pheromones[index] < maxPheromones)
             {
-                Pheromones[index] = 1;
+                Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
+                if (Pheromones[index] > 1f)
+                {
+                    Pheromones[index] = 1;
+                }
             }
         }
     }

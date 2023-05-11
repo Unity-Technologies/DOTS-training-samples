@@ -21,6 +21,9 @@ public class GlobalSettingsAuthority : MonoBehaviour
     public Color ExitedColor = Color.yellow;
     public Color RegularColor = Color.white;
     public float PheromoneSteerStrength = 1f;
+    public float AntSightDistance = 5f;
+    public float WallSteerStrength = 0.15f;
+    public float WallThickness = 0.01f;
 
     class Baker : Baker<GlobalSettingsAuthority>
     {
@@ -44,9 +47,9 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 ExitedColor = authoring.ExitedColor,
                 RegularColor = authoring.RegularColor,
                 PheromoneSteerStrength = authoring.PheromoneSteerStrength,
-                WallThickness = 0.01f,
-                AntSightDistance = 5.0f,
-                WallSteerStrength = 0.15f
+                WallThickness =authoring.WallThickness,
+                AntSightDistance = authoring.AntSightDistance,
+                WallSteerStrength = authoring.WallSteerStrength
             });
         }
     }
