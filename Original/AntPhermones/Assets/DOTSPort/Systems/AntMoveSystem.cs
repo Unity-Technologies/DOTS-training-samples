@@ -15,7 +15,7 @@ public partial struct AntMoveSystem : ISystem
         state.RequireForUpdate<FoodData>();
         state.RequireForUpdate<GlobalSettings>();
         state.RequireForUpdate<PheromoneBufferElement>();
-        // state.RequireForUpdate<ObstacleArcPrimitive>();
+        state.RequireForUpdate<ObstacleArcPrimitive>();
     }
     public void OnDestroy(ref SystemState state)
     {
@@ -140,7 +140,10 @@ public partial struct AntMoveSystem : ISystem
                 targetRadius = food.Radius;
             }
             // TODO: linecast to target to see if the ant sees it
-            if (true)
+            float2 collisionPoint = float2.zero;
+            float param = 0;
+            float2 targetVector = targetPos - ant.Item1.ValueRW.Position;
+            if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, ant.Item1.ValueRW.Position, targetVector, out collisionPoint, out param))
             {
                 float targetAngle = math.atan2(
                     targetPos.y - ant.Item1.ValueRW.Position.y, 
@@ -158,7 +161,6 @@ public partial struct AntMoveSystem : ISystem
                     if (math.abs(targetAngle - ant.Item1.ValueRW.FacingAngle) < math.PI * .5f)
                     {
                         ant.Item1.ValueRW.FacingAngle += (targetAngle - ant.Item1.ValueRW.FacingAngle) * goalSteerStrength;
-                        //ant.Item1.ValueRW.FacingAngle = targetAngle;
                     }
                 }
                 //Debug.DrawLine(ant.position/mapSize,targetPos/mapSize,color);
