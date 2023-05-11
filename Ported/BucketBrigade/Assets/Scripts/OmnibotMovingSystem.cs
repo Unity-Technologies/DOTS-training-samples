@@ -157,16 +157,13 @@ public partial struct OmnibotMovingSystem : ISystem
                             firePos.y = 0;
 
                             var distance = math.distance(firePos, omnibotPosition);
-                            Debug.Log($"distance = {distance}   :  {omnibot.ValueRO.DouseRadius}");
                             if (distance < omnibot.ValueRO.DouseRadius)
                             {
-                                Debug.Log($"Dousing {fire}");
                                 var douseAmount = omnibot.ValueRO.MaxDouseAmount *
                                                   (1 - distance / omnibot.ValueRO.DouseRadius);
                                 fire.ValueRW.t -= douseAmount;
                                 if (fire.ValueRO.t < 0)
-                                {
-                                    Debug.Log("Max Douse Reached");
+                                { 
                                     fire.ValueRW.t = 0;
                                 }
                             }

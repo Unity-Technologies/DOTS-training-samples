@@ -16,8 +16,8 @@ public class OmnibotAuthoring : MonoBehaviour
                 TravelSpeed = 5f,
                 WaterGatherSpeed = .1f,
                 MaxWaterCapacity = .3f,
-                MaxDouseAmount = 2f,
-                DouseRadius = 5
+                MaxDouseAmount = 1.5f,
+                DouseRadius = 6
             });
             
         }
