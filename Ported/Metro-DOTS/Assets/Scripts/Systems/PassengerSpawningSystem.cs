@@ -6,7 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateAfter(typeof(StationSpawningSystem))]
-public partial struct PassengerSystem : ISystem
+public partial struct PassengerSpawningSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
@@ -20,37 +20,43 @@ public partial struct PassengerSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
+        var em = state.EntityManager;
         // Passenger spawn
         var config = SystemAPI.GetSingleton<Config>();
-
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 
         var passengers = CollectionHelper.CreateNativeArray<Entity>(config.NumPassengersPerStation * stationConfig.NumStations * stationConfig.NumLines, Allocator.Temp);
-        ecb.Instantiate(config.PassengerEntity, passengers);
-
+        em.Instantiate(config.PassengerEntity, passengers);
 
         int passengersPerQueue = config.NumPassengersPerStation / stationConfig.NumQueingPoints;
         float distanceBetweenPassenger = 1;
-        
+
         int queueId = 0;
-        foreach (var transform in
+        foreach (var (transform, queueEntity) in
                  SystemAPI.Query<RefRO<LocalTransform>>()
-                     .WithAll<QueueComponent>())
+                     .WithAll<QueueComponent>()
+                     .WithEntityAccess())
         {
+            var queuePassengersBuffer = state.EntityManager.GetBuffer<QueuePassengers>(queueEntity);
+            var queueComp = state.EntityManager.GetComponentData<QueueComponent>(queueEntity);
+            queueComp.StartIndex = 0;
+            
             for (int j = 0; j < passengersPerQueue; j++)
             {
                 LocalTransform lc = new LocalTransform();
                 lc = transform.ValueRO;
                 lc.Position += new float3(0, 0, distanceBetweenPassenger * j);
+                
+                queuePassengersBuffer.ElementAt(queueComp.StartIndex + queueComp.QueueLength).Passenger = passengers[queueId * passengersPerQueue + j];
+                queueComp.QueueLength++;
 
-                ecb.SetComponent<LocalTransform>(passengers[queueId * passengersPerQueue + j], lc);
+                em.SetComponentData<LocalTransform>(passengers[queueId * passengersPerQueue + j], lc);
             }
+            em.SetComponentData<QueueComponent>(queueEntity, queueComp);
             queueId++;
         }
-        
+
         state.Enabled = false;
 
         // i = 0;

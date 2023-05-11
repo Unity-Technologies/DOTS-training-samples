@@ -9,6 +9,7 @@ namespace Metro
     public class ConfigAuthoring : MonoBehaviour
     {
         public int NumPassengersPerStation = 100;
+        public float PassengerSpeed = 2f; // unit per second
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
@@ -25,6 +26,7 @@ namespace Metro
                 AddComponent(entity, new Config
                 {
                     NumPassengersPerStation = authoring.NumPassengersPerStation,
+                    PassengerSpeed = authoring.PassengerSpeed,
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed,
@@ -42,6 +44,7 @@ namespace Metro
     {
         public Entity PassengerEntity;
         public int NumPassengersPerStation;
+        public float PassengerSpeed; // unit per second
         public Entity TrainEntity;
         public float MaxTrainSpeed;
         public float MinTrainSpeed;

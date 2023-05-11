@@ -70,14 +70,17 @@ public partial struct StationSpawningSystem : ISystem
         var random = Random.CreateFromIndex(12314);
         int i = 0;
         int lineIndex = 0;
+		int stationIdCount = 0;
         float accumulatedValue = 0;
         var halfStationLength = 20;
         float3 trackPointOffsetFromCenter = new float3(halfStationLength, 0, 0);
-        foreach (var (transform, stationEntity) in
-            SystemAPI.Query<RefRW<LocalTransform>>()
-            .WithAll<StationIDComponent>()
+        foreach (var (transform, stationID, stationEntity) in
+            SystemAPI.Query<RefRW<LocalTransform>, RefRW<StationID>>()
             .WithEntityAccess())
         {
+			stationID.ValueRW.StationID = stationIdCount;
+            stationIdCount++;
+		
             var randomVal = random.NextFloat();
             var trackEntityA = trackEntities[lineIndex * 2];
             var trackEntityB = trackEntities[lineIndex * 2 + 1];
@@ -148,7 +151,7 @@ public partial struct StationSpawningSystem : ISystem
         int numQueuePoints = stationConfig.NumStations * stationConfig.NumLines * (stationConfig.NumQueingPoints /** 2*/);
         var queuePoints = CollectionHelper.CreateNativeArray<Entity>(numQueuePoints, Allocator.Temp);
 
-        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform));
+        EntityArchetype queueArchetype = em.CreateArchetype(typeof(QueueComponent), typeof(LocalTransform), typeof(QueuePassengers));
 #if UNITY_EDITOR
         // todo: make naming work
         for (var k = 0; k < queuePoints.Length; k++)
@@ -158,6 +161,22 @@ public partial struct StationSpawningSystem : ISystem
 #endif
         em.CreateEntity(queueArchetype, queuePoints);
 
+		for (int j = 0; j < queuePoints.Length; j++)
+        {
+            // Todo is there a better way to initialize 16 elemtns into a buffer?
+            var buffer = em.GetBuffer<QueuePassengers>(queuePoints[j]);
+            for (int k = 0; k < 16; k++)
+            {
+                buffer.Add(new QueuePassengers());
+            }
+
+            // init QueueComponent
+            em.SetComponentData<QueueComponent>(queuePoints[j], new QueueComponent
+            {
+                StartIndex = -1,
+                QueueLength = 0
+            });
+        }
         float carriadgeLength = 5;
 
         i = 0;
@@ -165,14 +184,18 @@ public partial struct StationSpawningSystem : ISystem
             SystemAPI.Query<RefRO<LocalTransform>>()
             .WithAll<StationIDComponent>())
         {
+			var stationsQueueBuffer = em.GetBuffer<StationQueuesElement>(stations[i]);
             for (int k = 0; k < stationConfig.NumQueingPoints; k++)
             {
                 LocalTransform lc = new LocalTransform();
                 float totalQueuePointsSpan = (carriadgeLength * (stationConfig.NumQueingPoints - 1)) / 2;
                 lc.Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint + transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) + new float3(k * carriadgeLength, 0, 0);
                 lc.Scale = 1;
+				lc.Rotation = quaternion.RotateY(math.PI);
                 var queuePointIndex = (i * stationConfig.NumQueingPoints) + k;
                 em.SetComponentData<LocalTransform>(queuePoints[queuePointIndex], lc);
+				
+				stationsQueueBuffer.Add(new StationQueuesElement { Queue = queuePoints[queuePointIndex] });
             }
 
             i++;
