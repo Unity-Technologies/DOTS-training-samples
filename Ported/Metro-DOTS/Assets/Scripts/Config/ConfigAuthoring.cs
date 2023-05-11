@@ -1,8 +1,5 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
-using System.Collections.Generic;
-using UnityEngine.Serialization;
 
 namespace Metro
 {
@@ -10,6 +7,8 @@ namespace Metro
     {
         public int NumPassengersPerStation = 100;
         public float PassengerSpeed = 2f; // unit per second
+        public int MaxPassengerPerQueue = 16;
+        public float DistanceBetweenPassengers = 0.4f;
         public GameObject PassengerPrefab;
         public GameObject TrainPrefab;
         public float MaxTrainSpeed = 5f;
@@ -25,8 +24,10 @@ namespace Metro
                 var entity = GetEntity(TransformUsageFlags.None);
                 AddComponent(entity, new Config
                 {
-                    NumPassengersPerStation = authoring.NumPassengersPerStation,
+                    NumPassengersPerPlatform = authoring.NumPassengersPerStation,
                     PassengerSpeed = authoring.PassengerSpeed,
+                    MaxPassengerPerQueue = authoring.MaxPassengerPerQueue,
+                    DistanceBetweenPassengers = authoring.DistanceBetweenPassengers,
                     PassengerEntity = GetEntity(authoring.PassengerPrefab, TransformUsageFlags.Dynamic),
                     TrainEntity = GetEntity(authoring.TrainPrefab, TransformUsageFlags.Dynamic),
                     MaxTrainSpeed = authoring.MaxTrainSpeed,
@@ -43,7 +44,9 @@ namespace Metro
     public struct Config : IComponentData
     {
         public Entity PassengerEntity;
-        public int NumPassengersPerStation;
+        public int NumPassengersPerPlatform;
+        public int MaxPassengerPerQueue;
+        public float DistanceBetweenPassengers;
         public float PassengerSpeed; // unit per second
         public Entity TrainEntity;
         public float MaxTrainSpeed;

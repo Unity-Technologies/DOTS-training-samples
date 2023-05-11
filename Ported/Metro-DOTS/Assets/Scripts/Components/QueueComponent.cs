@@ -4,8 +4,10 @@ using Unity.Mathematics;
 
 public struct QueueComponent : IComponentData
 {
+    public bool OnPlatformA;
     public int StartIndex;
     public int QueueLength;
+    public Entity Station;
 }
 
 [InternalBufferCapacity(16)]
