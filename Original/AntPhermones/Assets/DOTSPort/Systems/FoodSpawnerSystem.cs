@@ -13,6 +13,10 @@ public partial struct FoodSpawnerSystem : ISystem
         state.RequireForUpdate<GlobalSettings>();
     }
 
+    public void OnDestroy(ref SystemState state)
+    {
+    }
+
     public void OnUpdate(ref SystemState state)
     {
         state.Enabled = false;
@@ -30,7 +34,7 @@ public partial struct FoodSpawnerSystem : ISystem
             for (uint i = 0; i < spawner.Item1.ValueRO.Count; i++)
             {
                 var rand = Unity.Mathematics.Random.CreateFromIndex(i);
-                rand.InitState((uint)(SystemAPI.Time.ElapsedTime * 1000000f));
+                // rand.InitState((uint)(SystemAPI.Time.ElapsedTime * 1000000f));
                 var entity = ecb.Instantiate(spawner.Item1.ValueRO.Prefab);
 
                 float xPos = 0;
