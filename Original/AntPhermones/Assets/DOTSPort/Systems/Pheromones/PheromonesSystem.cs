@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+//[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [BurstCompile]
 public partial struct PheromonesSystem : ISystem
 {
@@ -51,6 +52,7 @@ public partial struct PheromonesSystem : ISystem
         public float TrailDecay;
         public NativeArray<PheromoneBufferElement> Pheromones;
         
+        [BurstCompile]
         public void Execute(int index)
         {
             Pheromones[index] *= TrailDecay;
@@ -66,14 +68,15 @@ public partial struct PheromonesSystem : ISystem
         [NativeDisableParallelForRestriction]
         public DynamicBuffer<PheromoneBufferElement> Pheromones;
         
+        [BurstCompile]
         void Execute(ref AntData ant, ref LocalTransform localTransform)
         {
             float excitement = GlobalSettings.RegularExcitement;
-            float maxPheromones = 1f;
+          //  float maxPheromones = 1;
             if (ant.HoldingResource) 
             {
                 excitement = GlobalSettings.TrailExcitement;
-                maxPheromones = 1;
+         //       maxPheromones = 1;
             }
             excitement *= ant.Speed / GlobalSettings.AntSpeed;
             int x = (int)math.floor(localTransform.Position.x);
@@ -84,14 +87,14 @@ public partial struct PheromonesSystem : ISystem
             
             int index = PheromoneIndex(x , y, GlobalSettings.MapSizeX);
 
-            if (Pheromones[index] < maxPheromones)
-            {
+          // if (Pheromones[index] < maxPheromones)
+          // {
                 Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
                 if (Pheromones[index] > 1f)
                 {
                     Pheromones[index] = 1;
                 }
-            }
+          //  }
         }
     }
     
