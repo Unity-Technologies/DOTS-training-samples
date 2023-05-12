@@ -61,6 +61,7 @@ public struct Teambot : IComponentData
     //
     // public float waterFillDuration;
     public float waterFillElapsedTime;
+    public float waterFillValue;
     //
     // public float WaterGatherSpeed;
     // public float t;

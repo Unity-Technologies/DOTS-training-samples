@@ -41,6 +41,7 @@ public class GridAuthoring : MonoBehaviour
     public GameObject OmnibotPrefab;
     public GameObject TeambotPrefab;
     public GameObject OmniBucketPrefab;
+    public GameObject TeamBucketPrefab;
     public Transform originGrid;
 
     class Baker : Baker<GridAuthoring>
@@ -74,6 +75,7 @@ public class GridAuthoring : MonoBehaviour
 
                 BotScale = authoring.BotScale,
                 OmniBucketPrefab = GetEntity(authoring.OmniBucketPrefab, TransformUsageFlags.Dynamic),
+                TeamBucketPrefab = GetEntity(authoring.TeamBucketPrefab, TransformUsageFlags.Dynamic),
 
                 // Teambot
                 TeambotPrefab = GetEntity(authoring.TeambotPrefab, TransformUsageFlags.Dynamic),
@@ -111,6 +113,7 @@ public struct Grid : IComponentData
     public float3 GridOrigin;
     public Entity OmnibotPrefab;
     public Entity OmniBucketPrefab;
+    public Entity TeamBucketPrefab;
     public int NumOmnibot;
     public float FireSpreadValue;
     public float FireGrowthRate;

@@ -31,10 +31,15 @@ public partial struct TeambotMovingSystem : ISystem
         var fireEntities = fireQuery.ToEntityArray(state.WorldUpdateAllocator);
         var fireTransform = fireQuery.ToComponentDataArray<LocalTransform>(state.WorldUpdateAllocator);
 
+        var teamBucketQuery = SystemAPI.QueryBuilder().WithAll<TeamBucket>().Build();
+        var teamBuckets = teamBucketQuery.ToComponentDataArray<TeamBucket>( state.WorldUpdateAllocator);
+        var teamBucketsEntities = teamBucketQuery.ToEntityArray(state.WorldUpdateAllocator);
+
         var waterLookup = SystemAPI.GetComponentLookup<Water>();
         var fireLookup = SystemAPI.GetComponentLookup<Fire>();
         var teambotLookup = SystemAPI.GetComponentLookup<Teambot>();
         var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>();
+        var teamBucketLookup = SystemAPI.GetComponentLookup<TeamBucket>();
 
         var config = SystemAPI.GetSingleton<Grid>();
         var deltaTime = SystemAPI.Time.DeltaTime;
@@ -50,9 +55,14 @@ public partial struct TeambotMovingSystem : ISystem
             fireTransforms = fireTransform,
             transformLookup = transformLookup,
 
+            teamBuckets = teamBuckets,
+            teamBucketsEntities = teamBucketsEntities,
+            // teambucket = teamBuckets,
+
             waterLookup = waterLookup,
             fireLookup = fireLookup,
             teambotLookup = teambotLookup,
+            teamBucketLookup = teamBucketLookup,
 
             config = config,
             deltaTime = deltaTime,
@@ -73,7 +83,7 @@ public partial struct TeambotMovingSystem : ISystem
 }
 
 [WithAll(typeof(Teambot))]
-[BurstCompile] 
+[BurstCompile]
 public partial struct TeambotMovingJob : IJobEntity
 {
     // Water
@@ -86,11 +96,17 @@ public partial struct TeambotMovingJob : IJobEntity
     [ReadOnly] public NativeArray<Entity> fireEntities;
     [ReadOnly] public NativeArray<LocalTransform> fireTransforms;
 
+    //
+    [ReadOnly] public NativeArray<TeamBucket> teamBuckets;
+    [ReadOnly] public NativeArray<Entity> teamBucketsEntities;
+    // public TeamBucket teambucket;
+
     // Lookups
     public ComponentLookup<Water> waterLookup;
     public ComponentLookup<Fire> fireLookup;
     public ComponentLookup<Teambot> teambotLookup;
     public ComponentLookup<LocalTransform> transformLookup;
+    public ComponentLookup<TeamBucket> teamBucketLookup;
 
     // config
     public Grid config;
@@ -107,7 +123,7 @@ public partial struct TeambotMovingJob : IJobEntity
         // var elapsedTime = (float)SystemAPI.Time.ElapsedTime;
         switch (teambotRole)
         {
-            case TeamBotRole.WaterGatherer: 
+            case TeamBotRole.WaterGatherer:
 
                 switch (teambotState)
                 {
@@ -144,6 +160,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         break;
 
                     case TeamBotState.WaterHolder:
+                        teambot.waterFillValue = teambot.waterFillElapsedTime / config.TeambotWaterFillDuration;
                         if (teambot.waterFillElapsedTime < config.TeambotWaterFillDuration)
                         {
                             teambot.waterFillElapsedTime += deltaTime;
@@ -154,7 +171,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         else
                         {
                             PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
-                                deltaTime, config.TeambotTravelSpeed);
+                                deltaTime, config.TeambotTravelSpeed, teamBuckets, teamBucketsEntities, teamBucketLookup);
                         }
 
                         break;
@@ -180,7 +197,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         break;
                     case TeamBotState.WaterHolder:
                         PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
-                            deltaTime, config.TeambotTravelSpeed);
+                            deltaTime, config.TeambotTravelSpeed, teamBuckets, teamBucketsEntities, teamBucketLookup);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -254,7 +271,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         }
 
                         PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
-                            deltaTime, config.TeambotTravelSpeed);
+                            deltaTime, config.TeambotTravelSpeed, teamBuckets, teamBucketsEntities, teamBucketLookup);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -269,7 +286,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         teambot.State = TeamBotState.Idle;
                         break;
                     case TeamBotState.Idle:
-                        var linePos = GetPasserPosition(transformLookup, teambotLookup,ref  teambot, out var offsetVec,
+                        var linePos = GetPasserPosition(transformLookup, teambotLookup, ref teambot, out var offsetVec,
                             out var offsetMagnitude, true);
                         teambot.TargetPosition = linePos + (offsetVec * offsetMagnitude);
                         WalkToPosition(ref teambot, ref teambotTransform, deltaTime,
@@ -277,7 +294,7 @@ public partial struct TeambotMovingJob : IJobEntity
                         break;
                     case TeamBotState.WaterHolder:
                         PassWaterToNextTeamate(ref teambot, ref teambotTransform, transformLookup, teambotLookup,
-                            deltaTime, config.TeambotTravelSpeed);
+                            deltaTime, config.TeambotTravelSpeed, teamBuckets, teamBucketsEntities, teamBucketLookup);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -295,7 +312,7 @@ public partial struct TeambotMovingJob : IJobEntity
 
     static void PassWaterToNextTeamate(ref Teambot teambot, ref LocalTransform teambotTransform,
         ComponentLookup<LocalTransform> transformLookup, ComponentLookup<Teambot> teambotLookup, float deltaTime,
-        float travelSpeed)
+        float travelSpeed, NativeArray<TeamBucket> teamBuckets, NativeArray<Entity> teambucketEntities, ComponentLookup<TeamBucket> teambucketLookup)
     {
         if (WalkToPosition(ref teambot, ref teambotTransform, deltaTime, transformLookup[teambot.PassToTarget].Position,
                 travelSpeed))
@@ -305,7 +322,13 @@ public partial struct TeambotMovingJob : IJobEntity
             newWaterHolder.State = TeamBotState.WaterHolder;
             teambotLookup[teambot.PassToTarget] = newWaterHolder;
 
-            // I'm no longer water holder
+            // 
+            //  
+            var teamBucket = teamBuckets[teambot.TeamID];
+            teamBucket.TargetTeambotEntity = teambot.PassToTarget;
+            teambucketLookup[teambucketEntities[teambot.TeamID]] = teamBucket;
+
+            // I'm no longer water holder 
             teambot.State = TeamBotState.Idle;
         }
     }
