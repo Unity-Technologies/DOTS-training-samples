@@ -34,7 +34,7 @@ public partial struct DynamicsJob : IJobEntity
 
         // Manage speed
         // Slower when steering
-        var steeringInRad = (ant.wallSteering + ant.pheroSteering) / 180f * math.PI;
+        var steeringInRad = (ant.wallSteering + ant.pheroSteering + ant.resourceSteering) / 180f * math.PI;
         var oldSpeed = speed.speed;
         var targetSpeed = antTargetSpeed;
         targetSpeed *= 1f - Mathf.Abs(steeringInRad) / 3f;

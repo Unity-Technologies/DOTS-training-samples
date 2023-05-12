@@ -55,7 +55,6 @@ public partial struct ResourceDetection : IJobEntity
         if (blocked)
         {
             ant.resourceSteering = 0;
-//            color.Value = new float4(0, 0, 0, 1);
         }
         else
         {
@@ -66,17 +65,14 @@ public partial struct ResourceDetection : IJobEntity
             if (targetAngle - directionInRad > math.PI/2f)
             {
                 ant.resourceSteering = 2f;
-  //              color.Value = new float4(1, 0, 0, 1);
             }
             else if (targetAngle - directionInRad < -math.PI/2f)
             {
                 ant.resourceSteering = -2f;
-    //            color.Value = new float4(0, 1, 0, 1);
             }
             else
             {
                 ant.resourceSteering = math.degrees(targetAngle - directionInRad)/30f;
-                //          color.Value = new float4(0, 0, 1, 1);
             }
         }
     }
