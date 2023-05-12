@@ -66,6 +66,7 @@ public partial struct AntAI: ISystem
             steeringStrength = colony.wallSteerStrength,
             bucketResolution = colony.bucketResolution,
             buckets = colony.buckets,
+            wallPushbackUnits = colony.wallPushbackUnits
         };
         var obstacleJobHandle = obstacleJob.ScheduleParallel(pheromoneDetectionJobHandle);
 

@@ -13,11 +13,14 @@ public partial struct ObstacleDetection : IJobEntity
     public float obstacleSize;
     public float steeringStrength;
     public int bucketResolution;
+    public float wallPushbackUnits;
     [ReadOnly]
     public NativeArray<UnsafeList<float2>> buckets;
 
-    public static bool DetectPositionInBuckets(float x, float y, in NativeArray<UnsafeList<float2>> buckets, float obstacleSize, float mapSize, int bucketResolution)
+    public static bool DetectPositionInBuckets(float x, float y, in NativeArray<UnsafeList<float2>> buckets, float obstacleSize, float mapSize, int bucketResolution, out float obstacleX, out float obstacleY )
     {
+        obstacleX = 0;
+        obstacleY = 0;
         // test map boundaries
         if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
         {
@@ -29,14 +32,14 @@ public partial struct ObstacleDetection : IJobEntity
             int yIndex = (int)(y / mapSize * bucketResolution);
             if (xIndex < 0 || yIndex < 0 || xIndex >= bucketResolution || yIndex >= bucketResolution)
             {
-                return true; // ???
+                return false; // ???
             }
             var obstacles = buckets[xIndex + yIndex * bucketResolution];
             foreach (var obstaclePosition in obstacles)
             {
-                float circleX = obstaclePosition.x;
-                float circleY = obstaclePosition.y;
-                if (math.pow(x - circleX, 2) + math.pow(y - circleY, 2) <= obstacleSize)
+                obstacleX = obstaclePosition.x;
+                obstacleY = obstaclePosition.y;
+                if (math.pow(x - obstacleX, 2) + math.pow(y - obstacleY, 2) <= math.pow(obstacleSize,2))
                 {
                     return true;
                 }
@@ -46,7 +49,7 @@ public partial struct ObstacleDetection : IJobEntity
         return false;
     }
 
-    public void Execute(Entity entity, ref Ant ant, in Position position, in Direction direction)
+    public void Execute(Entity entity, ref Ant ant, ref Position position, in Direction direction)
     {
         int output = 0; 
 
@@ -59,9 +62,19 @@ public partial struct ObstacleDetection : IJobEntity
             float testX = position.position.x + math.cos(angle) * distance;
             float testY = position.position.y + math.sin(angle) * distance;
 
-            if (DetectPositionInBuckets(testX, testY, buckets, obstacleSize, mapSize, bucketResolution))
+            float obstacleX, obstacleY;
+            if (DetectPositionInBuckets(testX, testY, buckets, obstacleSize, mapSize, bucketResolution, out obstacleX, out obstacleY))
             {
                 output -= i;
+
+                // Move the ant away from the obstacle 
+                var dx = position.position.x - obstacleX;
+                var dy = position.position.y - obstacleY;
+                var pushbackAngle = math.atan2(dy, dx);
+
+                position.position.x += math.cos(pushbackAngle) * wallPushbackUnits;
+                position.position.y += math.sin(pushbackAngle) * wallPushbackUnits;
+
             }
         }
 
