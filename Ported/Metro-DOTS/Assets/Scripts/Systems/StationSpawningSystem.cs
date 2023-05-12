@@ -145,8 +145,6 @@ public partial struct StationSpawningSystem : ISystem
             });
         }
 
-        float carriageLength = 5.251f;
-
         i = 0;
         foreach (var (transform, stationInfo, station) in
             SystemAPI.Query<RefRO<LocalTransform>, RefRO<StationIDComponent>>()
@@ -158,12 +156,12 @@ public partial struct StationSpawningSystem : ISystem
             for (int k = 0; k < stationConfig.NumQueingPointsPerPlatform; k++)
             {
                 // queues on platform A
-                float totalQueuePointsSpan = (carriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f)) / 2f;
+                float totalQueuePointsSpan = (config.CarriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f)) / 2f;
                 LocalTransform lcA = new LocalTransform
                 {
                     Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint +
                                transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
-                               new float3(k * carriageLength, 0, 0),
+                               new float3(k * config.CarriageLength, 0, 0),
                     Scale = 1f,
                     Rotation = quaternion.RotateY(math.PI)
                 };
@@ -183,7 +181,7 @@ public partial struct StationSpawningSystem : ISystem
                 {
                     Position = stationConfig.TrackBCenter + stationConfig.SpawnPointOffsetFromCenterPoint * new float3(1f, 1f, -1f) +
                                transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
-                               new float3(k * carriageLength, 0, 0),
+                               new float3(k * config.CarriageLength, 0, 0),
                     Scale = 1f
                 };
                 var queuePointBIndex = i * stationConfig.NumQueingPointsPerPlatform * 2 + k * 2 + 1;

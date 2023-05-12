@@ -16,6 +16,8 @@ namespace Metro
         public float TrainAcceleration = 0.2f;
         public float TrainUnloadingTime = 2f;
         public float TrainLoadingTime = 2f;
+        public float CarriageLength = 5.251f;
+
 
         class Baker : Baker<ConfigAuthoring>
         {
@@ -34,8 +36,8 @@ namespace Metro
                     MinTrainSpeed = authoring.MinTrainSpeed,
                     TrainAcceleration = authoring.TrainAcceleration,
                     LoadingTime = authoring.TrainLoadingTime,
-                    UnloadingTime = authoring.TrainUnloadingTime
-                    
+                    UnloadingTime = authoring.TrainUnloadingTime,
+                    CarriageLength = authoring.CarriageLength
                 });
             }
         }
@@ -49,6 +51,7 @@ namespace Metro
         public float DistanceBetweenPassengers;
         public float PassengerSpeed; // unit per second
         public Entity TrainEntity;
+        public float CarriageLength;
         public float MaxTrainSpeed;
         public float MinTrainSpeed;
         public float TrainAcceleration;
