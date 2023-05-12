@@ -243,6 +243,8 @@ public partial struct AntMoveSystem : ISystem
                 baseColor.Value = ant.HoldingResource ? GlobalSettings.ExitedColor : GlobalSettings.RegularColor;
                 ant.FacingAngle += math.PI;
                 ant.TargetPosition = ant.HoldingResource ? ant.SpawnerCenter : Food.Center;
+                
+                localTransform.Position.z = ant.HoldingResource ? -1 : 1;
             }
             
             // clamp angle to +-180 degrees
