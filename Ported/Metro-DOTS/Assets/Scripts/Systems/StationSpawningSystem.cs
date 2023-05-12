@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,14 +11,18 @@ using Random = Unity.Mathematics.Random;
 
 public partial struct StationSpawningSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<StationConfig>();
         state.RequireForUpdate<Config>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+
+    // This accesses managed code, no BurstCompile :(
     public void OnUpdate(ref SystemState state)
     {
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
@@ -140,8 +145,6 @@ public partial struct StationSpawningSystem : ISystem
             });
         }
 
-        float carriageLength = 5.251f;
-
         i = 0;
         foreach (var (transform, stationInfo, station) in
             SystemAPI.Query<RefRO<LocalTransform>, RefRO<StationIDComponent>>()
@@ -153,12 +156,12 @@ public partial struct StationSpawningSystem : ISystem
             for (int k = 0; k < stationConfig.NumQueingPointsPerPlatform; k++)
             {
                 // queues on platform A
-                float totalQueuePointsSpan = (carriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f)) / 2f;
+                float totalQueuePointsSpan = (config.CarriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f)) / 2f;
                 LocalTransform lcA = new LocalTransform
                 {
                     Position = stationConfig.TrackACenter + stationConfig.SpawnPointOffsetFromCenterPoint +
                                transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
-                               new float3(k * carriageLength, 0, 0),
+                               new float3(k * config.CarriageLength, 0, 0),
                     Scale = 1f,
                     Rotation = quaternion.RotateY(math.PI)
                 };
@@ -178,7 +181,7 @@ public partial struct StationSpawningSystem : ISystem
                 {
                     Position = stationConfig.TrackBCenter + stationConfig.SpawnPointOffsetFromCenterPoint * new float3(1f, 1f, -1f) +
                                transform.ValueRO.Position - new float3(totalQueuePointsSpan, 0, 0) +
-                               new float3(k * carriageLength, 0, 0),
+                               new float3(k * config.CarriageLength, 0, 0),
                     Scale = 1f
                 };
                 var queuePointBIndex = i * stationConfig.NumQueingPointsPerPlatform * 2 + k * 2 + 1;

@@ -15,7 +15,7 @@ public class StationsConfigAuthoring : MonoBehaviour
     public int NumLines = 5;
     public int LineSpacing = 20;
 
-    public int NumCarriadges = 5;
+    public int NumCarriages = 5;
     public float3 SpawnPointOffsetFromCenterPoint;
 
     class Baker : Baker<StationsConfigAuthoring>
@@ -25,15 +25,15 @@ public class StationsConfigAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new StationConfig
             {
-                StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Dynamic),
-                TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Dynamic),
-                QueueEntity = GetEntity(authoring.QueuePrefab, TransformUsageFlags.Dynamic),
+                StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Renderable),
+                TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Renderable),
+                QueueEntity = GetEntity(authoring.QueuePrefab, TransformUsageFlags.None),
                 Spacing = authoring.Spacing,
                 NumStations = authoring.NumStations,
                 TrackACenter = authoring.TrackACenter,
                 TrackBCenter = authoring.TrackBCenter,
                 SpawnPointOffsetFromCenterPoint = authoring.SpawnPointOffsetFromCenterPoint,
-                NumQueingPointsPerPlatform = authoring.NumCarriadges,
+                NumQueingPointsPerPlatform = authoring.NumCarriages,
                 StationWidth = authoring.StationWidth,
                 NumLines = authoring.NumLines,
                 LineSpacing = authoring.LineSpacing

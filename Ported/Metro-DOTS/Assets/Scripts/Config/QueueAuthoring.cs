@@ -9,7 +9,7 @@ namespace Metro
         {
             public override void Bake(QueueAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                var entity = GetEntity(TransformUsageFlags.None);
                 AddComponent<QueueComponent>(entity);
                 AddBuffer<QueuePassengers>(entity);
             }

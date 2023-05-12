@@ -171,7 +171,7 @@ MonoBehaviour:
   StationWidth: 32
   NumLines: 10
   LineSpacing: 24
-  NumCarriadges: 5
+  NumCarriages: 5
   SpawnPointOffsetFromCenterPoint:
     x: 0
     y: 1.5

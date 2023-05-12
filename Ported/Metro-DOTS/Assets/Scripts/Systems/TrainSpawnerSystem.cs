@@ -17,7 +17,7 @@ public partial struct TrainSpawnerSystem : ISystem
     {
         m_Random = new Random(6754);
         var builder = new EntityQueryBuilder(Allocator.Temp);
-        builder.WithAny<Track>();
+        builder.WithAny<TrackIDComponent>();
         m_trackQuery = state.GetEntityQuery(builder);
         entityHandle = state.GetEntityTypeHandle();
 
