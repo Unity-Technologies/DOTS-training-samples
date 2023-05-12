@@ -132,7 +132,7 @@ public partial struct OmnibotMovingJob : IJobEntity
                 case OmnibotState.GatherWater:
                     var targetWater = waterLookup[omnibot.TargetWaterEntity];
                     var waterGatherStillNeeded = omnibot.MaxWaterCapacity - omnibot.CurrentWaterCarryingVolume;
-                    var waterVolumeTransfer = omnibot.WaterGatherSpeed * elapsedTime;
+                    var waterVolumeTransfer = omnibot.WaterGatherSpeed * deltaTime;
 
                     // Gathered enough water
                     if (waterVolumeTransfer > waterGatherStillNeeded)
