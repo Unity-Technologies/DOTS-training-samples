@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -9,6 +10,7 @@ public partial struct PassengerMovingOnTrainSystem : ISystem
 {
     public float3 Y;
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -17,8 +19,10 @@ public partial struct PassengerMovingOnTrainSystem : ISystem
         Y = new float3(0, 1f, 0);
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();

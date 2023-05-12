@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Components;
 using Unity.Burst;
 using Metro;
@@ -149,6 +150,7 @@ public partial struct PassangerOnTrainSystem : ISystem
         }
     }
 
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetPassengerTargetExitPosition(StationConfig stationConfig, Config config, RefRW<PassengerComponent> passenger, LocalTransform trainLocalTransform, bool onPlatformA)
     {
         var halfSpan = config.CarriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f) / 2f;
@@ -173,6 +175,7 @@ public partial struct PassangerOnTrainSystem : ISystem
         
     }
     
+    [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int GetClosestSeatIndex(DynamicBuffer<SeatingComponentElement> seatBuffer, float3 passengerRelativePosition)
     {
         var minDist = float.MaxValue;

@@ -11,18 +11,22 @@ using Random = Unity.Mathematics.Random;
 
 public partial struct StationSpawningSystem : ISystem
 {
-    [BurstCompile]
+    EntityArchetype m_TrackArchetype;
+    
+    // This accesses managed code, no BurstCompile :(
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
         state.RequireForUpdate<StationConfig>();
         state.RequireForUpdate<Config>();
+        m_TrackArchetype = state.EntityManager.CreateArchetype(typeof(TrackIDComponent), typeof(Track));
     }
 
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
-
-    // This accesses managed code, no BurstCompile :(
+    
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
@@ -33,16 +37,15 @@ public partial struct StationSpawningSystem : ISystem
         var em = state.EntityManager;
         em.Instantiate(stationConfig.StationEntity, stations);
 
-        var trackArchetype = em.CreateArchetype(typeof(TrackIDComponent), typeof(Track));
         var numTracks = stationConfig.NumLines * 2;
         var trackEntities = CollectionHelper.CreateNativeArray<Entity>(numTracks, Allocator.Temp);
-        em.CreateEntity(trackArchetype, trackEntities);
+        em.CreateEntity(m_TrackArchetype, trackEntities);
         
         for (int t = 0; t < trackEntities.Length; t++)
         {
 			bool isTrackA = t % 2 == 0;
 			var trackEntity = trackEntities[t];
-#if UNITY_EDITOR
+#if UNITY_EDITOR  && !ENABLE_BURST_AOT
             em.SetName(trackEntity, $"TrackEntity{(isTrackA ? "A" : "B")}");
 #endif
             em.AddBuffer<TrackPoint>(trackEntity);
