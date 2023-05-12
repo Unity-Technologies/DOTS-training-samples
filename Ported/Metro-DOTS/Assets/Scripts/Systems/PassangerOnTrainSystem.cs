@@ -14,6 +14,8 @@ public partial struct PassangerOnTrainSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        state.RequireForUpdate<StationConfig>();
         random = Random.CreateFromIndex(930);
     }
 

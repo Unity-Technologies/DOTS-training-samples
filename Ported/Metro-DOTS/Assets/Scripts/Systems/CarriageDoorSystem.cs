@@ -5,6 +5,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(TrainSystemGroup))]
+[UpdateAfter(typeof(TrainMoverSystem))]
 public partial struct OpenDoorSystem : ISystem
 {
     ComponentLookup<UnloadingComponent> _unloadingLookup;

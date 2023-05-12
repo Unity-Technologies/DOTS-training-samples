@@ -4,6 +4,8 @@ using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
+[UpdateInGroup(typeof(TrainSystemGroup))]
+
 public partial struct TrainMoverSystem : ISystem
 {
     BufferLookup<LinkedEntityGroup> m_ChildBufferLookup;
