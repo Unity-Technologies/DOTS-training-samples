@@ -3,7 +3,10 @@ using Metro;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateAfter(typeof(StationSpawningSystem))]
 public partial struct PassengerSpawningSystem : ISystem
@@ -61,6 +64,38 @@ public partial struct PassengerSpawningSystem : ISystem
                 });
             }
             queueId++;
+        }
+
+        var random = Random.CreateFromIndex(78571);
+
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        var query = SystemAPI.QueryBuilder().WithAll<URPMaterialPropertyBaseColor>().Build();
+        var queryMask = query.GetEntityQueryMask();
+
+        // This system will only run once, so the random seed can be hard-coded.
+        // Using an arbitrary constant seed makes the behavior deterministic.
+        var hue = random.NextFloat();
+
+        // Set the color of the station
+        // Helper to create any amount of colors as distinct from each other as possible.
+        // The logic behind this approach is detailed at the following address:
+        // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+        URPMaterialPropertyBaseColor RandomColor()
+        {
+            // Note: if you are not familiar with this concept, this is a "local function".
+            // You can search for that term on the internet for more information.
+
+            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+            hue = (hue + 0.618034005f) % 1;
+            var color = Color.HSVToRGB(hue, 1.0f, 1.0f);
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
+
+        foreach (var passenger in passengers)
+        {
+            ecb.SetComponentForLinkedEntityGroup(passenger, queryMask, RandomColor());
         }
 
         state.Enabled = false;

@@ -7,7 +7,7 @@ public class SleeperAuthoring : MonoBehaviour
     {
         public override void Bake(SleeperAuthoring authoring)
         {
-            var entity = GetEntity(TransformUsageFlags.None);
+            var entity = GetEntity(TransformUsageFlags.Renderable);
             AddComponent(entity, new SleeperTag { });
         }
     }
