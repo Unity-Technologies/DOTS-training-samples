@@ -7,7 +7,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateAfter(typeof(Grid))]
+[UpdateAfter(typeof(FireSystem))]
 public partial struct TeambotMovingSystem : ISystem
 {
     [BurstCompile]

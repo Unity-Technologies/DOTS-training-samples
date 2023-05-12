@@ -11,6 +11,7 @@ using Random = Unity.Mathematics.Random;
 public partial struct FireSystem : ISystem {
     [BurstCompile]
     public void OnCreate(ref SystemState state) {
+        state.RequireForUpdate<Grid>();
         state.RequireForUpdate<Fire>();
         state.RequireForUpdate<MouseHit>();
     }
@@ -56,7 +57,7 @@ partial struct AddFireJob : IJobEntity {
     }
 }
 
-
+[WithAll(typeof(Fire))]
 [BurstCompile]
 public partial struct FireJob : IJobEntity {
     [ReadOnly] public NativeArray<Fire> neighoringFires;

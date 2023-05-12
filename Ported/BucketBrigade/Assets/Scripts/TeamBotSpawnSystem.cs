@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = UnityEngine.Random;
 
-[UpdateAfter(typeof(Grid))]
+[UpdateAfter(typeof(FireSystem))]
 
 public partial struct TeamBotSpawnerSystem : ISystem
 {
