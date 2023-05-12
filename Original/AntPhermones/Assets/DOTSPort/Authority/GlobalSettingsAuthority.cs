@@ -24,6 +24,7 @@ public class GlobalSettingsAuthority : MonoBehaviour
     public float AntSightDistance = 5f;
     public float WallSteerStrength = 0.15f;
     public float WallThickness = 0.01f;
+    public float FoodGrabDistanceSq = 25f;
 
     class Baker : Baker<GlobalSettingsAuthority>
     {
@@ -49,7 +50,8 @@ public class GlobalSettingsAuthority : MonoBehaviour
                 PheromoneSteerStrength = authoring.PheromoneSteerStrength,
                 WallThickness =authoring.WallThickness,
                 AntSightDistance = authoring.AntSightDistance,
-                WallSteerStrength = authoring.WallSteerStrength
+                WallSteerStrength = authoring.WallSteerStrength,
+                FoodGrabDistanceSq = authoring.FoodGrabDistanceSq
             });
         }
     }
@@ -75,4 +77,5 @@ public struct GlobalSettings: IComponentData
     public float WallThickness;
     public float AntSightDistance;
     public float WallSteerStrength;
+    public float FoodGrabDistanceSq;
 }
