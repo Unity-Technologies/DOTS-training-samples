@@ -1,6 +1,9 @@
 using Components;
 using Metro;
+using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
@@ -40,6 +43,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
                 state.EntityManager.SetComponentEnabled<PassengerOffboarded>(passenger, false);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, true);
                 travelInfo.ValueRW.Queue = queue;
+                travelInfo.ValueRW.OnPlatformA = queueInfo.OnPlatformA;
             }
 
         }
@@ -55,12 +59,12 @@ public partial struct ReQueuingPassengersSystem : ISystem
             var queueInfo = state.EntityManager.GetComponentData<QueueComponent>(queue);
             var queueTailPosition =
                 queueLocalTransform.Position - queueInfo.QueueLength * queueLocalTransform.Forward() * config.DistanceBetweenPassengers;
-
+        
             var passengerPosition = passengerLocalTransform.ValueRO.Position;
-
+        
             var toQueueTail = queueTailPosition - passengerPosition;
             var distToQueueTail = math.length(toQueueTail);
-
+        
             if (distToQueueTail < 0.01f)
             {
                 var queuePassengers = state.EntityManager.GetBuffer<QueuePassengers>(queue);
@@ -68,19 +72,75 @@ public partial struct ReQueuingPassengersSystem : ISystem
                 queueInfo.QueueLength++;
                 state.EntityManager.SetComponentData<QueueComponent>(queue, queueInfo);
                 state.EntityManager.SetComponentEnabled<PassengerWalkingToQueue>(passenger, false);
-
+        
                 passengerLocalTransform.ValueRW.Rotation = queueLocalTransform.Rotation;
             }
             else
             {
                 var toQueueTailDirection = math.normalize(toQueueTail);
                 passengerLocalTransform.ValueRW.Position += toQueueTailDirection * config.PassengerSpeed * SystemAPI.Time.DeltaTime;
-
+        
                 var rotationAngle = math.acos(math.dot(Y, toQueueTailDirection));
                 passengerLocalTransform.ValueRW.Rotation = quaternion.RotateY(rotationAngle);
             }
             
         }
-        
+
+        // var movePassengerToNewQueuesJob = new MovePassengersToNewQueuesJob
+        // {
+        //     Config = config,
+        //     PassengerSpeed = SystemAPI.Time.DeltaTime * config.PassengerSpeed,
+        //     QueueTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(),
+        //     QueueLookup = SystemAPI.GetComponentLookup<QueueComponent>(),
+        //     QueuePassengersLookup = SystemAPI.GetBufferLookup<QueuePassengers>(),
+        //     Y = Y
+        // };
+        // state.Dependency = movePassengerToNewQueuesJob.Schedule(state.Dependency);
     }
 }
+
+// [BurstCompile]
+// public partial struct MovePassengersToNewQueuesJob : IJobEntity
+// {
+//     public Config Config;
+//     public float PassengerSpeed;
+//     public ComponentLookup<LocalTransform> QueueTransformLookup;
+//     public ComponentLookup<QueueComponent> QueueLookup;
+//     public BufferLookup<QueuePassengers> QueuePassengersLookup;
+//     public float3 Y;
+//
+//     public void Execute(in PassengerTravel travelInfo, ref LocalTransform passengerLocalTransform,
+//         EnabledRefRW<PassengerWalkingToQueue> walkingState, Entity passengerEntity)
+//     {
+//         var queue = travelInfo.Queue;
+//         var queueLocalTransform = QueueTransformLookup[queue];
+//         var queueInfo = QueueLookup[queue];
+//         var queueTailPosition =
+//             queueLocalTransform.Position - queueInfo.QueueLength * queueLocalTransform.Forward() * Config.DistanceBetweenPassengers;
+//
+//         var passengerPosition = passengerLocalTransform.Position;
+//
+//         var toQueueTail = queueTailPosition - passengerPosition;
+//         var distToQueueTail = math.length(toQueueTail);
+//
+//         if (distToQueueTail < 0.01f)
+//         {
+//             var queuePassengers = QueuePassengersLookup[queue];
+//             queuePassengers.ElementAt((queueInfo.StartIndex + queueInfo.QueueLength) % Config.MaxPassengerPerQueue) = 
+//                 new QueuePassengers{Passenger = passengerEntity};
+//             queueInfo.QueueLength++;
+//             QueueLookup[queue] = queueInfo;
+//             walkingState.ValueRW = false;
+//             
+//             passengerLocalTransform.Rotation = queueLocalTransform.Rotation;
+//         }
+//         else
+//         {
+//             var toQueueTailDirection = math.normalize(toQueueTail);
+//             passengerLocalTransform.Position += toQueueTailDirection * PassengerSpeed;
+//
+//             var rotationAngle = math.acos(math.dot(Y, toQueueTailDirection));
+//             passengerLocalTransform.Rotation = quaternion.RotateY(rotationAngle);
+//         }
+//     }
+// }

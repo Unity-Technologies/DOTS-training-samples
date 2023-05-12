@@ -27,7 +27,7 @@ public class StationsConfigAuthoring : MonoBehaviour
             {
                 StationEntity = GetEntity(authoring.StationPrefab, TransformUsageFlags.Renderable),
                 TrackEntity = GetEntity(authoring.TrackPrefab, TransformUsageFlags.Renderable),
-                QueueEntity = GetEntity(authoring.QueuePrefab, TransformUsageFlags.Dynamic),
+                QueueEntity = GetEntity(authoring.QueuePrefab, TransformUsageFlags.None),
                 Spacing = authoring.Spacing,
                 NumStations = authoring.NumStations,
                 TrackACenter = authoring.TrackACenter,
