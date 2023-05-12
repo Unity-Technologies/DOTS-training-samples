@@ -86,10 +86,12 @@ public partial struct Spawner: ISystem
         }
 
         int bucketResolution = colony.bucketResolution;
-        NativeArray<UnsafeList<float2>> buckets = new NativeArray<UnsafeList<float2>>(bucketResolution * bucketResolution, Allocator.Persistent);
+        //NativeArray<UnsafeList<float2>> buckets = new NativeArray<UnsafeList<float2>>(bucketResolution * bucketResolution, Allocator.Persistent);
+        var buckets = SystemAPI.GetSingletonBuffer<Bucket>();
+        buckets.Length = bucketResolution * bucketResolution;
         for (int i = 0; i < buckets.Length; ++i)
         {
-            buckets[i] = new UnsafeList<float2>(0, Allocator.Persistent);
+            buckets[i] = new Bucket { obstacles = new UnsafeList<float2>(0, Allocator.Persistent) };
         }
         foreach (var position in obstaclePositions)
         {
@@ -107,14 +109,14 @@ public partial struct Spawner: ISystem
                         continue;
                     }
                     int index = x + y * bucketResolution;
-                    var list = buckets[index];
+                    var list = buckets[index].obstacles;
                     list.Add(position);
-                    buckets[index] = list;
+                    buckets[index] = new Bucket { obstacles = list };
                 }
             }
         }
 
-        SystemAPI.GetSingletonRW<Colony>().ValueRW.buckets = buckets;
+        //SystemAPI.GetSingletonRW<Colony>().ValueRW.buckets = buckets;
     }
 
     void SpawnAnts(ref SystemState state, Colony colony)

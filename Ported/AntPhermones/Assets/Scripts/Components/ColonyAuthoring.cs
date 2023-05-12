@@ -8,6 +8,12 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+[ChunkSerializable]
+public struct Bucket: IBufferElementData
+{
+    public UnsafeList<float2> obstacles;
+}
+
 [Serializable]
 public struct Colony: IComponentData
 {
@@ -37,7 +43,7 @@ public struct Colony: IComponentData
     public Entity antPrefab;
     public Entity resourcePrefab;
 
-    public NativeArray<UnsafeList<float2>> buckets;
+    //public NativeArray<UnsafeList<float2>> buckets;
 }
 
 public class ColonyAuthoring : MonoBehaviour
@@ -60,6 +66,7 @@ public class ColonyAuthoring : MonoBehaviour
             colony.antPrefab = GetEntity(authoring.antPrefab, TransformUsageFlags.Renderable);
             colony.resourcePrefab = GetEntity(authoring.resourcePrefab, TransformUsageFlags.Renderable);
             AddComponent<Colony>(entity, colony);
+            AddBuffer<Bucket>(entity);
         }
     }
 }

@@ -65,7 +65,7 @@ public partial struct AntAI: ISystem
             mapSize = colony.mapSize,
             steeringStrength = colony.wallSteerStrength,
             bucketResolution = colony.bucketResolution,
-            buckets = colony.buckets,
+            buckets = SystemAPI.GetSingletonBuffer<Bucket>().AsNativeArray(),
             wallPushbackUnits = colony.wallPushbackUnits
         };
         var obstacleJobHandle = obstacleJob.ScheduleParallel(pheromoneDetectionJobHandle);
@@ -81,7 +81,7 @@ public partial struct AntAI: ISystem
             mapSize = colony.mapSize,
             steeringStrength = colony.resourceSteerStrength,
             bucketResolution = colony.bucketResolution,
-            buckets = colony.buckets,
+            buckets = SystemAPI.GetSingletonBuffer<Bucket>().AsNativeArray(),
             homePosition = new float2(homePosition.Position.x, homePosition.Position.y),
             resourcePosition = new float2(resourceTransform.Position.x, resourceTransform.Position.y)
         };

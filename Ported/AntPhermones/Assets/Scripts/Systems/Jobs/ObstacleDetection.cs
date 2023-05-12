@@ -15,9 +15,9 @@ public partial struct ObstacleDetection : IJobEntity
     public int bucketResolution;
     public float wallPushbackUnits;
     [ReadOnly]
-    public NativeArray<UnsafeList<float2>> buckets;
+    public NativeArray<Bucket> buckets;
 
-    public static bool DetectPositionInBuckets(float x, float y, in NativeArray<UnsafeList<float2>> buckets, float obstacleSize, float mapSize, int bucketResolution, out float obstacleX, out float obstacleY )
+    public static bool DetectPositionInBuckets(float x, float y, in NativeArray<Bucket> buckets, float obstacleSize, float mapSize, int bucketResolution, out float obstacleX, out float obstacleY )
     {
         obstacleX = 0;
         obstacleY = 0;
@@ -35,7 +35,7 @@ public partial struct ObstacleDetection : IJobEntity
                 return false; // ???
             }
             var obstacles = buckets[xIndex + yIndex * bucketResolution];
-            foreach (var obstaclePosition in obstacles)
+            foreach (var obstaclePosition in obstacles.obstacles)
             {
                 obstacleX = obstaclePosition.x;
                 obstacleY = obstaclePosition.y;

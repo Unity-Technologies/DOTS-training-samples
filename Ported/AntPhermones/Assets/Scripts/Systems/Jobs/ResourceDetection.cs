@@ -18,7 +18,7 @@ public partial struct ResourceDetection : IJobEntity
     public float2 resourcePosition;
     public float2 homePosition;
     [ReadOnly]
-    public NativeArray<UnsafeList<float2>> buckets;
+    public NativeArray<Bucket> buckets;
 
     public void Execute(ref Ant ant, in Position position, in Direction direction, ref URPMaterialPropertyBaseColor color)
     {
