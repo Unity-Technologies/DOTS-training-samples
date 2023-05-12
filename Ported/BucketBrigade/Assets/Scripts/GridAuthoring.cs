@@ -89,7 +89,9 @@ public class GridAuthoring : MonoBehaviour
                 WaterRefillSpeed = authoring.WaterRefillSpeed,
             });
             AddComponent<MouseHit>(entity);
+
         }
+
     }
 }
 
