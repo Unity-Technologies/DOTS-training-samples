@@ -24,9 +24,11 @@ public partial struct AntMoveSystem : ISystem
         state.RequireForUpdate<GlobalSettings>();
         state.RequireForUpdate<PheromoneBufferElement>();
         state.RequireForUpdate<ObstacleArcPrimitive>();
+#if USE_COLLISION_MASK
         state.RequireForUpdate<CollisionHashSet>();
+#endif // USE_COLLISION_MASK
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -68,7 +70,11 @@ public partial struct AntMoveSystem : ISystem
 
         void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
         {
-           // k_AntsMoveJob_Execute.Begin();
+            // k_AntsMoveJob_Execute.Begin();
+
+            float fGridSizeScalar = (float)math.min(GlobalSettings.MapSizeX, GlobalSettings.MapSizeY) / 128.0f;
+
+            float fScaledWallSteeringDistance = fGridSizeScalar * WallSteeringDistance;
 
             var randomSteering = GlobalSettings.AntRandomSteering;
             var antSpeed = GlobalSettings.AntSpeed;
@@ -86,9 +92,11 @@ public partial struct AntMoveSystem : ISystem
            // Steering ------------------------------------------------------------------------------------------------
            
             ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering);
-           //float pheromoneOutputR = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
-           //int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, CollisionHashSet, ant.FacingAngle, antPosition, WallSteeringDistance, mapSize, GlobalSettings.WallThickness);
-           //ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
+            //float pheromoneOutputR = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
+#if !USE_COLLISION_MASK
+            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, ref ant, antPosition, fScaledWallSteeringDistance, mapSize, GlobalSettings.WallThickness);
+            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
+#endif // USE_COLLISION_MASK
            
             // Pheromone Steering --------------------------------------------------------------------------------
             float pheromoneOutputR = 0;
@@ -114,8 +122,8 @@ public partial struct AntMoveSystem : ISystem
                 var cosAngle = math.cos(angle);
                 var sinAngle = math.sin(angle);
                 
-                collDirection.x = cosAngle * WallSteeringDistance;
-                collDirection.y = sinAngle * WallSteeringDistance;
+                collDirection.x = cosAngle * fScaledWallSteeringDistance;
+                collDirection.y = sinAngle * fScaledWallSteeringDistance;
                 
                 pheromoneDirection.x = cosAngle * pheromoneCheckDist;
                 pheromoneDirection.y = sinAngle * pheromoneCheckDist;
@@ -127,7 +135,6 @@ public partial struct AntMoveSystem : ISystem
 #if USE_COLLISION_MASK
                 if (CollisionHashSet.Contains(wallCheckPos))
                 {
-#endif
                     float2 antWorldSpace = antPosition / mapSize;
             
                     if (ParametricLineCast(ObstacleArcPrimitiveBuffer, antWorldSpace, antWorldSpace + collDirection, out var OutCollision))
@@ -143,7 +150,6 @@ public partial struct AntMoveSystem : ISystem
                         float value = 4.0f * (1.0f - directionDist / WallSteeringDistance);
                         wallOutput -= i * (int)math.floor(value);
                     }
-#if USE_COLLISION_MASK
                 }
 #endif
                   
@@ -226,9 +232,9 @@ public partial struct AntMoveSystem : ISystem
             {
                 ant.FacingAngle = math.atan2(dy, dx);
             }
-            
-            antPosition.x += dx;
-            antPosition.y += dy;
+
+            antPosition.x += dx * fGridSizeScalar;
+            antPosition.y += dy * fGridSizeScalar;
             
             // flip ant when it hits target
             if (math.distancesq(antPosition, ant.TargetPosition) < GlobalSettings.FoodGrabDistanceSq)
@@ -257,7 +263,7 @@ public partial struct AntMoveSystem : ISystem
         }
     }
     
-    static int ParametricWallSteering(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, NativeHashSet<int2> hashSet, float facingAngle, float2 antPosition, float distance, float mapSize, float WallThickness)
+    static int ParametricWallSteering(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, ref AntData ant, float2 antPosition, float distance, float mapSize, float WallThickness)
     {
         //k_AntsMoveJob_WallSteering.Begin();
 
@@ -266,7 +272,7 @@ public partial struct AntMoveSystem : ISystem
         float2 Direction, OutCollision;
         for (int i = -1; i <= 1; i += 2)
         {
-            float angle = facingAngle + i * math.PI * .25f;
+            float angle = ant.FacingAngle + i * math.PI * .25f;
             
             while (angle < 0.0f) 
                 angle += 2.0f * math.PI;
@@ -282,9 +288,7 @@ public partial struct AntMoveSystem : ISystem
             //     return output = -(int)ant.FacingAngle;
             // }
             
-            if (!hashSet.Contains(worldPos))
-                continue;
-            
+           
             float2 AntWorldSpace = antPosition / mapSize;
             
             if (ParametricLineCast(ObstaclePrimtitveBuffer, AntWorldSpace, AntWorldSpace + Direction, out OutCollision))
@@ -296,9 +300,24 @@ public partial struct AntMoveSystem : ISystem
                     continue;
                 }
 
-                float DirectionDist = math.length(DirectionVec) - WallThickness;
-                float value = 4.0f * (1.0f - DirectionDist / distance);
-                output -= i * (int)math.floor(value);
+                float fDistanceToPrim = math.length(DirectionVec);
+
+                if (fDistanceToPrim < WallThickness)
+                {
+                    output = 0;
+
+                    DirectionVec = math.normalize(DirectionVec);
+                    Direction = math.reflect(Direction, DirectionVec);
+                    ant.FacingAngle = math.atan2(Direction.y, Direction.x);
+
+                    break;
+                }
+                else
+                {
+                    float DirectionDist = fDistanceToPrim - WallThickness;
+                    float value = 4.0f * (1.0f - DirectionDist / distance);
+                    output -= i * (int)math.floor(value);
+                }
             }
         }
 
@@ -339,7 +358,7 @@ public partial struct AntMoveSystem : ISystem
     
     //--------------------------------------------------------------------------------------------------------------
 
-    #region Other
+#region Other
     
     
     
@@ -416,7 +435,7 @@ public partial struct AntMoveSystem : ISystem
 
         return output;
     }
-    #endregion
+#endregion
 
     
 }

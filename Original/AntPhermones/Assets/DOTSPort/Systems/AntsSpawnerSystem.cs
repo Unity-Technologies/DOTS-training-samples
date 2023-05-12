@@ -26,6 +26,8 @@ public partial struct AntsSpawnerSystem : ISystem
         var globalSettings = SystemAPI.GetSingleton<GlobalSettings>();
         var food = SystemAPI.GetSingleton<FoodData>();
 
+        float fGridSizeScalar = (float)math.min(globalSettings.MapSizeX, globalSettings.MapSizeY) / 128.0f;
+
         foreach (var spawner in SystemAPI.Query<RefRO<AntSpawner>, RefRW<LocalTransform>>())
         {
             // Set spawner to the center of the map.
@@ -41,7 +43,7 @@ public partial struct AntsSpawnerSystem : ISystem
                     spawner.Item2.ValueRO.Position.x + rand.NextFloat(-antSpawnRange,antSpawnRange),
                     spawner.Item2.ValueRO.Position.y + rand.NextFloat(-antSpawnRange,antSpawnRange),
                     0),
-                    Scale = 1});
+                    Scale = fGridSizeScalar});
                 ecb.AddComponent(entity, new AntData() {
                     SpawnerCenter = { 
                         x = spawner.Item2.ValueRO.Position.x, 
