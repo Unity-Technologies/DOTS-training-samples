@@ -21,13 +21,16 @@ namespace Metro
                     OpenPosition =  authoring.OpenPosition,
                     IsOpening = true
                 });
+                AddComponent<UnloadingComponent>(entity);
+                AddComponent<DepartingComponent>(entity);
             }
+
         }
     }
 
     public struct Door : IComponentData, IEnableableComponent
     {
-        public const float OpeningTime = 2.0f;
+        public const float OpeningTime = 2f;
         
         public float Timer;
 

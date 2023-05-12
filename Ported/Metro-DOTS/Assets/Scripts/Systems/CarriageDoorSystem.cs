@@ -1,11 +1,25 @@
 using Metro;
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
 public partial struct OpenDoorSystem : ISystem
 {
+    ComponentLookup<UnloadingComponent> _unloadingLookup;
+    ComponentLookup<DepartingComponent> _departingLookup;
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        state.RequireForUpdate<Door>();
+
+        _unloadingLookup = state.GetComponentLookup<UnloadingComponent>();
+        _departingLookup = state.GetComponentLookup<DepartingComponent>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -14,11 +28,16 @@ public partial struct OpenDoorSystem : ISystem
             BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
+        _unloadingLookup.Update(ref state);
+        _departingLookup.Update(ref state);
+
         // Create the job.
         var openJob = new OpenDoorJob
         {
             DeltaTime = SystemAPI.Time.DeltaTime,
-            Ecb = ecb.AsParallelWriter()
+            Ecb = ecb.AsParallelWriter(),
+            UnloadingLookup = _unloadingLookup,
+            DepartingLookup = _departingLookup
         };
         var openJobHandle = openJob.Schedule(state.Dependency);
 
@@ -28,25 +47,31 @@ public partial struct OpenDoorSystem : ISystem
 }
 
 [WithAll(typeof(Door), typeof(LocalTransform))]
+[WithAny(typeof(UnloadingComponent), typeof(DepartingComponent))]
 [BurstCompile]
 public partial struct OpenDoorJob : IJobEntity
 {
     public float DeltaTime;
     public EntityCommandBuffer.ParallelWriter Ecb;
+    [ReadOnly] public ComponentLookup<UnloadingComponent> UnloadingLookup;
+    [ReadOnly] public ComponentLookup<DepartingComponent> DepartingLookup;
 
     [BurstCompile]
     public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref Door door, ref LocalTransform transform)
     {
-        door.Timer += DeltaTime;
-
-        var lerp = math.min(1f, door.Timer / Door.OpeningTime);
-        transform.Position = door.IsOpening ? math.lerp(door.ClosedPosition, door.OpenPosition, lerp) : math.lerp(door.OpenPosition, door.ClosedPosition, lerp);
-
-        if (lerp >= 1f)
+        if (UnloadingLookup.IsComponentEnabled(entity) && DepartingLookup.IsComponentEnabled(entity))
         {
             door.Timer = 0f;
             door.IsOpening ^= true;
-            Ecb.SetComponentEnabled<Door>(chunkIndex, entity, false);
+
+            Ecb.SetComponentEnabled<UnloadingComponent>(chunkIndex, entity, door.IsOpening);
+            Ecb.SetComponentEnabled<DepartingComponent>(chunkIndex, entity, !door.IsOpening);
         }
+
+        door.Timer += DeltaTime;
+        
+        var lerp = math.min(1f, door.Timer / Door.OpeningTime);
+
+        transform.Position = door.IsOpening ? math.lerp(door.ClosedPosition, door.OpenPosition, lerp) : math.lerp(door.OpenPosition, door.ClosedPosition, lerp);
     }
 }
