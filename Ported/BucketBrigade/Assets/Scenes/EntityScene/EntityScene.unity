@@ -311,6 +311,8 @@ MonoBehaviour:
     type: 3}
   TeambotPrefab: {fileID: 1821148559735918, guid: bcaa528a4eb25d146ab7321a5559d5e9,
     type: 3}
+  OmniBucketPrefab: {fileID: 1068854535243822, guid: 7d199e0eb6c764c43ac2f0c98bfe46fa,
+    type: 3}
   originGrid: {fileID: 348539257}
 --- !u!1 &1154956089
 GameObject:
