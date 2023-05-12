@@ -406,7 +406,7 @@ MonoBehaviour:
   RegularExcitement: 0.2
   TrailExcitement: 0.6
   ExitedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  RegularColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
+  RegularColor: {r: 0.7019608, g: 0.47312158, b: 0.60184366, a: 1}
   PheromoneSteerStrength: 0.035
   AntSightDistance: 5
   WallSteerStrength: 0.2
