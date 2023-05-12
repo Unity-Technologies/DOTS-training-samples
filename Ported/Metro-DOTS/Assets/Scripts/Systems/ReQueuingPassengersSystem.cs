@@ -13,6 +13,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
     private Random random;
     private float3 Y;
 
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
@@ -20,6 +21,7 @@ public partial struct ReQueuingPassengersSystem : ISystem
         Y = new float3(0, 1f, 0);
     }
     
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();

@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,14 +11,18 @@ using Random = Unity.Mathematics.Random;
 
 public partial struct StationSpawningSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<StationConfig>();
         state.RequireForUpdate<Config>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+
+    // This accesses managed code, no BurstCompile :(
     public void OnUpdate(ref SystemState state)
     {
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();

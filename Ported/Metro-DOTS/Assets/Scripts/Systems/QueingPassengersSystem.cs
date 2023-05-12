@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -7,11 +8,13 @@ using Unity.Transforms;
 [UpdateAfter(typeof(PassengerSpawningSystem))]
 public partial struct QueingPassengersSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<Config>();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();

@@ -1,5 +1,6 @@
 using Components;
 using Metro;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
@@ -7,6 +8,7 @@ using Unity.Transforms;
 [UpdateAfter(typeof(StationSpawningSystem))]
 public partial struct PassengerSpawningSystem : ISystem
 {
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
@@ -15,8 +17,10 @@ public partial struct PassengerSpawningSystem : ISystem
         state.RequireForUpdate<StationConfig>();
     }
 
+    [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var em = state.EntityManager;
