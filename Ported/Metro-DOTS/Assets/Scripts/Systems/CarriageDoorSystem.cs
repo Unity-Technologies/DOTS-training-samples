@@ -61,8 +61,10 @@ public partial struct OpenDoorJob : IJobEntity
     {
         if (UnloadingLookup.IsComponentEnabled(entity) && DepartingLookup.IsComponentEnabled(entity))
         {
-            door.Timer = 0f;
             door.IsOpening ^= true;
+
+            // Add a close delay
+            door.Timer = door.IsOpening ? 0f : -1.5f;
 
             Ecb.SetComponentEnabled<UnloadingComponent>(chunkIndex, entity, door.IsOpening);
             Ecb.SetComponentEnabled<DepartingComponent>(chunkIndex, entity, !door.IsOpening);
@@ -70,7 +72,7 @@ public partial struct OpenDoorJob : IJobEntity
 
         door.Timer += DeltaTime;
         
-        var lerp = math.min(1f, door.Timer / Door.OpeningTime);
+        var lerp = math.clamp(door.Timer / Door.OpeningTime, 0f, 1f);
 
         transform.Position = door.IsOpening ? math.lerp(door.ClosedPosition, door.OpenPosition, lerp) : math.lerp(door.OpenPosition, door.ClosedPosition, lerp);
     }
