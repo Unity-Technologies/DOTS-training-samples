@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using Components;
 using Unity.Burst;
 using Metro;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -9,10 +10,10 @@ using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(PassengerSystemGroup))]
-// [UpdateAfter(typeof(QueingPassengersSystem))]
 public partial struct PassangerOnTrainSystem : ISystem
 {
     private Random random;
+    NativeHashMap<TrainLookup, TrainComponents> m_trainMap;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -21,6 +22,13 @@ public partial struct PassangerOnTrainSystem : ISystem
         state.RequireForUpdate<StationConfig>();
         random = Random.CreateFromIndex(930);
     }
+    
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
+    {
+        if (m_trainMap.IsCreated)
+            m_trainMap.Dispose();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -28,145 +36,194 @@ public partial struct PassangerOnTrainSystem : ISystem
         var em = state.EntityManager;
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
         var config = SystemAPI.GetSingleton<Config>();
-
-        // onboarding
+        
+        if (!m_trainMap.IsCreated)
+            m_trainMap = new NativeHashMap<TrainLookup, TrainComponents>(stationConfig.NumLines * 2, Allocator.Persistent);
+        
         foreach (var (train, trainTransform, trainEntity) in
                  SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>()
-                 .WithAll<LoadingComponent>()
-                 .WithEntityAccess())
+                     .WithEntityAccess())
         {
-            foreach (var (passengerOnboardedComp, transform, passenger, travelInfo, passengerEntity) in
-                     SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRO<PassengerTravel>>()
-                         .WithNone<PassengerWalkingToSeat>()
-                         .WithNone<PassengerWaitingToExit>()
-                         .WithEntityAccess())
+            var lookup = new TrainLookup()
             {
-                if (passengerOnboardedComp.ValueRO.StationTrackPointIndex == train.ValueRO.TrackPointIndex &&
-                    passenger.ValueRO.TrainId != train.ValueRO.TrainId &&
-                    travelInfo.ValueRO.LineID == train.ValueRO.LineID &&
-                    travelInfo.ValueRO.OnPlatformA == train.ValueRO.OnPlatformA)
+                LineID = train.ValueRO.LineID,
+                OnPlatformA = train.ValueRO.OnPlatformA
+            };
+            var components = new TrainComponents()
+            {
+                Train = train,
+                Transform = trainTransform,
+                TrainEntity = trainEntity,
+                IsUnloading = em.IsComponentEnabled<UnloadingComponent>(trainEntity)
+            };
+            m_trainMap[lookup] = components;
+        }
+        
+
+        // onboarding
+        foreach (var (passengerOnboardedComp, transform, passenger, travelInfo, passengerEntity) in
+                 SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRO<PassengerTravel>>()
+                     .WithNone<PassengerWalkingToSeat>()
+                     .WithNone<PassengerWaitingToExit>()
+                     .WithEntityAccess())
+        {
+            if (!m_trainMap.TryGetValue(new TrainLookup() { LineID = travelInfo.ValueRO.LineID, OnPlatformA = travelInfo.ValueRO.OnPlatformA }, out var trainComponents))
+                continue;
+
+            var train = trainComponents.Train;
+            var trainTransform = trainComponents.Transform;
+            var trainEntity = trainComponents.TrainEntity;
+            
+            if (passengerOnboardedComp.ValueRO.StationTrackPointIndex == train.ValueRO.TrackPointIndex &&
+                passenger.ValueRO.TrainId != train.ValueRO.TrainId &&
+                travelInfo.ValueRO.LineID == train.ValueRO.LineID &&
+                travelInfo.ValueRO.OnPlatformA == train.ValueRO.OnPlatformA)
+            {
+                // the passenger is on the same station as the train
+                // store the trainID
+                passenger.ValueRW.TrainId = train.ValueRO.TrainId;
+                
+                // find closest seat
+                DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainEntity);
+                if (!passenger.ValueRW.HasSeat)
                 {
-                    // the passenger is on the same station as the train
-                    // store the trainID
-                    passenger.ValueRW.TrainId = train.ValueRO.TrainId;
-                    
-                    // find closest seat
-                    DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainEntity);
-                    if (!passenger.ValueRW.HasSeat)
+                    var relativePosition = transform.ValueRO.Position - trainTransform.ValueRO.Position;
+                    var closestSeatIndex = GetClosestSeatIndex(seatBuffer, relativePosition);
+                    if (closestSeatIndex >= 0)
                     {
-                        var relativePosition = transform.ValueRO.Position - trainTransform.ValueRO.Position;
-                        var closestSeatIndex = GetClosestSeatIndex(seatBuffer, relativePosition);
-                        if (closestSeatIndex >= 0)
-                        {
-                            passenger.ValueRW.SeatPosition = seatBuffer[closestSeatIndex].SeatPosition;
-                            passenger.ValueRW.SeatIndex = closestSeatIndex;
-                            passenger.ValueRW.HasSeat = true;
+                        passenger.ValueRW.SeatPosition = seatBuffer[closestSeatIndex].SeatPosition;
+                        passenger.ValueRW.SeatIndex = closestSeatIndex;
+                        passenger.ValueRW.HasSeat = true;
 
-                            var seat = seatBuffer.ElementAt(closestSeatIndex);
-                            seat.Occupied = true;
-                            seatBuffer[closestSeatIndex] = seat;
+                        var seat = seatBuffer.ElementAt(closestSeatIndex);
+                        seat.Occupied = true;
+                        seatBuffer[closestSeatIndex] = seat;
 
-                            passenger.ValueRW.RelativePosition = relativePosition;
-                        }
+                        passenger.ValueRW.RelativePosition = relativePosition;
                     }
+                }
 
-                    if (passenger.ValueRW.HasSeat)
-                    {
-                        em.SetComponentEnabled<PassengerWalkingToSeat>(passengerEntity, true);
-                    }
-                    else
-                    {
-                        // Offboarded
-                        em.SetComponentEnabled<PassengerOnboarded>(passengerEntity, false);
-                        em.SetComponentEnabled<PassengerOffboarded>(passengerEntity, true);
-                    }
+                if (passenger.ValueRW.HasSeat)
+                {
+                    em.SetComponentEnabled<PassengerWalkingToSeat>(passengerEntity, true);
+                }
+                else
+                {
+                    // Offboarded
+                    em.SetComponentEnabled<PassengerOnboarded>(passengerEntity, false);
+                    em.SetComponentEnabled<PassengerOffboarded>(passengerEntity, true);
                 }
             }
         }
 
         // onboard moving
-        foreach (var (train, trainTransform) in
-                 SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>())
+        foreach (var (passengerOnboardedComp, transform, passenger, travelInfo) in
+                 SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRO<PassengerTravel>>())
         {
-            foreach (var (passengerOnboardedComp, transform, passenger) in
-                SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>>())
+            if (!m_trainMap.TryGetValue(new TrainLookup() { LineID = travelInfo.ValueRO.LineID, OnPlatformA = travelInfo.ValueRO.OnPlatformA }, out var trainComponents))
+                continue;
+
+            var train = trainComponents.Train;
+            var trainTransform = trainComponents.Transform;
+            
+            if ( passenger.ValueRW.TrainId == train.ValueRO.TrainId)
             {
-                if ( passenger.ValueRW.TrainId == train.ValueRO.TrainId)
+                transform.ValueRW.Position = passenger.ValueRW.RelativePosition + trainTransform.ValueRO.Position;
+                passenger.ValueRW.HasJustUnloaded = true;
+            }
+        }
+
+        foreach (var (transform, passenger, travelInfo, entity) in
+                 SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRW<PassengerTravel>>()
+                     .WithAll<PassengerWaitingToExit>()
+                     .WithEntityAccess())
+        {
+            if (!m_trainMap.TryGetValue(new TrainLookup() { LineID = travelInfo.ValueRO.LineID, OnPlatformA = travelInfo.ValueRO.OnPlatformA }, out var trainComponents))
+                continue;
+            
+            if (!trainComponents.IsUnloading)
+                continue;
+
+            var train = trainComponents.Train;
+            var trainTransform = trainComponents.Transform;
+            
+            if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
+            {
+                transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
+                travelInfo.ValueRW.Station = train.ValueRO.StationEntity;
+
+                passenger.ValueRW.TrainId = -1;
+                em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
+                em.SetComponentEnabled<PassengerOffboarded>(entity, true);
+            }
+        }
+
+        foreach (var (transform, passenger, travelInfo, entity) in
+                 SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRW<PassengerTravel>>()
+                     .WithAll<PassengerWaitingToExit>()
+                     .WithEntityAccess())
+        {
+            if (!m_trainMap.TryGetValue(new TrainLookup() { LineID = travelInfo.ValueRO.LineID, OnPlatformA = travelInfo.ValueRO.OnPlatformA }, out var trainComponents))
+                continue;
+            
+            var train = trainComponents.Train;
+            var trainTransform = trainComponents.Transform;
+            
+            if (!trainComponents.IsUnloading || !(train.ValueRO.Duration < 0.01f))
+                continue;
+            
+            if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
+            {
+                transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
+
+                travelInfo.ValueRW.Station = train.ValueRO.StationEntity;
+                em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
+                em.SetComponentEnabled<PassengerOffboarded>(entity, true);
+            }
+        }
+
+        foreach (var kvPair in m_trainMap)
+        {
+            if (!kvPair.Value.IsUnloading || !(kvPair.Value.Train.ValueRO.Duration < 0.01f))
+                continue;
+            
+            DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(kvPair.Value.TrainEntity);
+            for (int i = 0; i < seatBuffer.Length; i++)
+            {
+                if (random.NextBool())
                 {
-                    transform.ValueRW.Position = passenger.ValueRW.RelativePosition + trainTransform.ValueRO.Position;
-                    passenger.ValueRW.HasJustUnloaded = true;
+                    seatBuffer.ElementAt(i).Occupied = false;
                 }
             }
         }
-        
-        //offboarding
-        foreach (var (train, trainTransform, trainEntity) in SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>().WithAll<UnloadingComponent>().WithEntityAccess())
+
+        foreach (var (transform, passenger, travelInfo, entity) in
+                 SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRO<PassengerTravel>>()
+                     .WithAll<PassengerOnboarded>()
+                     .WithNone<PassengerWalkingToSeat>()
+                     .WithEntityAccess())
         {
-            foreach (var (transform, passenger, entity) in
-                     SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
-                         .WithAll<PassengerWaitingToExit>()
-                         .WithEntityAccess())
-            {
-                if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
-                {
-                    transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
-
-                    var travelInfo = em.GetComponentData<PassengerTravel>(entity);
-                    travelInfo.Station = train.ValueRO.StationEntity;
-
-                    passenger.ValueRW.TrainId = -1;
-                    em.SetComponentData(entity, travelInfo);
-                    em.SetComponentEnabled<PassengerOnboarded>(entity, false);
-                    em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
-                    em.SetComponentEnabled<PassengerOffboarded>(entity, true);
-                }
-            }
+            if (!m_trainMap.TryGetValue(new TrainLookup() { LineID = travelInfo.ValueRO.LineID, OnPlatformA = travelInfo.ValueRO.OnPlatformA }, out var trainComponents))
+                continue;
             
-            if (train.ValueRO.Duration < 0.01f)
+            var train = trainComponents.Train;
+            var trainTransform = trainComponents.Transform;
+            
+            if (!trainComponents.IsUnloading || !(train.ValueRO.Duration < 0.01f))
+                continue;
+            
+            DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainComponents.TrainEntity);
+            if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
             {
-                foreach (var (transform, passenger, entity) in
-                         SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
-                             .WithAll<PassengerWaitingToExit>()
-                             .WithEntityAccess())
+                if (passenger.ValueRO.HasSeat && !seatBuffer.ElementAt(passenger.ValueRO.SeatIndex).Occupied)
                 {
-                    if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
-                    {
-                        transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
+                    passenger.ValueRW.HasSeat = false;
+                    passenger.ValueRW.SeatIndex = -1;
 
-                        var travelInfo = em.GetComponentData<PassengerTravel>(entity);
-                        travelInfo.Station = train.ValueRO.StationEntity;
-                        em.SetComponentData(entity, travelInfo);
-                        em.SetComponentEnabled<PassengerOnboarded>(entity, false);
-                        em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
-                        em.SetComponentEnabled<PassengerOffboarded>(entity, true);
-                    }
-                }
-                DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainEntity);
-                for (int i = 0; i < seatBuffer.Length; i++)
-                {
-                    if (random.NextBool())
-                    {
-                        seatBuffer.ElementAt(i).Occupied = false;   
-                    }
-                }
-
-                foreach (var (transform, passenger, entity) in
-                         SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
-                             .WithAll<PassengerOnboarded>()
-                             .WithNone<PassengerWalkingToSeat>()
-                             .WithEntityAccess())
-                {
-                    if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
-                    {
-                        if (passenger.ValueRO.HasSeat && !seatBuffer.ElementAt(passenger.ValueRO.SeatIndex).Occupied)
-                        {
-                            passenger.ValueRW.HasSeat = false;
-                            passenger.ValueRW.SeatIndex = -1;
-
-                            em.SetComponentEnabled<PassengerWalkingToDoor>(entity, true);
-                            SetPassengerTargetExitPosition(stationConfig, config, passenger, trainTransform.ValueRO, train);
-                        }
-                    }
+                    em.SetComponentEnabled<PassengerWalkingToDoor>(entity, true);
+                    SetPassengerTargetExitPosition(stationConfig, config, passenger, trainTransform.ValueRO, train);
                 }
             }
         }
