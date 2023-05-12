@@ -43,8 +43,9 @@ public partial struct ResourceDetection : IJobEntity
         for (int i = 0; i < stepCount; ++i)
         {
             float t = (float)i / stepCount;
+            float _, __;
             if (ObstacleDetection.DetectPositionInBuckets(position.position.x + dx * t, position.position.y + dy * t,
-                buckets, obstacleSize, mapSize, bucketResolution))
+                buckets, obstacleSize, mapSize, bucketResolution, out _, out __))
             {
                 blocked = true;
                 break;

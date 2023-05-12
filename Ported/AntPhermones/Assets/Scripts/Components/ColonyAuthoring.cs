@@ -28,6 +28,7 @@ public struct Colony: IComponentData
     public float wallSteerStrength;
     public float wallSteerDistance;
     public float resourceSteerStrength;
+    public float wallPushbackUnits;
 
     public float mapSize;
 
