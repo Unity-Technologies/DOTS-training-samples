@@ -158,7 +158,7 @@ MonoBehaviour:
     antCount: 100000
     antScale: 0.5
     pheromoneGrowthRate: 0.3
-    pheromoneDecayRate: 0.9985
+    pheromoneDecayRate: 0.985
     obstacleSize: 1.5
     ringCount: 3
     bucketResolution: 16
