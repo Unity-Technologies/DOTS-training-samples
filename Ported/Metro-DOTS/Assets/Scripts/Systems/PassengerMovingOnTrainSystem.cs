@@ -6,6 +6,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(PassengerSystemGroup))]
+// [UpdateAfter(typeof(PassangerOnTrainSystem))]
 public partial struct PassengerMovingOnTrainSystem : ISystem
 {
     public float3 Y;
@@ -69,6 +71,33 @@ public partial struct PassengerMovingOnTrainSystem : ISystem
                 var rotationAngle = math.acos(math.dot(Y, toDstDirection));
                 transform.ValueRW.Rotation = quaternion.RotateY(rotationAngle);
             }
+        }
+    }
+}
+
+public partial struct MovePassengerToSeatJob : IJobEntity
+{
+    public float passengerSpeed;
+    public float3 Y;
+
+    public void Execute(ref LocalTransform transform, ref PassengerComponent passengerInfo,
+        EnabledRefRW<PassengerWalkingToSeat> walkingState)
+    {
+        var toDst = passengerInfo.SeatPosition - passengerInfo.RelativePosition;
+        var dist = math.length(toDst);
+        
+        if (dist < 0.01f)
+        {
+            // state.EntityManager.SetComponentEnabled<PassengerWalkingToSeat>(passenger, false);
+            walkingState.ValueRW = false;
+        }
+        else
+        {
+            var toDstDirection = math.normalize(toDst);
+            passengerInfo.RelativePosition += toDstDirection * passengerSpeed;
+        
+            var rotationAngle = math.acos(math.dot(Y, toDstDirection));
+            transform.Rotation = quaternion.RotateY(rotationAngle);
         }
     }
 }

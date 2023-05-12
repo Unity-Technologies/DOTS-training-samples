@@ -180,3 +180,4 @@ MonoBehaviour:
   TrainAcceleration: 10
   TrainUnloadingTime: 2.5
   TrainLoadingTime: 2.5
+  CarriageLength: 5.251

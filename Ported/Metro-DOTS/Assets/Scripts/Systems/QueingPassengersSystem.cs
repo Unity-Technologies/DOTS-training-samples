@@ -5,7 +5,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(PassengerSpawningSystem))]
+[UpdateInGroup(typeof(PassengerSystemGroup))]
 public partial struct QueingPassengersSystem : ISystem
 {
     [BurstCompile]

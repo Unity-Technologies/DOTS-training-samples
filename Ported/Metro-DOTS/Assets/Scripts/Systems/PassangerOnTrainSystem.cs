@@ -8,6 +8,8 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
+[UpdateInGroup(typeof(PassengerSystemGroup))]
+// [UpdateAfter(typeof(QueingPassengersSystem))]
 public partial struct PassangerOnTrainSystem : ISystem
 {
     private Random random;
@@ -36,6 +38,7 @@ public partial struct PassangerOnTrainSystem : ISystem
             foreach (var (passengerOnboardedComp, transform, passenger, travelInfo, passengerEntity) in
                      SystemAPI.Query<RefRW<PassengerOnboarded>, RefRW<LocalTransform>, RefRW<PassengerComponent>, RefRO<PassengerTravel>>()
                          .WithNone<PassengerWalkingToSeat>()
+                         .WithNone<PassengerWaitingToExit>()
                          .WithEntityAccess())
             {
                 if (passengerOnboardedComp.ValueRO.StationTrackPointIndex == train.ValueRO.TrackPointIndex &&
@@ -99,8 +102,45 @@ public partial struct PassangerOnTrainSystem : ISystem
         //offboarding
         foreach (var (train, trainTransform, trainEntity) in SystemAPI.Query<RefRO<Train>, RefRO<LocalTransform>>().WithAll<UnloadingComponent>().WithEntityAccess())
         {
+            foreach (var (transform, passenger, entity) in
+                     SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
+                         .WithAll<PassengerWaitingToExit>()
+                         .WithEntityAccess())
+            {
+                if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
+                {
+                    transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
+
+                    var travelInfo = em.GetComponentData<PassengerTravel>(entity);
+                    travelInfo.Station = train.ValueRO.StationEntity;
+
+                    passenger.ValueRW.TrainId = -1;
+                    em.SetComponentData(entity, travelInfo);
+                    em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                    em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
+                    em.SetComponentEnabled<PassengerOffboarded>(entity, true);
+                }
+            }
+            
             if (train.ValueRO.Duration < 0.01f)
             {
+                foreach (var (transform, passenger, entity) in
+                         SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
+                             .WithAll<PassengerWaitingToExit>()
+                             .WithEntityAccess())
+                {
+                    if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
+                    {
+                        transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
+
+                        var travelInfo = em.GetComponentData<PassengerTravel>(entity);
+                        travelInfo.Station = train.ValueRO.StationEntity;
+                        em.SetComponentData(entity, travelInfo);
+                        em.SetComponentEnabled<PassengerOnboarded>(entity, false);
+                        em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
+                        em.SetComponentEnabled<PassengerOffboarded>(entity, true);
+                    }
+                }
                 DynamicBuffer<SeatingComponentElement> seatBuffer = state.EntityManager.GetBuffer<SeatingComponentElement>(trainEntity);
                 for (int i = 0; i < seatBuffer.Length; i++)
                 {
@@ -124,26 +164,8 @@ public partial struct PassangerOnTrainSystem : ISystem
                             passenger.ValueRW.SeatIndex = -1;
 
                             em.SetComponentEnabled<PassengerWalkingToDoor>(entity, true);
-                            SetPassengerTargetExitPosition(stationConfig, config, passenger, trainTransform.ValueRO, train.ValueRO.OnPlatformA);
+                            SetPassengerTargetExitPosition(stationConfig, config, passenger, trainTransform.ValueRO, train);
                         }
-                    }
-                }
-                
-                foreach (var (transform, passenger, entity) in
-                         SystemAPI.Query< RefRW<LocalTransform>, RefRW<PassengerComponent>>()
-                             .WithAll<PassengerWaitingToExit>()
-                             .WithEntityAccess())
-                {
-                    if (passenger.ValueRW.TrainId == train.ValueRO.TrainId)
-                    {
-                        transform.ValueRW.Position = trainTransform.ValueRO.Position + passenger.ValueRO.ExitPosition;
-
-                        var travelInfo = em.GetComponentData<PassengerTravel>(entity);
-                        travelInfo.Station = train.ValueRO.StationEntity;
-                        em.SetComponentData(entity, travelInfo);
-                        em.SetComponentEnabled<PassengerOnboarded>(entity, false);
-                        em.SetComponentEnabled<PassengerWaitingToExit>(entity, false);
-                        em.SetComponentEnabled<PassengerOffboarded>(entity, true);
                     }
                 }
             }
@@ -151,13 +173,21 @@ public partial struct PassangerOnTrainSystem : ISystem
     }
 
     [BurstCompile, MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetPassengerTargetExitPosition(StationConfig stationConfig, Config config, RefRW<PassengerComponent> passenger, LocalTransform trainLocalTransform, bool onPlatformA)
+    public void SetPassengerTargetExitPosition(StationConfig stationConfig, Config config, RefRW<PassengerComponent> passenger, LocalTransform trainLocalTransform, RefRO<Train> train)
     {
         var halfSpan = config.CarriageLength * (stationConfig.NumQueingPointsPerPlatform - 1f) / 2f;
         var minDistance = float.MaxValue;
         float3 targetExitPosition = float3.zero;
 
-        var negX = onPlatformA ? 1.0f : -1.0f;
+        var negX = 1f;
+        if (train.ValueRO.OnPlatformA)
+        {
+            negX = train.ValueRO.Forward ? 1f: -1f;
+        }
+        else
+        {
+            negX = train.ValueRO.Forward ? -1f: 1f;
+        }
         for (int i = 0; i < stationConfig.NumQueingPointsPerPlatform; i++)
         {
             var exitPosition = negX * 0.67f * trainLocalTransform.Right() + 1.6f * trainLocalTransform.Up() + 

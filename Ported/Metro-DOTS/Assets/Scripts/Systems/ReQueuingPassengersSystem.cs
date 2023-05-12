@@ -8,6 +8,8 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
+[UpdateInGroup(typeof(PassengerSystemGroup))]
+// [UpdateAfter(typeof(PassengerMovingOnTrainSystem))]
 public partial struct ReQueuingPassengersSystem : ISystem
 {
     private Random random;
@@ -142,7 +144,4 @@ public partial struct ReQueuingPassengersSystem : ISystem
 //             passengerLocalTransform.Position += toQueueTailDirection * PassengerSpeed;
 //
 //             var rotationAngle = math.acos(math.dot(Y, toQueueTailDirection));
-//             passengerLocalTransform.Rotation = quaternion.RotateY(rotationAngle);
-//         }
-//     }
-// }
+//             passengerLocalTransform.Rotation = quaternion.RotateY(
