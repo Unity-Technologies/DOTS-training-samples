@@ -313,7 +313,7 @@ MonoBehaviour:
   RegularColor: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 1}
   PheromoneSteerStrength: 0.03
   AntSightDistance: 5
-  WallSteerStrength: 0.12
+  WallSteerStrength: 0.2
   WallThickness: 0.01
   FoodGrabDistanceSq: 20
 --- !u!4 &1130009605

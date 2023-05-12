@@ -1,3 +1,5 @@
+#define USE_RAYCAST_MAPPING
+#define USE_COLLISION_MASK
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -34,7 +36,9 @@ public partial struct AntMoveSystem : ISystem
         {
             Pheromones = SystemAPI.GetSingletonBuffer<PheromoneBufferElement>().AsNativeArray(),
             ObstacleArcPrimitiveBuffer = SystemAPI.GetSingletonBuffer<ObstacleArcPrimitive>().AsNativeArray(),
+#if USE_COLLISION_MASK
             CollisionHashSet = SystemAPI.GetSingleton<CollisionHashSet>().CollisionSet,
+#endif
             GlobalSettings = globalSettings,
             Food = SystemAPI.GetSingleton<FoodData>(),
             WallSteeringDistance = globalSettings.AntSightDistance / globalSettings.MapSizeX
@@ -54,19 +58,21 @@ public partial struct AntMoveSystem : ISystem
         static readonly float3 rotationAxis = new float3(0, 0, 1f);
         [ReadOnly] public NativeArray<PheromoneBufferElement> Pheromones;
         [ReadOnly] public NativeArray<ObstacleArcPrimitive> ObstacleArcPrimitiveBuffer;
-        [ReadOnly] public NativeHashSet<int2> CollisionHashSet;
         [ReadOnly] public GlobalSettings GlobalSettings;
         [ReadOnly] public FoodData Food;
         [ReadOnly] public float WallSteeringDistance;
+        
+#if USE_COLLISION_MASK
+        [ReadOnly] public NativeHashSet<int2> CollisionHashSet;
+#endif
 
         void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
         {
-            k_AntsMoveJob_Execute.Begin();
+           // k_AntsMoveJob_Execute.Begin();
 
             var randomSteering = GlobalSettings.AntRandomSteering;
             var antSpeed = GlobalSettings.AntSpeed;
             var antAccel = GlobalSettings.AntAccel;
-            var goalSteerStrength = GlobalSettings.AntGoalSteerStrength;
             var mapSizeX = GlobalSettings.MapSizeX;
             var mapSizeY = GlobalSettings.MapSizeY;
             float mapSize = math.min(mapSizeX, mapSizeY);
@@ -81,42 +87,85 @@ public partial struct AntMoveSystem : ISystem
            
             ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering);
            //float pheromoneOutputR = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
-            
+           //int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, CollisionHashSet, ant.FacingAngle, antPosition, WallSteeringDistance, mapSize, GlobalSettings.WallThickness);
+           //ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
+           
             // Pheromone Steering --------------------------------------------------------------------------------
             float pheromoneOutputR = 0;
+#if USE_RAYCAST_MAPPING
             float pheromoneOutputGoal = 0;
-//
+#endif
+            float wallOutput = 0;
+            
+            float2 collDirection, pheromoneDirection;
+            float pheromoneCheckDist = 3f;
+
             for (int i = -1; i <= 1; i += 2)
             {
                 float angle = ant.FacingAngle + i * math.PI * .25f;
                 
-                float testX = antPosition.x + math.cos(angle) * 3f;
-                float testY = antPosition.y + math.sin(angle) * 3f;
-//
-                if (testX < 0 || testY < 0 || testX >= mapSizeX || testY >= mapSizeY)
+                while (angle < 0.0f) // WTF is this?
+                    angle += 2.0f * math.PI;
+
+                var cosAngle = math.cos(angle);
+                var sinAngle = math.sin(angle);
+                
+                collDirection.x = cosAngle * WallSteeringDistance;
+                collDirection.y = sinAngle * WallSteeringDistance;
+                
+                pheromoneDirection.x = cosAngle * pheromoneCheckDist;
+                pheromoneDirection.y = sinAngle * pheromoneCheckDist;
+
+                int2 wallCheckPos = new int2(antPosition + collDirection);
+                int2 pheromoneCheckPos = new int2(antPosition + pheromoneDirection);
+
+                // Wall steering ===============================
+#if USE_COLLISION_MASK
+                if (CollisionHashSet.Contains(wallCheckPos))
+                {
+#endif
+                    float2 antWorldSpace = antPosition / mapSize;
+            
+                    if (ParametricLineCast(ObstacleArcPrimitiveBuffer, antWorldSpace, antWorldSpace + collDirection, out var OutCollision))
+                    {
+                        float2 directionVec = OutCollision - antWorldSpace;
+    
+                        if (math.dot(directionVec, directionVec) > (WallSteeringDistance * WallSteeringDistance))
+                        {
+                            continue;
+                        }
+
+                        float directionDist = math.length(directionVec) - GlobalSettings.WallThickness;
+                        float value = 4.0f * (1.0f - directionDist / WallSteeringDistance);
+                        wallOutput -= i * (int)math.floor(value);
+                    }
+#if USE_COLLISION_MASK
+                }
+#endif
+                  
+                // Pheromone steering ===============================
+                if (pheromoneCheckPos.x < 0 || pheromoneCheckPos.y < 0 || pheromoneCheckPos.x >= mapSizeX || pheromoneCheckPos.y >= mapSizeY)
                 {
                     // Should be empty
                 }
                 else
                 {
-                    int index = PheromonesSystem.PheromoneIndex((int)testX, (int)testY, mapSizeX);
+                    int index = PheromonesSystem.PheromoneIndex(pheromoneCheckPos.x, pheromoneCheckPos.y, mapSizeX);
                     
                     float value = Pheromones[index].Value.x;
                     pheromoneOutputR += value * i;
-                    
+#if USE_RAYCAST_MAPPING
                     float valueG = ant.HoldingResource ? Pheromones[index].Value.z : Pheromones[index].Value.y; // Heading to colony ot food
                     pheromoneOutputGoal += valueG * i;
+#endif
                 }
             }
             
             ant.FacingAngle += math.sign(pheromoneOutputR) * GlobalSettings.PheromoneSteerStrength;
+#if USE_RAYCAST_MAPPING
             ant.FacingAngle += math.sign(pheromoneOutputGoal) * GlobalSettings.AntGoalSteerStrength; //Substitution for line cast
-
-
-            // ----------------------
-            
-            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, CollisionHashSet, ant.FacingAngle, antPosition, WallSteeringDistance, mapSize, GlobalSettings.WallThickness);
-            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
+#endif
+            ant.FacingAngle += wallOutput * GlobalSettings.WallSteerStrength;
 
             // Speed ------------------------------------------------------------------------------------------------
            // float targetSpeed = antSpeed;
@@ -124,30 +173,32 @@ public partial struct AntMoveSystem : ISystem
             ant.Speed += (antSpeed - ant.Speed) * antAccel;
             
             // Line cast -------------------------------------------------------------------------------------------------
-         //   float2 collisionPoint = float2.zero;
-         //   float param = 0;
-         //   float2 targetVector = ant.TargetPosition - antPosition;
-         //   if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, antPosition / mapSize, targetVector / mapSize, out collisionPoint, out param))
-         //   {
-         //       float targetAngle = math.atan2(
-         //           ant.TargetPosition.y - antPosition.y, 
-         //           ant.TargetPosition.x - antPosition.x);
-         //       if (targetAngle - ant.FacingAngle > math.PI)
-         //       {
-         //           ant.FacingAngle += math.PI * 2f;
-         //       }
-         //       else if (targetAngle - ant.FacingAngle < -math.PI)
-         //       {
-         //           ant.FacingAngle -= math.PI * 2f;
-         //       }
-         //       else
-         //       {
-         //           if (math.abs(targetAngle - ant.FacingAngle) < math.PI * .5f)
-         //           {
-         //               ant.FacingAngle += (targetAngle - ant.FacingAngle) * goalSteerStrength;
-         //           }
-         //       }
-         //   }
+#if !USE_RAYCAST_MAPPING
+            float2 collisionPoint = float2.zero;
+            float param = 0;
+            float2 targetVector = ant.TargetPosition - antPosition;
+            if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, antPosition / mapSize, targetVector / mapSize, out collisionPoint, out param))
+            {
+                float targetAngle = math.atan2(
+                    ant.TargetPosition.y - antPosition.y, 
+                    ant.TargetPosition.x - antPosition.x);
+                if (targetAngle - ant.FacingAngle > math.PI)
+                {
+                    ant.FacingAngle += math.PI * 2f;
+                }
+                else if (targetAngle - ant.FacingAngle < -math.PI)
+                {
+                    ant.FacingAngle -= math.PI * 2f;
+                }
+                else
+                {
+                    if (math.abs(targetAngle - ant.FacingAngle) < math.PI * .5f)
+                    {
+                        ant.FacingAngle += (targetAngle - ant.FacingAngle) * GlobalSettings.AntGoalSteerStrength;
+                    }
+                }
+            }
+#endif
             
             float dx = math.cos(ant.FacingAngle) * ant.Speed;
             float dy = math.sin(ant.FacingAngle) * ant.Speed;
@@ -193,13 +244,12 @@ public partial struct AntMoveSystem : ISystem
             {
                 ant.FacingAngle -= math.PI * 2;
             }
-
-            // TODO: need to scale simulation space to render space
+            
             localTransform.Position.x = antPosition.x;
             localTransform.Position.y = antPosition.y;
             localTransform.Rotation = quaternion.AxisAngle(rotationAxis, ant.FacingAngle);
 
-            k_AntsMoveJob_Execute.End();
+           // k_AntsMoveJob_Execute.End();
         }
     }
     
