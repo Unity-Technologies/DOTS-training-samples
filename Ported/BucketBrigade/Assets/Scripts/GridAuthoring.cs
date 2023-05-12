@@ -9,9 +9,16 @@ public class GridAuthoring : MonoBehaviour
     public float MinGridY;
     public float GridCellSize;
 
-    [Header("Bot settings")]
-    public int NumOmnibot;
+    [Header("Bot Basic")]
     public int BotScale;
+
+    [Header("OmniBot settings")]
+    public int NumOmnibot;
+    public float TravelSpeed = 5f;
+    public float WaterGatherSpeed = .1f;
+    public float MaxWaterCapacity = .3f;
+    public float MaxDouseAmount = .5f;
+    public float DouseRadius = 5f;
 
     [Header("Team Bot settings")]
     public int NumTeams = 1;
@@ -89,13 +96,18 @@ public class GridAuthoring : MonoBehaviour
                 // TeambotWaterFillElapsedTime = authoring.TeambotWaterFillElapsedTime,
                 TeambotWaterGatherSpeed = authoring.TeambotWaterGatherSpeed,
 
+                // OmniBOT
+                TravelSpeed = authoring.TravelSpeed,
+                WaterGatherSpeed = authoring.WaterGatherSpeed,
+                MaxWaterCapacity = authoring.MaxWaterCapacity,
+                MaxDouseAmount = authoring.MaxDouseAmount,
+                DouseRadius = authoring.DouseRadius,
+
                 // Water
                 WaterRefillSpeed = authoring.WaterRefillSpeed,
             });
             AddComponent<MouseHit>(entity);
-
         }
-
     }
 }
 
@@ -135,6 +147,13 @@ public struct Grid : IComponentData
 
     // Water 
     public float WaterRefillSpeed;
+
+    // OmniBot
+    public float TravelSpeed;
+    public float WaterGatherSpeed;
+    public float MaxWaterCapacity;
+    public float MaxDouseAmount;
+    public float DouseRadius;
 }
 
 // For mouse hit

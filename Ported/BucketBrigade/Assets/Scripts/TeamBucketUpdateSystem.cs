@@ -26,7 +26,7 @@ public partial struct TeamBucketSystem : ISystem
         {
             
 
-             
+              
             
              var teambotEntity = bucket.ValueRO.TargetTeambotEntity;
              var teambotPosition = localTransformLookup[teambotEntity].Position;
@@ -43,7 +43,18 @@ public partial struct TeamBucketSystem : ISystem
             }
             else if (teambot.Role == TeamBotRole.FireDouser)
             {
-                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(1, 0, 1));
+                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(0.5f, 0, 0.5f));
+
+            }
+            else if  (teambot.Role == TeamBotRole.PassTowardsFire)
+            {
+                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(1, 1, 1));
+ 
+            }
+            
+            else if  (teambot.Role == TeamBotRole.PassTowardsWater)
+            {
+                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(0.5f, 0, 0.5f));
 
             }
         }

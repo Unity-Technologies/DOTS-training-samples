@@ -285,8 +285,13 @@ MonoBehaviour:
   GridSize: 75
   MinGridY: -2
   GridCellSize: 1
-  NumOmnibot: 6
   BotScale: 3
+  NumOmnibot: 6
+  TravelSpeed: 5
+  WaterGatherSpeed: 0.1
+  MaxWaterCapacity: 0.4
+  MaxDouseAmount: 1.8
+  DouseRadius: 5
   NumTeams: 3
   NumTeambotPassTowardsWater: 6
   NumTeambotPassTowardsFire: 6

@@ -32,12 +32,12 @@ public partial struct OmniBucketSystem : ISystem
 
             if (omnibot.CurrentWaterCarryingVolume < math.EPSILON)
             {
-                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(1, 0, 1));
+                pTMatrix.ValueRW.Value = float4x4.Scale(new float3(0.5f, 0, 0.5f));
             }
             else
             {
                 pTMatrix.ValueRW.Value = float4x4.Scale(new float3(
-                    1, omnibot.CurrentWaterCarryingVolume / omnibot.MaxWaterCapacity, 1));
+                    1, omnibot.CurrentWaterCarryingVolume / config.MaxWaterCapacity, 1));
             }
         }
     }

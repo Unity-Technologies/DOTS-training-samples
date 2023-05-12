@@ -14,11 +14,11 @@ public class OmnibotAuthoring : MonoBehaviour
             {
                 OmnibotState = OmnibotState.LookForWater, 
                 t = 0,
-                TravelSpeed = 5f,
-                WaterGatherSpeed = .1f,
-                MaxWaterCapacity = .3f,
-                MaxDouseAmount = .5f,
-                DouseRadius = 5f,
+                // TravelSpeed = 5f,
+                // WaterGatherSpeed = .1f,
+                // MaxWaterCapacity = .3f,
+                // MaxDouseAmount = .5f,
+                // DouseRadius = 5f,
                // OmnibotPosition = authoring.transform.localPosition
             });
             
@@ -45,14 +45,14 @@ public struct Omnibot : IComponentData
     public Entity TargetFireEntity;
 
     public OmnibotState OmnibotState;
-    public float TravelSpeed;
+    // public float TravelSpeed;
     
-    public float MaxWaterCapacity;
-    public float WaterGatherSpeed;
+    // public float MaxWaterCapacity;
+    // public float WaterGatherSpeed;
     public float CurrentWaterCarryingVolume;
 
-    public float DouseRadius;
-    public float MaxDouseAmount;
+    // public float DouseRadius;
+    // public float MaxDouseAmount;
 
     //public float3 OmnibotPosition;
 }

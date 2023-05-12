@@ -39,6 +39,7 @@ public partial struct OmnibotMovingSystem : ISystem
 
         var job = new OmnibotMovingJob
         {
+            config = config,
             waters = waters,
             waterEntities = waterEntities,
             fires = fires,
@@ -61,6 +62,8 @@ public partial struct OmnibotMovingSystem : ISystem
 [BurstCompile]
 public partial struct OmnibotMovingJob : IJobEntity
 {
+    public Grid config;
+    
     [ReadOnly] public NativeArray<Water> waters;
     [ReadOnly] public NativeArray<Entity> waterEntities;
     [ReadOnly] public NativeArray<LocalTransform> waterTransforms;
@@ -132,8 +135,8 @@ public partial struct OmnibotMovingJob : IJobEntity
                     break;
                 case OmnibotState.GatherWater:
                     var targetWater = waterLookup[omnibot.TargetWaterEntity];
-                    var waterGatherStillNeeded = omnibot.MaxWaterCapacity - omnibot.CurrentWaterCarryingVolume;
-                    var waterVolumeTransfer = omnibot.WaterGatherSpeed * deltaTime;
+                    var waterGatherStillNeeded = config.MaxWaterCapacity - omnibot.CurrentWaterCarryingVolume;
+                    var waterVolumeTransfer = config.WaterGatherSpeed * deltaTime;
 
                     // Gathered enough water
                     if (waterVolumeTransfer > waterGatherStillNeeded)
@@ -179,7 +182,7 @@ public partial struct OmnibotMovingJob : IJobEntity
 
                     break;
                 case OmnibotState.TravelToFire:
-                    var frameTravelDistanceToFire = omnibot.TravelSpeed * deltaTime;
+                    var frameTravelDistanceToFire = config.TravelSpeed * deltaTime;
                     var remainingDistToFire =
                         math.distance(omnibotTransform.Position, omnibot.TargetPos);
 
@@ -218,10 +221,10 @@ public partial struct OmnibotMovingJob : IJobEntity
                             firePos.y = 0;
                     
                             var distance = math.distance(firePos, omnibotTransform.Position);
-                            if (distance < omnibot.DouseRadius)
+                            if (distance < config.DouseRadius)
                             {
-                                var douseAmount = omnibot.MaxDouseAmount *
-                                                  (1 - distance / omnibot.DouseRadius);
+                                var douseAmount = config.MaxDouseAmount *
+                                                  (1 - distance / config.DouseRadius);
                                 fire.t -= douseAmount;
                                 if (fire.t < 0)
                                 {
