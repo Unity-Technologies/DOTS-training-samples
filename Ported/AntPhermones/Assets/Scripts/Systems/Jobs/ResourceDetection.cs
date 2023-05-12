@@ -14,13 +14,14 @@ public partial struct ResourceDetection : IJobEntity
     public float mapSize;
     public float obstacleSize;
     public float steeringStrength;
+    
     public int bucketResolution;
     public float2 resourcePosition;
     public float2 homePosition;
     [ReadOnly]
     public NativeArray<Bucket> buckets;
 
-    public void Execute(ref Ant ant, in Position position, in Direction direction, ref URPMaterialPropertyBaseColor color)
+    public void Execute(ref Ant ant, in Position position, in Direction direction)
     {
         float2 targetPosition = ant.hasResource ? homePosition : resourcePosition;
 
@@ -52,6 +53,7 @@ public partial struct ResourceDetection : IJobEntity
             }
         }
 
+
         if (blocked)
         {
             ant.resourceSteering = 0;
@@ -64,11 +66,11 @@ public partial struct ResourceDetection : IJobEntity
             
             if (targetAngle - directionInRad > math.PI/2f)
             {
-                ant.resourceSteering = 2f;
+                ant.resourceSteering = -5f;
             }
             else if (targetAngle - directionInRad < -math.PI/2f)
             {
-                ant.resourceSteering = -2f;
+                ant.resourceSteering = 5f;
             }
             else
             {
