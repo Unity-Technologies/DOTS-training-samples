@@ -157,17 +157,17 @@ MonoBehaviour:
     antAccel: 0.07
     antCount: 50000
     antScale: 0.5
-    pheromoneGrowthRate: 0.5
-    pheromoneDecayRate: 0.95
+    pheromoneGrowthRate: 0.3
+    pheromoneDecayRate: 0.9985
     obstacleSize: 1.5
     ringCount: 3
     bucketResolution: 16
     randomSteerStrength: 8.021409
-    pheromoneSteerStrength: 1.718873
+    pheromoneSteerStrength: 0.8594367
     pheromoneSteerDistance: 3
-    wallSteerStrength: 13.75099
+    wallSteerStrength: 6.875494
     wallSteerDistance: 1.5
-    resourceSteerStrength: 4.583662
+    resourceSteerStrength: 2.291831
     mapSize: 128
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}

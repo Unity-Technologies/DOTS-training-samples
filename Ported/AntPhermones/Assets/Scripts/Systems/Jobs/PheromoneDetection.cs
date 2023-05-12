@@ -33,6 +33,6 @@ public partial struct PheromoneDetectionJob : IJobEntity
 			}
 		}
 
-		ant.pheroSteering = math.sign(output) * steeringStrength / 180f * math.PI;
+		ant.pheroSteering = math.sign(output) * steeringStrength;
     }
 }
