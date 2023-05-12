@@ -104,8 +104,12 @@ public partial struct AntMoveSystem : ISystem
             {
                 float angle = ant.FacingAngle + i * math.PI * .25f;
                 
-                while (angle < 0.0f) // WTF is this?
+                if (ant.FacingAngle < 0.0f)
+                {
                     angle += 2.0f * math.PI;
+                } 
+               //while (angle < 0.0f)
+               //    angle += 2.0f * math.PI;
 
                 var cosAngle = math.cos(angle);
                 var sinAngle = math.sin(angle);
@@ -239,7 +243,8 @@ public partial struct AntMoveSystem : ISystem
             if (ant.FacingAngle < -math.PI)
             {
                 ant.FacingAngle += math.PI * 2;
-            } else if (ant.FacingAngle > math.PI)
+            } 
+            else if (ant.FacingAngle > math.PI)
             {
                 ant.FacingAngle -= math.PI * 2;
             }

@@ -1,3 +1,7 @@
+#define USE_PHEROMONE_CHANEL
+//#define USE_FOOD_CHANEL
+//#define USE_COLONY_CHANEL
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -53,9 +57,15 @@ public partial struct PheromonesPresentationSystem : ISystem
 
         for (int i = 0; i < colorArray.Length; i++)
         {
+#if USE_PHEROMONE_CHANEL
             colorArray[i].r = pheromoneBufferElement[i].Value.x;
+#endif
+#if USE_FOOD_CHANEL
             colorArray[i].g = pheromoneBufferElement[i].Value.y;
+#endif
+#if USE_COLONY_CHANEL
             colorArray[i].b = pheromoneBufferElement[i].Value.z;
+#endif
         }
        
         PheromoneTexture.texture.SetPixels(colorArray);
