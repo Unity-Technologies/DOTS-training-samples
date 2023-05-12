@@ -16,6 +16,8 @@ public partial struct ObstacleSpawnerSystem : ISystem
     static readonly ProfilerMarker k_ProfileMarker_GenerateObstacles = new ProfilerMarker("Obstacle: GenerateObstacles");
     static readonly ProfilerMarker k_ProfileMarker_CalculateRayCollision = new ProfilerMarker("Obstacle: CalculateRayCollision");
 
+    const float MAXFLOAT = 10000000f; 
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<ObstacleSpawnerExecution>();
@@ -131,23 +133,35 @@ public partial struct ObstacleSpawnerSystem : ISystem
         // }
         // else
         {
-            Param = 1000000000.0f;
+            Param = MAXFLOAT;
 
             int PrimIndex = -1;
             for (int i = 0; i < ObstaclePrimtitveBuffer.Length; i++)
             {
                 ObstacleArcPrimitive prim = ObstaclePrimtitveBuffer[i];
-                float t;
-                if (CalculateRayCollisionWithPrimitive(prim, point, direction, out t))
+                float t1, t2;
+                if (CalculateRayCollisionWithPrimitive(prim, point, direction, out t1, out t2))
                 {
-                    if (t < Param)
+                    if (t1 < Param)
                     {
-                        if ((0.0f <= t) && (1.0f >= t))
+                        if ((0.0f <= t1) && (1.0f >= t1))
                         {
-                            float2 TestCollPoint = point + t * direction;
+                            float2 TestCollPoint = point + t1 * direction;
                             if (CalculateCollisionOnPrimitive(prim, TestCollPoint))
                             {
-                                Param = t;
+                                Param = t1;
+                                PrimIndex = i;
+                            }
+                        }
+                    }
+                    if (t2 < Param)
+                    {
+                        if ((0.0f <= t2) && (1.0f >= t2))
+                        {
+                            float2 TestCollPoint = point + t2 * direction;
+                            if (CalculateCollisionOnPrimitive(prim, TestCollPoint))
+                            {
+                                Param = t2;
                                 PrimIndex = i;
                             }
                         }
@@ -305,10 +319,11 @@ public partial struct ObstacleSpawnerSystem : ISystem
         return false;
     }
 
-    public static bool CalculateRayCollisionWithPrimitive(in ObstacleArcPrimitive prim, in float2 point, in float2 direction, out float Param)
+    public static bool CalculateRayCollisionWithPrimitive(in ObstacleArcPrimitive prim, in float2 point, in float2 direction, out float Param1, out float Param2)
     {
-        Param = 1000000000f;
-        
+        Param1 = MAXFLOAT;
+        Param2 = MAXFLOAT;
+
         float2 VectorFromCenterToPoint = point - prim.Position;
         float a = math.dot(direction, direction);
         float b = 2.0f * math.dot(direction, VectorFromCenterToPoint);
@@ -331,15 +346,16 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
         if ((0.0f <= t1) && (0.0f <= t2))
         {
-            Param = Mathf.Min(t1, t2);
+            Param1 = math.min(t1, t2);
+            Param2 = math.max(t1, t2);
         }
         else if (0.0f <= t1)
         {
-            Param = t1;
+            Param1 = t1;
         }
         else if (0.0f <= t2)
         {
-            Param = t2;
+            Param1 = t2;
         }
         // See if this collision is the closest        
 
