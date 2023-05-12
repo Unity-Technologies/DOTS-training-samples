@@ -236,11 +236,10 @@ public partial struct AntMoveSystem : ISystem
             }
             
             // clamp angle to +-180 degrees
-            while (ant.FacingAngle < -math.PI)
+            if (ant.FacingAngle < -math.PI)
             {
                 ant.FacingAngle += math.PI * 2;
-            }
-            while (ant.FacingAngle > math.PI)
+            } else if (ant.FacingAngle > math.PI)
             {
                 ant.FacingAngle -= math.PI * 2;
             }
