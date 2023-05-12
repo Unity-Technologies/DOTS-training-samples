@@ -4,7 +4,10 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 public partial struct TrainSpawnerSystem : ISystem
 {
@@ -17,7 +20,7 @@ public partial struct TrainSpawnerSystem : ISystem
     {
         m_Random = new Random(6754);
         var builder = new EntityQueryBuilder(Allocator.Temp);
-        builder.WithAny<TrackIDComponent>();
+        builder.WithAny<Track>();
         m_trackQuery = state.GetEntityQuery(builder);
         entityHandle = state.GetEntityTypeHandle();
 
@@ -30,6 +33,31 @@ public partial struct TrainSpawnerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        var query = SystemAPI.QueryBuilder().WithAll<URPMaterialPropertyBaseColor>().Build();
+        var queryMask = query.GetEntityQueryMask();
+
+        // This system will only run once, so the random seed can be hard-coded.
+        // Using an arbitrary constant seed makes the behavior deterministic.
+        var hue = m_Random.NextFloat();
+
+        // Set the color of the station
+        // Helper to create any amount of colors as distinct from each other as possible.
+        // The logic behind this approach is detailed at the following address:
+        // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+        URPMaterialPropertyBaseColor RandomColor()
+        {
+            // Note: if you are not familiar with this concept, this is a "local function".
+            // You can search for that term on the internet for more information.
+
+            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+            hue = (hue + 0.618034005f) % 1;
+            var color = Color.HSVToRGB(hue, 1.0f, 1.0f);
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
+
         var em = state.EntityManager;
         entityHandle.Update(ref state);
 
@@ -51,8 +79,6 @@ public partial struct TrainSpawnerSystem : ISystem
             train.ValueRW.TrackEntity = trackEntity;
             train.ValueRW.Offset = transform.ValueRO.Position;
 
-            train.ValueRW.TrainId = -1;
-
             // one train per track at the moment, could there be more that one train on a track?
             train.ValueRW.TrainId = trackIndex;
 
@@ -73,8 +99,9 @@ public partial struct TrainSpawnerSystem : ISystem
             em.SetComponentEnabled<UnloadingComponent>(entity, startStopped);
             em.SetComponentEnabled<ArrivingComponent>(entity, false);
             em.SetComponentEnabled<DepartingComponent>(entity, false);
-            
-            
+
+            hue = em.GetComponentData<StationIDComponent>(trackPoint.Station).LineColor;
+            ecb.SetComponentForLinkedEntityGroup(entity, queryMask, RandomColor());
         }
 
         state.Enabled = false;

@@ -19,7 +19,7 @@ public partial struct StationSpawningSystem : ISystem
         state.RequireForUpdate<BeginSimulationEntityCommandBufferSystem.Singleton>();
         state.RequireForUpdate<StationConfig>();
         state.RequireForUpdate<Config>();
-        m_TrackArchetype = state.EntityManager.CreateArchetype(typeof(TrackIDComponent), typeof(Track));
+        m_TrackArchetype = state.EntityManager.CreateArchetype(typeof(Track));
     }
 
     [BurstCompile]
@@ -29,6 +29,27 @@ public partial struct StationSpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var random = Random.CreateFromIndex(12314);
+
+        // This system will only run once, so the random seed can be hard-coded.
+        // Using an arbitrary constant seed makes the behavior deterministic.
+        var hue = random.NextFloat();
+
+        // Set the color of the station
+        // Helper to create any amount of colors as distinct from each other as possible.
+        // The logic behind this approach is detailed at the following address:
+        // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
+        URPMaterialPropertyBaseColor RandomColor()
+        {
+            // Note: if you are not familiar with this concept, this is a "local function".
+            // You can search for that term on the internet for more information.
+
+            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
+            hue = (hue + 0.618034005f) % 1;
+            var color = Color.HSVToRGB(hue, 1.0f, 1.0f);
+            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
+        }
+
         var stationConfig = SystemAPI.GetSingleton<StationConfig>();
 		var config = SystemAPI.GetSingleton<Config>();
         var totalNumStations = stationConfig.NumStations * stationConfig.NumLines;
@@ -56,22 +77,33 @@ public partial struct StationSpawningSystem : ISystem
             });
         }
 
-        var random = Random.CreateFromIndex(12314);
+        
         int i = 0;
         int lineIndex = 0;
 		int stationIdCount = 0;
         float accumulatedValue = 0;
         var halfStationLength = 20;
+
+        var lineColor = random.NextFloat();
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        var query = SystemAPI.QueryBuilder().WithAll<URPMaterialPropertyBaseColor>().Build();
+        var queryMask = query.GetEntityQueryMask();
+
         float3 trackPointOffsetFromCenter = new float3(halfStationLength, 0, 0);
         foreach (var (transform, stationID, stationEntity) in
             SystemAPI.Query<RefRW<LocalTransform>, RefRW<StationIDComponent>>()
             .WithEntityAccess())
         {
-			stationID.ValueRW.StationID = stationIdCount;
+            stationID.ValueRW.StationID = stationIdCount;
             stationID.ValueRW.LineID = lineIndex;
+            stationID.ValueRW.LineColor = lineColor;
+            hue = lineColor;
+            ecb.SetComponentForLinkedEntityGroup(stationEntity, queryMask, RandomColor());
 
             stationIdCount++;
-		
+
             var randomVal = random.NextFloat();
             var trackEntityA = trackEntities[lineIndex * 2];
             var trackEntityB = trackEntities[lineIndex * 2 + 1];
@@ -99,6 +131,7 @@ public partial struct StationSpawningSystem : ISystem
             {
                 i = 0;
                 accumulatedValue = 0;
+                lineColor = random.NextFloat();
                 lineIndex++;
             }
         }
@@ -200,39 +233,7 @@ public partial struct StationSpawningSystem : ISystem
             }
             i++;
         }
-
-        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
-        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
-
-        var query = SystemAPI.QueryBuilder().WithAll<URPMaterialPropertyBaseColor>().Build();
-        var queryMask = query.GetEntityQueryMask();
         
-        // This system will only run once, so the random seed can be hard-coded.
-        // Using an arbitrary constant seed makes the behavior deterministic.
-        var hue = random.NextFloat();
-
-        // Set the color of the station
-        // Helper to create any amount of colors as distinct from each other as possible.
-        // The logic behind this approach is detailed at the following address:
-        // https://martin.ankerl.com/2009/12/09/how-to-create-random-colors-programmatically/
-        URPMaterialPropertyBaseColor RandomColor()
-        {
-            // Note: if you are not familiar with this concept, this is a "local function".
-            // You can search for that term on the internet for more information.
-
-            // 0.618034005f == 2 / (math.sqrt(5) + 1) == inverse of the golden ratio
-            hue = (hue + 0.618034005f) % 1;
-            var color = Color.HSVToRGB(hue, 1.0f, 1.0f);
-            return new URPMaterialPropertyBaseColor { Value = (Vector4)color };
-        }
-
-        var stationColor = RandomColor();
-
-        foreach (var station in stations)
-        {
-            ecb.SetComponentForLinkedEntityGroup(station, queryMask, stationColor);
-        }
-
         state.Enabled = false;
     }
 }
