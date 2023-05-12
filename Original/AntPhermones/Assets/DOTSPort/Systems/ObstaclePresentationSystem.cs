@@ -20,7 +20,7 @@ public partial struct ObstaclePresentationSystem : ISystem
 
         float MapSize = Mathf.Min((float)globalSettings.MapSizeX, (float)globalSettings.MapSizeY);
 
-        int PrimIndex = -1;
+        //int PrimIndex = -1;
         for (int i = 0; i < buffer.Length; i++)
         {
             List<Vector3> centerPoints = new List<Vector3>();

@@ -26,7 +26,9 @@ public partial struct PheromoneMouseDrawSystem : ISystem
             
             if (index > 0 && index < buffer.Length)
             {
-                buffer[index] = 1;
+                var value = buffer[index].Value;
+                value.y = 1;
+                buffer[index] = value;
             }
         }
         

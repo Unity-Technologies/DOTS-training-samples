@@ -55,7 +55,14 @@ public partial struct PheromonesSystem : ISystem
         [BurstCompile]
         public void Execute(int index)
         {
-            Pheromones[index] *= TrailDecay;
+            var value = Pheromones[index].Value;
+            if (value.x > 1f)
+            {
+                value.x = 1;
+            }
+            
+            value.x *= TrailDecay;
+            Pheromones[index] = value;
         }
     }
     
@@ -89,16 +96,24 @@ public partial struct PheromonesSystem : ISystem
 
           // if (Pheromones[index] < maxPheromones)
           // {
-                Pheromones[index] += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index]);
-                if (Pheromones[index] > 1f)
-                {
-                    Pheromones[index] = 1;
-                }
+          var value = Pheromones[index].Value;
+          value.x += (GlobalSettings.TrailAddSpeed * excitement * DeltaTime) * (1f - Pheromones[index].Value.x);
+          Pheromones[index] = value;
           //  }
         }
     }
     
-    public static int PheromoneIndex(int x, int y, int mapSizeX) => x + y * mapSizeX;
+    public static int PheromoneIndex(int x, int y, int mapSizeX)
+    {
+        return x + y * mapSizeX;
+    }
+    
+    public static int PheromoneIndexClamp(int x, int y, int mapSizeX, int mapSizeY)
+    {
+        x = math.clamp(x, 0, mapSizeX - 1);
+        y = math.clamp(y, 0, mapSizeY - 1);
+        return x + y * mapSizeX;
+    }
 }
 
 

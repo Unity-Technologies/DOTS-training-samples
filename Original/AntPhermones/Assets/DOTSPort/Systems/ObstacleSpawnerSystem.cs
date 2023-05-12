@@ -122,7 +122,7 @@ public partial struct ObstacleSpawnerSystem : ISystem
 
     public static bool CalculateRayCollision(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in float2 point, in float2 direction, out float2 CollisionPoint, out float Param)
     {
-        k_ProfileMarker_CalculateRayCollision.Begin();
+       // k_ProfileMarker_CalculateRayCollision.Begin();
 
         bool ReturnValue = false;
         // if (X86.Sse.IsSseSupported)
@@ -168,7 +168,7 @@ public partial struct ObstacleSpawnerSystem : ISystem
             }
         }
 
-        k_ProfileMarker_CalculateRayCollision.End();
+       // k_ProfileMarker_CalculateRayCollision.End();
         return ReturnValue;
     }
 

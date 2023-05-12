@@ -61,7 +61,7 @@ public partial struct AntMoveSystem : ISystem
 
         void Execute(ref AntData ant, ref LocalTransform localTransform, ref URPMaterialPropertyBaseColor baseColor)
         {
-           // k_AntsMoveJob_Execute.Begin();
+            k_AntsMoveJob_Execute.Begin();
 
             var randomSteering = GlobalSettings.AntRandomSteering;
             var antSpeed = GlobalSettings.AntSpeed;
@@ -80,42 +80,74 @@ public partial struct AntMoveSystem : ISystem
            // Steering ------------------------------------------------------------------------------------------------
            
             ant.FacingAngle += ant.Rand.NextFloat(-randomSteering, randomSteering);
-            float pheroSteering = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
-            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, CollisionHashSet, ant.FacingAngle, antPosition, WallSteeringDistance, mapSize, GlobalSettings.WallThickness);
-
-            ant.FacingAngle += pheroSteering * GlobalSettings.PheromoneSteerStrength;
-            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
-
-            // Speed ------------------------------------------------------------------------------------------------
-            float targetSpeed = antSpeed;
-            // targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
-            ant.Speed += (targetSpeed - ant.Speed) * antAccel;
+           //float pheromoneOutputR = PheromoneSteering(localTransform.Position, ant.FacingAngle, 3f, mapSizeX, mapSizeY, Pheromones);
             
-            // Line cast -------------------------------------------------------------------------------------------------
-            float2 collisionPoint = float2.zero;
-            float param = 0;
-            float2 targetVector = ant.TargetPosition - antPosition;
-            if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, antPosition / mapSize, targetVector / mapSize, out collisionPoint, out param))
+            // Pheromone Steering --------------------------------------------------------------------------------
+            float pheromoneOutputR = 0;
+            float pheromoneOutputGoal = 0;
+//
+            for (int i = -1; i <= 1; i += 2)
             {
-                float targetAngle = math.atan2(
-                    ant.TargetPosition.y - antPosition.y, 
-                    ant.TargetPosition.x - antPosition.x);
-                if (targetAngle - ant.FacingAngle > math.PI)
+                float angle = ant.FacingAngle + i * math.PI * .25f;
+                
+                float testX = antPosition.x + math.cos(angle) * 3f;
+                float testY = antPosition.y + math.sin(angle) * 3f;
+//
+                if (testX < 0 || testY < 0 || testX >= mapSizeX || testY >= mapSizeY)
                 {
-                    ant.FacingAngle += math.PI * 2f;
-                }
-                else if (targetAngle - ant.FacingAngle < -math.PI)
-                {
-                    ant.FacingAngle -= math.PI * 2f;
+                    // Should be empty
                 }
                 else
                 {
-                    if (math.abs(targetAngle - ant.FacingAngle) < math.PI * .5f)
-                    {
-                        ant.FacingAngle += (targetAngle - ant.FacingAngle) * goalSteerStrength;
-                    }
+                    int index = PheromonesSystem.PheromoneIndex((int)testX, (int)testY, mapSizeX);
+                    
+                    float value = Pheromones[index].Value.x;
+                    pheromoneOutputR += value * i;
+                    
+                    float valueG = ant.HoldingResource ? Pheromones[index].Value.z : Pheromones[index].Value.y; // Heading to colony ot food
+                    pheromoneOutputGoal += valueG * i;
                 }
             }
+            
+            ant.FacingAngle += math.sign(pheromoneOutputR) * GlobalSettings.PheromoneSteerStrength;
+            ant.FacingAngle += math.sign(pheromoneOutputGoal) * GlobalSettings.AntGoalSteerStrength; //Substitution for line cast
+
+
+            // ----------------------
+            
+            int wallSteering = ParametricWallSteering(ObstacleArcPrimitiveBuffer, CollisionHashSet, ant.FacingAngle, antPosition, WallSteeringDistance, mapSize, GlobalSettings.WallThickness);
+            ant.FacingAngle += wallSteering * GlobalSettings.WallSteerStrength;
+
+            // Speed ------------------------------------------------------------------------------------------------
+           // float targetSpeed = antSpeed;
+            // targetSpeed *= 1f - (math.abs(pheroSteering) + math.abs(wallSteering)) / 3f;
+            ant.Speed += (antSpeed - ant.Speed) * antAccel;
+            
+            // Line cast -------------------------------------------------------------------------------------------------
+         //   float2 collisionPoint = float2.zero;
+         //   float param = 0;
+         //   float2 targetVector = ant.TargetPosition - antPosition;
+         //   if (!ObstacleSpawnerSystem.CalculateRayCollision(ObstacleArcPrimitiveBuffer, antPosition / mapSize, targetVector / mapSize, out collisionPoint, out param))
+         //   {
+         //       float targetAngle = math.atan2(
+         //           ant.TargetPosition.y - antPosition.y, 
+         //           ant.TargetPosition.x - antPosition.x);
+         //       if (targetAngle - ant.FacingAngle > math.PI)
+         //       {
+         //           ant.FacingAngle += math.PI * 2f;
+         //       }
+         //       else if (targetAngle - ant.FacingAngle < -math.PI)
+         //       {
+         //           ant.FacingAngle -= math.PI * 2f;
+         //       }
+         //       else
+         //       {
+         //           if (math.abs(targetAngle - ant.FacingAngle) < math.PI * .5f)
+         //           {
+         //               ant.FacingAngle += (targetAngle - ant.FacingAngle) * goalSteerStrength;
+         //           }
+         //       }
+         //   }
             
             float dx = math.cos(ant.FacingAngle) * ant.Speed;
             float dy = math.sin(ant.FacingAngle) * ant.Speed;
@@ -167,11 +199,11 @@ public partial struct AntMoveSystem : ISystem
             localTransform.Position.y = antPosition.y;
             localTransform.Rotation = quaternion.AxisAngle(rotationAxis, ant.FacingAngle);
 
-            //k_AntsMoveJob_Execute.End();
+            k_AntsMoveJob_Execute.End();
         }
     }
     
-    static int ParametricWallSteering(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, in NativeHashSet<int2> hashSet, float facingAngle, float2 antPosition, float distance, float mapSize, float WallThickness)
+    static int ParametricWallSteering(in NativeArray<ObstacleArcPrimitive> ObstaclePrimtitveBuffer, NativeHashSet<int2> hashSet, float facingAngle, float2 antPosition, float distance, float mapSize, float WallThickness)
     {
         //k_AntsMoveJob_WallSteering.Begin();
 
@@ -241,7 +273,7 @@ public partial struct AntMoveSystem : ISystem
             else
             {
                 int index = PheromonesSystem.PheromoneIndex((int)testX, (int)testY, mapSizeX);
-                float value = pheromones[index];
+                float value = pheromones[index].Value.x;
                 output += value * i;
             }
         }

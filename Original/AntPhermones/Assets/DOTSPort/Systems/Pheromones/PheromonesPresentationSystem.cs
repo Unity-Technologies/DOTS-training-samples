@@ -53,7 +53,9 @@ public partial struct PheromonesPresentationSystem : ISystem
 
         for (int i = 0; i < colorArray.Length; i++)
         {
-            colorArray[i].r = pheromoneBufferElement[i];
+            colorArray[i].r = pheromoneBufferElement[i].Value.x;
+            colorArray[i].g = pheromoneBufferElement[i].Value.y;
+            colorArray[i].b = pheromoneBufferElement[i].Value.z;
         }
        
         PheromoneTexture.texture.SetPixels(colorArray);

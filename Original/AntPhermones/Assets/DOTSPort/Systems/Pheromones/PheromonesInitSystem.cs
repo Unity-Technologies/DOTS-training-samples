@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public partial struct PheromonesInitSystem : ISystem
@@ -33,7 +34,7 @@ public partial struct PheromonesInitSystem : ISystem
         
         for (int i = 0; i < totalPixels; i++)
         {
-            buffer.Add(0);
+            buffer.Add(float3.zero);
         }
     }
 }
@@ -41,10 +42,10 @@ public partial struct PheromonesInitSystem : ISystem
 public struct PheromoneBufferElement : IBufferElementData
 {
     // These implicit conversions are optional, but can help reduce typing.
-    public static implicit operator float(PheromoneBufferElement e) { return e.Value; }
-    public static implicit operator PheromoneBufferElement(float e) { return new PheromoneBufferElement { Value = e }; }
+    public static implicit operator float3(PheromoneBufferElement e) { return e.Value; }
+    public static implicit operator PheromoneBufferElement(float3 e) { return new PheromoneBufferElement { Value = e }; }
 
     // Actual value each buffer element will store.
-    public float Value;  // TODO: maybe int is better in terms of performance?
+    public float3 Value;  // TODO: maybe int is better in terms of performance?
 }
 
