@@ -20,7 +20,7 @@ public partial struct PheromoneDropJob : IJobEntity
         strength *= speed.speed / antTargetSpeed;
 
         var gridPosition = math.int2(math.floor(position.position));
-        if (gridPosition.x < 0 || gridPosition.y < 0 || gridPosition.x > mapSize || gridPosition.y > mapSize)
+        if (gridPosition.x < 0 || gridPosition.y < 0 || gridPosition.x >= mapSize || gridPosition.y >= mapSize)
         {
             return;
         }
@@ -28,7 +28,6 @@ public partial struct PheromoneDropJob : IJobEntity
         var index = gridPosition.x + gridPosition.y * mapSize;
         var pheromone = pheromones[index];
         pheromone.strength += pheromoneGrowthRate * strength * (1f - pheromone.strength) * deltaTime;
-        pheromone.strength = math.min(pheromone.strength, 1f);
         pheromones[index] = pheromone;
     }
 }
