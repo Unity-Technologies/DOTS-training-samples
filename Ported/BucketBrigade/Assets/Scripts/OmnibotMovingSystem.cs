@@ -12,6 +12,7 @@ public partial struct OmnibotMovingSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Grid>();
         state.RequireForUpdate<Water>();
         state.RequireForUpdate<Fire>();
     }

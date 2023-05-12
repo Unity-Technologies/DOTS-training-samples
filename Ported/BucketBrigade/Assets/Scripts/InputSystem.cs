@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [BurstCompile]
-[UpdateAfter(typeof(MouseHit))]
+[UpdateAfter(typeof(FireSystem))]
 public partial struct InputSystem : ISystem {
 
     [BurstCompile]

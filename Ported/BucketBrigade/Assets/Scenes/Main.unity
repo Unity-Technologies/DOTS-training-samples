@@ -288,7 +288,9 @@ MonoBehaviour:
   m_text: 'Spacebar: Toggle camera rotate on/off
 
     Mouse left click: Set new fire
-    in grid'
+    in grid
+
+    A/D/Left/Right: Pan camera faster'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -589,6 +591,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateRate: 15
+  maxPanning: 45
+  panSpeed: 100
   keyStopRotate: 32
   keyStartRotate: 32
   GridSizeFromECSBecauseItWontTalkToMe: 75

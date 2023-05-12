@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(Grid))]
+[UpdateAfter(typeof(FireSystem))]
 public partial struct WaterSpreadSystem : ISystem
 {
     [BurstCompile]
