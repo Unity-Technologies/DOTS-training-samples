@@ -33,7 +33,8 @@ public partial struct AntAI: ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
-        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
+        var lookingForFoodPheromones = SystemAPI.GetSingletonBuffer<LookingForFoodPheromone>();
+        var lookingForHomePheromones = SystemAPI.GetSingletonBuffer<LookingForHomePheromone>();
 
         // SteeringRandomizer
         var steeringJob = new SteeringRandomizerJob
@@ -51,7 +52,8 @@ public partial struct AntAI: ISystem
             mapSize = (int)colony.mapSize,
             steeringStrength = colony.pheromoneSteerStrength,
             distance = colony.pheromoneSteerDistance,
-            pheromones = pheromones
+            lookingForFoodPheromones = lookingForFoodPheromones,
+            lookingForHomePheromones = lookingForHomePheromones
         };
         var pheromoneDetectionJobHandle = pheromoneDetectionJob.ScheduleParallel(steeringJobHandle);
 
@@ -100,15 +102,18 @@ public partial struct AntAI: ISystem
 
 
         // Drop Pheromones
-        pheromoneDetectionJobHandle.Complete(); // needed before we work witht his native array
-        var nativePheromones = pheromones.AsNativeArray();
+        pheromoneDetectionJobHandle.Complete(); // needed before we work with the native array
+        
+        var nativeLookingForFoodPheromones = lookingForFoodPheromones.AsNativeArray();
+        var nativeLookingForHomePheromones = lookingForHomePheromones.AsNativeArray();
         var pheromoneDropJob = new PheromoneDropJob
         {
             deltaTime = SystemAPI.Time.fixedDeltaTime,
             mapSize = (int)colony.mapSize,
             antTargetSpeed = colony.antTargetSpeed,
             pheromoneGrowthRate = colony.pheromoneGrowthRate,
-            pheromones = nativePheromones
+            lookingForFoodPheromones = nativeLookingForFoodPheromones,
+            lookingForHomePheromones = nativeLookingForHomePheromones,
         };
         var pheromoneDropJobHandle = pheromoneDropJob.ScheduleParallel(dynamicsJobHandle);
         pheromoneDropJobHandle.Complete(); // BUG???
@@ -117,8 +122,9 @@ public partial struct AntAI: ISystem
         var pheromoneDecayJob = new PheromoneDecayJob
         {
             pheromoneDecayRate = colony.pheromoneDecayRate,
-            pheromones = pheromones
+            lookingForFoodPheromones = lookingForFoodPheromones,
+            lookingForHomePheromones = lookingForHomePheromones
         };
-        state.Dependency = pheromoneDecayJob.Schedule(pheromones.Length, 100, pheromoneDropJobHandle);
+        state.Dependency = pheromoneDecayJob.Schedule(lookingForFoodPheromones.Length, 100, pheromoneDropJobHandle);
     }
 }

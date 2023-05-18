@@ -15,7 +15,7 @@ public partial struct Rendering: ISystem
     
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<Pheromone>();
+        state.RequireForUpdate<LookingForFoodPheromone>();
         state.RequireForUpdate<Colony>();
         m_Initialized = false;
     }
@@ -55,7 +55,7 @@ public partial struct Rendering: ISystem
         var material = meshRenderer.material;
         var texture2D = material.mainTexture as Texture2D;
 
-        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
+        var pheromones = SystemAPI.GetSingletonBuffer<LookingForFoodPheromone>();
         texture2D.SetPixelData(pheromones.AsNativeArray(), 0, 0);
         texture2D.Apply();
     }

@@ -61,20 +61,18 @@ public partial struct ResourceDetection : IJobEntity
         else
         {
             float directionInRad = math.radians(direction.direction);
-
             float targetAngle = math.atan2(targetPosition.y - position.position.y, targetPosition.x - position.position.x);
-            
-            if (targetAngle - directionInRad > math.PI/2f)
-            {
-                ant.resourceSteering = -5f;
-            }
-            else if (targetAngle - directionInRad < -math.PI/2f)
+            if (targetAngle - directionInRad > math.PI/4f)
             {
                 ant.resourceSteering = 5f;
             }
+            else if (targetAngle - directionInRad < -math.PI/4f)
+            {
+                ant.resourceSteering = -5f;
+            }
             else
             {
-                ant.resourceSteering = math.degrees(targetAngle - directionInRad)/30f;
+                ant.resourceSteering = math.degrees(targetAngle - directionInRad)/5;
             }
         }
     }

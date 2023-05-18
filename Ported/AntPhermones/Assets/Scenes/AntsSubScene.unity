@@ -155,15 +155,15 @@ MonoBehaviour:
   colony:
     antTargetSpeed: 0.1
     antAccel: 0.07
-    antCount: 100000
-    antScale: 0.5
+    antCount: 100
+    antScale: 5
     pheromoneGrowthRate: 2
     pheromoneDecayRate: 0.985
     obstacleSize: 1.5
-    ringCount: 3
+    ringCount: 1
     bucketResolution: 16
     randomSteerStrength: 8.021409
-    pheromoneSteerStrength: 0.8594367
+    pheromoneSteerStrength: 2
     pheromoneSteerDistance: 3
     wallSteerStrength: 6.875494
     wallSteerDistance: 1.5

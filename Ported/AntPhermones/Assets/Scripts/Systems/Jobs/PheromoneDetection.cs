@@ -12,7 +12,9 @@ public partial struct PheromoneDetectionJob : IJobEntity
     public float steeringStrength;
     public float distance;
     [ReadOnly]
-    public DynamicBuffer<Pheromone> pheromones;
+    public DynamicBuffer<LookingForFoodPheromone> lookingForFoodPheromones;
+    [ReadOnly]
+    public DynamicBuffer<LookingForHomePheromone> lookingForHomePheromones;
 
     public void Execute(ref Ant ant, in Position position, in Direction direction)
     {
@@ -28,7 +30,13 @@ public partial struct PheromoneDetectionJob : IJobEntity
 			if (testX >= 0 && testY >= 0 && testX < mapSize && testY < mapSize)
 			{
 				var index = (int)testX + (int)testY * mapSize;
-				var value = pheromones[index].strength;
+
+				var value = 0f;
+				if (ant.hasResource)
+					value = lookingForHomePheromones[index].strength;
+				else				
+					value = lookingForFoodPheromones[index].strength;
+				
 				output += value * i;
 			}
 		}

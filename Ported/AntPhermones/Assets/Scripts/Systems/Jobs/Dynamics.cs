@@ -52,13 +52,18 @@ public partial struct DynamicsJob : IJobEntity
         var newPosition = oldPosition + deltaPos;
 
         // If ants are moving out of bounds, flip them 180 degrees
-        if (newPosition.x < 0f || newPosition.x > mapSize || newPosition.y < 0f || newPosition.y > mapSize)
-            direction.direction = direction.direction + 180;
+        if (newPosition.x < 0f)
+            direction.direction = 0f;
+        else if (newPosition.x > mapSize)
+            direction.direction = 180f;
+        else if (newPosition.y < 0f)
+            direction.direction = 90f;
+        else if (newPosition.y > mapSize)
+            direction.direction = 270f;
         else
         {
             position.position = newPosition;
             localTransform.Position = new float3(newPosition.x, newPosition.y, 0);
         }
-
     }
 }

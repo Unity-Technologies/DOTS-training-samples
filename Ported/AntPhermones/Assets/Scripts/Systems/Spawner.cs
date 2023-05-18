@@ -135,11 +135,19 @@ public partial struct Spawner: ISystem
     void SpawnPheromones(ref SystemState state, Colony colony)
     {
         var pheromones = state.EntityManager.CreateEntity();
-        var pheromonesBuffer = state.EntityManager.AddBuffer<Pheromone>(pheromones);
-        pheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
-        for (var i = 0; i < pheromonesBuffer.Length; i++)
+        var lookingForFoodPheromonesBuffer = state.EntityManager.AddBuffer<LookingForFoodPheromone>(pheromones);
+        lookingForFoodPheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
+        for (var i = 0; i < lookingForFoodPheromonesBuffer.Length; i++)
         {
-            pheromonesBuffer[i] = new Pheromone { strength = 0f };
+            lookingForFoodPheromonesBuffer[i] = new LookingForFoodPheromone { strength = 0f };
         }
+
+        var lookingForHomePheromonesBuffer = state.EntityManager.AddBuffer<LookingForHomePheromone>(pheromones);
+        lookingForHomePheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
+        for (var i = 0; i < lookingForHomePheromonesBuffer.Length; i++)
+        {
+            lookingForHomePheromonesBuffer[i] = new LookingForHomePheromone { strength = 0f };
+        }
+
     }
 }
