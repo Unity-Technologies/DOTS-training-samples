@@ -153,6 +153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Prefab: {fileID: 2521270844370248946, guid: b56fd789c660e4a5ca085d5c3f5c2f71, type: 3}
+  Rows: 100
+  Columns: 100
 --- !u!4 &678914933
 Transform:
   m_ObjectHideFlags: 0

@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct FireSpawnerSystem : ISystem
 {
     private uint m_UpdateCounter;
@@ -20,20 +21,22 @@ public partial struct FireSpawnerSystem : ISystem
         var fireCellsQuery = SystemAPI.QueryBuilder().WithAll<FireCell>().Build();
         if (fireCellsQuery.IsEmpty)
         {
-            var prefab = SystemAPI.GetSingleton<FireSpawner>().Prefab;
+            var fireSpawner = SystemAPI.GetSingleton<FireSpawner>();
+            var prefab = fireSpawner.Prefab;
+            var size = fireSpawner.Rows * fireSpawner.Columns; 
+            
+            var instances = state.EntityManager.Instantiate(prefab, size, Allocator.Temp);
 
-            // Instantiating an entity creates copy entities with the same component types and values.
-            var instances = state.EntityManager.Instantiate(prefab, 500, Allocator.Temp);
-
-            // Unlike new Random(), CreateFromIndex() hashes the random seed
-            // so that similar seeds don't produce similar results.
-            var random = Random.CreateFromIndex(m_UpdateCounter++);
-
-            foreach (var entity in instances)
+            var index = 0;
+            for (var x = 0; x < fireSpawner.Rows; x++)
             {
-                // Update the entity's LocalTransform component with the new position.
-                var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
-                transform.ValueRW.Position = (random.NextFloat3() - new float3(0.5f, 0, 0.5f)) * 20;
+                for (var y = 0; y < fireSpawner.Columns; y++)
+                {
+                    var entity = instances[index++];
+                    var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
+                    transform.ValueRW.Position = new float3(x * .3f, 0f, y * .3f);
+
+                }
             }
         }
     }
