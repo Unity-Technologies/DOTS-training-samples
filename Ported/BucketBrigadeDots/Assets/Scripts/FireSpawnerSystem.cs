@@ -13,6 +13,7 @@ public partial struct FireSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<FireSpawner>();
+        state.RequireForUpdate<GameSettings>();
     }
     
     [BurstCompile]
@@ -21,16 +22,17 @@ public partial struct FireSpawnerSystem : ISystem
         var fireCellsQuery = SystemAPI.QueryBuilder().WithAll<FireCell>().Build();
         if (fireCellsQuery.IsEmpty)
         {
+            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
             var fireSpawner = SystemAPI.GetSingleton<FireSpawner>();
             var prefab = fireSpawner.Prefab;
-            var size = fireSpawner.Rows * fireSpawner.Columns; 
+            var size = gameSetting.Rows * gameSetting.Columns; 
             
             var instances = state.EntityManager.Instantiate(prefab, size, Allocator.Temp);
 
             var index = 0;
-            for (var x = 0; x < fireSpawner.Rows; x++)
+            for (var x = 0; x < gameSetting.Rows; x++)
             {
-                for (var y = 0; y < fireSpawner.Columns; y++)
+                for (var y = 0; y < gameSetting.Columns; y++)
                 {
                     var entity = instances[index++];
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);

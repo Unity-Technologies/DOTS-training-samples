@@ -6,8 +6,6 @@ using UnityEngine;
 public class FireSpawnerAuthoring : MonoBehaviour
 {
     public GameObject Prefab;
-    public int Rows;
-    public int Columns;
 
     class Baker : Baker<FireSpawnerAuthoring>
     {
@@ -17,8 +15,6 @@ public class FireSpawnerAuthoring : MonoBehaviour
             AddComponent(entity, new FireSpawner
             {
                 Prefab = GetEntity(authoring.Prefab, TransformUsageFlags.WorldSpace),
-                Rows = authoring.Rows,
-                Columns = authoring.Columns
             });
         }
     }
@@ -27,6 +23,4 @@ public class FireSpawnerAuthoring : MonoBehaviour
 public struct FireSpawner : IComponentData
 {
     public Entity Prefab;
-    public int Rows;
-    public int Columns;
 }
