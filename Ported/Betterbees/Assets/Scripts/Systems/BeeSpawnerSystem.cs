@@ -25,7 +25,7 @@ public partial struct BeeSpawnerSystem : ISystem {
     {
         foreach (var spawner in SystemAPI.Query<SpawnerComponent>())
         {
-            for (int i = 0; i < spawner.initialSpawnAmount; i++)
+            for (int i = 0; i < Config.beeCount; i++)
             {
                 Entity newBee = state.EntityManager.Instantiate(spawner.beePrefab);
             }
