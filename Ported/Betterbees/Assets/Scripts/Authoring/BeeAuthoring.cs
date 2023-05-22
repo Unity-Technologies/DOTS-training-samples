@@ -1,6 +1,6 @@
 namespace Authoring
 {
-    public class BeeBaker
+    public class BeeAuthoring
     {
         
     }
