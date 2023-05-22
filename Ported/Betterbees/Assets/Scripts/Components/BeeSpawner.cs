@@ -1,7 +1,11 @@
+using Unity.Entities;
+using UnityEngine;
+
 namespace Components
 {
-    public struct BeeSpawner
+    public class BeeSpawner : MonoBehaviour
     {
+        
         
     }
 }

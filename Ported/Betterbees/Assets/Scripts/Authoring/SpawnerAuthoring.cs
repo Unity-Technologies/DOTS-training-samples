@@ -1,5 +1,6 @@
 using Components;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ using UnityEngine;
         public override void Bake(SpawnerAuthoring authoring)
         {
             var entity = GetEntity(TransformUsageFlags.None);
-            
+
             AddComponent(entity, new SpawnerComponent
             {
                 initialSpawnAmount = authoring.initialSpawnAmount,
