@@ -14,7 +14,7 @@ public partial struct SpawningSystem : ISystem
     const float k_DefaultWorkerPosY = 0.25f;
     const float k_DefaultGridSize = 0.3f;
     private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
-    private const float k_AssumedWaterFeatureWidth = 2f; // TODO: can we read this from the prefab?
+    private const float k_AssumedWaterFeatureWidth = 5f; // TODO: can we read this from the prefab?
     
     private uint m_UpdateCounter;
     
@@ -151,12 +151,7 @@ public partial struct SpawningSystem : ISystem
                 math.sincos(angleRadians, out var sin, out var cos);
                 var offset = new float3(sin, 0f, cos) * waterGroupDistanceFromCenter;
                 transform.ValueRW.Position = gridCenter + offset;
-                
-                //var transformRW = transform.ValueRW;
-                // TODO: rotate!
-                
-                Debug.Log($"rotating entity {entity} by {angleRadians}");
-                transform.ValueRW.RotateY(angleRadians);
+                transform.ValueRW = transform.ValueRW.RotateY(angleRadians);
 
                 angleRadians += math.PI * 0.5f;
             }
