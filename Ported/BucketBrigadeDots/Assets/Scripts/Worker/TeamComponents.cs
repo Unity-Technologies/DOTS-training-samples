@@ -1,5 +1,6 @@
 
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct TeamSpawner : IComponentData
 {
@@ -10,9 +11,6 @@ public struct TeamSpawner : IComponentData
 
 public struct Team : IComponentData
 {
-}
-
-public struct TeamMembers : IBufferElementData
-{
-    public Entity Worker;
+    public float2 FirePosition;
+    public float2 WaterPosition;
 }

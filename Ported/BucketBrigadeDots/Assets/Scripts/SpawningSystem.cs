@@ -7,6 +7,11 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct SpawningSystem : ISystem
 {
+    const float k_DefaultWorkerPosY = 0.25f;
+    const float k_DefaultGridSize = 0.3f;
+    
+    private uint m_UpdateCounter;
+    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -58,7 +63,7 @@ public partial struct SpawningSystem : ISystem
                 {
                     var entity = instances[index++];
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
-                    transform.ValueRW.Position = new float3(x * .3f, 0f, y * .3f);
+                    transform.ValueRW.Position = new float3(x * k_DefaultGridSize, 0f, y * k_DefaultGridSize);
 
                 }
             }
@@ -70,22 +75,30 @@ public partial struct SpawningSystem : ISystem
         var teamsQuery = SystemAPI.QueryBuilder().WithAll<Team>().Build();
         if (teamsQuery.IsEmpty)
         {
+            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
             var teamSpawner = SystemAPI.GetSingleton<TeamSpawner>();
+
+            var random = Random.CreateFromIndex(0);
+            var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);
+            
             for (var i = 0; i < teamSpawner.NumberOfTeams; ++i)
             {
-                var teamEntity = state.EntityManager.CreateEntity();
-                state.EntityManager.AddComponentData(teamEntity, new Team());
+                var workersPerTeam = teamSpawner.WorkersPerTeam;
+                var teamEntity = cmdBuffer.CreateEntity();
+                cmdBuffer.AddComponent<Team>(teamEntity);
                 
-                var workerBuffer = state.EntityManager.AddBuffer<TeamMembers>(teamEntity);
-
                 var prefab = teamSpawner.WorkerPrefab;
-                var instances = state.EntityManager.Instantiate(prefab, teamSpawner.WorkersPerTeam, Allocator.Temp);
-                
-                for (var j = 0; j < teamSpawner.WorkersPerTeam; ++j)
-                {
-                    var workerEntity = instances[j];
-                    workerBuffer.Add(new TeamMembers { Worker = workerEntity });
-                }
+                var instances = new NativeArray<Entity>(workersPerTeam, Allocator.Temp);
+                cmdBuffer.Instantiate(prefab, instances);
+            }
+            
+            cmdBuffer.Playback(state.EntityManager);
+
+            foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>())
+            {
+                var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSetting.Columns, gameSetting.Rows));
+                randomGridPos *= k_DefaultGridSize;
+                workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
             }
         }
     }
