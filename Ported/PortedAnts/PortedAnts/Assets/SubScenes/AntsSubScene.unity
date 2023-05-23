@@ -170,6 +170,32 @@ MonoBehaviour:
   ObstacleRingCount: 3
   ObstaclesFillRate: 0.8
   MapSize: 128
-  ObstacleRadius: 2
+  ObstacleRadius: 1
   ObstaclePrefab: {fileID: 3654764109518819548, guid: a6320c23b0c55af48a66768992042556,
+    type: 3}
+  AntsTargetPrefab: {fileID: 9045270641993814323, guid: e8dc910cb40064d428c8228e00e69eca,
+    type: 3}
+  HomeColor:
+    x: 1
+    y: 0
+    z: 0
+    w: 1
+  FoodColor:
+    x: 0
+    y: 1
+    z: 0
+    w: 1
+  AntHasFoodColor:
+    x: 0
+    y: 1
+    z: 0
+    w: 1
+  AntHasNoFoodColor:
+    x: 1
+    y: 0
+    z: 0
+    w: 1
+  AntSpeed: 1
+  AntsPopulation: 100
+  AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}

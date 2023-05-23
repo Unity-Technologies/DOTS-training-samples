@@ -12,7 +12,7 @@ namespace Components
     {
         public override void Bake(ObstacleAuthoring authoring)
         {
-            var entity = GetEntity(TransformUsageFlags.Renderable);
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new Obstacle
             {
                 radius = 1f,

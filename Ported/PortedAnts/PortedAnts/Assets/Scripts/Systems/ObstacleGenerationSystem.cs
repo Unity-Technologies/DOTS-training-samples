@@ -45,7 +45,7 @@ namespace Systems
                             LocalTransform.FromPositionRotationScale(
                                 new float3(position.x, 0f, position.y),
                                 quaternion.identity,
-                                config.ObstacleRadius));
+                                config.ObstacleRadius * 2));
                         state.EntityManager.SetComponentData(newEntity, new Obstacle() { position = position, radius = config.ObstacleRadius });
                     }
                 }
