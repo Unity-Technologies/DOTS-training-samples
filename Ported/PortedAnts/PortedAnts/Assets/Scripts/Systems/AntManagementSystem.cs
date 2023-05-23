@@ -19,7 +19,7 @@ public partial struct AntsManagementSystem : ISystem
 
         var config = SystemAPI.GetSingleton<Config>();
 
-        foreach (var (ant, entity) in SystemAPI.Query<RefRW<Ant>>().WithEntityAccess())
+        foreach (var (ant, transform) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>>())
         {
             //creating a var rwAnt = ant.ValueRW and updating this resulted in the changes not propagating up to the actual components
 
@@ -53,11 +53,10 @@ public partial struct AntsManagementSystem : ISystem
             ant.ValueRW.facingAngle = facingAngle;
             ant.ValueRW.position = position;
 
-            state.EntityManager.SetComponentData(entity,
-                LocalTransform.FromPositionRotationScale(
+            transform.ValueRW = LocalTransform.FromPositionRotationScale(
                     new float3(position.x, 0f, position.y),
                     quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
-                    config.ObstacleRadius * 2));
+                    config.ObstacleRadius * 2);
         }
     }
 }
