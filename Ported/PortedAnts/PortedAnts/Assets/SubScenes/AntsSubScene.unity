@@ -195,7 +195,8 @@ MonoBehaviour:
     y: 0
     z: 0
     w: 1
-  AntSpeed: 1
+  AntSpeed: 10
   AntsPopulation: 100
   AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}
+  RandomSteering: 1

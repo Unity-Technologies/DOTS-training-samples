@@ -17,8 +17,8 @@ namespace Components
             AddComponent(entity, new Ant
             {
                 position = float2.zero,
-                speed = 1f,
-                direction = float2.zero,
+                speed = 10f,
+                facingAngle = 1f,
                 hasFood = false,
                 hasSpottedTarget = false
             });
@@ -29,7 +29,7 @@ namespace Components
     {
         public float2 position;
         public float speed;
-        public float2 direction;
+        public float facingAngle;
         public bool hasFood;
         public bool hasSpottedTarget;
     }

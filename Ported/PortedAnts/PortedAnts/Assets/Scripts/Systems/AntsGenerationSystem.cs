@@ -32,7 +32,7 @@ public partial struct AntsGenerationSystem : ISystem
                 new Ant
                 {
                     position = new float2(antPosition.x, antPosition.z),
-                    direction = float2.zero,
+                    facingAngle = random.NextFloat(0f, math.PI * 2f),
                     speed = config.AntSpeed,
                     hasFood = false,
                     hasSpottedTarget = false
