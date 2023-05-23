@@ -90,6 +90,21 @@ public partial struct SpawningSystem : ISystem
                 var prefab = teamSpawner.WorkerPrefab;
                 var instances = new NativeArray<Entity>(workersPerTeam, Allocator.Temp);
                 cmdBuffer.Instantiate(prefab, instances);
+
+                var workerComp = new Worker()
+                {
+                    Team = teamEntity
+                };
+                var workerState = new WorkerState()
+                {
+                    Value = WorkerStates.Repositioning
+                };
+                for (var m = 0; m < workersPerTeam; ++m)
+                {
+                    var workerEntity = instances[m];
+                    cmdBuffer.AddComponent(workerEntity, workerComp);
+                    cmdBuffer.AddComponent(workerEntity, workerState);
+                }
             }
             
             cmdBuffer.Playback(state.EntityManager);
