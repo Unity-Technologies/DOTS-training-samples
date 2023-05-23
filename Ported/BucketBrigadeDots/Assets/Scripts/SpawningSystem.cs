@@ -13,7 +13,7 @@ public partial struct SpawningSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<FireSpawner>();
-        state.RequireForUpdate<TeamSpawnerComponent>();
+        state.RequireForUpdate<TeamSpawner>();
         state.RequireForUpdate<GameSettings>();
     }
     
@@ -52,6 +52,26 @@ public partial struct SpawningSystem : ISystem
 
     void SpawnTeams(ref SystemState state)
     {
-        
+        var teamsQuery = SystemAPI.QueryBuilder().WithAll<Team>().Build();
+        if (teamsQuery.IsEmpty)
+        {
+            var teamSpawner = SystemAPI.GetSingleton<TeamSpawner>();
+            for (var i = 0; i < teamSpawner.NumberOfTeams; ++i)
+            {
+                var teamEntity = state.EntityManager.CreateEntity();
+                state.EntityManager.AddComponentData(teamEntity, new Team());
+                
+                var workerBuffer = state.EntityManager.AddBuffer<TeamMembers>(teamEntity);
+
+                var prefab = teamSpawner.WorkerPrefab;
+                var instances = state.EntityManager.Instantiate(prefab, teamSpawner.WorkersPerTeam, Allocator.Temp);
+                
+                for (var j = 0; j < teamSpawner.WorkersPerTeam; ++j)
+                {
+                    var workerEntity = instances[j];
+                    workerBuffer.Add(new TeamMembers { Worker = workerEntity });
+                }
+            }
+        }
     }
 }

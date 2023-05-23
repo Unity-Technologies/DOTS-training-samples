@@ -5,6 +5,7 @@ public class TeamAuthoring : MonoBehaviour
 {
     public GameObject WorkerPrefab;
     public int NumberOfTeams = 2;
+    public int WorkersPerTeam = 10;
 }
 
 public class TeamBaker : Baker<TeamAuthoring>
@@ -13,9 +14,10 @@ public class TeamBaker : Baker<TeamAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.None);
 
-        AddComponent(entity, new TeamSpawnerComponent() {
+        AddComponent(entity, new TeamSpawner() {
             WorkerPrefab = GetEntity(authoring.WorkerPrefab, TransformUsageFlags.WorldSpace),
-            NumberOfTeams = authoring.NumberOfTeams
+            NumberOfTeams = authoring.NumberOfTeams,
+            WorkersPerTeam = authoring.WorkersPerTeam
         });
     }
 }
