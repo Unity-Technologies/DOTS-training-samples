@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class GameSettingsAuthoring : MonoBehaviour
 {
-    public int Rows;
-    public int Columns;
+    public int Rows = 100;
+    public int Columns = 100;
+    public int StartingFires = 4;
 
     class Baker : Baker<GameSettingsAuthoring>
     {
@@ -14,15 +15,18 @@ public class GameSettingsAuthoring : MonoBehaviour
             AddComponent(entity, new GameSettings
             {
                 Rows = authoring.Rows,
-                Columns = authoring.Columns
+                Columns = authoring.Columns,
+                StartingFires = authoring.StartingFires
             });
         }
     }
-    
 }
 
 public struct GameSettings : IComponentData
 {
     public int Rows;
     public int Columns;
+    public int StartingFires;
+
+    public int Size => Rows * Columns;
 }

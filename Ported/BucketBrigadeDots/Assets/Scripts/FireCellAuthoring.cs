@@ -14,8 +14,6 @@ public class FireCellBaker : Baker<FireCellAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.WorldSpace);
 
-        AddComponent(entity, new FireCell {
-            FlameValue = 0
-        });
+        AddComponent(entity, new FireCell());
     }
 }

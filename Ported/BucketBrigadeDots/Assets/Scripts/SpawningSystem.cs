@@ -7,8 +7,6 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct SpawningSystem : ISystem
 {
-    private uint m_UpdateCounter;
-    
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -20,26 +18,43 @@ public partial struct SpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        SpawnFireCells(ref state);
+        var gameSettings = SystemAPI.GetSingleton<GameSettings>();
+        
+        InitHeatBuffer(ref state, ref gameSettings);
+        SpawnFireCells(ref state, ref gameSettings);
         SpawnTeams(ref state);
     }
-    
-    void SpawnFireCells(ref SystemState state)
+
+    private void InitHeatBuffer(ref SystemState state, ref GameSettings gameSettings)
+    {
+        var size = gameSettings.Size;
+        
+        var settingsEntity = SystemAPI.GetSingletonEntity<GameSettings>();
+        var buffer = state.EntityManager.AddBuffer<FireTemperature>(settingsEntity);
+        buffer.Resize(size, NativeArrayOptions.ClearMemory);
+
+        var random = Random.CreateFromIndex(0);
+        for (var i = 0; i < gameSettings.StartingFires; i++)
+        {
+            var fireIndex = random.NextInt(size);
+            buffer[fireIndex] = 1f;
+        }
+    }
+
+    void SpawnFireCells(ref SystemState state, ref GameSettings gameSettings)
     {
         var fireCellsQuery = SystemAPI.QueryBuilder().WithAll<FireCell>().Build();
         if (fireCellsQuery.IsEmpty)
         {
-            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
             var fireSpawner = SystemAPI.GetSingleton<FireSpawner>();
             var prefab = fireSpawner.Prefab;
-            var size = gameSetting.Rows * gameSetting.Columns; 
             
-            var instances = state.EntityManager.Instantiate(prefab, size, Allocator.Temp);
+            var instances = state.EntityManager.Instantiate(prefab, gameSettings.Size, Allocator.Temp);
 
             var index = 0;
-            for (var x = 0; x < gameSetting.Rows; x++)
+            for (var x = 0; x < gameSettings.Rows; x++)
             {
-                for (var y = 0; y < gameSetting.Columns; y++)
+                for (var y = 0; y < gameSettings.Columns; y++)
                 {
                     var entity = instances[index++];
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
