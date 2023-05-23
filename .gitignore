@@ -19,6 +19,7 @@
 *.app
 *.VC.*
 .DS_Store
+.vsconfig
 *.swp
 *.DotSettings
 *.gen.csproj.meta
