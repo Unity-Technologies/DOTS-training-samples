@@ -35,7 +35,6 @@ public partial struct AntsManagementSystem : ISystem
             var position = ant.ValueRO.position;
             if (position.x + vx < 0f || position.x + vx > config.MapSize) 
             {
-                vx = -vx;
                 facingAngle += math.PI;//this should model reflection, not inversion (as it is here)
             }
             else
@@ -45,12 +44,11 @@ public partial struct AntsManagementSystem : ISystem
 
             if (position.y + vy < 0f || position.y + vy > config.MapSize) // since the direction of vy is reversed, this logic needs revisited
             {
-                vy = -vy;//out of the box we only had this line - I think it's meant to reflect the direction when they hit the bounds, but our code needs to change the direction we are facing
                 facingAngle += math.PI;//this should model reflection, not inversion (as it is here)
             }
             else
             {
-                position.y -= vy; //this used to be += vy
+                position.y += vy; //this used to be += vy
             }
 
             //I'm not sure that this is the most efficient way, but it intuitively feels like it to me
