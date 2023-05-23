@@ -16,5 +16,7 @@ public class BeeBaker : Baker<BeeAuthoring>
         {
             state = BeeState.State.IDLE
         });
+
+        AddComponent(entity, new VelocityComponent { });
     }
 }
