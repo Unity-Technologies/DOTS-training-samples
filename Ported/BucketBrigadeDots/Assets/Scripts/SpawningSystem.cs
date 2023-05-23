@@ -65,9 +65,9 @@ public partial struct SpawningSystem : ISystem
             var instances = state.EntityManager.Instantiate(prefab, gameSettings.Size, Allocator.Temp);
 
             var index = 0;
-            for (var x = 0; x < gameSettings.Rows; x++)
+            for (var x = 0; x < gameSettings.RowsAndColumns; x++)
             {
-                for (var y = 0; y < gameSettings.Columns; y++)
+                for (var y = 0; y < gameSettings.RowsAndColumns; y++)
                 {
                     var entity = instances[index++];
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
@@ -119,7 +119,7 @@ public partial struct SpawningSystem : ISystem
 
             foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>())
             {
-                var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSetting.Columns, gameSetting.Rows));
+                var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSetting.RowsAndColumns, gameSetting.RowsAndColumns));
                 randomGridPos *= k_DefaultGridSize;
                 workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
             }
@@ -135,8 +135,7 @@ public partial struct SpawningSystem : ISystem
             var waterSpawner = SystemAPI.GetSingleton<WaterSpawner>();
             var prefab = waterSpawner.Prefab;
             
-            // TODO: remove gameSettings.Columns to enforce that the grid is always a square.
-            float gridHalfWidth = k_DefaultGridSize * gameSetting.Rows / 2f;
+            float gridHalfWidth = k_DefaultGridSize * gameSetting.RowsAndColumns / 2f;
             float waterGroupDistanceFromCenter = gridHalfWidth + k_DefaultWaterFeatureDistanceFromGridEdge + (k_AssumedWaterFeatureWidth / 2);
             //var size = gameSetting.Rows * gameSetting.Columns;
             var prefabCount = 4; // One per side.

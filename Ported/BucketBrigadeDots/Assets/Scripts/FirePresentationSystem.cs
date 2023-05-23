@@ -27,8 +27,8 @@ public partial struct FirePresentationSystem : ISystem
         foreach (var localTransform in SystemAPI.Query<RefRW<LocalTransform>>().WithAll<FireCell>())
         {
             var heat = temperatures[index];
-            var x = index % gameSettings.Columns;
-            var z = index / gameSettings.Rows;
+            var x = index % gameSettings.RowsAndColumns;
+            var z = index / gameSettings.RowsAndColumns;
             var noise = random.NextFloat(0, .01f);
             localTransform.ValueRW.Position = new float3(x * .3f, heat -1f, z * .3f);
 

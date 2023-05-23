@@ -3,9 +3,8 @@ using UnityEngine;
 
 public class GameSettingsAuthoring : MonoBehaviour
 {
-    // TODO: enforce square, remove Columns and leave only Rows
-    public int Rows = 100;
-    public int Columns = 100;
+    // Number of rows and columns: it's a square.
+    public int GridWidth = 100;
     public int StartingFires = 4;
 
     class Baker : Baker<GameSettingsAuthoring>
@@ -15,8 +14,7 @@ public class GameSettingsAuthoring : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new GameSettings
             {
-                Rows = authoring.Rows,
-                Columns = authoring.Columns,
+                RowsAndColumns = authoring.GridWidth,
                 StartingFires = authoring.StartingFires
             });
         }
@@ -25,9 +23,8 @@ public class GameSettingsAuthoring : MonoBehaviour
 
 public struct GameSettings : IComponentData
 {
-    public int Rows;
-    public int Columns;
+    public int RowsAndColumns;
     public int StartingFires;
 
-    public int Size => Rows * Columns;
+    public int Size => RowsAndColumns * RowsAndColumns;
 }
