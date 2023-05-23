@@ -28,7 +28,9 @@ public partial struct BloodSystem : ISystem
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        float bloodDecay = SystemAPI.Time.DeltaTime * Config.bloodDecay;
+        var config = SystemAPI.GetSingleton<Config>();
+
+        float bloodDecay = SystemAPI.Time.DeltaTime * config.bloodDecay;
         foreach (var (transform, entity) in SystemAPI.Query<RefRW<LocalTransform>>()
             .WithAll<BloodComponent>()  // add blood component but don't access it
             .WithEntityAccess())    // get the entity id

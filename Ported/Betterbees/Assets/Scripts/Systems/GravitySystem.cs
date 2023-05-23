@@ -12,20 +12,22 @@ public partial struct GravitySystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
+
         using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
         {
             foreach (var (_, transform, velocity, entity) in SystemAPI
             .Query<RefRO<GravityComponent>, RefRW<LocalTransform>, RefRW<VelocityComponent>>()
             .WithEntityAccess())
             {
-                if (transform.ValueRO.Position.y > -Config.bounds.y)
+                if (transform.ValueRO.Position.y > -config.bounds.y)
                 {
-                    velocity.ValueRW.Velocity += Config.gravity * SystemAPI.Time.DeltaTime;
+                    velocity.ValueRW.Velocity += config.gravity * SystemAPI.Time.DeltaTime;
                 }
                 else
                 {
                     velocity.ValueRW.Velocity = 0;
-                    transform.ValueRW.Position.y = -Config.bounds.y;
+                    transform.ValueRW.Position.y = -config.bounds.y;
 
                     commandBuffer.RemoveComponent<GravityComponent>(entity);
                 }
