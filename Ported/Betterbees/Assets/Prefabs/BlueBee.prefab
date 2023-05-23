@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 06e73975fb7d0b3449cf7ac67180f233, type: 2}
+  - {fileID: 2100000, guid: 00bfd5950117cca468a4b59081edd1a1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 933248845208031754}
   - component: {fileID: 1661963443956269659}
   m_Layer: 0
-  m_Name: YellowBee
+  m_Name: BlueBee
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

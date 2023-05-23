@@ -159,7 +159,8 @@ public partial struct BeeSystem : ISystem
 
         if (foodEntities.Length > 0)
         {
-            //target.ValueRW.Target = foodEntities[random.NextInt() % foodEntities.Length];
+            int index = (int)(random.NextUInt() % foodEntities.Length);
+            target.ValueRW.Target = foodEntities[index];
         }
         else
         {

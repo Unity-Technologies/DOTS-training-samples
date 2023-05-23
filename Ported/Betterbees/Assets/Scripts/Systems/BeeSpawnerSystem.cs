@@ -1,11 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using Components;
 using Unity.Burst;
 using Unity.Entities;
-using Unity.Mathematics;
-using Unity.VisualScripting;
-using UnityEngine;
+using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
 [BurstCompile]
@@ -36,11 +31,19 @@ public partial struct BeeSpawnerSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var random = Random.CreateFromIndex(_updateCounter++);
 
-        foreach (var spawner in SystemAPI.Query<SpawnerComponent>())
+        foreach (var (spawner, spawnerTransform) in SystemAPI.Query<SpawnerComponent, LocalTransform>())
         {
             for (int i = 0; i < config.beeCount; i++)
             {
                 Entity newBee = state.EntityManager.Instantiate(spawner.beePrefab);
+
+                state.EntityManager.SetComponentData(newBee, new LocalTransform
+                {
+                    Position = spawnerTransform.Position,
+                    Rotation = spawnerTransform.Rotation,
+                    Scale = 1
+                });
+
                 state.EntityManager.SetComponentData(newBee, new VelocityComponent
                 {
                     Velocity = random.NextFloat3Direction() * config.maxSpawnSpeed
