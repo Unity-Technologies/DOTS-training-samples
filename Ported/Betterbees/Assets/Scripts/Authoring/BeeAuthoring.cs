@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Transforms;
 using UnityEngine;
 
 public class BeeAuthoring : MonoBehaviour
@@ -18,5 +17,7 @@ public class BeeBaker : Baker<BeeAuthoring>
         });
 
         AddComponent(entity, new VelocityComponent { });
+
+        AddComponent(entity, new TargetComponent { });
     }
 }

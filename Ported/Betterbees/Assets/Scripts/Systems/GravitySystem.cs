@@ -1,7 +1,6 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Physics.Systems;
 using Unity.Transforms;
 
 [BurstCompile]
@@ -17,8 +16,8 @@ public partial struct GravitySystem : ISystem
         using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
         {
             foreach (var (_, transform, velocity, entity) in SystemAPI
-            .Query<RefRO<GravityComponent>, RefRW<LocalTransform>, RefRW<VelocityComponent>>()
-            .WithEntityAccess())
+                .Query<RefRO<GravityComponent>, RefRW<LocalTransform>, RefRW<VelocityComponent>>()
+                .WithEntityAccess())
             {
                 if (transform.ValueRO.Position.y > -config.bounds.y)
                 {
