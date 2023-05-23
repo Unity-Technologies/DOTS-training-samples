@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1247163956}
   - component: {fileID: 1247163955}
+  - component: {fileID: 1247163957}
   m_Layer: 0
   m_Name: Config
   m_TagString: Untagged
@@ -175,6 +176,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1247163957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247163954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b5a30c284991b1448918dfb89faa62f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flightJitter: 10
+  damping: 0.01
+  chaseForce: 1
+  interactionDistance: 0.1
 --- !u!1 &184887340514711267
 GameObject:
   m_ObjectHideFlags: 0
