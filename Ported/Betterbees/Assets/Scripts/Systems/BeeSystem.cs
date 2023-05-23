@@ -18,10 +18,10 @@ public partial struct BeeSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         _halfFloat = new float3(0.5f, 0.5f, 0.5f);
-        
+
         var builder = new EntityQueryBuilder(Allocator.Temp)
             .WithAll<FoodComponent>()
-            .WithNone<Parent>();
+            .WithNone<Parent, GravityComponent>();
 
         _availableFoodSourcesQuery = state.GetEntityQuery(builder);
 
@@ -33,14 +33,14 @@ public partial struct BeeSystem : ISystem
             _boundaryNormals[i] = normal;
         }
     }
-    
+
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
         if (_boundaryNormals.IsCreated)
             _boundaryNormals.Dispose();
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -50,8 +50,8 @@ public partial struct BeeSystem : ISystem
 
         using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
         {
-            foreach (var (beeState, transform, velocity, target, entity) in SystemAPI
-                .Query<RefRW<BeeState>, RefRW<LocalTransform>, RefRW<VelocityComponent>, RefRW<TargetComponent>>()
+            foreach (var (beeState, transform, velocity, target, home, entity) in SystemAPI
+                .Query<RefRW<BeeState>, RefRW<LocalTransform>, RefRW<VelocityComponent>, RefRW<TargetComponent>, RefRO<ReturnHomeComponent>>()
                 .WithEntityAccess())
             {
                 BaseMovement(velocity, ref random, SystemAPI.Time.DeltaTime, ref beeSettings);
@@ -68,7 +68,7 @@ public partial struct BeeSystem : ISystem
                         Attacking();
                         break;
                     case BeeState.State.RETURNING:
-                        Returning();
+                        Returning(entity, beeState, transform, velocity, target, home, ref beeSettings, ref state, commandBuffer);
                         break;
                 }
 
@@ -108,9 +108,9 @@ public partial struct BeeSystem : ISystem
     }
 
     private void BaseMovement(
-        RefRW<VelocityComponent> velocity, 
-        ref Random random, 
-        float dt, 
+        RefRW<VelocityComponent> velocity,
+        ref Random random,
+        float dt,
         ref BeeSettingsSingletonComponent beeSettings)
     {
         velocity.ValueRW.Velocity += (random.NextFloat3() - _halfFloat) * beeSettings.flightJitter * dt;
@@ -124,9 +124,9 @@ public partial struct BeeSystem : ISystem
 
     private void Gathering(
         Entity beeEntity,
-        RefRW<BeeState> beeState, 
+        RefRW<BeeState> beeState,
         RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity, 
+        RefRW<VelocityComponent> velocity,
         RefRW<TargetComponent> target,
         ref SystemState state,
         Random random,
@@ -172,8 +172,8 @@ public partial struct BeeSystem : ISystem
         Entity beeEntity,
         RefRW<BeeState> beeState,
         RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity, 
-        RefRW<TargetComponent> target, 
+        RefRW<VelocityComponent> velocity,
+        RefRW<TargetComponent> target,
         ref SystemState state,
         EntityCommandBuffer commandBuffer,
         ref BeeSettingsSingletonComponent beeSettings)
@@ -187,19 +187,19 @@ public partial struct BeeSystem : ISystem
         float3 delta = targetTransform.Position - transform.ValueRO.Position;
         float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-        if (dist2 > beeSettings.interactionDistanceSquared)
+        if (dist2 > beeSettings.interactionDistance * beeSettings.interactionDistance)
         {
-            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / math.sqrt(dist2));
+            float dist = math.sqrt(dist2);
+            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
         }
         else
         {
             commandBuffer.AddComponent(target.ValueRO.Target, new Parent { Value = beeEntity });
 
             targetTransform.Position = new float3();
-            state.EntityManager.SetComponentData(target.ValueRO.Target, targetTransform);
+            commandBuffer.SetComponent(target.ValueRO.Target, targetTransform);
 
             beeState.ValueRW.state = BeeState.State.RETURNING;
-            target.ValueRW.Target = Entity.Null;
         }
     }
 
@@ -208,8 +208,43 @@ public partial struct BeeSystem : ISystem
 
     }
 
-    private void Returning()
+    private void Returning(
+        Entity beeEntity,
+        RefRW<BeeState> beeState,
+        RefRW<LocalTransform> transform,
+        RefRW<VelocityComponent> velocity,
+        RefRW<TargetComponent> target,
+        RefRO<ReturnHomeComponent> home,
+        ref BeeSettingsSingletonComponent beeSettings,
+        ref SystemState state,
+        EntityCommandBuffer commandBuffer)
     {
+        float3 beePos = transform.ValueRO.Position;
+        float3 targetPos = math.clamp(beePos, home.ValueRO.HomeMinBounds, home.ValueRO.HomeMaxBounds);
+        float3 delta = targetPos - beePos;
+        float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
+        if (dist2 > beeSettings.interactionDistance * beeSettings.interactionDistance)
+        { 
+            float dist = math.sqrt(dist2);
+            velocity.ValueRW.Velocity += delta * (beeSettings.carryForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
+        }
+        else
+        {
+            Entity foodEntity = target.ValueRO.Target;
+
+            commandBuffer.RemoveComponent<Parent>(foodEntity);
+
+            var foodTransform = state.EntityManager.GetComponentData<LocalTransform>(foodEntity);
+            foodTransform.Position = transform.ValueRO.Position;
+            commandBuffer.SetComponent(foodEntity, foodTransform);
+
+            commandBuffer.SetComponent(foodEntity, velocity.ValueRO);
+
+            commandBuffer.AddComponent<GravityComponent>(foodEntity);
+
+            beeState.ValueRW.state = BeeState.State.IDLE;
+            target.ValueRW.Target = Entity.Null;
+        }
     }
 }

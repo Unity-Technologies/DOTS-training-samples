@@ -19,5 +19,7 @@ public class BeeBaker : Baker<BeeAuthoring>
         AddComponent(entity, new VelocityComponent { });
 
         AddComponent(entity, new TargetComponent { });
+
+        AddComponent(entity, new ReturnHomeComponent { });
     }
 }

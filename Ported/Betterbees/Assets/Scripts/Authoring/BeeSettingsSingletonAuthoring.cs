@@ -9,7 +9,10 @@ public class BeeSettingsSingletonAuthoring : MonoBehaviour
     public float damping = 0.01f;
 
     [Min(0f)]
-    public float chaseForce = 1f;
+    public float chaseForce = 2f;
+
+    [Min(0f)]
+    public float carryForce = 1f;
 
     [Min(0f)]
     public float interactionDistance = 0.1f;
@@ -25,7 +28,8 @@ public class BeeSettingsSingletonAuthoring : MonoBehaviour
                 flightJitter = authoring.flightJitter,
                 damping = authoring.damping,
                 chaseForce = authoring.chaseForce,
-                interactionDistanceSquared = authoring.interactionDistance * authoring.interactionDistance
+                carryForce = authoring.carryForce,
+                interactionDistance = authoring.interactionDistance
             });
         }
     }

@@ -19,7 +19,9 @@ using UnityEngine;
             AddComponent(entity, new SpawnerComponent
             {
                 initialSpawnAmount = authoring.initialSpawnAmount,
-                beePrefab = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic)
+                beePrefab = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic),
+                minBounds = authoring.transform.position - 0.5f * authoring.transform.localScale,
+                maxBounds = authoring.transform.position + 0.5f * authoring.transform.localScale,
             });
             
             AddComponent(entity, new LocalTransform

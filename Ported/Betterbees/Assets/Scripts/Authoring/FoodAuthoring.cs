@@ -20,8 +20,8 @@ public class FoodBaker : Baker<FoodAuthoring>
             Scale = authoring.transform.localScale.magnitude
         });
         
-        AddComponent(entity, new GravityComponent());
-        
+        AddComponent(entity, new VelocityComponent());
+
         AddComponent(entity, new FoodComponent());
     }
 }

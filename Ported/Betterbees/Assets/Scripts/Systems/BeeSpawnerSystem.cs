@@ -48,6 +48,12 @@ public partial struct BeeSpawnerSystem : ISystem
                 {
                     Velocity = random.NextFloat3Direction() * config.maxSpawnSpeed
                 });
+
+                state.EntityManager.SetComponentData(newBee, new ReturnHomeComponent
+                {
+                    HomeMinBounds = spawner.minBounds,
+                    HomeMaxBounds = spawner.maxBounds
+                });
             }
         }
 
