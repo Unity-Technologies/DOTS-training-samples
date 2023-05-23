@@ -1,6 +1,7 @@
 using Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -37,6 +38,9 @@ public partial struct AntsGenerationSystem : ISystem
                     hasFood = false,
                     hasSpottedTarget = false
                 });
+            state.EntityManager.AddComponentData(ant, 
+                new URPMaterialPropertyBaseColor { Value = config.AntHasNoFoodColor });
+
         }
     }
 }

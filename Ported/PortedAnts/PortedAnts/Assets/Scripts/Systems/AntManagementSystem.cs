@@ -2,6 +2,7 @@ using System;
 using Components;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
@@ -19,20 +20,46 @@ public partial struct AntsManagementSystem : ISystem
 
         var config = SystemAPI.GetSingleton<Config>();
 
-        foreach (var (ant, transform) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>>())
+        float2 foodPosition = float2.zero, homePosition = float2.zero;
+
+        foreach(var antTarget in SystemAPI.Query<RefRO<AntsTarget>>())
         {
+            if (!antTarget.ValueRO.isHome)
+                foodPosition = antTarget.ValueRO.position;
+            else
+                homePosition = antTarget.ValueRO.position;
+        }
+
+        foreach (var (ant, transform, color) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
+        {
+            var targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+            var position = ant.ValueRO.position;
+
             //creating a var rwAnt = ant.ValueRW and updating this resulted in the changes not propagating up to the actual components
+
+            var directionToTarget = targetPosition - position;
+            var distanceToTarget = math.distancesq(directionToTarget.x, directionToTarget.y);
+            var toTargetAngle = math.atan2(directionToTarget.y, directionToTarget.x);
 
             var facingAngle = ant.ValueRO.facingAngle;
 
-            facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering) * SystemAPI.Time.DeltaTime;
+            facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering) * SystemAPI.Time.DeltaTime; //steering
+
+
+            facingAngle = toTargetAngle;
+
+            if (distanceToTarget < config.ObstacleRadius)
+            {
+                ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
+                color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
+            }
 
             var speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
 
             float vx = math.cos(facingAngle) * speed;
             float vy = math.sin(facingAngle) * speed;
 
-            var position = ant.ValueRO.position;
+            
             if (position.x + vx < 0f || position.x + vx > config.MapSize)
             {
                 vx = -vx;
