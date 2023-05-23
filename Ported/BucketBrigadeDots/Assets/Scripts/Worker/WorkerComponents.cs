@@ -3,8 +3,7 @@ using Unity.Mathematics;
 
 public enum WorkerStates
 {
-    Idle,
-    Repositioning
+    Idle
 }
 
 public struct WorkerState : IComponentData

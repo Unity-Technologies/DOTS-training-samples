@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(TeamUpdateSystem))]
 public partial struct WorkerMoveSystem : ISystem
 {
     [BurstCompile]

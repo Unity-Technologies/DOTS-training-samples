@@ -15,7 +15,7 @@ public struct TeamSpawner : IComponentData
     public int WorkersPerTeam;
 }
 
-public struct Team : IComponentData
+public struct TeamData : IComponentData
 {
     public float2 FirePosition;
     public float2 WaterPosition;

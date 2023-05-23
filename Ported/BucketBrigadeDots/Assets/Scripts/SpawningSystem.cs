@@ -80,7 +80,7 @@ public partial struct SpawningSystem : ISystem
 
     void SpawnTeams(ref SystemState state)
     {
-        var teamsQuery = SystemAPI.QueryBuilder().WithAll<Team>().Build();
+        var teamsQuery = SystemAPI.QueryBuilder().WithAll<TeamData>().Build();
         if (teamsQuery.IsEmpty)
         {
             var gameSetting = SystemAPI.GetSingleton<GameSettings>();
@@ -93,7 +93,11 @@ public partial struct SpawningSystem : ISystem
             {
                 var workersPerTeam = teamSpawner.WorkersPerTeam;
                 var teamEntity = cmdBuffer.CreateEntity();
-                cmdBuffer.AddComponent<Team>(teamEntity);
+                cmdBuffer.AddComponent(teamEntity, new TeamData()
+                {
+                    FirePosition = gameSetting.RowsAndColumns / 2f * k_DefaultGridSize,
+                    WaterPosition = float2.zero
+                });
                 cmdBuffer.AddComponent(teamEntity, new TeamState()
                 {
                     Value = TeamStates.Idle
