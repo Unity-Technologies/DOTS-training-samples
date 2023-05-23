@@ -27,7 +27,7 @@ public partial struct FoodSpawnerSystem : ISystem
         for (int i = 0; i < config.foodCount; i++)
         {
             Entity newFood = state.EntityManager.Instantiate(foodSpawner.foodPrefab);
-            float2 spawnBoundaries = random.NextFloat2(config.foodBounds);
+            float2 spawnBoundaries = random.NextFloat2(config.foodBounds) - config.foodBounds/2;
 
             var position = new float3(spawnBoundaries.x, 0, spawnBoundaries.y);
             state.EntityManager.SetComponentData<LocalTransform>(newFood, new LocalTransform { 

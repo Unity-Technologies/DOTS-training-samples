@@ -158,8 +158,8 @@ MonoBehaviour:
   bloodDecay: 1
   maxSpawnSpeed: 5
   foodBounds:
-    x: 3
-    y: 3
+    x: 6
+    y: 6
   gravity:
     x: 0
     y: -20
