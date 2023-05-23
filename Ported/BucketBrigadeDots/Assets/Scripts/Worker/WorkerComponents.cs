@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public enum WorkerStates
 {
@@ -11,7 +12,7 @@ public struct WorkerState : IComponentData
     public WorkerStates Value;
 }
 
-public struct Worker : IComponentData
+public struct NextPosition : IComponentData, IEnableableComponent
 {
-    public Entity Team;    
+    public float2 Value;
 }
