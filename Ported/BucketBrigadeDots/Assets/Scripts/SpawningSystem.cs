@@ -14,7 +14,7 @@ public partial struct SpawningSystem : ISystem
     const float k_DefaultWorkerPosY = 0.25f;
     const float k_DefaultGridSize = 0.3f;
     private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
-    private const float k_AssumedWaterFeatureWidth = 10f; // TODO: can we read this from the prefab?
+    private const float k_AssumedWaterFeatureWidth = 2f; // TODO: can we read this from the prefab?
     
     private uint m_UpdateCounter;
     
@@ -136,8 +136,8 @@ public partial struct SpawningSystem : ISystem
             var prefab = waterSpawner.Prefab;
             
             float gridHalfWidth = k_DefaultGridSize * gameSetting.RowsAndColumns / 2f;
+            var gridCenter = new float3(gridHalfWidth, 0.0f, gridHalfWidth);
             float waterGroupDistanceFromCenter = gridHalfWidth + k_DefaultWaterFeatureDistanceFromGridEdge + (k_AssumedWaterFeatureWidth / 2);
-            //var size = gameSetting.Rows * gameSetting.Columns;
             var prefabCount = 4; // One per side.
             
             var instances = state.EntityManager.Instantiate(prefab, prefabCount, Allocator.Temp);
@@ -150,8 +150,7 @@ public partial struct SpawningSystem : ISystem
                 var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
                 math.sincos(angleRadians, out var sin, out var cos);
                 var offset = new float3(sin, 0f, cos) * waterGroupDistanceFromCenter;
-                Debug.Log($"setting entity {entity} offset to {offset}");
-                transform.ValueRW.Position = offset;
+                transform.ValueRW.Position = gridCenter + offset;
                 
                 //var transformRW = transform.ValueRW;
                 // TODO: rotate!

@@ -197,8 +197,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7897e767ab5d4371b29561a052f32be4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rows: 100
-  Columns: 100
+  GridWidth: 100
+  StartingFires: 4
 --- !u!4 &867655830
 Transform:
   m_ObjectHideFlags: 0
