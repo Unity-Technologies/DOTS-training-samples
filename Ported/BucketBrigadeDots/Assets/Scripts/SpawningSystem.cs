@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public partial struct FireSpawnerSystem : ISystem
+public partial struct SpawningSystem : ISystem
 {
     private uint m_UpdateCounter;
     
@@ -13,11 +13,18 @@ public partial struct FireSpawnerSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<FireSpawner>();
+        state.RequireForUpdate<TeamSpawnerComponent>();
         state.RequireForUpdate<GameSettings>();
     }
     
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
+    {
+        SpawnFireCells(ref state);
+        SpawnTeams(ref state);
+    }
+    
+    void SpawnFireCells(ref SystemState state)
     {
         var fireCellsQuery = SystemAPI.QueryBuilder().WithAll<FireCell>().Build();
         if (fireCellsQuery.IsEmpty)
@@ -41,5 +48,10 @@ public partial struct FireSpawnerSystem : ISystem
                 }
             }
         }
+    }
+
+    void SpawnTeams(ref SystemState state)
+    {
+        
     }
 }
