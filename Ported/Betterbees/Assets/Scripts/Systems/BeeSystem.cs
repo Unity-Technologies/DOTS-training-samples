@@ -1,13 +1,19 @@
+using System.Diagnostics;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.VisualScripting;
+using UnityEditor;
+using static UnityEngine.GraphicsBuffer;
+
 
 [BurstCompile]
 public partial struct BeeSystem : ISystem
 {
     private EntityQuery _availableFoodSourcesQuery;
+    private EntityQuery _availableBeesQuery;
     private uint _updateCounter;
     private float3 _halfFloat;
 
@@ -18,12 +24,18 @@ public partial struct BeeSystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         _halfFloat = new float3(0.5f, 0.5f, 0.5f);
+        {
+            var builder = new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<FoodComponent>()
+                .WithNone<Parent, GravityComponent>();
 
-        var builder = new EntityQueryBuilder(Allocator.Temp)
-            .WithAll<FoodComponent>()
-            .WithNone<Parent, GravityComponent>();
-
-        _availableFoodSourcesQuery = state.GetEntityQuery(builder);
+            _availableFoodSourcesQuery = state.GetEntityQuery(builder);
+        }
+        {
+            var builder = new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<BeeState>();
+            _availableBeesQuery = state.GetEntityQuery(builder);
+        }
 
         _boundaryNormals = new NativeArray<float3>(_boundaryNormalCount, Allocator.Persistent);
         for (int i = 0; i < _boundaryNormalCount; i++)
@@ -62,10 +74,20 @@ public partial struct BeeSystem : ISystem
                         Idle(beeState);
                         break;
                     case BeeState.State.GATHERING:
-                        Gathering(entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
+                        float agression = random.NextFloat();
+                        if (agression < beeSettings.agressionPercentage)
+                        {
+                            target.ValueRW.Target = Entity.Null;
+                            beeState.ValueRW.state = BeeState.State.ATTACKING;
+                        }
+                        else
+                        {
+                            Gathering(entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
+                        }
                         break;
                     case BeeState.State.ATTACKING:
-                        Attacking();
+
+                        Attacking(entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
                         break;
                     case BeeState.State.RETURNING:
                         Returning(entity, beeState, transform, velocity, target, home, ref beeSettings, ref state, commandBuffer);
@@ -203,9 +225,61 @@ public partial struct BeeSystem : ISystem
         }
     }
 
-    private void Attacking()
+    private void Attacking(
+        Entity beeEntity,
+        RefRW<BeeState> beeState, 
+        RefRW<LocalTransform> transform,
+        RefRW<VelocityComponent> velocity, 
+        RefRW<TargetComponent> target,
+        ref SystemState state,
+        Random random,
+        EntityCommandBuffer commandBuffer,
+        ref BeeSettingsSingletonComponent beeSettings)
     {
+        FindBeeTarget(target, beeState, ref random, ref state);
+        // if the beeTarget is not valid
+            // set the status to idle
+        // Speed up and Move towards beeTarget
+        // check distance to the target (hitRadius)
+            // if (dist < hitRadius)
+                // destroy the beeTarget
+                // set back status to idle
+    }
 
+    private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target)
+    {
+        bool hasInvalidTarget = target.ValueRO.Target != Entity.Null && !_availableBeesQuery.Matches(target.ValueRO.Target);
+        if (hasInvalidTarget)
+        {
+            target.ValueRW.Target = Entity.Null;
+        }
+    }
+
+    private void FindBeeTarget(RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random, ref SystemState state)
+    {
+        bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
+        if (alreadyHasTarget)
+        {
+            return;
+        }
+
+        var beeEntities = _availableBeesQuery.ToEntityArray(Allocator.Temp);
+
+        if (beeEntities.Length > 0)
+        {
+            int index = (int)(random.NextUInt() % beeEntities.Length);
+            var targetEntity = beeEntities[index];
+            var beeTargetState = state.EntityManager.GetComponentData<BeeState>(targetEntity);
+            if (beeTargetState.hiveId == beeState.ValueRO.hiveId)
+            {
+                return; // if all enemies are dead we are stuck in attack /!\
+            }
+            target.ValueRW.Target = targetEntity;
+        }
+        else
+        {
+            beeState.ValueRW.state = BeeState.State.IDLE;
+        }
     }
 
     private void Returning(

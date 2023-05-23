@@ -31,7 +31,7 @@ public partial struct BeeSpawnerSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var random = Random.CreateFromIndex(_updateCounter++);
 
-        foreach (var (spawner, spawnerTransform) in SystemAPI.Query<SpawnerComponent, LocalTransform>())
+        foreach (var (spawner, spawnerTransform) in SystemAPI.Query<BeeSpawnerComponent, LocalTransform>())
         {
             for (int i = 0; i < config.beeCount; i++)
             {
@@ -54,6 +54,13 @@ public partial struct BeeSpawnerSystem : ISystem
                     HomeMinBounds = spawner.minBounds,
                     HomeMaxBounds = spawner.maxBounds
                 });
+
+                state.EntityManager.SetComponentData(newBee, new BeeState
+                {
+                    state = BeeState.State.IDLE,
+                    hiveId = spawner.hiveId
+                });
+
             }
         }
 

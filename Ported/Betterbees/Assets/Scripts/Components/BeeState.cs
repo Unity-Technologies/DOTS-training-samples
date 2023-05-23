@@ -11,4 +11,5 @@ public struct BeeState : IComponentData
     }
 
     public State state;
+    public int hiveId;
 }

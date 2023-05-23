@@ -17,6 +17,9 @@ public class BeeSettingsSingletonAuthoring : MonoBehaviour
     [Min(0f)]
     public float interactionDistance = 0.1f;
 
+    [Range(0f, 1f)]
+    public float agressionPercentage = 0f;
+
     private class BeeSettingsSingletonBaker : Baker<BeeSettingsSingletonAuthoring>
     {
         public override void Bake(BeeSettingsSingletonAuthoring authoring)
@@ -29,7 +32,8 @@ public class BeeSettingsSingletonAuthoring : MonoBehaviour
                 damping = authoring.damping,
                 chaseForce = authoring.chaseForce,
                 carryForce = authoring.carryForce,
-                interactionDistance = authoring.interactionDistance
+                interactionDistance = authoring.interactionDistance,
+                agressionPercentage = authoring.agressionPercentage
             });
         }
     }
