@@ -9,6 +9,7 @@ public struct Config : IComponentData
     public float3 bounds;
     public float3 gravity;
     public int beeCount;
+    public float maxSpawnSpeed;
     public int foodCount;
     public float2 foodBounds;
     public float bloodDecay;

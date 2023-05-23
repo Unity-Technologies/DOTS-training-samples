@@ -153,9 +153,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf1a9501ac91f247be236f3f3c2f2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beeCount: 10
+  beeCount: 1000
   foodCount: 10
   bloodDecay: 1
+  maxSpawnSpeed: 5
   gravity:
     x: 0
     y: -20
@@ -206,7 +207,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3479730290675094699, guid: 5c7a1328880278240b4b11cd9ed1ea5e, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.56
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3479730290675094699, guid: 5c7a1328880278240b4b11cd9ed1ea5e, type: 3}
       propertyPath: m_LocalPosition.y
@@ -214,7 +215,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3479730290675094699, guid: 5c7a1328880278240b4b11cd9ed1ea5e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.67
+      value: 11.49
       objectReference: {fileID: 0}
     - target: {fileID: 3479730290675094699, guid: 5c7a1328880278240b4b11cd9ed1ea5e, type: 3}
       propertyPath: m_LocalRotation.w

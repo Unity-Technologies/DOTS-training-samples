@@ -11,6 +11,9 @@ public partial struct BeeSystem : ISystem
     private uint _updateCounter;
     private float3 _halfFloat;
 
+    private NativeArray<float3> _boundaryNormals;
+    private static readonly int _boundaryNormalCount = 3;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -21,16 +24,27 @@ public partial struct BeeSystem : ISystem
             .WithNone<Parent>();
 
         _availableFoodSourcesQuery = state.GetEntityQuery(builder);
+
+        _boundaryNormals = new NativeArray<float3>(_boundaryNormalCount, Allocator.Persistent);
+        for (int i = 0; i < _boundaryNormalCount; i++)
+        {
+            float3 normal = float3.zero;
+            normal[i] = 1;
+            _boundaryNormals[i] = normal;
+        }
     }
     
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
+        if (_boundaryNormals.IsCreated)
+            _boundaryNormals.Dispose();
     }
     
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
         var beeSettings = SystemAPI.GetSingleton<BeeSettingsSingletonComponent>();
         var random = Random.CreateFromIndex(_updateCounter++);
 
@@ -57,9 +71,39 @@ public partial struct BeeSystem : ISystem
                         Returning();
                         break;
                 }
+
+                ApplyBoundaries(config, transform.ValueRO.Position, velocity);
             }
 
             commandBuffer.Playback(state.EntityManager);
+        }
+    }
+
+    private void ApplyBoundaries(
+        in Config config,
+        float3 position,
+        RefRW<VelocityComponent> velocity)
+    {
+        float3 boundsNormal = float3.zero;
+        bool outsideBounds = false;
+        for (int i = 0; i < _boundaryNormalCount; i++)
+        {
+            if (position[i] > config.bounds[i])
+            {
+                boundsNormal += -_boundaryNormals[i];
+                outsideBounds = true;
+            }
+            else if (position[i] < -config.bounds[i])
+            {
+                boundsNormal += _boundaryNormals[i];
+                outsideBounds = true;
+            }
+        }
+        boundsNormal = math.normalize(boundsNormal);
+
+        if (outsideBounds)
+        {
+            velocity.ValueRW.Velocity = boundsNormal;
         }
     }
 
