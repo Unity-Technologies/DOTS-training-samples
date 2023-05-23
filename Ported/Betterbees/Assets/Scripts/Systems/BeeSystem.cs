@@ -195,6 +195,9 @@ public partial struct BeeSystem : ISystem
         {
             commandBuffer.AddComponent(target.ValueRO.Target, new Parent { Value = beeEntity });
 
+            targetTransform.Position = new float3();
+            state.EntityManager.SetComponentData(target.ValueRO.Target, targetTransform);
+
             beeState.ValueRW.state = BeeState.State.RETURNING;
             target.ValueRW.Target = Entity.Null;
         }
