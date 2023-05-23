@@ -10,5 +10,6 @@ public struct Config : IComponentData
     public float3 gravity;
     public int beeCount;
     public int foodCount;
+    public float2 foodBounds;
     public float bloodDecay;
 }
