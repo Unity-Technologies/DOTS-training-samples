@@ -132,7 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1251742800}
-  - component: {fileID: 1251742799}
+  - component: {fileID: 1251742801}
   m_Layer: 0
   m_Name: Spawner (obstacle)
   m_TagString: Untagged
@@ -140,19 +140,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1251742799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1251742798}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10d7906244654b63b4a31afb8ec4a857, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Prefab: {fileID: 3654764109518819548, guid: a6320c23b0c55af48a66768992042556, type: 3}
 --- !u!4 &1251742800
 Transform:
   m_ObjectHideFlags: 0
@@ -168,3 +155,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1251742801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251742798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0853110d4c94b6a9d030a3bf31e2627, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObstacleRingCount: 3
+  ObstaclesFillRate: 0.8
+  MapSize: 128
+  ObstacleRadius: 2
+  ObstaclePrefab: {fileID: 3654764109518819548, guid: a6320c23b0c55af48a66768992042556,
+    type: 3}

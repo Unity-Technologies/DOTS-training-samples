@@ -2,6 +2,8 @@ using Components;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 namespace Systems
 {
@@ -9,46 +11,45 @@ namespace Systems
     {
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<Obstacle>();
+            state.RequireForUpdate<Config>();
         }
-        
+
         public void OnUpdate(ref SystemState state)
         {
             state.Enabled = false;
+
+            var config = SystemAPI.GetSingleton<Config>();
+
             var rand = Random.CreateFromIndex(1);
 
-            foreach (RefRW<Obstacle> spawner in SystemAPI.Query<RefRW<Obstacle>>())
+            for (int i = 1; i <= config.ObstacleRingCount; i++)
             {
-                for (int i = 0; i < 10; ++i)
+                float ringRadius = (i / (config.ObstacleRingCount + 1f)) * (config.MapSize * .5f);
+                float circumference = ringRadius * 2f * math.PI;
+                int maxCount = (int)math.ceil(circumference / config.ObstacleRadius);
+                int offset = rand.NextInt(0, maxCount);
+                int holeCount = rand.NextInt(1, 3);
+                for (int j = 0; j < maxCount; j++)
                 {
-                    Entity newEntity = state.EntityManager.Instantiate(spawner.ValueRO.prefab);
-                    state.EntityManager.SetComponentData(newEntity,
-                        LocalTransform.FromPosition(rand.NextFloat3()));
-                }
-            }
-        }
-
-        public void rippedCode()
-        {
-            /*List<Obstacle> output = new List<Obstacle>();
-            for (int i=1;i<=obstacleRingCount;i++) {
-                float ringRadius = (i / (obstacleRingCount+1f)) * (mapSize * .5f);
-                float circumference = ringRadius * 2f * Mathf.PI;
-                int maxCount = Mathf.CeilToInt(circumference / (2f * obstacleRadius) * 2f);
-                int offset = Random.Range(0,maxCount);
-                int holeCount = Random.Range(1,3);
-                for (int j=0;j<maxCount;j++) {
                     float t = (float)j / maxCount;
-                    if ((t * holeCount)%1f < obstaclesPerRing) {
-                        float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
-                        Obstacle obstacle = new Obstacle();
-                        obstacle.position = new Vector2(mapSize * .5f + Mathf.Cos(angle) * ringRadius,mapSize * .5f + Mathf.Sin(angle) * ringRadius);
-                        obstacle.radius = obstacleRadius;
-                        output.Add(obstacle);
-                        //Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
+                    if ((t * holeCount) % 1f < config.ObstaclesFillRate)
+                    {
+                        float angle = (j + offset) / (float)maxCount * (2f * math.PI);
+
+                        var position = new float2(
+                            config.MapSize * .5f + math.cos(angle) * ringRadius,
+                            config.MapSize * .5f + math.sin(angle) * ringRadius);
+
+                        Entity newEntity = state.EntityManager.Instantiate(config.ObstaclePrefab);
+                        state.EntityManager.SetComponentData(newEntity,
+                            LocalTransform.FromPositionRotationScale(
+                                new float3(position.x, 0f, position.y),
+                                quaternion.identity,
+                                config.ObstacleRadius));
+                        state.EntityManager.SetComponentData(newEntity, new Obstacle() { position = position, radius = config.ObstacleRadius });
                     }
                 }
-            }*/
+            }
         }
     }
 }
