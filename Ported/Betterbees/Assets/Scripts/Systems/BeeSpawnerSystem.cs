@@ -30,5 +30,8 @@ public partial struct BeeSpawnerSystem : ISystem {
                 Entity newBee = state.EntityManager.Instantiate(spawner.beePrefab);
             }
         }
+
+        // spawn new bees when food is placed in hive
+        // remove food that has been placed
     }
 }
