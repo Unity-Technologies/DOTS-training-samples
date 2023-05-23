@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GameSettingsAuthoring : MonoBehaviour
 {
+    // TODO: enforce square, remove Columns and leave only Rows
     public int Rows = 100;
     public int Columns = 100;
     public int StartingFires = 4;

@@ -1,14 +1,20 @@
+using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
+using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial struct SpawningSystem : ISystem
 {
+    // TODO:  move these constants to GameSettings
     const float k_DefaultWorkerPosY = 0.25f;
     const float k_DefaultGridSize = 0.3f;
+    private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
+    private const float k_AssumedWaterFeatureWidth = 10f; // TODO: can we read this from the prefab?
     
     private uint m_UpdateCounter;
     
@@ -17,6 +23,7 @@ public partial struct SpawningSystem : ISystem
     {
         state.RequireForUpdate<FireSpawner>();
         state.RequireForUpdate<TeamSpawner>();
+        state.RequireForUpdate<WaterSpawner>();
         state.RequireForUpdate<GameSettings>();
     }
     
@@ -28,6 +35,7 @@ public partial struct SpawningSystem : ISystem
         InitHeatBuffer(ref state, ref gameSettings);
         SpawnFireCells(ref state, ref gameSettings);
         SpawnTeams(ref state);
+        SpawnWater(ref state);
     }
 
     private void InitHeatBuffer(ref SystemState state, ref GameSettings gameSettings)
@@ -114,6 +122,45 @@ public partial struct SpawningSystem : ISystem
                 var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSetting.Columns, gameSetting.Rows));
                 randomGridPos *= k_DefaultGridSize;
                 workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
+            }
+        }
+    }
+    
+    void SpawnWater(ref SystemState state)
+    {
+        var waterCellsQuery = SystemAPI.QueryBuilder().WithAll<WaterCell>().Build();
+        if (waterCellsQuery.IsEmpty)
+        {
+            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
+            var waterSpawner = SystemAPI.GetSingleton<WaterSpawner>();
+            var prefab = waterSpawner.Prefab;
+            
+            // TODO: remove gameSettings.Columns to enforce that the grid is always a square.
+            float gridHalfWidth = k_DefaultGridSize * gameSetting.Rows / 2f;
+            float waterGroupDistanceFromCenter = gridHalfWidth + k_DefaultWaterFeatureDistanceFromGridEdge + (k_AssumedWaterFeatureWidth / 2);
+            //var size = gameSetting.Rows * gameSetting.Columns;
+            var prefabCount = 4; // One per side.
+            
+            var instances = state.EntityManager.Instantiate(prefab, prefabCount, Allocator.Temp);
+
+            float angleRadians = 0f;
+            
+            Debug.Log($"Made {instances.Length} waters!");
+            foreach (var entity in instances)
+            {
+                var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
+                math.sincos(angleRadians, out var sin, out var cos);
+                var offset = new float3(sin, 0f, cos) * waterGroupDistanceFromCenter;
+                Debug.Log($"setting entity {entity} offset to {offset}");
+                transform.ValueRW.Position = offset;
+                
+                //var transformRW = transform.ValueRW;
+                // TODO: rotate!
+                
+                Debug.Log($"rotating entity {entity} by {angleRadians}");
+                transform.ValueRW.RotateY(angleRadians);
+
+                angleRadians += math.PI * 0.5f;
             }
         }
     }
