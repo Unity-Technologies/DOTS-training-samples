@@ -26,11 +26,38 @@ public partial struct WaterAndFireLocatorSystem : ISystem
                          RefRW<TeamData>, 
                          RefRW<TeamState>>())
             {
-                teamData.ValueRW.FirePosition = random.NextFloat2(float2.zero, gameSetting.RowsAndColumns * k_DefaultGridSize);
                 teamData.ValueRW.WaterPosition = GetRandomWaterPosition(ref state, random);
+                teamData.ValueRW.FirePosition = GetNearestFirePosition(ref teamData.ValueRW.WaterPosition);
                 teamState.ValueRW.Value = TeamStates.Idle;
             }
         }
+    }
+
+    private float2 GetNearestFirePosition(ref float2 waterPos)
+    {
+        var settings = SystemAPI.GetSingleton<GameSettings>();
+        var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
+
+        var cols = settings.RowsAndColumns;
+        var size = settings.Size;
+        
+        var closestPos = new float2();
+        var closestDist = float.MaxValue;
+        
+        for (var i = 0; i < size; i++)
+        {
+            if (temperatures[i] <= 0f) continue;
+            
+            var currentPos = new float2((i % cols) * k_DefaultGridSize, (i / cols) * k_DefaultGridSize);
+            var dist = math.distancesq(waterPos, currentPos);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestPos = currentPos;
+            }
+        }
+
+        return closestPos;
     }
 
     float2 GetRandomWaterPosition(ref SystemState state, Random random)
