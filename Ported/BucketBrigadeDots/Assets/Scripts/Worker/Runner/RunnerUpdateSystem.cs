@@ -6,7 +6,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
 
-[UpdateAfter(typeof(TeamUpdateSystem))]
+[UpdateBefore(typeof(TransformSystemGroup)), UpdateAfter(typeof(TeamUpdateSystem))]
 public partial struct RunnerUpdateSystem : ISystem
 {
     [BurstCompile]
