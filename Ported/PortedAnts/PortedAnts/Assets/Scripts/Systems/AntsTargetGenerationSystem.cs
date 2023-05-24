@@ -23,6 +23,13 @@ namespace Systems
 
             var rand = Random.CreateFromIndex(1);
 
+            //Pheromone buffer setup
+            var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
+            pheromones.Length = config.MapSize * config.MapSize;
+            for (int i = 0; i < pheromones.Length; i++)
+            {
+                pheromones[i] = new Pheromone(){Value = (byte) (255 * i/pheromones.Length)};
+            }
 
             Entity home = state.EntityManager.Instantiate(config.AntsTargetPrefab);
             var homePosition = new float2(1f, 1f) * config.MapSize * .5f;

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1251742800}
   - component: {fileID: 1251742801}
+  - component: {fileID: 1251742802}
   m_Layer: 0
   m_Name: Spawner (obstacle)
   m_TagString: Untagged
@@ -200,3 +201,15 @@ MonoBehaviour:
   AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}
   RandomSteering: 1
+--- !u!114 &1251742802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251742798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b94823aad8b41ea9519a3ea1a89b9c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
