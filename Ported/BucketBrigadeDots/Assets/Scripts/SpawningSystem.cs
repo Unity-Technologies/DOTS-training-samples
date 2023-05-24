@@ -15,9 +15,7 @@ public partial struct SpawningSystem : ISystem
     const float k_DefaultGridSize = 0.3f;
     private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
     private const float k_AssumedWaterFeatureWidth = 5f; // TODO: can we read this from the prefab?
-    private float4 passFullWorkerColor; 
-    private float4 passEmptyWorkerColor;
-    
+
     private bool initialized;
     
     [BurstCompile]
@@ -28,11 +26,6 @@ public partial struct SpawningSystem : ISystem
         state.RequireForUpdate<WaterSpawner>();
         state.RequireForUpdate<BucketSpawner>();
         state.RequireForUpdate<GameSettings>();
-
-        // Copied from base game.
-        // TODO: make these game settings and user-selectable.
-        passFullWorkerColor = new float4(1f, 0f, 0f, 1f);//new float4(197 / 256f, 236 / 256f, 188 / 256f, 1f); 
-        passEmptyWorkerColor = new float4(0f, 1f, 0f, 1f);//new float4(238 / 256f, 192 / 256f, 236 / 256f, 1f);
     }
     
     [BurstCompile]
@@ -112,7 +105,7 @@ public partial struct SpawningSystem : ISystem
                 cmdBuffer.AddComponent<NextPosition>(workerEntity);
                 cmdBuffer.AddComponent(workerEntity, new URPMaterialPropertyBaseColor()
                 {
-                    Value = isFirstHalf ? passFullWorkerColor : passEmptyWorkerColor
+                    Value = isFirstHalf ? gameSettings.WorkerFullColor : gameSettings.WorkerEmptyColor
                 });
             }
         }

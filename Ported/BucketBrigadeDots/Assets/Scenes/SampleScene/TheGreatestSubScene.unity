@@ -199,6 +199,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GridWidth: 100
   StartingFires: 4
+  BucketEmptyColor: {r: 0.67058825, g: 0.4117647, b: 0.12941177, a: 1}
+  BucketFullColor: {r: 0.0627451, g: 0.47058824, b: 0.654902, a: 1}
+  WorkerFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 1}
+  WorkerEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 1}
 --- !u!4 &867655830
 Transform:
   m_ObjectHideFlags: 0
