@@ -33,7 +33,7 @@ public partial struct FoodSpawnerSystem : ISystem
             state.EntityManager.SetComponentData<LocalTransform>(newFood, new LocalTransform { 
                 Position = position,
                 Rotation = quaternion.identity,
-                Scale = 0.5f
+                Scale = 1.0f
             });
             //LocalTransform.FromPosition(position);
         }

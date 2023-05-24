@@ -35,6 +35,7 @@ public partial struct BloodSystem : ISystem
         BloodJob bloodJob = new BloodJob()
         {
             bloodDecay = bloodDecay,
+            lowerBounds = -config.bounds.y,
             ecb = ecb.AsParallelWriter()
         };
         bloodJob.ScheduleParallel();
@@ -46,14 +47,24 @@ public partial struct BloodSystem : ISystem
 public partial struct BloodJob : IJobEntity
 {
     public float bloodDecay;
+    public float lowerBounds;
     public EntityCommandBuffer.ParallelWriter ecb;
 
     public void Execute(ref LocalTransform transform, Entity entity, [ChunkIndexInQuery]int chunkIndex)
     {
-        transform.Scale -= bloodDecay;
-        if (transform.Scale <= 0.0f)
+        if (transform.Position.y <= lowerBounds)
         {
-            ecb.DestroyEntity(chunkIndex, entity);
+            transform.Scale -= bloodDecay;
+            transform.Position.y = lowerBounds;
+            if (transform.Scale <= 0.0f)
+            {
+                ecb.DestroyEntity(chunkIndex, entity);
+            }
+        }
+
+        if (transform.Position.y < lowerBounds)
+        {
+            Debug.Log("Error");
         }
     }
 }

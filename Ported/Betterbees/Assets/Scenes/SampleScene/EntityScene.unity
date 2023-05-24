@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf1a9501ac91f247be236f3f3c2f2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beeCount: 1000
+  beeCount: 100
   respawnBeeCount: 10
   foodCount: 100
   bloodDecay: 1
@@ -199,7 +199,7 @@ MonoBehaviour:
   chaseForce: 2
   carryForce: 1
   interactionDistance: 0.1
-  agressionPercentage: 0
+  agressionPercentage: 0.001
   attackForce: 5
   attackDistance: 0.5
 --- !u!1 &184887340514711267

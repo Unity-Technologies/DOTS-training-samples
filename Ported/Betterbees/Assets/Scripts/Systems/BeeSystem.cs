@@ -227,6 +227,7 @@ public partial struct BeeSystem : ISystem
             commandBuffer.AddComponent(target.ValueRO.Target, new Parent { Value = beeEntity });
 
             targetTransform.Position = new float3();
+            targetTransform.Position.y = -0.08f;
             commandBuffer.SetComponent(target.ValueRO.Target, targetTransform);
 
             beeState.ValueRW.state = BeeState.State.RETURNING;
@@ -247,7 +248,7 @@ public partial struct BeeSystem : ISystem
     {
         RemoveInvalidBeeTarget(target, beeState.ValueRO);
         FindBeeTarget(target, beeState, ref random, ref state);
-        FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings);
+        FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings, ref random);
     }
 
     private int EnemyTag(BeeState beeState)
@@ -302,7 +303,8 @@ public partial struct BeeSystem : ISystem
         RefRW<TargetComponent> target,
         ref SystemState state,
         EntityCommandBuffer commandBuffer,
-        ref BeeSettingsSingletonComponent beeSettings)
+        ref BeeSettingsSingletonComponent beeSettings,
+        ref Random random)
     {
         if (target.ValueRO.Target == Entity.Null)
         {
@@ -320,8 +322,17 @@ public partial struct BeeSystem : ISystem
         }
         else
         {
-            var blood = commandBuffer.Instantiate(config.bloodEntity);
-            commandBuffer.SetComponent(blood, LocalTransform.FromPosition(targetTransform.Position));
+            for (int i = 0; i < 5; i++)
+            {
+                var blood = commandBuffer.Instantiate(config.bloodEntity);
+                commandBuffer.SetComponent(blood, new LocalTransform
+                {
+                    Position = targetTransform.Position,
+                    Scale = random.NextFloat(),
+                    Rotation = quaternion.identity
+                });
+                commandBuffer.SetComponent(blood, new VelocityComponent { Velocity = random.NextFloat3() });
+            }
             
             commandBuffer.DestroyEntity(target.ValueRO.Target);
 

@@ -17,9 +17,7 @@ public class BeeSettingsSingletonAuthoring : MonoBehaviour
     [Min(0f)]
     public float interactionDistance = 0.1f;
 
-    [Range(0f, 1f)]
     public float agressionPercentage = 0f;
-
     public float attackForce = 5f;
     public float attackDistance = 0.1f;
 
