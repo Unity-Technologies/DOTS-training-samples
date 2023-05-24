@@ -31,8 +31,8 @@ public partial struct SpawningSystem : ISystem
 
         // Copied from base game.
         // TODO: make these game settings and user-selectable.
-        passFullWorkerColor = new float4(197 / 256f, 236 / 256f, 188 / 256f, 1f); 
-        passEmptyWorkerColor = new float4(238 / 256f, 192 / 256f, 236 / 256f, 1f);
+        passFullWorkerColor = new float4(1f, 0f, 0f, 1f);//new float4(197 / 256f, 236 / 256f, 188 / 256f, 1f); 
+        passEmptyWorkerColor = new float4(0f, 1f, 0f, 1f);//new float4(238 / 256f, 192 / 256f, 236 / 256f, 1f);
     }
     
     [BurstCompile]
@@ -110,7 +110,7 @@ public partial struct SpawningSystem : ISystem
                 teamMembers.Add(new TeamMember() { Value = workerEntity });
                 cmdBuffer.AddComponent(workerEntity, workerState);
                 cmdBuffer.AddComponent<NextPosition>(workerEntity);
-                cmdBuffer.AddComponent<URPMaterialPropertyBaseColor>(workerEntity, new URPMaterialPropertyBaseColor()
+                cmdBuffer.AddComponent(workerEntity, new URPMaterialPropertyBaseColor()
                 {
                     Value = isFirstHalf ? passFullWorkerColor : passEmptyWorkerColor
                 });
@@ -119,7 +119,7 @@ public partial struct SpawningSystem : ISystem
         
         cmdBuffer.Playback(state.EntityManager);
 
-        foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>())
+        foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>().WithAll<WorkerState>())
         {
             var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSettings.RowsAndColumns, gameSettings.RowsAndColumns));
             randomGridPos *= k_DefaultGridSize;
