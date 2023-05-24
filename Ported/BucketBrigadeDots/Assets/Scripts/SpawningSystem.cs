@@ -26,8 +26,9 @@ public partial struct SpawningSystem : ISystem
         state.RequireForUpdate<FireSpawner>();
         state.RequireForUpdate<TeamSpawner>();
         state.RequireForUpdate<WaterSpawner>();
+        state.RequireForUpdate<BucketSpawner>();
         state.RequireForUpdate<GameSettings>();
-        
+
         // Copied from base game.
         // TODO: make these game settings and user-selectable.
         passFullWorkerColor = new float4(197 / 256f, 236 / 256f, 188 / 256f, 1f); 
@@ -40,24 +41,25 @@ public partial struct SpawningSystem : ISystem
         if (initialized) return;
         
         var gameSettings = SystemAPI.GetSingleton<GameSettings>();
+        var random = Random.CreateFromIndex(0);
         
-        InitHeatBuffer(ref state, ref gameSettings);
+        InitHeatBuffer(ref state, ref gameSettings, ref random);
         SpawnFireCells(ref state, ref gameSettings);
-        SpawnTeams(ref state);
-        SpawnWater(ref state);
+        SpawnTeams(ref state, ref gameSettings, ref random);
+        SpawnWater(ref state, ref gameSettings);
+        SpawnBucket(ref state, ref gameSettings, ref random);
 
         initialized = true;
     }
 
-    private void InitHeatBuffer(ref SystemState state, ref GameSettings gameSettings)
+    private void InitHeatBuffer(ref SystemState state, ref GameSettings gameSettings, ref Random random)
     {
         var size = gameSettings.Size;
         
         var settingsEntity = SystemAPI.GetSingletonEntity<GameSettings>();
         var buffer = state.EntityManager.AddBuffer<FireTemperature>(settingsEntity);
         buffer.Resize(size, NativeArrayOptions.ClearMemory);
-
-        var random = Random.CreateFromIndex(0);
+        
         for (var i = 0; i < gameSettings.StartingFires; i++)
         {
             var fireIndex = random.NextInt(size);
@@ -73,94 +75,105 @@ public partial struct SpawningSystem : ISystem
         state.EntityManager.Instantiate(prefab, gameSettings.Size, Allocator.Temp);
     }
 
-    void SpawnTeams(ref SystemState state)
+    void SpawnTeams(ref SystemState state, ref GameSettings gameSettings, ref Random random)
     {
-        var teamsQuery = SystemAPI.QueryBuilder().WithAll<TeamData>().Build();
-        if (teamsQuery.IsEmpty)
+        var teamSpawner = SystemAPI.GetSingleton<TeamSpawner>();
+        var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);
+        
+        for (var i = 0; i < teamSpawner.NumberOfTeams; ++i)
         {
-            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
-            var teamSpawner = SystemAPI.GetSingleton<TeamSpawner>();
-
-            var random = Random.CreateFromIndex(0);
-            var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);
-            
-            for (var i = 0; i < teamSpawner.NumberOfTeams; ++i)
+            var workersPerTeam = teamSpawner.WorkersPerTeam;
+            var teamEntity = cmdBuffer.CreateEntity();
+            cmdBuffer.AddComponent(teamEntity, new TeamData()
             {
-                var workersPerTeam = teamSpawner.WorkersPerTeam;
-                var teamEntity = cmdBuffer.CreateEntity();
-                cmdBuffer.AddComponent(teamEntity, new TeamData()
-                {
-                    FirePosition = gameSetting.RowsAndColumns / 2f * k_DefaultGridSize,
-                    WaterPosition = float2.zero
-                });
-                cmdBuffer.AddComponent(teamEntity, new TeamState()
-                {
-                    Value = TeamStates.Idle
-                });
-                var teamMembers = cmdBuffer.AddBuffer<TeamMember>(teamEntity);
-                
-                var prefab = teamSpawner.WorkerPrefab;
-                var instances = new NativeArray<Entity>(workersPerTeam, Allocator.Temp);
-                cmdBuffer.Instantiate(prefab, instances);
-
-                var workerState = new WorkerState()
-                {
-                    Value = WorkerStates.Idle
-                };
-                for (var m = 0; m < workersPerTeam; ++m)
-                {
-                    bool isFirstHalf = m < workersPerTeam / 2;
-                    var workerEntity = instances[m];
-                    teamMembers.Add(new TeamMember() { Value = workerEntity });
-                    cmdBuffer.AddComponent(workerEntity, workerState);
-                    cmdBuffer.AddComponent<NextPosition>(workerEntity);
-                    cmdBuffer.AddComponent<URPMaterialPropertyBaseColor>(workerEntity, new URPMaterialPropertyBaseColor()
-                    {
-                        Value = isFirstHalf ? passFullWorkerColor : passEmptyWorkerColor
-                    });
-                }
-            }
-            
-            cmdBuffer.Playback(state.EntityManager);
-
-            foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>())
+                FirePosition = gameSettings.RowsAndColumns / 2f * k_DefaultGridSize,
+                WaterPosition = float2.zero
+            });
+            cmdBuffer.AddComponent(teamEntity, new TeamState()
             {
-                var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSetting.RowsAndColumns, gameSetting.RowsAndColumns));
-                randomGridPos *= k_DefaultGridSize;
-                workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
+                Value = TeamStates.Idle
+            });
+            var teamMembers = cmdBuffer.AddBuffer<TeamMember>(teamEntity);
+            
+            var prefab = teamSpawner.WorkerPrefab;
+            var instances = new NativeArray<Entity>(workersPerTeam, Allocator.Temp);
+            cmdBuffer.Instantiate(prefab, instances);
+
+            var workerState = new WorkerState()
+            {
+                Value = WorkerStates.Idle
+            };
+            for (var m = 0; m < workersPerTeam; ++m)
+            {
+                bool isFirstHalf = m < workersPerTeam / 2;
+                var workerEntity = instances[m];
+                teamMembers.Add(new TeamMember() { Value = workerEntity });
+                cmdBuffer.AddComponent(workerEntity, workerState);
+                cmdBuffer.AddComponent<NextPosition>(workerEntity);
+                cmdBuffer.AddComponent<URPMaterialPropertyBaseColor>(workerEntity, new URPMaterialPropertyBaseColor()
+                {
+                    Value = isFirstHalf ? passFullWorkerColor : passEmptyWorkerColor
+                });
             }
+        }
+        
+        cmdBuffer.Playback(state.EntityManager);
+
+        foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>())
+        {
+            var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSettings.RowsAndColumns, gameSettings.RowsAndColumns));
+            randomGridPos *= k_DefaultGridSize;
+            workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
         }
     }
     
-    void SpawnWater(ref SystemState state)
+    void SpawnWater(ref SystemState state, ref GameSettings gameSettings)
     {
-        var waterCellsQuery = SystemAPI.QueryBuilder().WithAll<WaterCell>().Build();
-        if (waterCellsQuery.IsEmpty)
+        var waterSpawner = SystemAPI.GetSingleton<WaterSpawner>();
+        var prefab = waterSpawner.Prefab;
+            
+        float gridHalfWidth = k_DefaultGridSize * gameSettings.RowsAndColumns / 2f;
+        var gridCenter = new float3(gridHalfWidth, 0.0f, gridHalfWidth);
+        float waterGroupDistanceFromCenter = gridHalfWidth + k_DefaultWaterFeatureDistanceFromGridEdge + (k_AssumedWaterFeatureWidth / 2);
+        var prefabCount = 4; // One per side.
+            
+        var instances = state.EntityManager.Instantiate(prefab, prefabCount, Allocator.Temp);
+
+        float angleRadians = 0f;
+            
+        Debug.Log($"Made {instances.Length} waters!");
+        foreach (var entity in instances)
         {
-            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
-            var waterSpawner = SystemAPI.GetSingleton<WaterSpawner>();
-            var prefab = waterSpawner.Prefab;
-            
-            float gridHalfWidth = k_DefaultGridSize * gameSetting.RowsAndColumns / 2f;
-            var gridCenter = new float3(gridHalfWidth, 0.0f, gridHalfWidth);
-            float waterGroupDistanceFromCenter = gridHalfWidth + k_DefaultWaterFeatureDistanceFromGridEdge + (k_AssumedWaterFeatureWidth / 2);
-            var prefabCount = 4; // One per side.
-            
-            var instances = state.EntityManager.Instantiate(prefab, prefabCount, Allocator.Temp);
+            var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
+            math.sincos(angleRadians, out var sin, out var cos);
+            var offset = new float3(sin, 0f, cos) * waterGroupDistanceFromCenter;
+            transform.ValueRW.Position = gridCenter + offset;
+            transform.ValueRW = transform.ValueRW.RotateY(angleRadians);
 
-            float angleRadians = 0f;
-            
-            Debug.Log($"Made {instances.Length} waters!");
-            foreach (var entity in instances)
-            {
-                var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
-                math.sincos(angleRadians, out var sin, out var cos);
-                var offset = new float3(sin, 0f, cos) * waterGroupDistanceFromCenter;
-                transform.ValueRW.Position = gridCenter + offset;
-                transform.ValueRW = transform.ValueRW.RotateY(angleRadians);
+            angleRadians += math.PI * 0.5f;
+        }
+    }
+    
+    void SpawnBucket(ref SystemState state, ref GameSettings gameSettings, ref Random random)
+    {
+        var bucketSpawner = SystemAPI.GetSingleton<BucketSpawner>();
 
-                angleRadians += math.PI * 0.5f;
-            }
+        var bucketEntities = state.EntityManager.Instantiate(bucketSpawner.BucketPrefab, bucketSpawner.NumberOfBuckets, Allocator.Temp);
+        var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);
+        var bucketData = new BucketData()
+        {
+            IsFull = false
+        };
+        for (var i = 0; i < bucketEntities.Length; ++i)
+            cmdBuffer.AddComponent(bucketEntities[i], bucketData);
+
+        cmdBuffer.Playback(state.EntityManager);
+        
+        foreach (var bucketTransform in SystemAPI.Query<RefRW<LocalTransform>>().WithAll<BucketData>())
+        {
+            var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSettings.RowsAndColumns, gameSettings.RowsAndColumns));
+            randomGridPos *= k_DefaultGridSize;
+            bucketTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
         }
     }
 }
