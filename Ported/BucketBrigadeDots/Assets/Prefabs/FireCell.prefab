@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5942156626567312623}
   - component: {fileID: 3439937180229318592}
   - component: {fileID: 7497079930942469439}
+  - component: {fileID: 929690474535672635}
   m_Layer: 0
   m_Name: FireCell
   m_TagString: Untagged
@@ -96,3 +97,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a2573e6984444b6fac5711619db437c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &929690474535672635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2521270844370248946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b6467bcd530cd4d809fae70ea0ca9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: {r: 0, g: 0, b: 0, a: 0}

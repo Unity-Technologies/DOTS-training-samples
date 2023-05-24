@@ -16,7 +16,7 @@ public partial struct SpawningSystem : ISystem
     private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
     private const float k_AssumedWaterFeatureWidth = 5f; // TODO: can we read this from the prefab?
     
-    private uint m_UpdateCounter;
+    private bool initialized;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -30,12 +30,16 @@ public partial struct SpawningSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        if (initialized) return;
+        
         var gameSettings = SystemAPI.GetSingleton<GameSettings>();
         
         InitHeatBuffer(ref state, ref gameSettings);
         SpawnFireCells(ref state, ref gameSettings);
         SpawnTeams(ref state);
         SpawnWater(ref state);
+
+        initialized = true;
     }
 
     private void InitHeatBuffer(ref SystemState state, ref GameSettings gameSettings)
@@ -50,32 +54,16 @@ public partial struct SpawningSystem : ISystem
         for (var i = 0; i < gameSettings.StartingFires; i++)
         {
             var fireIndex = random.NextInt(size);
-            buffer[fireIndex] = 1f;
+            buffer[fireIndex] = .5f;
         }
     }
 
     void SpawnFireCells(ref SystemState state, ref GameSettings gameSettings)
     {
-        var fireCellsQuery = SystemAPI.QueryBuilder().WithAll<FireCell>().Build();
-        if (fireCellsQuery.IsEmpty)
-        {
-            var fireSpawner = SystemAPI.GetSingleton<FireSpawner>();
-            var prefab = fireSpawner.Prefab;
-            
-            var instances = state.EntityManager.Instantiate(prefab, gameSettings.Size, Allocator.Temp);
-
-            var index = 0;
-            for (var x = 0; x < gameSettings.RowsAndColumns; x++)
-            {
-                for (var y = 0; y < gameSettings.RowsAndColumns; y++)
-                {
-                    var entity = instances[index++];
-                    var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);
-                    transform.ValueRW.Position = new float3(x * k_DefaultGridSize, 0f, y * k_DefaultGridSize);
-
-                }
-            }
-        }
+        var fireSpawner = SystemAPI.GetSingleton<FireSpawner>();
+        var prefab = fireSpawner.Prefab;
+        
+        state.EntityManager.Instantiate(prefab, gameSettings.Size, Allocator.Temp);
     }
 
     void SpawnTeams(ref SystemState state)
