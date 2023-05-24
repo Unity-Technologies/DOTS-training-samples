@@ -291,7 +291,7 @@ MonoBehaviour:
   WorkerPrefab: {fileID: 6054936227776843098, guid: 0e894ee8ccbcc4cb9829feb810c98ef2,
     type: 3}
   NumberOfTeams: 2
-  WorkersPerTeam: 10
+  WorkersPerTeam: 40
 --- !u!4 &1764833416
 Transform:
   m_ObjectHideFlags: 0
