@@ -245,7 +245,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BucketPrefab: {fileID: 3609203139647110770, guid: e20709a76b93949caa00aa13e87e9059,
     type: 3}
-  NumberOfBuckets: 2
+  NumberOfBuckets: 10
 --- !u!4 &1239179708
 Transform:
   m_ObjectHideFlags: 0

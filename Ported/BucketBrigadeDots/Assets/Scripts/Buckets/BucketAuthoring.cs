@@ -13,8 +13,9 @@ public class BucketBaker : Baker<BucketAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.WorldSpace);
 
-        AddComponent(entity, new BucketData() {
-            IsFull = false
+        AddComponent(entity, new BucketSpawner() {
+            BucketPrefab = GetEntity(authoring.BucketPrefab, TransformUsageFlags.WorldSpace),
+            NumberOfBuckets = authoring.NumberOfBuckets,
         });
     }
 }
