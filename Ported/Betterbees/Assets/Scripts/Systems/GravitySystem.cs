@@ -5,7 +5,6 @@ using Unity.Transforms;
 
 [BurstCompile]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateBefore(typeof(MovementSystem))]
 public partial struct GravitySystem : ISystem
 {
     [BurstCompile]

@@ -356,7 +356,13 @@ public partial struct BeeSystem : ISystem
                 });
                 commandBuffer.SetComponent(blood, new VelocityComponent { Velocity = random.NextFloat3() });
             }
-            
+
+            var targetBeeState = state.EntityManager.GetComponentData<BeeState>(target.ValueRO.Target);
+            if (targetBeeState.state == BeeState.State.RETURNING)
+            {
+                var foodTarget = state.EntityManager.GetComponentData<TargetComponent>(target.ValueRO.Target);
+                state.EntityManager.SetComponentData<LocalTransform>(foodTarget.Target, LocalTransform.FromPosition(targetTransform.Position)); 
+            }
             commandBuffer.DestroyEntity(target.ValueRO.Target);
 
             beeState.ValueRW.state = BeeState.State.IDLE;
