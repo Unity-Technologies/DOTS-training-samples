@@ -42,6 +42,11 @@ public partial struct BeeSystem : ISystem
                 .WithAll<BeeState, HiveBlue>();
             _availableBeesQueries[(int)HiveTag.HiveBlue] = state.GetEntityQuery(builder);
         }
+        {
+            var builder = new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<BeeState, HiveOrange>();
+            _availableBeesQueries[(int)HiveTag.HiveOrange] = state.GetEntityQuery(builder);
+        }
 
         _boundaryNormals = new NativeArray<float3>(_boundaryNormalCount, Allocator.Persistent);
         for (int i = 0; i < _boundaryNormalCount; i++)
@@ -83,7 +88,12 @@ public partial struct BeeSystem : ISystem
                         break;
                     case BeeState.State.GATHERING:
                         float agression = random.NextFloat();
-                        int enemyCount = _availableBeesQueries[EnemyTag(beeState.ValueRO)].CalculateEntityCount();
+                        int enemyCount = 0;
+                        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
+                        {
+                            if (i != (int)beeState.ValueRO.hiveTag)
+                                enemyCount += _availableBeesQueries[i].CalculateEntityCount();
+                        }
                         if (enemyCount > 0 && agression < beeSettings.agressionPercentage)
                         {
                             target.ValueRW.Target = Entity.Null;
@@ -251,21 +261,28 @@ public partial struct BeeSystem : ISystem
         FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings, ref random);
     }
 
-    private int EnemyTag(BeeState beeState)
+    private int EnemyTag(ref Random random, BeeState beeState)
     {
-        switch(beeState.hiveTag)
-        {
-            case HiveTag.HiveYellow:
-                return (int)HiveTag.HiveBlue;
-            case HiveTag.HiveBlue:
-                return (int)HiveTag.HiveYellow;
-        }
-        return -1;
+        int enemyHive = (int)(random.NextUInt() % (uint)HiveTag.HiveCount);
+        if (enemyHive == (int)beeState.hiveTag)
+            enemyHive = (enemyHive + 1) % (int)HiveTag.HiveCount;
+        return enemyHive;
     }
 
     private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target, in BeeState beeState)
     {
-        bool hasInvalidTarget = target.ValueRO.Target != Entity.Null && !_availableBeesQueries[EnemyTag(beeState)].Matches(target.ValueRO.Target);
+        bool hasInvalidTarget = false;
+        if (target.ValueRO.Target != Entity.Null)
+        {
+            for (int i = 0; i < (int)HiveTag.HiveCount; i++)
+            {
+                if (hasInvalidTarget)
+                    break;
+                
+                if (i != (int)beeState.hiveTag)
+                    hasInvalidTarget = !_availableBeesQueries[i].Matches(target.ValueRO.Target);
+            }
+        }
         if (hasInvalidTarget)
         {
             target.ValueRW.Target = Entity.Null;
@@ -280,7 +297,7 @@ public partial struct BeeSystem : ISystem
             return;
         }
 
-        var enemyBees = _availableBeesQueries[EnemyTag(beeState.ValueRO)].ToEntityArray(Allocator.Temp);
+        var enemyBees = _availableBeesQueries[EnemyTag(ref random, beeState.ValueRO)].ToEntityArray(Allocator.Temp);
 
         if (enemyBees.Length > 0)
         {

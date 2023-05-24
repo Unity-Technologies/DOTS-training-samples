@@ -7,6 +7,7 @@ public enum HiveTag
 {
     HiveYellow,
     HiveBlue,
+    HiveOrange,
     HiveCount
 }
 
@@ -45,6 +46,8 @@ public class SpawnerBaker : Baker<SpawnerAuthoring>
                 AddComponent(entity, new HiveYellow()); break;
             case HiveTag.HiveBlue:
                 AddComponent(entity, new HiveBlue()); break;
+            case HiveTag.HiveOrange:
+                AddComponent(entity, new HiveOrange()); break;
         }
     }
 }

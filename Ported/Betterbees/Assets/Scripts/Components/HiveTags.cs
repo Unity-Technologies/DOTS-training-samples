@@ -8,3 +8,6 @@ public struct HiveYellow : IComponentData
 
 public struct HiveBlue : IComponentData
 { }
+
+public struct HiveOrange : IComponentData
+{ }
