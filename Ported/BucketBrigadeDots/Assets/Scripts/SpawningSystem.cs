@@ -158,7 +158,13 @@ public partial struct SpawningSystem : ISystem
             IsFull = false
         };
         for (var i = 0; i < bucketEntities.Length; ++i)
+        {
             cmdBuffer.AddComponent(bucketEntities[i], bucketData);
+            cmdBuffer.AddComponent(bucketEntities[i], new URPMaterialPropertyBaseColor()
+            {
+                Value = gameSettings.BucketEmptyColor
+            });            
+        }
 
         cmdBuffer.Playback(state.EntityManager);
         
