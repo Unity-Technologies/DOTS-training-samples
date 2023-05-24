@@ -14,7 +14,6 @@ public struct Config : IComponentData
     public float maxSpawnSpeed;
     public int foodCount;
     public float2 foodBounds;
-    public float bloodDecay;
 	public Entity smokeEntity;
     public float smokeSpeed;
     public int numSmokeParticles;
