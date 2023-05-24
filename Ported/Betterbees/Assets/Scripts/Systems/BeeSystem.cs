@@ -13,7 +13,7 @@ using static UnityEngine.GraphicsBuffer;
 public partial struct BeeSystem : ISystem
 {
     private EntityQuery _availableFoodSourcesQuery;
-    private EntityQuery _availableBeesQuery;
+    private NativeArray<EntityQuery> _availableBeesQueries;
     private uint _updateCounter;
     private float3 _halfFloat;
 
@@ -31,10 +31,16 @@ public partial struct BeeSystem : ISystem
 
             _availableFoodSourcesQuery = state.GetEntityQuery(builder);
         }
+        _availableBeesQueries = new NativeArray<EntityQuery>((int)HiveTag.HiveCount, Allocator.Persistent);
         {
             var builder = new EntityQueryBuilder(Allocator.Temp)
-                .WithAll<BeeState>();
-            _availableBeesQuery = state.GetEntityQuery(builder);
+                .WithAll<BeeState, HiveYellow>();
+            _availableBeesQueries[(int)HiveTag.HiveYellow] = state.GetEntityQuery(builder);
+        }
+        { 
+            var builder = new EntityQueryBuilder(Allocator.Temp)
+                .WithAll<BeeState, HiveBlue>();
+            _availableBeesQueries[(int)HiveTag.HiveBlue] = state.GetEntityQuery(builder);
         }
 
         _boundaryNormals = new NativeArray<float3>(_boundaryNormalCount, Allocator.Persistent);
@@ -51,6 +57,8 @@ public partial struct BeeSystem : ISystem
     {
         if (_boundaryNormals.IsCreated)
             _boundaryNormals.Dispose();
+        if (_availableBeesQueries.IsCreated)
+            _availableBeesQueries.Dispose();
     }
 
     [BurstCompile]
@@ -75,7 +83,8 @@ public partial struct BeeSystem : ISystem
                         break;
                     case BeeState.State.GATHERING:
                         float agression = random.NextFloat();
-                        if (agression < beeSettings.agressionPercentage)
+                        int enemyCount = _availableBeesQueries[EnemyTag(beeState.ValueRO)].CalculateEntityCount();
+                        if (enemyCount > 0 && agression < beeSettings.agressionPercentage)
                         {
                             target.ValueRW.Target = Entity.Null;
                             beeState.ValueRW.state = BeeState.State.ATTACKING;
@@ -86,8 +95,7 @@ public partial struct BeeSystem : ISystem
                         }
                         break;
                     case BeeState.State.ATTACKING:
-
-                        Attacking(entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
+                        Attacking(config, entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
                         break;
                     case BeeState.State.RETURNING:
                         Returning(entity, beeState, transform, velocity, target, home, ref beeSettings, ref state, commandBuffer);
@@ -226,6 +234,7 @@ public partial struct BeeSystem : ISystem
     }
 
     private void Attacking(
+        in Config config,
         Entity beeEntity,
         RefRW<BeeState> beeState, 
         RefRW<LocalTransform> transform,
@@ -236,19 +245,26 @@ public partial struct BeeSystem : ISystem
         EntityCommandBuffer commandBuffer,
         ref BeeSettingsSingletonComponent beeSettings)
     {
+        RemoveInvalidBeeTarget(target, beeState.ValueRO);
         FindBeeTarget(target, beeState, ref random, ref state);
-        // if the beeTarget is not valid
-            // set the status to idle
-        // Speed up and Move towards beeTarget
-        // check distance to the target (hitRadius)
-            // if (dist < hitRadius)
-                // destroy the beeTarget
-                // set back status to idle
+        FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings);
     }
 
-    private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target)
+    private int EnemyTag(BeeState beeState)
     {
-        bool hasInvalidTarget = target.ValueRO.Target != Entity.Null && !_availableBeesQuery.Matches(target.ValueRO.Target);
+        switch(beeState.hiveTag)
+        {
+            case HiveTag.HiveYellow:
+                return (int)HiveTag.HiveBlue;
+            case HiveTag.HiveBlue:
+                return (int)HiveTag.HiveYellow;
+        }
+        return -1;
+    }
+
+    private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target, in BeeState beeState)
+    {
+        bool hasInvalidTarget = target.ValueRO.Target != Entity.Null && !_availableBeesQueries[EnemyTag(beeState)].Matches(target.ValueRO.Target);
         if (hasInvalidTarget)
         {
             target.ValueRW.Target = Entity.Null;
@@ -263,21 +279,52 @@ public partial struct BeeSystem : ISystem
             return;
         }
 
-        var beeEntities = _availableBeesQuery.ToEntityArray(Allocator.Temp);
+        var enemyBees = _availableBeesQueries[EnemyTag(beeState.ValueRO)].ToEntityArray(Allocator.Temp);
 
-        if (beeEntities.Length > 0)
+        if (enemyBees.Length > 0)
         {
-            int index = (int)(random.NextUInt() % beeEntities.Length);
-            var targetEntity = beeEntities[index];
-            var beeTargetState = state.EntityManager.GetComponentData<BeeState>(targetEntity);
-            if (beeTargetState.hiveId == beeState.ValueRO.hiveId)
-            {
-                return; // if all enemies are dead we are stuck in attack /!\
-            }
+            int index = (int)(random.NextUInt() % enemyBees.Length);
+            var targetEntity = enemyBees[index];
             target.ValueRW.Target = targetEntity;
         }
         else
         {
+            beeState.ValueRW.state = BeeState.State.IDLE;
+        }
+    }
+
+    private void FlyToBeeTarget(
+        in Config config,
+        Entity beeEntity,
+        RefRW<BeeState> beeState,
+        RefRW<LocalTransform> transform,
+        RefRW<VelocityComponent> velocity,
+        RefRW<TargetComponent> target,
+        ref SystemState state,
+        EntityCommandBuffer commandBuffer,
+        ref BeeSettingsSingletonComponent beeSettings)
+    {
+        if (target.ValueRO.Target == Entity.Null)
+        {
+            return;
+        }
+
+        var targetTransform = state.EntityManager.GetComponentData<LocalTransform>(target.ValueRO.Target);
+        float3 delta = targetTransform.Position - transform.ValueRO.Position;
+        float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+
+        if (dist2 > beeSettings.attackDistance * beeSettings.attackDistance)
+        {
+            float dist = math.sqrt(dist2);
+            velocity.ValueRW.Velocity += delta * (beeSettings.attackForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
+        }
+        else
+        {
+            var blood = commandBuffer.Instantiate(config.bloodEntity);
+            commandBuffer.SetComponent(blood, LocalTransform.FromPosition(targetTransform.Position));
+            
+            commandBuffer.DestroyEntity(target.ValueRO.Target);
+
             beeState.ValueRW.state = BeeState.State.IDLE;
         }
     }

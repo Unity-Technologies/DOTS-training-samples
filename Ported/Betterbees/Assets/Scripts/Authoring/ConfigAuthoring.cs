@@ -12,6 +12,7 @@ public class ConfigAuthoring : MonoBehaviour
     public float2 foodBounds = new float2(10, 10);
     public float3 gravity = new float3(0, -20, 0);
     public GameObject boundsObject;
+    public GameObject bloodObject;
 
     public class ConfigBaker : Baker<ConfigAuthoring>
     {
@@ -25,6 +26,7 @@ public class ConfigAuthoring : MonoBehaviour
 
             Config configComponent = new Config
             {
+                bloodEntity = GetEntity(config.bloodObject, TransformUsageFlags.Dynamic),
                 beeCount = config.beeCount,
                 respawnBeeCount = config.respawnBeeCount,
                 foodCount = config.foodCount,

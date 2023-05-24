@@ -21,7 +21,7 @@ public class FoodBaker : Baker<FoodAuthoring>
         });
         
         AddComponent(entity, new VelocityComponent());
-
+        AddComponent(entity, new GravityComponent());
         AddComponent(entity, new FoodComponent());
     }
 }

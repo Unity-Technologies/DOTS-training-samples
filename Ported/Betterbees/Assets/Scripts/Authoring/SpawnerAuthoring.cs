@@ -3,15 +3,22 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+public enum HiveTag
+{
+    HiveYellow,
+    HiveBlue,
+    HiveCount
+}
+
 public class SpawnerAuthoring : MonoBehaviour
 {
     public GameObject prefab;
     public int initialSpawnAmount;
+    public HiveTag hiveTag;
 }
 
 public class SpawnerBaker : Baker<SpawnerAuthoring>
 {
-    int hiveId = 0;
     public override void Bake(SpawnerAuthoring authoring)
     {
         var entity = GetEntity(TransformUsageFlags.Dynamic);
@@ -22,7 +29,7 @@ public class SpawnerBaker : Baker<SpawnerAuthoring>
                 beePrefab = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic),
                 minBounds = authoring.transform.position - 0.5f * authoring.transform.localScale,
                 maxBounds = authoring.transform.position + 0.5f * authoring.transform.localScale,
-                hiveId = hiveId++ // We are having ids 2 and 3 (not 0 and 1), why? /!\
+                hiveTag = authoring.hiveTag
             });
             
         AddComponent(entity, new LocalTransform
@@ -31,5 +38,13 @@ public class SpawnerBaker : Baker<SpawnerAuthoring>
             Rotation = authoring.transform.rotation,
             Scale = authoring.transform.localScale.magnitude
         });
+
+        switch(authoring.hiveTag)
+        {
+            case HiveTag.HiveYellow:
+                AddComponent(entity, new HiveYellow()); break;
+            case HiveTag.HiveBlue:
+                AddComponent(entity, new HiveBlue()); break;
+        }
     }
 }

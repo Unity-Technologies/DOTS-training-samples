@@ -166,6 +166,7 @@ MonoBehaviour:
     y: -20
     z: 0
   boundsObject: {fileID: 184887340514711267}
+  bloodObject: {fileID: 1427829438539250947, guid: 9929a2c7ab5a5c946ad2a613235a88b5, type: 3}
 --- !u!4 &1247163956
 Transform:
   m_ObjectHideFlags: 0
@@ -199,6 +200,8 @@ MonoBehaviour:
   carryForce: 1
   interactionDistance: 0.1
   agressionPercentage: 0
+  attackForce: 5
+  attackDistance: 0.5
 --- !u!1 &184887340514711267
 GameObject:
   m_ObjectHideFlags: 0
@@ -383,6 +386,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 919673302554573689, guid: f29c1fcc37e24694fa7441e3fbf716ef, type: 3}
   initialSpawnAmount: 1
+  hiveTag: 0
 --- !u!114 &4671235707690531504
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -397,6 +401,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 919673302554573689, guid: 9d02835bea83a42478c229f6b261c95e, type: 3}
   initialSpawnAmount: 1
+  hiveTag: 1
 --- !u!4 &5915842593742329159
 Transform:
   m_ObjectHideFlags: 0

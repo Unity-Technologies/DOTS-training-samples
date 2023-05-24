@@ -8,4 +8,6 @@ public struct BeeSettingsSingletonComponent : IComponentData
     public float carryForce;
     public float interactionDistance;
     public float agressionPercentage;
+    public float attackForce;
+    public float attackDistance;
 }

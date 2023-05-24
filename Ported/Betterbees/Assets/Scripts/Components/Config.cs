@@ -6,6 +6,7 @@ using UnityEngine;
 
 public struct Config : IComponentData
 {
+    public Entity bloodEntity;
     public float3 bounds;
     public float3 gravity;
     public int beeCount;

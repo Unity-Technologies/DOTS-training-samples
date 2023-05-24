@@ -77,7 +77,7 @@ public partial struct FoodSystem : ISystem
                     spawner.ValueRO.beePrefab,
                     droppedFood.Position,
                     config.maxSpawnSpeed,
-                    spawner.ValueRO.hiveId,
+                    spawner.ValueRO.hiveTag,
                     spawner.ValueRO.minBounds,
                     spawner.ValueRO.maxBounds,
                     ecb,

@@ -42,7 +42,7 @@ public partial struct BeeSpawnerSystem : ISystem
                 spawner.ValueRO.beePrefab,
                 spawnerTransform.ValueRO.Position,
                 config.maxSpawnSpeed,
-                spawner.ValueRO.hiveId,
+                spawner.ValueRO.hiveTag,
                 spawner.ValueRO.minBounds,
                 spawner.ValueRO.maxBounds,
                 ecb,
@@ -59,7 +59,7 @@ public partial struct BeeSpawnerSystem : ISystem
         Entity beePrefab,
         float3 spawnPosition,
         float maxSpawnSpeed,
-        int hiveId,
+        HiveTag hiveTag,
         float3 homeMinBounds,
         float3 homeMaxBounds,
         EntityCommandBuffer ecb,
@@ -90,8 +90,16 @@ public partial struct BeeSpawnerSystem : ISystem
             ecb.SetComponent(newBee, new BeeState
             {
                 state = BeeState.State.IDLE,
-                hiveId = hiveId
+                hiveTag = hiveTag
             });
+
+            switch (hiveTag)
+            {
+                case HiveTag.HiveYellow:
+                    ecb.AddComponent(newBee, new HiveYellow()); break;
+                case HiveTag.HiveBlue:
+                    ecb.AddComponent(newBee, new HiveBlue()); break;
+            }
         }
     }
 }

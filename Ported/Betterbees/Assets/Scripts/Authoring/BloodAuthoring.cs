@@ -13,6 +13,7 @@ public class BloodBaker : Baker<BloodAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.Dynamic);
         AddComponent(entity, new GravityComponent());
+        AddComponent(entity, new VelocityComponent());
         AddComponent(entity, new BloodComponent());
     }
 }

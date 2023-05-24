@@ -2,25 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Transforms;
 using UnityEngine;
 
-[BurstCompile]
+[UpdateBefore(typeof(BeeSystem))]
 public partial struct BloodSystem : ISystem
 {
-    [BurstCompile]
-    public void OnCreate(ref SystemState state)
-    {
-
-
-
-    }
-
-    [BurstCompile]
-    public void OnDestroy(ref SystemState state)
-    {
-    }
-
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -31,6 +19,7 @@ public partial struct BloodSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
 
         float bloodDecay = SystemAPI.Time.DeltaTime * config.bloodDecay;
+        /*
         foreach (var (transform, entity) in SystemAPI.Query<RefRW<LocalTransform>>()
             .WithAll<BloodComponent>()  // add blood component but don't access it
             .WithEntityAccess())    // get the entity id
@@ -40,6 +29,31 @@ public partial struct BloodSystem : ISystem
             {
                 ecb.DestroyEntity(entity);
             }
+        }
+        */
+
+        BloodJob bloodJob = new BloodJob()
+        {
+            bloodDecay = bloodDecay,
+            ecb = ecb.AsParallelWriter()
+        };
+        bloodJob.ScheduleParallel();
+    }
+}
+
+[WithAll(typeof(BloodComponent))]
+[BurstCompile]
+public partial struct BloodJob : IJobEntity
+{
+    public float bloodDecay;
+    public EntityCommandBuffer.ParallelWriter ecb;
+
+    public void Execute(ref LocalTransform transform, Entity entity, [ChunkIndexInQuery]int chunkIndex)
+    {
+        transform.Scale -= bloodDecay;
+        if (transform.Scale <= 0.0f)
+        {
+            ecb.DestroyEntity(chunkIndex, entity);
         }
     }
 }
