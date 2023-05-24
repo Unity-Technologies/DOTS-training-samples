@@ -1,8 +1,8 @@
-using System;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 using Random = Unity.Mathematics.Random;
@@ -15,6 +15,8 @@ public partial struct SpawningSystem : ISystem
     const float k_DefaultGridSize = 0.3f;
     private const float k_DefaultWaterFeatureDistanceFromGridEdge = k_DefaultGridSize * 2f;
     private const float k_AssumedWaterFeatureWidth = 5f; // TODO: can we read this from the prefab?
+    private float4 passFullWorkerColor; 
+    private float4 passEmptyWorkerColor;
     
     private bool initialized;
     
@@ -25,6 +27,11 @@ public partial struct SpawningSystem : ISystem
         state.RequireForUpdate<TeamSpawner>();
         state.RequireForUpdate<WaterSpawner>();
         state.RequireForUpdate<GameSettings>();
+        
+        // Copied from base game.
+        // TODO: make these game settings and user-selectable.
+        passFullWorkerColor = new float4(197 / 256f, 236 / 256f, 188 / 256f, 1f); 
+        passEmptyWorkerColor = new float4(238 / 256f, 192 / 256f, 236 / 256f, 1f);
     }
     
     [BurstCompile]
@@ -102,10 +109,15 @@ public partial struct SpawningSystem : ISystem
                 };
                 for (var m = 0; m < workersPerTeam; ++m)
                 {
+                    bool isFirstHalf = m < workersPerTeam / 2;
                     var workerEntity = instances[m];
                     teamMembers.Add(new TeamMember() { Value = workerEntity });
                     cmdBuffer.AddComponent(workerEntity, workerState);
                     cmdBuffer.AddComponent<NextPosition>(workerEntity);
+                    cmdBuffer.AddComponent<URPMaterialPropertyBaseColor>(workerEntity, new URPMaterialPropertyBaseColor()
+                    {
+                        Value = isFirstHalf ? passFullWorkerColor : passEmptyWorkerColor
+                    });
                 }
             }
             
