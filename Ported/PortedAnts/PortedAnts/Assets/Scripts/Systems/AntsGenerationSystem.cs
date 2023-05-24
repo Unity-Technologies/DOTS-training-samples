@@ -28,7 +28,7 @@ public partial struct AntsGenerationSystem : ISystem
                 LocalTransform.FromPositionRotationScale(
                     antPosition,
                     quaternion.identity,
-                    config.ObstacleRadius));
+                    config.AntRadius));
             state.EntityManager.SetComponentData(ant,
                 new Ant
                 {

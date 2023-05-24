@@ -26,7 +26,7 @@ namespace Systems
             {
                 float ringRadius = (i / (config.ObstacleRingCount + 1f)) * (config.MapSize * .5f);
                 float circumference = ringRadius * 2f * math.PI;
-                int maxCount = (int)math.ceil(circumference / config.ObstacleRadius);
+                int maxCount = config.ObstacleRadius == 0f ? 0 :  (int)math.ceil(circumference / config.ObstacleRadius);
                 int offset = rand.NextInt(0, maxCount);
                 int holeCount = rand.NextInt(1, 3);
                 for (int j = 0; j < maxCount; j++)

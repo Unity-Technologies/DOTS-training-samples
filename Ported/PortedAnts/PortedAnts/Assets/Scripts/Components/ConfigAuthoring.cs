@@ -22,7 +22,9 @@ namespace Components
         public float RandomSteering;
         public float PheromoneAddSpeed;
         public float PheromoneDecay;
-
+        public float PheromoneSteering;
+        public float TargetRadius;
+        public float AntRadius;
     }
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -47,7 +49,10 @@ namespace Components
                 AntPrefab = GetEntity(authoring.AntPrefab, TransformUsageFlags.None),
                 RandomSteering = authoring.RandomSteering,
                 PheromoneAddSpeed = authoring.PheromoneAddSpeed,
-                PheromoneDecay = authoring.PheromoneDecay
+                PheromoneDecay = authoring.PheromoneDecay,
+                PheromoneSteering = authoring.PheromoneSteering,
+                TargetRadius = authoring.TargetRadius,
+                AntRadius = authoring.AntRadius
             });
         }
     }
@@ -70,5 +75,8 @@ namespace Components
         public float RandomSteering;
         public float PheromoneAddSpeed;
         public float PheromoneDecay;
+        public float PheromoneSteering;
+        public float TargetRadius;
+        public float AntRadius;
     }
 }

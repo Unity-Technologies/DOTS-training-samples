@@ -30,10 +30,10 @@ namespace Systems
                 LocalTransform.FromPositionRotationScale(
                     new float3(homePosition.x, 0f, homePosition.y),
                     quaternion.identity,
-                    config.ObstacleRadius * 2f));
+                    config.TargetRadius * 2f));
             state.EntityManager.SetComponentData(home, new AntsTarget()
             {
-                radius = config.ObstacleRadius,
+                radius = config.TargetRadius,
                 position = homePosition,
                 isHome = true
             });
@@ -48,10 +48,10 @@ namespace Systems
                 LocalTransform.FromPositionRotationScale(
                     new float3(foodPosition.x, 0f, foodPosition.y),
                     quaternion.identity,
-                    config.ObstacleRadius * 2f));
+                    config.TargetRadius * 2f));
             state.EntityManager.SetComponentData(food, new AntsTarget()
             {
-                radius = config.ObstacleRadius,
+                radius = config.TargetRadius,
                 position = foodPosition,
                 isHome = false
             });
