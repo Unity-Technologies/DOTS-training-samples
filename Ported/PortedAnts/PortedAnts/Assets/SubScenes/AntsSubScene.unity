@@ -200,7 +200,9 @@ MonoBehaviour:
   AntsPopulation: 100
   AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}
-  RandomSteering: 1
+  RandomSteering: 0.14
+  PheromoneAddSpeed: 10
+  PheromoneDecay: 0.99
 --- !u!114 &1251742802
 MonoBehaviour:
   m_ObjectHideFlags: 0
