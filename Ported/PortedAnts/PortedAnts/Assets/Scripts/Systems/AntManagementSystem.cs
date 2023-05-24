@@ -101,6 +101,15 @@ public partial struct AntsManagementSystem : ISystem
 			if (ovx != vx || ovy != vy) {
 				facingAngle = math.atan2(vy,vx);
 			}
+			
+			float excitement = .3f;
+			if (ant.ValueRO.hasFood) {
+				excitement = 1f;
+			}
+			
+			var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
+			//excitement *= ant.ValueRO.speed / antSpeed;
+			DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, ref pheromones);
 
             //I'm not sure that this is the most efficient way, but it intuitively feels like it to me
             ant.ValueRW.facingAngle = facingAngle;
@@ -110,6 +119,27 @@ public partial struct AntsManagementSystem : ISystem
                     new float3(position.x, 0f, position.y),
                     quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
                     config.ObstacleRadius * 2);
+        }
+
+        void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
+	        ref DynamicBuffer<short> pheromones)
+        {
+	        if (PheromoneTextureView.PheromoneTex == null) return;
+
+	        int x = (int)math.floor(position.x);
+	        int y = (int)math.floor(position.y);
+	        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
+	        {
+		        return;
+	        }
+
+	        int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
+	        pheromones[index] +=
+		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * Time.fixedDeltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
+	        if (pheromones[index] > short.MaxValue - 1)
+	        {
+		        pheromones[index] = short.MaxValue;
+	        }
         }
     }
 }

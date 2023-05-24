@@ -21,6 +21,6 @@ namespace Components
     
     public struct Pheromone : IBufferElementData
     {
-        public byte Value;
+        public short Value;
     }
 }

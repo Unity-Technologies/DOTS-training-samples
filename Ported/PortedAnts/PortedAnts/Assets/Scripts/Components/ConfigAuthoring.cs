@@ -20,7 +20,9 @@ namespace Components
         public int AntsPopulation;
         public GameObject AntPrefab;
         public float RandomSteering;
-        
+        public float PheromoneAddSpeed;
+        public float PheromoneDecay;
+
     }
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -44,6 +46,8 @@ namespace Components
                 AntsPopulation = authoring.AntsPopulation,
                 AntPrefab = GetEntity(authoring.AntPrefab, TransformUsageFlags.None),
                 RandomSteering = authoring.RandomSteering,
+                PheromoneAddSpeed = authoring.PheromoneAddSpeed,
+                PheromoneDecay = authoring.PheromoneDecay
             });
         }
     }
@@ -64,5 +68,7 @@ namespace Components
         public int AntsPopulation;
         public Entity AntPrefab;
         public float RandomSteering;
+        public float PheromoneAddSpeed;
+        public float PheromoneDecay;
     }
 }
