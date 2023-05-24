@@ -4,7 +4,7 @@ using Unity.Mathematics;
 
 public partial struct FireSpreadSystem : ISystem
 {
-    private const float heatScalePerSecond = .1f;
+    private const float heatScalePerSecond = .05f;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)

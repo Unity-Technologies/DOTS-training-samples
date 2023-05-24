@@ -21,26 +21,34 @@ public partial struct InstantWaterBucketSystem : ISystem
         if (!Input.GetMouseButtonUp(0)) return;
 
         var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        var plane = new Plane(Vector3.up, Vector3.zero);
+        var plane = new Plane(Vector3.up, new Vector3(0f, -.5f, 0f));
         if (!plane.Raycast(mouseRay, out var enter)) return;
 
         var worldPoint = mouseRay.origin + mouseRay.direction * enter;
-        var waterPos = new float2(worldPoint.x / FireSize, worldPoint.z / FireSize);
+        var waterPos = new int2((int)math.round(worldPoint.x / FireSize), (int)math.round(worldPoint.z / FireSize));
 
+        WaterCellAndNeighbors(waterPos);
+    }
+
+    private void WaterCellAndNeighbors(int2 centerPos)
+    {
         var settings = SystemAPI.GetSingleton<GameSettings>();
         var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
 
         var cols = settings.RowsAndColumns;
         var size = settings.Size;
-        
-        for (var i = 0; i < size; i++)
+
+        for (var yD = -1; yD < 2; yD++)
         {
-            var firePos = new float2(i % cols, i / cols);
-            var distanceSq = math.distancesq(waterPos, firePos);
-            var waterEfficiency = math.max(0f, 5f - distanceSq);
-            if (waterEfficiency > 0f)
+            for (var xD = -1; xD < 2; xD++)
             {
-                temperatures[i] = math.max(0f, temperatures[i] - waterEfficiency);
+                var x = centerPos.x + xD;
+                var y = centerPos.y + yD;
+                if (x >= 0 && x < cols && y >= 0 && y < cols)
+                {
+                    var index = y * cols + x;
+                    temperatures[index] = 0f;
+                }
             }
         }
     }
