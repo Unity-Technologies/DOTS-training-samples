@@ -10,6 +10,7 @@ using static UnityEngine.GraphicsBuffer;
 
 
 [BurstCompile]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct BeeSystem : ISystem
 {
     private EntityQuery _availableFoodSourcesQuery;

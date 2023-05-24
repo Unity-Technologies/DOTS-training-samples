@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [BurstCompile]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct FoodSystem : ISystem
 {
     private uint _updateCounter;

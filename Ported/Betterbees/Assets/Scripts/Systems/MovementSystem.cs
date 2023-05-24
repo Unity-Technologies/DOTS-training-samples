@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct MovementSystem : ISystem
 {
     [BurstCompile]
