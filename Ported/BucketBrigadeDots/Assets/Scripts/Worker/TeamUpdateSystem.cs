@@ -26,7 +26,7 @@ public partial struct TeamUpdateSystem : ISystem
                         teamState.ValueRW.Value = TeamStates.Extinguishing;
                     break;
                 case TeamStates.Extinguishing:
-                    UnityEngine.Debug.Log($"Ready to extinguish!");
+                    
                     break;
             }
         }
