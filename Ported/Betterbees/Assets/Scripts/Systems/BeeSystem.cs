@@ -114,6 +114,7 @@ public partial struct BeeSystem : ISystem
                 }
 
                 ApplyBoundaries(config, transform.ValueRO.Position, velocity);
+                UpdateRotation(transform, velocity);
             }
 
             commandBuffer.Playback(state.EntityManager);
@@ -146,6 +147,13 @@ public partial struct BeeSystem : ISystem
         {
             velocity.ValueRW.Velocity = boundsNormal;
         }
+    }
+
+    private void UpdateRotation(RefRW<LocalTransform> transform,
+        RefRW<VelocityComponent> velocity)
+    {
+        float3 direction = math.normalize(velocity.ValueRO.Velocity);
+        transform.ValueRW.Rotation = quaternion.LookRotation(direction, new float3(0, 1, 0));
     }
 
     private void BaseMovement(
