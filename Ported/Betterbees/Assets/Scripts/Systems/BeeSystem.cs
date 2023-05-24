@@ -95,7 +95,7 @@ public partial struct BeeSystem : ISystem
                             if (i != (int)beeState.ValueRO.hiveTag)
                                 enemyCount += _availableBeesQueries[i].CalculateEntityCount();
                         }
-                        if (enemyCount > 0 && agression < beeSettings.agressionPercentage)
+                        if (enemyCount > 0 && agression < beeSettings.aggressionPercentage)
                         {
                             target.ValueRW.Target = Entity.Null;
                             beeState.ValueRW.state = BeeState.State.ATTACKING;
@@ -228,10 +228,10 @@ public partial struct BeeSystem : ISystem
         float3 delta = targetTransform.Position - transform.ValueRO.Position;
         float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-        if (dist2 > beeSettings.interactionDistance * beeSettings.interactionDistance)
+        if (dist2 > beeSettings.grabDistance * beeSettings.grabDistance)
         {
             float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
+            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / dist);
         }
         else
         {
@@ -336,7 +336,12 @@ public partial struct BeeSystem : ISystem
         if (dist2 > beeSettings.attackDistance * beeSettings.attackDistance)
         {
             float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.attackForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
+            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / dist);
+        }
+        else if (dist2 > beeSettings.hitDistance * beeSettings.hitDistance)
+        {
+            float dist = math.sqrt(dist2);
+            velocity.ValueRW.Velocity += delta * (beeSettings.attackForce * SystemAPI.Time.DeltaTime / dist);
         }
         else
         {
@@ -374,10 +379,10 @@ public partial struct BeeSystem : ISystem
         float3 delta = targetPos - beePos;
         float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
 
-        if (dist2 > beeSettings.interactionDistance * beeSettings.interactionDistance)
+        if (dist2 > beeSettings.grabDistance * beeSettings.grabDistance)
         { 
             float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.carryForce * SystemAPI.Time.DeltaTime / math.sqrt(dist));
+            velocity.ValueRW.Velocity += delta * (beeSettings.carryForce * SystemAPI.Time.DeltaTime / dist);
         }
         else
         {

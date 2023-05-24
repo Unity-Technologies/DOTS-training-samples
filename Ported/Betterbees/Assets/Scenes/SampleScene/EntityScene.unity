@@ -255,7 +255,6 @@ MonoBehaviour:
   beeCount: 100
   respawnBeeCount: 10
   foodCount: 100
-  bloodDecay: 1
   maxSpawnSpeed: 5
   foodBounds:
     x: 6
@@ -300,10 +299,11 @@ MonoBehaviour:
   damping: 0.01
   chaseForce: 2
   carryForce: 1
-  interactionDistance: 0.1
-  agressionPercentage: 0.001
   attackForce: 5
-  attackDistance: 0.5
+  grabDistance: 0.1
+  attackDistance: 4
+  hitDistance: 0.5
+  aggressionPercentage: 0.01
 --- !u!1 &184887340514711267
 GameObject:
   m_ObjectHideFlags: 0
