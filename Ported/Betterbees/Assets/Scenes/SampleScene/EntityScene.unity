@@ -154,7 +154,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   beeCount: 1000
-  foodCount: 10
+  respawnBeeCount: 10
+  foodCount: 100
   bloodDecay: 1
   maxSpawnSpeed: 5
   foodBounds:
@@ -197,6 +198,7 @@ MonoBehaviour:
   chaseForce: 2
   carryForce: 1
   interactionDistance: 0.1
+  agressionPercentage: 0
 --- !u!1 &184887340514711267
 GameObject:
   m_ObjectHideFlags: 0

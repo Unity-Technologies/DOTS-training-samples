@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
@@ -29,44 +30,68 @@ public partial struct BeeSpawnerSystem : ISystem
         }
 
         var config = SystemAPI.GetSingleton<Config>();
-        var random = Random.CreateFromIndex(_updateCounter++);
+        var random = Random.CreateFromIndex(_updateCounter);
 
-        foreach (var (spawner, spawnerTransform) in SystemAPI.Query<BeeSpawnerComponent, LocalTransform>())
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        foreach (var (spawner, spawnerTransform) in SystemAPI.Query<RefRO<BeeSpawnerComponent>, RefRO<LocalTransform>>())
         {
-            for (int i = 0; i < config.beeCount; i++)
-            {
-                Entity newBee = state.EntityManager.Instantiate(spawner.beePrefab);
+            SpawnBees(
+                config.beeCount,
+                spawner.ValueRO.beePrefab,
+                spawnerTransform.ValueRO.Position,
+                config.maxSpawnSpeed,
+                spawner.ValueRO.hiveId,
+                spawner.ValueRO.minBounds,
+                spawner.ValueRO.maxBounds,
+                ecb,
+                ref random);
 
-                state.EntityManager.SetComponentData(newBee, new LocalTransform
-                {
-                    Position = spawnerTransform.Position,
-                    Rotation = spawnerTransform.Rotation,
-                    Scale = 1
-                });
-
-                state.EntityManager.SetComponentData(newBee, new VelocityComponent
-                {
-                    Velocity = random.NextFloat3Direction() * config.maxSpawnSpeed
-                });
-
-                state.EntityManager.SetComponentData(newBee, new ReturnHomeComponent
-                {
-                    HomeMinBounds = spawner.minBounds,
-                    HomeMaxBounds = spawner.maxBounds
-                });
-
-                state.EntityManager.SetComponentData(newBee, new BeeState
-                {
-                    state = BeeState.State.IDLE,
-                    hiveId = spawner.hiveId
-                });
-
-            }
+            _updateCounter += (uint)config.beeCount;
         }
 
         haveBeesSpawned = true;
+    }
 
-        // spawn new bees when food is placed in hive
-        // remove food that has been placed
+    public static void SpawnBees(
+        int beeCount,
+        Entity beePrefab,
+        float3 spawnPosition,
+        float maxSpawnSpeed,
+        int hiveId,
+        float3 homeMinBounds,
+        float3 homeMaxBounds,
+        EntityCommandBuffer ecb,
+        ref Random random)
+    {
+        for (int i = 0; i < beeCount; i++)
+        {
+            Entity newBee = ecb.Instantiate(beePrefab);
+
+            ecb.SetComponent(newBee, new LocalTransform
+            {
+                Position = spawnPosition,
+                Rotation = quaternion.identity,
+                Scale = 1f
+            });
+
+            ecb.SetComponent(newBee, new VelocityComponent
+            {
+                Velocity = random.NextFloat3Direction() * maxSpawnSpeed
+            });
+
+            ecb.SetComponent(newBee, new ReturnHomeComponent
+            {
+                HomeMinBounds = homeMinBounds,
+                HomeMaxBounds = homeMaxBounds
+            });
+
+            ecb.SetComponent(newBee, new BeeState
+            {
+                state = BeeState.State.IDLE,
+                hiveId = hiveId
+            });
+        }
     }
 }

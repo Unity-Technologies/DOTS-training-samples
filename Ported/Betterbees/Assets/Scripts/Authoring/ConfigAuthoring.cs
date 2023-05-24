@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ConfigAuthoring : MonoBehaviour
 {
-    public int beeCount = 10;
+    public int beeCount = 1000;
+    public int respawnBeeCount = 10;
     public int foodCount = 10;
     public float bloodDecay = 1.0f;
     public float maxSpawnSpeed = 5f;
@@ -25,6 +26,7 @@ public class ConfigAuthoring : MonoBehaviour
             Config configComponent = new Config
             {
                 beeCount = config.beeCount,
+                respawnBeeCount = config.respawnBeeCount,
                 foodCount = config.foodCount,
                 foodBounds = config.foodBounds,
                 bloodDecay = config.bloodDecay,

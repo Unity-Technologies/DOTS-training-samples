@@ -307,15 +307,18 @@ public partial struct BeeSystem : ISystem
         {
             Entity foodEntity = target.ValueRO.Target;
 
-            commandBuffer.RemoveComponent<Parent>(foodEntity);
+            if (state.EntityManager.Exists(foodEntity))
+            {
+                commandBuffer.RemoveComponent<Parent>(foodEntity);
 
-            var foodTransform = state.EntityManager.GetComponentData<LocalTransform>(foodEntity);
-            foodTransform.Position = transform.ValueRO.Position;
-            commandBuffer.SetComponent(foodEntity, foodTransform);
+                var foodTransform = state.EntityManager.GetComponentData<LocalTransform>(foodEntity);
+                foodTransform.Position = transform.ValueRO.Position;
+                commandBuffer.SetComponent(foodEntity, foodTransform);
 
-            commandBuffer.SetComponent(foodEntity, velocity.ValueRO);
+                commandBuffer.SetComponent(foodEntity, velocity.ValueRO);
 
-            commandBuffer.AddComponent<GravityComponent>(foodEntity);
+                commandBuffer.AddComponent<GravityComponent>(foodEntity);
+            }
 
             beeState.ValueRW.state = BeeState.State.IDLE;
             target.ValueRW.Target = Entity.Null;
