@@ -14,8 +14,7 @@ public partial struct InstantWaterBucketSystem : ISystem
         state.RequireForUpdate<GameSettings>();
         state.RequireForUpdate<FireTemperature>();
     }
-
-    [BurstCompile]
+    
     public void OnUpdate(ref SystemState state)
     {
         if (!Input.GetMouseButtonUp(0)) return;
