@@ -11,6 +11,23 @@ public enum HiveTag
     HiveCount
 }
 
+public static class HiveTagExtensions
+{
+    public static System.Type ToComponentType(this HiveTag hiveTag)
+    {
+        switch (hiveTag)
+        {
+            case HiveTag.HiveYellow:
+                return typeof(HiveYellow);
+            case HiveTag.HiveBlue:
+                return typeof(HiveBlue);
+            case HiveTag.HiveOrange:
+            default:
+                return typeof(HiveOrange);
+        }
+    }
+}
+
 public class SpawnerAuthoring : MonoBehaviour
 {
     public GameObject prefab;
@@ -40,14 +57,6 @@ public class SpawnerBaker : Baker<SpawnerAuthoring>
             Scale = authoring.transform.localScale.magnitude
         });
 
-        switch(authoring.hiveTag)
-        {
-            case HiveTag.HiveYellow:
-                AddComponent(entity, new HiveYellow()); break;
-            case HiveTag.HiveBlue:
-                AddComponent(entity, new HiveBlue()); break;
-            case HiveTag.HiveOrange:
-                AddComponent(entity, new HiveOrange()); break;
-        }
+        AddComponent(entity, new(authoring.hiveTag.ToComponentType()));
     }
 }
