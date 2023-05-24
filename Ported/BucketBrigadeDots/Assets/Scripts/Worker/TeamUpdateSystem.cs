@@ -18,7 +18,7 @@ public partial struct TeamUpdateSystem : ISystem
             switch (teamState.ValueRO.Value)
             {
                 case TeamStates.Idle:
-                    RepositionTeam(teamMembers, nextPositions, teamData);
+                    RepositionTeam(ref state, teamMembers, nextPositions, teamData, teamState);
                     teamState.ValueRW.Value = TeamStates.Repositioning;
                     break;
                 case TeamStates.Repositioning:
@@ -32,7 +32,12 @@ public partial struct TeamUpdateSystem : ISystem
         }
     }
     
-    void RepositionTeam(DynamicBuffer<TeamMember> teamMembers, ComponentLookup<NextPosition> nextPositions, RefRO<TeamData> teamData)
+    void RepositionTeam(ref SystemState state,
+        DynamicBuffer<TeamMember> teamMembers,
+        ComponentLookup<NextPosition> nextPositions,
+        RefRO<TeamData> teamData,
+        // We don't actually need a RefRW, but if we try to pass a RefRW into a RefRO then it won't compile :(
+        RefRW<TeamState> teamState)
     {
         var waterPosition = teamData.ValueRO.WaterPosition;
         var firePosition = teamData.ValueRO.FirePosition;
@@ -60,6 +65,9 @@ public partial struct TeamUpdateSystem : ISystem
             };
             nextPositions.SetComponentEnabled(workerEntity, true);
         }
+        
+        // Point the runner at the new water target.
+        SystemAPI.GetComponentRW<RunnerState>(teamState.ValueRO.RunnerId).ValueRW.WaterPosition = waterPosition;
     }
 
     bool IsReadyToExtinguish(DynamicBuffer<TeamMember> teamMembers, ComponentLookup<NextPosition> nextPositions)

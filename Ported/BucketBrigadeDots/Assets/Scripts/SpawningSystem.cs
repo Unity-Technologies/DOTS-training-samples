@@ -73,24 +73,44 @@ public partial struct SpawningSystem : ISystem
         var teamSpawner = SystemAPI.GetSingleton<TeamSpawner>();
         var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);
         
+        var workerPrefab = teamSpawner.WorkerPrefab;
+        
         for (var i = 0; i < teamSpawner.NumberOfTeams; ++i)
         {
-            var workersPerTeam = teamSpawner.WorkersPerTeam;
             var teamEntity = cmdBuffer.CreateEntity();
+            var teamRunner = cmdBuffer.Instantiate(workerPrefab);
+            cmdBuffer.AddComponent(teamRunner, new URPMaterialPropertyBaseColor()
+            {
+                Value = gameSettings.RunnerWorkerColor
+            });
+            cmdBuffer.AddComponent(teamRunner, new RunnerState()
+            {
+                State = RunnerStates.Idle
+            });
+            // TODO: deduplicate with worker code
+            var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSettings.RowsAndColumns, gameSettings.RowsAndColumns));
+            randomGridPos *= k_DefaultGridSize;
+            cmdBuffer.AddComponent(teamRunner, new LocalTransform()
+            {
+                Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y)
+            });
+            
+            cmdBuffer.AddComponent(teamEntity, new TeamState()
+            {
+                Value = TeamStates.Idle,
+                RunnerId = teamRunner
+            });
+            
             cmdBuffer.AddComponent(teamEntity, new TeamData()
             {
                 FirePosition = gameSettings.RowsAndColumns / 2f * k_DefaultGridSize,
                 WaterPosition = float2.zero
             });
-            cmdBuffer.AddComponent(teamEntity, new TeamState()
-            {
-                Value = TeamStates.Idle
-            });
-            var teamMembers = cmdBuffer.AddBuffer<TeamMember>(teamEntity);
             
-            var prefab = teamSpawner.WorkerPrefab;
+            var teamMembers = cmdBuffer.AddBuffer<TeamMember>(teamEntity);
+            var workersPerTeam = teamSpawner.WorkersPerTeam;
             var instances = new NativeArray<Entity>(workersPerTeam, Allocator.Temp);
-            cmdBuffer.Instantiate(prefab, instances);
+            cmdBuffer.Instantiate(workerPrefab, instances);
 
             var workerState = new WorkerState()
             {

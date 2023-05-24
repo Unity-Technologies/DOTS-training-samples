@@ -24,6 +24,8 @@ public struct TeamData : IComponentData
 public struct TeamState : IComponentData
 {
     public TeamStates Value;
+
+    public Entity RunnerId;
 }
 
 public struct TeamMember : IBufferElementData

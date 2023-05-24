@@ -14,17 +14,11 @@ public partial struct WorkerMoveSystem : ISystem
                          RefRW<LocalTransform>>()
                      .WithEntityAccess())
         {
-            var delta = nextPosition.ValueRO.Value - transform.ValueRW.Position.xz;
-            var length = math.length(delta);
-            if (length > 0.1f)
+            var target = nextPosition.ValueRO.Value;
+            if (Movement.MoveToPosition(ref target, ref transform.ValueRW, SystemAPI.Time.DeltaTime))
             {
-                var direction = math.normalize(delta);
-
-                var moveAmount = direction * 10f * SystemAPI.Time.DeltaTime;
-                transform.ValueRW.Position += new float3(moveAmount.x, 0f, moveAmount.y);
-            }
-            else
                 SystemAPI.SetComponentEnabled<NextPosition>(entity, false);
+            }
         }
     }
 }

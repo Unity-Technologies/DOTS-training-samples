@@ -11,6 +11,7 @@ public class GameSettingsAuthoring : MonoBehaviour
     public Color BucketFullColor = new Color32(16, 120, 167, 255);
     public Color WorkerFullColor = new Color32(197, 236, 188, 255);
     public Color WorkerEmptyColor = new Color32(238, 192, 236, 255);
+    public Color RunnerWorkerColor = new Color32(0, 255, 39, 255);
 
     class Baker : Baker<GameSettingsAuthoring>
     {
@@ -24,7 +25,8 @@ public class GameSettingsAuthoring : MonoBehaviour
                 BucketEmptyColor = authoring.BucketEmptyColor.ToFloat4(),
                 BucketFullColor = authoring.BucketFullColor.ToFloat4(),
                 WorkerEmptyColor = authoring.WorkerEmptyColor.ToFloat4(),
-                WorkerFullColor = authoring.WorkerFullColor.ToFloat4()
+                WorkerFullColor = authoring.WorkerFullColor.ToFloat4(),
+                RunnerWorkerColor = authoring.RunnerWorkerColor.ToFloat4()
             });
         }
     }
@@ -38,6 +40,7 @@ public struct GameSettings : IComponentData
     public float4 BucketFullColor;
     public float4 WorkerEmptyColor;
     public float4 WorkerFullColor;
+    public float4 RunnerWorkerColor;
 
     public int Size => RowsAndColumns * RowsAndColumns;
 }
