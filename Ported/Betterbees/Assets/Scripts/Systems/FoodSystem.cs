@@ -85,6 +85,22 @@ public partial struct FoodSystem : ISystem
 
                 _updateCounter += (uint)config.respawnBeeCount;
 
+                for (int j = 0; j < config.numSmokeParticles; ++j)
+                { 
+                    var smoke = ecb.Instantiate(config.smokeEntity);
+
+                    ecb.SetComponent(smoke, LocalTransform.FromPosition(droppedFood.Position));
+
+                    var velocity = random.NextFloat3Direction() * config.smokeSpeed;
+                    velocity.y = math.abs(velocity.y);
+                    ecb.SetComponent(smoke, new VelocityComponent
+                    {
+                        Velocity = velocity
+                    });
+
+                    ++_updateCounter;
+                }
+
                 ecb.DestroyEntity(droppedFood.FoodEntity);
                 droppedFoods.RemoveAt(i);
             }

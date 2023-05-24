@@ -13,6 +13,9 @@ public class ConfigAuthoring : MonoBehaviour
     public float3 gravity = new float3(0, -20, 0);
     public GameObject boundsObject;
     public GameObject bloodObject;
+    public float smokeSpeed = 5f;
+    public int numSmokeParticles = 10;
+    public GameObject smokeObject;
 
     public class ConfigBaker : Baker<ConfigAuthoring>
     {
@@ -27,6 +30,7 @@ public class ConfigAuthoring : MonoBehaviour
             Config configComponent = new Config
             {
                 bloodEntity = GetEntity(config.bloodObject, TransformUsageFlags.Dynamic),
+
                 beeCount = config.beeCount,
                 respawnBeeCount = config.respawnBeeCount,
                 foodCount = config.foodCount,
@@ -34,7 +38,10 @@ public class ConfigAuthoring : MonoBehaviour
                 bloodDecay = config.bloodDecay,
                 maxSpawnSpeed = config.maxSpawnSpeed,
                 gravity = config.gravity,
-                bounds = bounds
+                bounds = bounds,
+                smokeEntity = GetEntity(config.smokeObject, TransformUsageFlags.Dynamic),
+                smokeSpeed = config.smokeSpeed,
+                numSmokeParticles = config.numSmokeParticles
             };
 
             AddComponent(entity, configComponent);

@@ -167,6 +167,7 @@ MonoBehaviour:
     z: 0
   boundsObject: {fileID: 184887340514711267}
   bloodObject: {fileID: 1427829438539250947, guid: 9929a2c7ab5a5c946ad2a613235a88b5, type: 3}
+  smokeObject: {fileID: 5763954230626919687, guid: 78ef0ff99fbb0c545b5667df4cb3d08a, type: 3}
 --- !u!4 &1247163956
 Transform:
   m_ObjectHideFlags: 0
