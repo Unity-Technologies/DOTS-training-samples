@@ -8,30 +8,38 @@ using UnityEngine;
 
 public partial struct PheromoneManagementSystem : ISystem
 {
+    private bool HasInitedBuffer;
     public void OnCreate(ref SystemState state)
     {
+        HasInitedBuffer = false;
         state.RequireForUpdate<Ant>();
         state.RequireForUpdate<Config>();
     }
 
     public void OnUpdate(ref SystemState state)
     {
+        var config = SystemAPI.GetSingleton<Config>();
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();//Pheromone buffer setup
+        if (!HasInitedBuffer)
+        {
+            pheromones.Length = config.MapSize * config.MapSize;
+            for (int i = 0; i < pheromones.Length; i++)
+            {
+                pheromones[i] = new Pheromone() { Value = 0 };
+            }
+
+            HasInitedBuffer = true;
+        }
+        
         if (PheromoneTextureView.Instance == null)
             return;
         
-        var config = SystemAPI.GetSingleton<Config>();
-        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
 
         if (PheromoneTextureView.PheromoneTex == null)
         {
             PheromoneTextureView.Initialize(config.MapSize);
             
-            //Pheromone buffer setup
-            pheromones.Length = config.MapSize * config.MapSize;
-            for (int i = 0; i < pheromones.Length; i++)
-            {
-                pheromones[i] = new Pheromone(){Value = 0};
-            }
+            
         }
 
         var pixels = pheromones.AsNativeArray().Reinterpret<short>();

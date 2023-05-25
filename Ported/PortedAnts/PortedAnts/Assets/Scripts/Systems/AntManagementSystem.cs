@@ -1,5 +1,6 @@
 using System;
 using Components;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -8,15 +9,27 @@ using UnityEngine;
 
 public partial struct AntsManagementSystem : ISystem
 {
+	private uint RandomSeed;
+	
+	[BurstCompile] 
     public void OnCreate(ref SystemState state)
     {
+	    RandomSeed = 1;
         state.RequireForUpdate<Ant>();
         state.RequireForUpdate<Config>();
+        state.RequireForUpdate<Pheromone>();
     }
-
+    
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var random = Unity.Mathematics.Random.CreateFromIndex((uint)DateTime.UtcNow.Ticks); //this should be centralised
+	    var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
+	    if (pheromones.Length <= 0)
+	    {
+		    return;
+	    }
+	    
+        var random = Unity.Mathematics.Random.CreateFromIndex(RandomSeed++); //this should be centralised
 
         var config = SystemAPI.GetSingleton<Config>();
 
@@ -30,159 +43,240 @@ public partial struct AntsManagementSystem : ISystem
                 homePosition = antTarget.ValueRO.position;
         }
 
-        foreach (var (ant, transform, color) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
+        /*{
+	        //init
+	        float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+	        
+	        float2 position = ant.ValueRO.position;
+
+	        var facingAngle = ant.ValueRO.facingAngle;
+
+	        float2 directionToTarget;
+	        float distanceToTarget;
+
+	        var isTargetVisible = true;
+	        float dx, dy, dist;
+
+	        float speed, vx, vy, ovx, ovy;
+        }*/
+
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
-            var targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-            var position = ant.ValueRO.position;
-
-            //creating a var rwAnt = ant.ValueRW and updating this resulted in the changes not propagating up to the actual components
-
-            var directionToTarget = targetPosition - position;
-            var distanceToTarget = math.lengthsq(directionToTarget);
-            var toTargetAngle = math.atan2(directionToTarget.y, directionToTarget.x);
-
-            var isTargetVisible = true;
-
-            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+	        float2 position = ant.ValueRO.position;
+	        float dx, dy;
+	        var facingAngle = ant.ValueRO.facingAngle;
+	        
+            #region obstacle avoidance
             {
-                isTargetVisible = !DoLineAndCircleIntersect(obstacle.ValueRO.position, config.ObstacleRadius, position, targetPosition);
-                if (!isTargetVisible)
-                    break;
-            }
-            
-            float dx, dy, dist;
-
-            var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
-            var pheromoneSteering = PheromoneSteering(ant.ValueRO, 3f, config.MapSize, ref pheromones);
-
-            var facingAngle = ant.ValueRO.facingAngle;
-
-            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
-            {
-	            dx = position.x - obstacle.ValueRO.position.x;
-	            dy = position.y - obstacle.ValueRO.position.y;
-	            float sqrDist = dx * dx + dy * dy;
-	            if (sqrDist < config.SqrSteeringDist)
+	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
 	            {
-		            for (int i = -1; i <= 1; i += 2)
+		            dx = position.x - obstacle.ValueRO.position.x;
+		            dy = position.y - obstacle.ValueRO.position.y;
+		            float sqrDist = dx * dx + dy * dy;
+		            if (sqrDist < config.SqrSteeringDist)
 		            {
-			            float angle = facingAngle + i * Mathf.PI * .25f;
-			            float testX = position.x + Mathf.Cos(angle) * config.SteeringDist;
-			            float testY = position.y + Mathf.Sin(angle) * config.SteeringDist;
-
-			            if (testX < 0 || testY < 0 || testX >= config.MapSize || testY >= config.MapSize)
+			            for (int i = -1; i <= 1; i += 2)
 			            {
+				            float angle = facingAngle + i * math.PI * .25f;
+				            float testX = position.x + math.cos(angle) * config.SteeringDist;
+				            float testY = position.y + math.sin(angle) * config.SteeringDist;
 
-			            }
-			            else
-			            {
-				            facingAngle += i * config.WallSteerStrength;
+				            if (testX < 0 || testY < 0 || testX >= config.MapSize || testY >= config.MapSize)
+				            {
+
+				            }
+				            else
+				            {
+					            ant.ValueRW.facingAngle += i * config.WallSteerStrength;
+				            }
 			            }
 		            }
 	            }
             }
+            #endregion
 
-            facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);
-            facingAngle += pheromoneSteering * config.PheromoneSteering;
+        }
 
-            if (isTargetVisible)
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
+            #region random steering
             {
-	            float targetAngle = math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
-	            if (targetAngle - facingAngle > math.PI)
-	            {
-		            facingAngle += math.PI * 2f;
-	            }
-	            else if (targetAngle - facingAngle < -math.PI)
-	            {
-		            facingAngle -= math.PI * 2f;
-	            }
-	            else if (math.abs(targetAngle - facingAngle) < math.PI * .5f)
-	            {
-		            facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
-	            }
+	            ant.ValueRW.facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);
             }
-
-            if (distanceToTarget < config.TargetRadius * config.TargetRadius)
-            {
-                ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
-                color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
-                facingAngle += Mathf.PI;
-            }
-
-            var speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
-
-            float vx = math.cos(facingAngle) * speed;
-            float vy = math.sin(facingAngle) * speed;
-            float ovx = vx;
-			float ovy = vy;
-
+            #endregion
             
-            if (position.x + vx < 0f || position.x + vx > config.MapSize)
+        }
+
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
+            #region pheromone steering
             {
-                vx = -vx;
+	            var pheromoneSteering = PheromoneSteering(ant.ValueRO, 3f, config.MapSize, ref pheromones);
+	            ant.ValueRW.facingAngle += pheromoneSteering * config.PheromoneSteering;
             }
+            #endregion
+            
+        }
 
-            position.x += vx;
-
-            if (position.y + vy < 0f || position.y + vy > config.MapSize)
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
+			#region line of sight
             {
-                vy = -vy;
+	            float2 position = ant.ValueRO.position;
+	            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+	            {
+		            ant.ValueRW.hasSpottedTarget = !DoLineAndCircleIntersect(obstacle.ValueRO.position, config.ObstacleRadius,
+			            position, targetPosition);
+		            if (!ant.ValueRO.hasSpottedTarget)
+			            break;
+	            }
             }
+            #endregion
+            
+        }
 
-            position.y += vy;
-
-            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
+            #region goal steering
             {
-				dx = position.x - obstacle.ValueRO.position.x;
-				dy = position.y - obstacle.ValueRO.position.y;
-				float sqrDist = dx * dx + dy * dy;
-				if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
-				{
-					dist = math.sqrt(sqrDist);
-					dx /= dist;
-					dy /= dist;
-					position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
-					position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
-
-					vx -= dx * (dx * vx + dy * vy) * 1.5f;
-					vy -= dy * (dx * vx + dy * vy) * 1.5f;
-				}
+	            if (ant.ValueRO.hasSpottedTarget)
+	            {
+		            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+		            float2 position = ant.ValueRO.position;
+		            var facingAngle = ant.ValueRO.facingAngle;
+		            float targetAngle = math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
+		            
+		            if (targetAngle - facingAngle > math.PI)
+		            {
+			            ant.ValueRW.facingAngle += math.PI * 2f;
+		            }
+		            else if (targetAngle - facingAngle < -math.PI)
+		            {
+			            ant.ValueRW.facingAngle -= math.PI * 2f;
+		            }
+		            else if (math.abs(targetAngle - facingAngle) < math.PI * .5f)
+		            {
+			            ant.ValueRW.facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
+		            }
+	            }
             }
+            #endregion
+            
+        } 
 
-			if (ovx != vx || ovy != vy) {
-				facingAngle = math.atan2(vy,vx);
-			}
-			
-			float excitement = .3f;
-			if (ant.ValueRO.hasFood) {
-				excitement = 1f;
-			}
-			
-			
-			//excitement *= ant.ValueRO.speed / antSpeed;
-			DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, ref pheromones);
+        foreach (var (ant, transform, color) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
+        {
+	        float speed, vx, vy, ovx, ovy;
+	        float dx, dy, dist;
+	        
+	        float2 position = ant.ValueRO.position;
 
-            //I'm not sure that this is the most efficient way, but it intuitively feels like it to me
-            ant.ValueRW.facingAngle = facingAngle;
-            ant.ValueRW.position = position;
+	        var facingAngle = ant.ValueRO.facingAngle;
+            #region movement
+            {
+	            speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
 
-            transform.ValueRW = LocalTransform.FromPositionRotationScale(
-                    new float3(position.x, 0f, position.y),
-                    quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
-                    config.AntRadius * 2);
+	            vx = math.cos(facingAngle) * speed;
+	            vy = math.sin(facingAngle) * speed;
+	            ovx = vx;
+	            ovy = vy;
+
+	            if (position.x + vx < 0f || position.x + vx > config.MapSize)
+	            {
+		            vx = -vx;
+	            }
+
+	            position.x += vx;
+
+	            if (position.y + vy < 0f || position.y + vy > config.MapSize)
+	            {
+		            vy = -vy;
+	            }
+
+	            position.y += vy;
+            }
+            #endregion
+            #region target collision reponse
+            {
+	            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+	            var directionToTarget = targetPosition - position;
+	            var distanceToTarget = math.lengthsq(directionToTarget);
+	            if (distanceToTarget < config.TargetRadius * config.TargetRadius)
+	            {
+		            ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
+		            color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
+		            facingAngle += math.PI;
+	            }
+            }
+            #endregion
+            #region obstacle collision response
+            {
+	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+	            {
+		            dx = position.x - obstacle.ValueRO.position.x;
+		            dy = position.y - obstacle.ValueRO.position.y;
+		            float sqrDist = dx * dx + dy * dy;
+		            if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
+		            {
+			            dist = math.sqrt(sqrDist);
+			            dx /= dist;
+			            dy /= dist;
+			            position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
+			            position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
+
+			            vx -= dx * (dx * vx + dy * vy) * 1.5f;
+			            vy -= dy * (dx * vx + dy * vy) * 1.5f;
+		            }
+	            }
+            }
+            #endregion
+            #region post collision
+            {
+	            if (ovx != vx || ovy != vy)
+	            {
+		            facingAngle = math.atan2(vy, vx);
+	            }
+            }
+            #endregion
+            #region pheromone drop
+            {
+	            float excitement = .3f;
+	            if (ant.ValueRO.hasFood)
+	            {
+		            excitement = 1f;
+	            }
+
+	            //excitement *= ant.ValueRO.speed / antSpeed;
+	            DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
+		            SystemAPI.Time.DeltaTime);
+            }
+            #endregion
+            #region write to ant
+            {
+	            ant.ValueRW.facingAngle = facingAngle;
+	            ant.ValueRW.position = position;
+            }
+            #endregion
+            #region update transform
+            {
+	            transform.ValueRW = LocalTransform.FromPositionRotationScale(
+		            new float3(position.x, 0f, position.y),
+		            quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
+		            config.AntRadius * 2);
+            }
+            #endregion
         }
 
         float PheromoneSteering(Ant ant, float distance, int mapSize, ref DynamicBuffer<short> pheromones)
         {
-            if (PheromoneTextureView.PheromoneTex == null) return 0;
-
-            int output = 0;
+	        int output = 0;
 
             for (int i = -1; i <= 1; i += 2)
             {
-                float angle = ant.facingAngle + i * Mathf.PI * .25f;
-                float testX = ant.position.x + Mathf.Cos(angle) * distance;
-                float testY = ant.position.y + Mathf.Sin(angle) * distance;
+                float angle = ant.facingAngle + i * math.PI * .25f;
+                float testX = ant.position.x + math.cos(angle) * distance;
+                float testY = ant.position.y + math.sin(angle) * distance;
 
                 if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
                 {
@@ -195,14 +289,12 @@ public partial struct AntsManagementSystem : ISystem
                     output += value * i;
                 }
             }
-            return Mathf.Sign(output);
+            return math.sign(output);
         }
 
         void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
-	        ref DynamicBuffer<short> pheromones)
+	        DynamicBuffer<short> pheromones, float deltaTime)
         {
-	        if (PheromoneTextureView.PheromoneTex == null) return;
-
 	        int x = (int)math.floor(position.x);
 	        int y = (int)math.floor(position.y);
 	        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
@@ -212,7 +304,7 @@ public partial struct AntsManagementSystem : ISystem
 
 	        int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
 	        pheromones[index] +=
-		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * Time.deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
+		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
 	        if (pheromones[index] > short.MaxValue - 1)
 	        {
 		        pheromones[index] = short.MaxValue;
