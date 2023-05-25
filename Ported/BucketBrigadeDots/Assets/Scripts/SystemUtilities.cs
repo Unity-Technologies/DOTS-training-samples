@@ -16,9 +16,11 @@ public static class SystemUtilities
     [BurstCompile]
     static void PutoutFire(in int2 gridPos, ref DynamicBuffer<FireTemperature> temperatures, int cols)
     {
-        for (var yD = -1; yD < 2; yD++)
+        var putOutSize = 10;
+        
+        for (var yD = ((putOutSize / 2) * -1); yD < (putOutSize / 2); yD++)
         {
-            for (var xD = -1; xD < 2; xD++)
+            for (var xD = ((putOutSize / 2) * -1); xD < (putOutSize / 2); xD++)
             {
                 var x = gridPos.x + xD;
                 var y = gridPos.y + yD;
