@@ -8,9 +8,22 @@ public partial struct MovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (transform, velocity) in SystemAPI.Query<RefRW<LocalTransform>, RefRO<VelocityComponent>>())
+        MovementJob job = new MovementJob()
         {
-            transform.ValueRW.Position += velocity.ValueRO.Velocity * SystemAPI.Time.DeltaTime;
+            dt = SystemAPI.Time.DeltaTime
+        };
+        job.ScheduleParallel();
+    }
+
+
+    [BurstCompile]
+    private partial struct MovementJob : IJobEntity
+    {
+        public float dt;
+
+        public void Execute(ref LocalTransform transform, ref VelocityComponent velocity)
+        {
+            transform.Position += velocity.Velocity * dt;
         }
     }
 }
