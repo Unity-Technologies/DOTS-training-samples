@@ -60,45 +60,7 @@ public partial struct AntsManagementSystem : ISystem
 	        float speed, vx, vy, ovx, ovy;
         }*/
 
-		/*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-
-
-	        float2 position = ant.ValueRO.position;
-	        float dx, dy;
-	        var facingAngle = ant.ValueRO.facingAngle;
-	        
-            #region obstacle avoidance
-            {
-	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
-	            {
-		            dx = position.x - obstacle.ValueRO.position.x;
-		            dy = position.y - obstacle.ValueRO.position.y;
-		            float sqrDist = dx * dx + dy * dy;
-		            if (sqrDist < config.SqrSteeringDist)
-		            {
-			            for (int i = -1; i <= 1; i += 2)
-			            {
-				            float angle = facingAngle + i * math.PI * .25f;
-				            float testX = position.x + math.cos(angle) * config.SteeringDist;
-				            float testY = position.y + math.sin(angle) * config.SteeringDist;
-
-				            if (testX < 0 || testY < 0 || testX >= config.MapSize || testY >= config.MapSize)
-				            {
-
-				            }
-				            else
-				            {
-					            ant.ValueRW.facingAngle += i * config.WallSteerStrength;
-				            }
-			            }
-		            }
-	            }
-            }
-            #endregion
-
-        }*/
-
+		
 		var obstacleQuerry = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
 		var obstacles = obstacleQuerry.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
 
@@ -106,54 +68,18 @@ public partial struct AntsManagementSystem : ISystem
 		{ config = config, obstacles = obstacles };
 
 		state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
-		//
-
-        /*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-            #region random steering
-            {
-	            ant.ValueRW.facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);
-            }
-            #endregion
-            
-        }*/
-
+		
 		RandomSteeringJob randomSteeringJob = new RandomSteeringJob() { config = config, random = random };
 		state.Dependency = randomSteeringJob.ScheduleParallel(state.Dependency);
 
 		PheromoneSteeringJob pheromoneSteeringJob = new PheromoneSteeringJob() { config = config, pheromones = pheromones };
 		state.Dependency = pheromoneSteeringJob.ScheduleParallel(state.Dependency);
 
-		state.Dependency.Complete();
+		LineOfSightJob lineOfSightJob = new LineOfSightJob() { config = config, obstacles = obstacles, homePosition = homePosition, foodPosition = foodPosition };
+		state.Dependency = lineOfSightJob.ScheduleParallel(state.Dependency);
 
-		/*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-            #region pheromone steering
-            {
-	            var pheromoneSteering = PheromoneSteering(ant.ValueRO, 3f, config.MapSize, ref pheromones);
-	            ant.ValueRW.facingAngle += pheromoneSteering * config.PheromoneSteering;
-            }
-            #endregion
-            
-        }*/
 
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-			#region line of sight
-            {
-	            float2 position = ant.ValueRO.position;
-	            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
-	            {
-		            ant.ValueRW.hasSpottedTarget = !DoLineAndCircleIntersect(obstacle.ValueRO.position, config.ObstacleRadius,
-			            position, targetPosition);
-		            if (!ant.ValueRO.hasSpottedTarget)
-			            break;
-	            }
-            }
-            #endregion
-            
-        }
+        state.Dependency.Complete();
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
