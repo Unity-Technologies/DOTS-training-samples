@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 public struct BeeSettingsSingletonComponent : IComponentData
 {
@@ -13,4 +14,8 @@ public struct BeeSettingsSingletonComponent : IComponentData
     public float grabDistance;
     public float attackDistance;
     public float hitDistance;
+
+    public float2 minScale;
+    public float2 maxScale;
+    public float scaleMultiplier;
 }

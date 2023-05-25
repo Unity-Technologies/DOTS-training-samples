@@ -76,8 +76,8 @@ public partial struct BeeSystem : ISystem
 
         using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
         {
-            foreach (var (beeState, transform, velocity, target, home, entity) in SystemAPI
-                .Query<RefRW<BeeState>, RefRW<LocalTransform>, RefRW<VelocityComponent>, RefRW<TargetComponent>, RefRO<ReturnHomeComponent>>()
+            foreach (var (beeState, transform, velocity, target, home, postTransformMatrix, entity) in SystemAPI
+                .Query<RefRW<BeeState>, RefRW<LocalTransform>, RefRW<VelocityComponent>, RefRW<TargetComponent>, RefRO<ReturnHomeComponent>, RefRW<PostTransformMatrix>>()
                 .WithEntityAccess())
             {
                 BaseMovement(velocity, ref random, SystemAPI.Time.DeltaTime, ref beeSettings);
@@ -114,7 +114,7 @@ public partial struct BeeSystem : ISystem
                 }
 
                 ApplyBoundaries(config, transform.ValueRO.Position, velocity);
-                UpdateRotation(transform, velocity);
+                UpdateRotationAndScale(beeSettings, transform, postTransformMatrix, velocity);
             }
 
             commandBuffer.Playback(state.EntityManager);
@@ -149,11 +149,21 @@ public partial struct BeeSystem : ISystem
         }
     }
 
-    private void UpdateRotation(RefRW<LocalTransform> transform,
+    private void UpdateRotationAndScale(
+        in BeeSettingsSingletonComponent beeSettings,
+        RefRW<LocalTransform> transform,
+        RefRW<PostTransformMatrix> postTransformMatrix,
         RefRW<VelocityComponent> velocity)
     {
         float3 direction = math.normalize(velocity.ValueRO.Velocity);
         transform.ValueRW.Rotation = quaternion.LookRotation(direction, new float3(0, 1, 0));
+
+        float scale = math.length(velocity.ValueRO.Velocity) * beeSettings.scaleMultiplier;
+        float forwardScale = math.clamp(scale, beeSettings.minScale.x, beeSettings.maxScale.x);
+        float sideScale = math.clamp(1.0f / scale, beeSettings.minScale.y, beeSettings.maxScale.y);
+        float3 localScale = new float3(sideScale, sideScale, forwardScale);
+        
+        postTransformMatrix.ValueRW.Value = float4x4.Scale(localScale);
     }
 
     private void BaseMovement(

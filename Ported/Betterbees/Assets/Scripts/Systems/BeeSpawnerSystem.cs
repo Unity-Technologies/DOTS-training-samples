@@ -94,6 +94,10 @@ public partial struct BeeSpawnerSystem : ISystem
             });
 
             ecb.AddComponent(newBee, new(hiveTag.ToComponentType()));
+            ecb.AddComponent(newBee, new PostTransformMatrix
+            {
+                Value = float4x4.identity
+            });
         }
     }
 }
