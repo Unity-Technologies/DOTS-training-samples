@@ -40,11 +40,11 @@ public partial struct FirePresentationSystem : ISystem
                     ref temperatures,
                     ref localTransform.ValueRW,
                     ref baseColor.ValueRW,
-                    entity,
+                    entity.Index,
                     index,
                     rowsAndColumns,
                     time);
-                
+
                 ++index;
             }
         }
@@ -80,7 +80,7 @@ public partial struct FirePresentationSystem : ISystem
         [ReadOnly] ref DynamicBuffer<FireTemperature> temperatures,
         ref LocalTransform localTransform,
         ref URPMaterialPropertyBaseColor baseColor,
-        Entity entity,
+        int entityId,
         int index,
         int rowsAndColumns,
         float time)
@@ -88,7 +88,7 @@ public partial struct FirePresentationSystem : ISystem
         var heat = temperatures[index];
         var x = index % rowsAndColumns;
         var z = index / rowsAndColumns;
-        var sine = math.sin(time + entity.Index) + 1f;
+        var sine = math.sin(time + entityId) + 1f;
         var y = heat - heat * sine * .05f - 1f;
         localTransform.Position = new float3(x * .3f, y, z * .3f);
 
@@ -112,7 +112,7 @@ public partial struct FirePresentationSystem : ISystem
                 ref temperatures,
                 ref localTransform,
                 ref baseColor,
-                entity,
+                entity.Index,
                 index,
                 rowsAndColumns,
                 time);
