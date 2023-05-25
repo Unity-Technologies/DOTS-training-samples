@@ -1,6 +1,7 @@
 ﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Transforms;
 
 public partial struct GravitySystem : ISystem
@@ -16,26 +17,38 @@ public partial struct GravitySystem : ISystem
     {
         var config = SystemAPI.GetSingleton<Config>();
 
-        using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        GravityJob gravityJob = new GravityJob
         {
-            foreach (var (_, transform, velocity, entity) in SystemAPI
-                .Query<RefRO<GravityComponent>, RefRW<LocalTransform>, RefRW<VelocityComponent>>()
-                .WithEntityAccess())
+            config = config,
+            ecb = ecb.AsParallelWriter(),
+            deltaTime = SystemAPI.Time.DeltaTime
+        };
+        gravityJob.ScheduleParallel();
+    }
+
+    [BurstCompile]
+    private partial struct GravityJob : IJobEntity
+    {
+        public Config config;
+        public EntityCommandBuffer.ParallelWriter ecb;
+        public float deltaTime;
+
+        public void Execute(in GravityComponent gravityComponent, ref LocalTransform transform, ref VelocityComponent velocity, Entity entity, [ChunkIndexInQuery] int chunkIndex)
+        {
+            if (transform.Position.y > -config.bounds.y)
             {
-                if (transform.ValueRO.Position.y > -config.bounds.y)
-                {
-                    velocity.ValueRW.Velocity += config.gravity * SystemAPI.Time.DeltaTime;
-                }
-                else
-                {
-                    velocity.ValueRW.Velocity = 0;
-                    transform.ValueRW.Position.y = -config.bounds.y;
-
-                    commandBuffer.RemoveComponent<GravityComponent>(entity);
-                }
+                velocity.Velocity += config.gravity * deltaTime;
             }
+            else
+            {
+                velocity.Velocity = 0;
+                transform.Position.y = -config.bounds.y;
 
-            commandBuffer.Playback(state.EntityManager);
+                ecb.RemoveComponent<GravityComponent>(chunkIndex, entity);
+            }
         }
     }
 }
