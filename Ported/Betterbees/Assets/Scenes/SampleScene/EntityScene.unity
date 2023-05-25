@@ -252,9 +252,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2bf1a9501ac91f247be236f3f3c2f2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beeCount: 100
+  beeCount: 10000
   respawnBeeCount: 10
-  foodCount: 100
+  foodCount: 1000
   maxSpawnSpeed: 5
   foodBounds:
     x: 6
@@ -304,6 +304,9 @@ MonoBehaviour:
   attackDistance: 5
   hitDistance: 0.5
   aggressionPercentage: 0.001
+  minScale: {x: 1, y: 0.2}
+  maxScale: {x: 10, y: 1}
+  scaleMultiplier: 1
 --- !u!1 &184887340514711267
 GameObject:
   m_ObjectHideFlags: 0

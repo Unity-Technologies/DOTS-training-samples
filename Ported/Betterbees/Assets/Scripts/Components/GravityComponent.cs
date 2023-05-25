@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Unity.Entities;
 
-public struct GravityComponent : IComponentData
+public struct GravityComponent : IComponentData, IEnableableComponent
 {
 }

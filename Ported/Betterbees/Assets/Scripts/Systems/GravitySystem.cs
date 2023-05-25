@@ -2,6 +2,7 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public partial struct GravitySystem : ISystem
@@ -22,9 +23,9 @@ public partial struct GravitySystem : ISystem
 
         GravityJob gravityJob = new GravityJob
         {
-            config = config,
-            ecb = ecb.AsParallelWriter(),
-            deltaTime = SystemAPI.Time.DeltaTime
+            lowerBounds = -config.bounds.y,
+            acceleration = config.gravity * SystemAPI.Time.DeltaTime,
+            ecb = ecb.AsParallelWriter()
         };
         gravityJob.ScheduleParallel();
     }
@@ -32,22 +33,22 @@ public partial struct GravitySystem : ISystem
     [BurstCompile]
     private partial struct GravityJob : IJobEntity
     {
-        public Config config;
+        public float lowerBounds;
+        public float3 acceleration;
         public EntityCommandBuffer.ParallelWriter ecb;
-        public float deltaTime;
 
         public void Execute(in GravityComponent gravityComponent, ref LocalTransform transform, ref VelocityComponent velocity, Entity entity, [ChunkIndexInQuery] int chunkIndex)
         {
-            if (transform.Position.y > -config.bounds.y)
+            if (transform.Position.y > lowerBounds)
             {
-                velocity.Velocity += config.gravity * deltaTime;
+                velocity.Velocity += acceleration;
             }
             else
             {
                 velocity.Velocity = 0;
-                transform.Position.y = -config.bounds.y;
+                transform.Position.y = lowerBounds;
 
-                ecb.RemoveComponent<GravityComponent>(chunkIndex, entity);
+                ecb.SetComponentEnabled<GravityComponent>(chunkIndex, entity, false);
             }
         }
     }
