@@ -50,6 +50,7 @@ public partial struct FireSpreadSystem : ISystem
         
         
         state.Dependency = writeJob.Schedule(spreadHandle);
+        writeBuffer.Dispose(state.Dependency);
 
         // for (var i = 0; i < size; i++)
         // {
