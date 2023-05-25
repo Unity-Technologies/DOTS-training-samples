@@ -93,11 +93,24 @@ public partial struct BeeSpawnerSystem : ISystem
                 hiveTag = hiveTag
             });
 
-            ecb.AddComponent(newBee, new(hiveTag.ToComponentType()));
             ecb.AddComponent(newBee, new PostTransformMatrix
             {
                 Value = float4x4.identity
             });
+
+            switch (hiveTag)
+            {
+                case HiveTag.HiveYellow:
+                    ecb.AddComponent(newBee, new HiveYellow());
+                    break;
+                case HiveTag.HiveBlue:
+                    ecb.AddComponent(newBee, new HiveBlue());
+                    break;
+                case HiveTag.HiveOrange:
+                default:
+                    ecb.AddComponent(newBee, new HiveOrange());
+                    break;
+            }
         }
     }
 }
