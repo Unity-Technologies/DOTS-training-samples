@@ -143,7 +143,7 @@ public partial struct SpawningSystem : ISystem
         var omniState = new OmniState()
         { Value = OmniStates.Idle };
         cmdBuffer.AddComponent(omniEntities, omniState);
-
+        cmdBuffer.AddComponent<NextPosition>(omniEntities);
         var baseColor = new URPMaterialPropertyBaseColor()
         { Value = gameSettings.WorkerOmniColor };
         cmdBuffer.AddComponent(omniEntities, baseColor);
