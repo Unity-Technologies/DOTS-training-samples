@@ -197,12 +197,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7897e767ab5d4371b29561a052f32be4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GridWidth: 100
-  StartingFires: 4
+  GridWidth: 1000
+  StartingFires: 20
+  MaxHeat: 1
+  FlashPoint: 0.2
+  HeatRadius: 2
+  HeatTransferRate: 0.0003
+  FireSimUpdateRate: 0.01
   BucketEmptyColor: {r: 0.67058825, g: 0.4117647, b: 0.12941177, a: 1}
   BucketFullColor: {r: 0.0627451, g: 0.47058824, b: 0.654902, a: 1}
   WorkerFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 1}
   WorkerEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 1}
+  RunnerWorkerColor: {r: 0, g: 1, b: 0.15294118, a: 1}
   WorkerOmniColor: {r: 0.1254902, g: 0.1254902, b: 0.1254902, a: 1}
 --- !u!4 &867655830
 Transform:
@@ -342,8 +348,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WorkerPrefab: {fileID: 6054936227776843098, guid: 0e894ee8ccbcc4cb9829feb810c98ef2,
     type: 3}
-  NumberOfTeams: 1
-  WorkersPerTeam: 4
+  NumberOfTeams: 10
+  WorkersPerTeam: 40
+  OmniWorkers: 20
 --- !u!4 &1764833416
 Transform:
   m_ObjectHideFlags: 0
