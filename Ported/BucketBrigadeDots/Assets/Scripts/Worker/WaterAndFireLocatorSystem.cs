@@ -26,7 +26,7 @@ public partial struct WaterAndFireLocatorSystem : ISystem
                          RefRW<TeamData>, 
                          RefRW<TeamState>>())
             {
-                teamData.ValueRW.WaterPosition = GetRandomWaterPosition(ref state, random);
+                teamData.ValueRW.WaterPosition = GetRandomWaterPosition(ref state, ref random);
                 teamData.ValueRW.FirePosition = GetNearestFirePosition(ref teamData.ValueRW.WaterPosition);
                 teamState.ValueRW.Value = TeamStates.Idle;
             }
@@ -60,7 +60,7 @@ public partial struct WaterAndFireLocatorSystem : ISystem
         return closestPos;
     }
 
-    float2 GetRandomWaterPosition(ref SystemState state, Random random)
+    float2 GetRandomWaterPosition(ref SystemState state, ref Random random)
     {
         var query = SystemAPI.QueryBuilder().WithAll<WaterCell, LocalToWorld>().Build();
         var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
