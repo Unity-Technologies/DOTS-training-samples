@@ -20,7 +20,11 @@ namespace Components
                 speed = 10f,
                 facingAngle = 1f,
                 hasFood = false,
-                hasSpottedTarget = false
+                hasSpottedTarget = false,
+                ovx = 0f,
+                ovy = 0f,
+                vx = 0f,
+                vy = 0f
             });
         }
     }
@@ -32,5 +36,9 @@ namespace Components
         public float facingAngle;
         public bool hasFood;
         public bool hasSpottedTarget;
+        public float ovx;
+        public float ovy;
+        public float vx;
+        public float vy;
     }
 }
