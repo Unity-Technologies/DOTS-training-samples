@@ -19,6 +19,7 @@ public class GameSettingsAuthoring : MonoBehaviour
     public int HeatRadius = 2;
     public float HeatTransferRate = 0.0003f;
     public float FireSimUpdateRate = 0.01f;
+    public int PutOutSize = 10;
     public Color BucketEmptyColor = new Color32(171, 105, 33, 255);
     public Color BucketFullColor = new Color32(16, 120, 167, 255);
     public Color WorkerFullColor = new Color32(197, 236, 188, 255);
@@ -42,6 +43,7 @@ public class GameSettingsAuthoring : MonoBehaviour
                 HeatRadius = authoring.HeatRadius,
                 HeatTransferRate = authoring.HeatTransferRate,
                 FireSimUpdateRate = authoring.FireSimUpdateRate,
+                PutOutSize = authoring.PutOutSize,
                 BucketEmptyColor = authoring.BucketEmptyColor.ToFloat4(),
                 BucketFullColor = authoring.BucketFullColor.ToFloat4(),
                 WorkerEmptyColor = authoring.WorkerEmptyColor.ToFloat4(),
@@ -64,6 +66,7 @@ public struct GameSettings : IComponentData
     public int HeatRadius;
     public float HeatTransferRate;
     public float FireSimUpdateRate;
+    public int PutOutSize;
     public float4 BucketEmptyColor;
     public float4 BucketFullColor;
     public float4 WorkerEmptyColor;

@@ -10,14 +10,12 @@ public static class SystemUtilities
         var gridSize = settings.DefaultGridSize;
         var cols = settings.RowsAndColumns;
         var gridPos = new int2((int)math.round(centerPos.x / gridSize), (int)math.round(centerPos.y / gridSize));
-        PutoutFire(in gridPos, ref temperatures, cols);
+        PutoutFire(in gridPos, ref temperatures, cols, settings.PutOutSize);
     }
  
     [BurstCompile]
-    static void PutoutFire(in int2 gridPos, ref DynamicBuffer<FireTemperature> temperatures, int cols)
+    static void PutoutFire(in int2 gridPos, ref DynamicBuffer<FireTemperature> temperatures, int cols, int putOutSize)
     {
-        var putOutSize = 10;
-        
         for (var yD = ((putOutSize / 2) * -1); yD < (putOutSize / 2); yD++)
         {
             for (var xD = ((putOutSize / 2) * -1); xD < (putOutSize / 2); xD++)
