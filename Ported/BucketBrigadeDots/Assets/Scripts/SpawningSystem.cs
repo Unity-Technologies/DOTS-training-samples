@@ -56,7 +56,7 @@ public partial struct SpawningSystem : ISystem
         for (var i = 0; i < gameSettings.StartingFires; i++)
         {
             var fireIndex = random.NextInt(size);
-            buffer[fireIndex] = 1f;
+            buffer[fireIndex] = random.NextFloat(gameSettings.FlashPoint, gameSettings.MaxHeat);
         }
     }
 

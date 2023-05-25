@@ -4,7 +4,7 @@ using Unity.Mathematics;
 
 public partial struct FireSpreadSystem : ISystem
 {
-    private const float heatScalePerSecond = .05f;
+    private float timeUntilFireUpdate;
     
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -16,51 +16,40 @@ public partial struct FireSpreadSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var gameSettings = SystemAPI.GetSingleton<GameSettings>();
+        var deltaTime = SystemAPI.Time.DeltaTime;
+        timeUntilFireUpdate -= deltaTime;
+        if (timeUntilFireUpdate > 0f) return;
+        
+        var settings = SystemAPI.GetSingleton<GameSettings>();
+        timeUntilFireUpdate += settings.FireSimUpdateRate;
+        var size = settings.Size;
+        var cols = settings.RowsAndColumns;
+        
         var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
-        
-        var size = temperatures.Length;
-        var increase = heatScalePerSecond * SystemAPI.Time.DeltaTime;
-        
+
         for (int i = 0; i < size; i++)
         {
             var heat = temperatures[i];
-            if (heat <= 0f) continue;
-            
-            heat = heat + increase;
-            temperatures[i] = math.min(1f, heat);
-            
             if (heat < .2f) continue;
 
-            var cols = gameSettings.RowsAndColumns;
-            var x = i % cols;
+            var increase = heat * settings.HeatTransferRate;
 
-            // left neighbor
-            var neighborIndex = i - 1;
-            if (x > 0 && neighborIndex > 0)
+            var currentX = i % cols;
+            var currentY = i / cols;
+
+            for (var offsetY = -settings.HeatRadius; offsetY <= settings.HeatRadius; offsetY++)
             {
-                temperatures[neighborIndex] = math.min(1f, temperatures[neighborIndex] + increase);
-            }
-            
-            // right neighbor
-            neighborIndex = i + 1;
-            if (x + 1 < cols && neighborIndex < size) 
-            {
-                temperatures[neighborIndex] = math.min(1f, temperatures[neighborIndex] + increase);
-            }
-            
-            // above neighbor
-            neighborIndex = i - cols;
-            if (neighborIndex >= 0) 
-            {
-                temperatures[neighborIndex] = math.min(1f, temperatures[neighborIndex] + increase);
-            }
-            
-            // below neighbor
-            neighborIndex = i + cols;
-            if (neighborIndex < size) 
-            {
-                temperatures[neighborIndex] = math.min(1f, temperatures[neighborIndex] + increase);
+                var neighborY = currentY + offsetY;
+                if (neighborY < 0 || neighborY >= cols) continue;
+                
+                for (var offsetX = -settings.HeatRadius; offsetX <= settings.HeatRadius; offsetX++)
+                {
+                    var neighborX = currentX + offsetX;
+                    if (neighborX < 0 || neighborX >= cols) continue;
+
+                    var neighborIndex = neighborY * cols + neighborX;
+                    temperatures[neighborIndex] = math.min(1f, temperatures[neighborIndex] + increase);
+                }
             }
         }
     }
