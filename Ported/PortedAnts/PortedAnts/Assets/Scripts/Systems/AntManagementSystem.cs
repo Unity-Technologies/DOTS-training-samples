@@ -42,7 +42,7 @@ public partial struct AntsManagementSystem : ISystem
             else
                 homePosition = antTarget.ValueRO.position;
         }
-        
+
 
         var obstacleQuery = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
         var obstacles = obstacleQuery.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
@@ -86,13 +86,19 @@ public partial struct AntsManagementSystem : ISystem
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
+            float targetSpeed = ant.ValueRO.speed;
+            
+            targetSpeed *= 1f - (ant.ValueRO.deltaSteering) / 3f;
+
+            ant.ValueRW.speed += (targetSpeed - ant.ValueRO.speed) * config.AntAccel;
+            
             float excitement = .3f;
             if (ant.ValueRO.hasFood)
             {
                 excitement = 1f;
             }
 
-            //excitement *= ant.ValueRO.speed / antSpeed;
+            excitement *= ant.ValueRO.speed / config.AntSpeed;
             DropPheromones(ant.ValueRO.position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
                 SystemAPI.Time.DeltaTime);
         }

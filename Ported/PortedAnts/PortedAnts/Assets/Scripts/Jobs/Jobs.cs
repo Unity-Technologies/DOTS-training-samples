@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
@@ -43,6 +44,7 @@ public partial struct ObstacleAvoidanceJob : IJobEntity
 						else
 						{
 							ant.facingAngle += i * config.WallSteerStrength;
+							ant.deltaSteering += i;
 						}
 					}
 				}
@@ -89,7 +91,9 @@ public partial struct PheromoneSteeringJob : IJobEntity
 			{
 				int index = ((config.MapSize - 1) - (int)math.floor(testX)) + ((config.MapSize - 1) - (int)math.floor(testY)) * config.MapSize;
 				short value = pheromones[index];
-				output += value * i;
+				var steer = value * i;
+				output += steer;
+				ant.deltaSteering += steer;
 			}
 		}
 		var pheromoneSteering = math.sign(output);
@@ -276,5 +280,16 @@ public partial struct ObstacleCollisionResponseJob : IJobEntity
 				ant.vy -= dy * (dx * ant.vx + dy * ant.vy) * 1.5f;
 			}
 		}
+	}
+}
+
+[BurstCompile]
+public struct PheromoneUpdateJob : IJobParallelFor
+{
+	public Config config;
+	public DynamicBuffer<Pheromone> pixels;
+	public void Execute(int i)
+	{
+		pixels[i] = new Pheromone() { Value = (short)(pixels[i].Value * config.PheromoneDecay) };
 	}
 }
