@@ -79,65 +79,14 @@ public partial struct AntsManagementSystem : ISystem
 
         GoalSteeringJob goalSteeringJob = new GoalSteeringJob() { config = config, homePosition = homePosition, foodPosition = foodPosition };
         state.Dependency = goalSteeringJob.ScheduleParallel(state.Dependency);
+        
+        AntsMovementJob antsMovementJob = new AntsMovementJob() { config = config};
+        state.Dependency = antsMovementJob.ScheduleParallel(state.Dependency);
+        
+        TargetCollisionJob targetCollisionJob = new TargetCollisionJob() { config = config, homePosition = homePosition, foodPosition = foodPosition };
+        state.Dependency = targetCollisionJob.ScheduleParallel(state.Dependency);
 
         state.Dependency.Complete();
-        float speed, vx, vy, ovx, ovy;
-
-        foreach (var (ant, transform, color) in SystemAPI
-                     .Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
-        {
-
-            float2 position = ant.ValueRO.position;
-
-            var facingAngle = ant.ValueRO.facingAngle;
-
-            #region movement
-
-            {
-                speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
-
-                vx = math.cos(facingAngle) * speed;
-                vy = math.sin(facingAngle) * speed;
-                ovx = vx;
-                ovy = vy;
-
-                if (position.x + vx < 0f || position.x + vx > config.MapSize)
-                {
-                    vx = -vx;
-                }
-
-                position.x += vx;
-
-                if (position.y + vy < 0f || position.y + vy > config.MapSize)
-                {
-                    vy = -vy;
-                }
-
-                position.y += vy;
-            }
-
-            #endregion
-        }
-
-        foreach (var (ant, color) in SystemAPI
-                     .Query<RefRW<Ant>, RefRW<URPMaterialPropertyBaseColor>>())
-        {
-            #region target collision reponse
-
-            {
-                float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-                var directionToTarget = targetPosition - ant.ValueRO.position;
-                var distanceToTarget = math.lengthsq(directionToTarget);
-                if (distanceToTarget < config.TargetRadius * config.TargetRadius)
-                {
-                    ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
-                    color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
-                    ant.ValueRW.facingAngle += math.PI;
-                }
-            }
-
-            #endregion
-        }
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {

@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 [BurstCompile]
@@ -167,6 +168,56 @@ public partial struct GoalSteeringJob : IJobEntity
 			{
 				ant.facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
 			}
+		}
+	}
+}
+
+[BurstCompile]
+public partial struct AntsMovementJob : IJobEntity
+{
+	public Config config;
+	
+	public void Execute(ref Ant ant)
+	{
+		float speed = ant.speed * Time.deltaTime;
+
+		ant.vx = math.cos(ant.facingAngle) * speed;
+		ant.vy = math.sin(ant.facingAngle) * speed;
+		ant.ovx = ant.vx;
+		ant.ovy = ant.vy;
+
+		if (ant.position.x + ant.vx < 0f || ant.position.x + ant.vx > config.MapSize)
+		{
+			ant.vx = -ant.vx;
+		}
+
+		ant.position.x += ant.vx;
+
+		if (ant.position.y + ant.vy < 0f || ant.position.y + ant.vy > config.MapSize)
+		{
+			ant.vy = -ant.vy;
+		}
+
+		ant.position.y += ant.vy;
+	}
+}
+
+[BurstCompile]
+public partial struct TargetCollisionJob : IJobEntity
+{
+	public Config config;
+	public float2 homePosition, foodPosition;
+
+	public void Execute(ref Ant ant, ref URPMaterialPropertyBaseColor color)
+	{
+		float2 targetPosition = ant.hasFood ? homePosition : foodPosition;
+		var directionToTarget = targetPosition - ant.position;
+		var distanceToTarget = math.lengthsq(directionToTarget);
+		if (distanceToTarget < config.TargetRadius * config.TargetRadius)
+		{
+			ant.hasFood = !ant.hasFood;
+			color.Value = ant.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
+			ant.facingAngle += math.PI;
 		}
 	}
 }
