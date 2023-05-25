@@ -307,9 +307,17 @@ public partial struct BeeSystem : ISystem
         EntityCommandBuffer commandBuffer,
         ref BeeSettingsSingletonComponent beeSettings)
     {
+        s_PerfMarkerRemoveInvalidBeeTarget.Begin();
         RemoveInvalidBeeTarget(target, beeState.ValueRO);
+        s_PerfMarkerRemoveInvalidBeeTarget.End();
+
+        s_PerfMarkerFindBeeTarget.Begin();
         FindBeeTarget(target, beeState, ref random, ref state);
+        s_PerfMarkerFindBeeTarget.End();
+
+        s_PerfMarkerFlyToBeeTarget.Begin();
         FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings, ref random);
+        s_PerfMarkerFlyToBeeTarget.End();
     }
 
     private int EnemyTag(ref Random random, BeeState beeState)
@@ -322,7 +330,6 @@ public partial struct BeeSystem : ISystem
 
     private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target, in BeeState beeState)
     {
-        s_PerfMarkerRemoveInvalidBeeTarget.Begin();
         bool hasInvalidTarget = false;
         if (target.ValueRO.Target != Entity.Null)
         {
@@ -339,12 +346,10 @@ public partial struct BeeSystem : ISystem
         {
             target.ValueRW.Target = Entity.Null;
         }
-        s_PerfMarkerRemoveInvalidBeeTarget.End();
     }
 
     private void FindBeeTarget(RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random, ref SystemState state)
     {
-        s_PerfMarkerFindBeeTarget.Begin();
         bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
         if (alreadyHasTarget)
         {
@@ -365,7 +370,6 @@ public partial struct BeeSystem : ISystem
         {
             beeState.ValueRW.state = BeeState.State.IDLE;
         }
-        s_PerfMarkerFindBeeTarget.End();
     }
 
     private void FlyToBeeTarget(
@@ -380,7 +384,6 @@ public partial struct BeeSystem : ISystem
         ref BeeSettingsSingletonComponent beeSettings,
         ref Random random)
     {
-        s_PerfMarkerFlyToBeeTarget.Begin();
         if (target.ValueRO.Target == Entity.Null)
         {
             return;
@@ -424,8 +427,6 @@ public partial struct BeeSystem : ISystem
 
             beeState.ValueRW.state = BeeState.State.IDLE;
         }
-
-        s_PerfMarkerFlyToBeeTarget.End();
     }
 
     private void Returning(
