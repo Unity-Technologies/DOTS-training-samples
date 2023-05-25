@@ -26,35 +26,73 @@ public partial struct FirePresentationSystem : ISystem
         var gameSettings = SystemAPI.GetSingleton<GameSettings>();
         var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
 
-        var time = (float)SystemAPI.Time.ElapsedTime * 10f;
+        float time = (float)SystemAPI.Time.ElapsedTime * 10f;
 
-        var job = new FirePresentationJob()
+        int rowsAndColumns = gameSettings.RowsAndColumns;
+        if (gameSettings.FirePresentationJobMode == JobMode.RunWithoutJobs)
         {
-            temperatures = temperatures,
-            rowsAndColumns = gameSettings.RowsAndColumns,
-            time = time
-        };
-        
-        job.ScheduleParallel();
-
-        // Un-jobified code follows:
-
-        /*
-        var index = 0;
-        foreach (var (localTransform, baseColor, entity) in SystemAPI.Query<RefRW<LocalTransform>,RefRW<URPMaterialPropertyBaseColor>>().WithAll<FireCell>().WithEntityAccess())
-        {
-            var heat = temperatures[index];
-            var x = index % gameSettings.RowsAndColumns;
-            var z = index / gameSettings.RowsAndColumns;
-            var sine = math.sin(time + entity.Index) + 1f;
-            var y = heat - heat * sine * .05f - 1f;
-            localTransform.ValueRW.Position = new float3(x * .3f, y, z * .3f);
-
-            baseColor.ValueRW.Value = math.lerp(green, red, heat);
-            
-            index++;
+            var index = 0;
+            foreach (var (localTransform, baseColor, entity) in SystemAPI
+                         .Query<RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>().WithAll<FireCell>()
+                         .WithEntityAccess())
+            {
+                SetColorAndTransformForHeat(
+                    ref temperatures,
+                    ref localTransform.ValueRW,
+                    ref baseColor.ValueRW,
+                    entity,
+                    index,
+                    rowsAndColumns,
+                    time);
+                
+                ++index;
+            }
         }
-        //*/
+        else
+        {
+            // If we're using jobs, we need a job for all scheduling modes.
+            var job = new FirePresentationJob()
+            {
+                temperatures = temperatures,
+                rowsAndColumns = gameSettings.RowsAndColumns,
+                time = time
+            };
+
+            switch (gameSettings.FirePresentationJobMode)
+            {
+                case JobMode.JobParallel:
+                    job.ScheduleParallel();
+                    break;
+                
+                case JobMode.JobSingleThread:
+                    job.Schedule();
+                    break;
+                
+                case JobMode.RunWithoutJobs:
+                    Debug.LogError("Coding error: non-job invocations should be handled above!");
+                    break;
+            }
+        }
+    }
+
+    [BurstCompile]
+    private static void SetColorAndTransformForHeat(
+        [ReadOnly] ref DynamicBuffer<FireTemperature> temperatures,
+        ref LocalTransform localTransform,
+        ref URPMaterialPropertyBaseColor baseColor,
+        Entity entity,
+        int index,
+        int rowsAndColumns,
+        float time)
+    {
+        var heat = temperatures[index];
+        var x = index % rowsAndColumns;
+        var z = index / rowsAndColumns;
+        var sine = math.sin(time + entity.Index) + 1f;
+        var y = heat - heat * sine * .05f - 1f;
+        localTransform.Position = new float3(x * .3f, y, z * .3f);
+
+        baseColor.Value = math.lerp(green, red, heat);
     }
 
     [BurstCompile, WithAll(typeof(FireCell))]
@@ -70,14 +108,14 @@ public partial struct FirePresentationSystem : ISystem
             Entity entity,
             [EntityIndexInQuery] int index)
         {
-            var heat = temperatures[index];
-            var x = index % rowsAndColumns;
-            var z = index / rowsAndColumns;
-            var sine = math.sin(time + entity.Index) + 1f;
-            var y = heat - heat * sine * .05f - 1f;
-            localTransform.Position = new float3(x * .3f, y, z * .3f);
-
-            baseColor.Value = math.lerp(green, red, heat);
+            SetColorAndTransformForHeat(
+                ref temperatures,
+                ref localTransform,
+                ref baseColor,
+                entity,
+                index,
+                rowsAndColumns,
+                time);
         }
     }
 }

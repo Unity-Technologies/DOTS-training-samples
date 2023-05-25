@@ -2,6 +2,13 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+public enum JobMode
+{
+    JobParallel,
+    JobSingleThread,
+    RunWithoutJobs
+}
+
 public class GameSettingsAuthoring : MonoBehaviour
 {
     // Number of rows and columns: it's a square.
@@ -18,6 +25,7 @@ public class GameSettingsAuthoring : MonoBehaviour
     public Color WorkerEmptyColor = new Color32(238, 192, 236, 255);
     public Color RunnerWorkerColor = new Color32(0, 255, 39, 255);
     public Color WorkerOmniColor = new Color32(32, 32, 32, 255);
+    public JobMode FirePresentationJobMode;
 
     class Baker : Baker<GameSettingsAuthoring>
     {
@@ -39,7 +47,8 @@ public class GameSettingsAuthoring : MonoBehaviour
                 WorkerEmptyColor = authoring.WorkerEmptyColor.ToFloat4(),
                 WorkerFullColor = authoring.WorkerFullColor.ToFloat4(),
                 RunnerWorkerColor = authoring.RunnerWorkerColor.ToFloat4(),
-                WorkerOmniColor = authoring.WorkerOmniColor.ToFloat4()
+                WorkerOmniColor = authoring.WorkerOmniColor.ToFloat4(),
+                FirePresentationJobMode = authoring.FirePresentationJobMode
             });
         }
     }
@@ -61,6 +70,8 @@ public struct GameSettings : IComponentData
     public float4 WorkerFullColor;
     public float4 RunnerWorkerColor;
     public float4 WorkerOmniColor;
+
+    public JobMode FirePresentationJobMode;
 
     public int Size => RowsAndColumns * RowsAndColumns;
 }
