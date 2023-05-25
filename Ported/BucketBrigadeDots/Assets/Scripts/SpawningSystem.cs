@@ -162,8 +162,6 @@ public partial struct SpawningSystem : ISystem
         var instances = state.EntityManager.Instantiate(prefab, prefabCount, Allocator.Temp);
 
         float angleRadians = 0f;
-            
-        Debug.Log($"Made {instances.Length} waters!");
         foreach (var entity in instances)
         {
             var transform = SystemAPI.GetComponentRW<LocalTransform>(entity);

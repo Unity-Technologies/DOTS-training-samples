@@ -43,14 +43,10 @@ public partial struct RunnerUpdateSystem : ISystem
                 case RunnerStates.FetchingBucket:
                 {
                     // Move towards the bucket.
-
                     var target = runnerState.ValueRO.TargetBucketPosition;
-                    var oldPosition = transform.ValueRO.Position;
                     if (!Movement.MoveToPosition(ref target, ref transform.ValueRW, SystemAPI.Time.DeltaTime))
                     {
                         // Haven't reached it yet? Keep going!
-                        var newPosition = transform.ValueRO.Position;
-                        Debug.Log($"Runner fetching moved from {oldPosition.x}, {oldPosition.z} to {newPosition.x}, {newPosition.z}");
                         continue;
                     }
 
