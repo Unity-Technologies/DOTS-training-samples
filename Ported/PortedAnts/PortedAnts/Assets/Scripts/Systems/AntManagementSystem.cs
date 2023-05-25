@@ -81,11 +81,11 @@ public partial struct AntsManagementSystem : ISystem
         state.Dependency = goalSteeringJob.ScheduleParallel(state.Dependency);
 
         state.Dependency.Complete();
-    
-        foreach (var (ant, transform, color) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
+        float speed, vx, vy, ovx, ovy;
+
+        foreach (var (ant, transform, color) in SystemAPI
+                     .Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
         {
-            float speed, vx, vy, ovx, ovy;
-            float dx, dy, dist;
 
             float2 position = ant.ValueRO.position;
 
@@ -117,38 +117,48 @@ public partial struct AntsManagementSystem : ISystem
             }
 
             #endregion
+        }
 
+        foreach (var (ant, color) in SystemAPI
+                     .Query<RefRW<Ant>, RefRW<URPMaterialPropertyBaseColor>>())
+        {
             #region target collision reponse
 
             {
                 float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-                var directionToTarget = targetPosition - position;
+                var directionToTarget = targetPosition - ant.ValueRO.position;
                 var distanceToTarget = math.lengthsq(directionToTarget);
                 if (distanceToTarget < config.TargetRadius * config.TargetRadius)
                 {
                     ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
                     color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
-                    facingAngle += math.PI;
+                    ant.ValueRW.facingAngle += math.PI;
                 }
             }
 
             #endregion
+        }
+
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
 
             #region obstacle collision response
 
             {
+                float dx, dy, dist;
+                
                 foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
                 {
-                    dx = position.x - obstacle.ValueRO.position.x;
-                    dy = position.y - obstacle.ValueRO.position.y;
+                    dx = ant.ValueRO.position.x - obstacle.ValueRO.position.x;
+                    dy = ant.ValueRO.position.y - obstacle.ValueRO.position.y;
                     float sqrDist = dx * dx + dy * dy;
                     if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
                     {
                         dist = math.sqrt(sqrDist);
                         dx /= dist;
                         dy /= dist;
-                        position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
-                        position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
+                        ant.ValueRW.position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
+                        ant.ValueRW.position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
 
                         vx -= dx * (dx * vx + dy * vy) * 1.5f;
                         vy -= dy * (dx * vx + dy * vy) * 1.5f;
@@ -157,18 +167,27 @@ public partial struct AntsManagementSystem : ISystem
             }
 
             #endregion
+        }
+
+        foreach (var (ant, transform, color) in SystemAPI
+                     .Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
+        {
 
             #region post collision
 
             {
                 if (ovx != vx || ovy != vy)
                 {
-                    facingAngle = math.atan2(vy, vx);
+                    ant.ValueRW.facingAngle = math.atan2(vy, vx);
                 }
             }
 
             #endregion
 
+        }
+
+        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        {
             #region pheromone drop
 
             {
@@ -179,85 +198,46 @@ public partial struct AntsManagementSystem : ISystem
                 }
 
                 //excitement *= ant.ValueRO.speed / antSpeed;
-                DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
+                DropPheromones(ant.ValueRO.position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
                     SystemAPI.Time.DeltaTime);
             }
 
             #endregion
 
-            #region write to ant
+        }
 
-            {
-                ant.ValueRW.facingAngle = facingAngle;
-                ant.ValueRW.position = position;
-            }
-
-            #endregion
-
+        foreach (var (ant, transform) in SystemAPI
+                     .Query<RefRO<Ant>, RefRW<LocalTransform>>())
+        {
             #region update transform
 
             {
                 transform.ValueRW = LocalTransform.FromPositionRotationScale(
-                    new float3(position.x, 0f, position.y),
-                    quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
+                    new float3(ant.ValueRO.position.x, 0f, ant.ValueRO.position.y),
+                    quaternion.AxisAngle(new float3(0, 1, 0), -ant.ValueRO.facingAngle),
                     config.AntRadius * 2);
             }
 
             #endregion
         }
+    }
 
-        void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
-            DynamicBuffer<short> pheromones, float deltaTime)
+    void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
+        DynamicBuffer<short> pheromones, float deltaTime)
+    {
+        int x = (int)math.floor(position.x);
+        int y = (int)math.floor(position.y);
+        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
         {
-            int x = (int)math.floor(position.x);
-            int y = (int)math.floor(position.y);
-            if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
-            {
-                return;
-            }
-
-            int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
-            pheromones[index] +=
-                (short)math.floor(trailAddSpeed * short.MaxValue * strength * deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
-            if (pheromones[index] > short.MaxValue - 1)
-            {
-                pheromones[index] = short.MaxValue;
-            }
+            return;
         }
 
-        /*bool Linecast(float2 point1, float2 point2)
+        int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
+        pheromones[index] +=
+            (short)math.floor(trailAddSpeed * short.MaxValue * strength * deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
+        if (pheromones[index] > short.MaxValue - 1)
         {
-            float dx = point2.x - point1.x;
-            float dy = point2.y - point1.y;
-            float dist = Mathf.Sqrt(dx * dx + dy * dy);
-
-            int stepCount = Mathf.CeilToInt(dist * .5f);
-            for (int i = 0; i < stepCount; i++)
-            {
-                float t = (float)i / stepCount;
-                if (GetObstacleBucket(point1.x + dx * t, point1.y + dy * t).Length > 0)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }*/
-
-        bool DoLineAndCircleIntersect(float2 circlePosition, float circleRadius, float2 lineStart, float2 lineEnd)
-        {
-            float2 AC = circlePosition - lineStart;
-            float2 AB = lineEnd - lineStart;
-            float ab2 = AB.x * AB.x + AB.y * AB.y; // + AB.z * AB.z;
-            float acab = math.dot(AC, AB);
-            float t = acab / ab2;
-            if (t < 0)
-                t = 0;
-            else if (t > 1)
-                t = 1;
-            float2 H = new float2(lineStart.x + AB.x * t, lineStart.y + AB.y * t);
-            float h2 = (H.x - circlePosition.x) * (H.x - circlePosition.x) + (H.y - circlePosition.y) * (H.y - circlePosition.y);
-            return h2 <= circleRadius * circleRadius;
+            pheromones[index] = short.MaxValue;
         }
     }
 }
