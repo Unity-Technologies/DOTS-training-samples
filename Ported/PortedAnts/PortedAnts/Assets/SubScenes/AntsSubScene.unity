@@ -171,7 +171,7 @@ MonoBehaviour:
   ObstacleRingCount: 3
   ObstaclesFillRate: 0.8
   MapSize: 128
-  ObstacleRadius: 1
+  ObstacleRadius: 2
   ObstaclePrefab: {fileID: 3654764109518819548, guid: a6320c23b0c55af48a66768992042556,
     type: 3}
   AntsTargetPrefab: {fileID: 9045270641993814323, guid: e8dc910cb40064d428c8228e00e69eca,
@@ -201,11 +201,15 @@ MonoBehaviour:
   AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}
   RandomSteering: 0.14
-  PheromoneAddSpeed: 1
+  PheromoneAddSpeed: 0.2
   PheromoneDecay: 0.99
-  PheromoneSteering: 0.06
+  PheromoneSteering: 0.02
   TargetRadius: 3
   AntRadius: 0.5
+  GoalSteerStrength: 0.04
+  SqrSteeringDist: 25
+  SteeringDist: 5
+  WallSteerStrength: 0.12
 --- !u!114 &1251742802
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -25,6 +25,10 @@ namespace Components
         public float PheromoneSteering;
         public float TargetRadius;
         public float AntRadius;
+        public float GoalSteerStrength;
+        public float SqrSteeringDist;
+        public float SteeringDist;
+        public float WallSteerStrength;
     }
 
     class ConfigBaker : Baker<ConfigAuthoring>
@@ -52,7 +56,11 @@ namespace Components
                 PheromoneDecay = authoring.PheromoneDecay,
                 PheromoneSteering = authoring.PheromoneSteering,
                 TargetRadius = authoring.TargetRadius,
-                AntRadius = authoring.AntRadius
+                AntRadius = authoring.AntRadius,
+                GoalSteerStrength = authoring.GoalSteerStrength,
+                SqrSteeringDist = authoring.SqrSteeringDist,
+                SteeringDist = authoring.SteeringDist,
+                WallSteerStrength = authoring.WallSteerStrength
             });
         }
     }
@@ -78,5 +86,9 @@ namespace Components
         public float PheromoneSteering;
         public float TargetRadius;
         public float AntRadius;
+        public float GoalSteerStrength;
+        public float SqrSteeringDist;
+        public float SteeringDist;
+        public float WallSteerStrength;
     }
 }

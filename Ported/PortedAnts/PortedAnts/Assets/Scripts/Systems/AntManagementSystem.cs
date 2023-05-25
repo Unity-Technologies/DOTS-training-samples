@@ -49,24 +49,64 @@ public partial struct AntsManagementSystem : ISystem
                 if (!isTargetVisible)
                     break;
             }
-
             
+            float dx, dy, dist;
 
             var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
             var pheromoneSteering = PheromoneSteering(ant.ValueRO, 3f, config.MapSize, ref pheromones);
 
             var facingAngle = ant.ValueRO.facingAngle;
 
-            facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);/// * SystemAPI.Time.DeltaTime; //steering
+            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+            {
+	            dx = position.x - obstacle.ValueRO.position.x;
+	            dy = position.y - obstacle.ValueRO.position.y;
+	            float sqrDist = dx * dx + dy * dy;
+	            if (sqrDist < config.SqrSteeringDist)
+	            {
+		            for (int i = -1; i <= 1; i += 2)
+		            {
+			            float angle = facingAngle + i * Mathf.PI * .25f;
+			            float testX = position.x + Mathf.Cos(angle) * config.SteeringDist;
+			            float testY = position.y + Mathf.Sin(angle) * config.SteeringDist;
+
+			            if (testX < 0 || testY < 0 || testX >= config.MapSize || testY >= config.MapSize)
+			            {
+
+			            }
+			            else
+			            {
+				            facingAngle += i * config.WallSteerStrength;
+			            }
+		            }
+	            }
+            }
+
+            facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);
             facingAngle += pheromoneSteering * config.PheromoneSteering;
 
             if (isTargetVisible)
-                facingAngle = toTargetAngle;
+            {
+	            float targetAngle = math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
+	            if (targetAngle - facingAngle > math.PI)
+	            {
+		            facingAngle += math.PI * 2f;
+	            }
+	            else if (targetAngle - facingAngle < -math.PI)
+	            {
+		            facingAngle -= math.PI * 2f;
+	            }
+	            else if (math.abs(targetAngle - facingAngle) < math.PI * .5f)
+	            {
+		            facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
+	            }
+            }
 
             if (distanceToTarget < config.TargetRadius * config.TargetRadius)
             {
                 ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
                 color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
+                facingAngle += Mathf.PI;
             }
 
             var speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
@@ -80,27 +120,24 @@ public partial struct AntsManagementSystem : ISystem
             if (position.x + vx < 0f || position.x + vx > config.MapSize)
             {
                 vx = -vx;
-                //facingAngle += math.PI; //this should model reflection, not inversion (as it is here)
             }
 
             position.x += vx;
 
-            if (position.y + vy < 0f || position.y + vy > config.MapSize) // since the direction of vy is reversed, this logic needs revisited
+            if (position.y + vy < 0f || position.y + vy > config.MapSize)
             {
                 vy = -vy;
-                //facingAngle += math.PI; //this should model reflection, not inversion (as it is here)
             }
 
-            position.y += vy; //this used to be += vy
-
-			float dx, dy, dist;
+            position.y += vy;
 
             foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
             {
 				dx = position.x - obstacle.ValueRO.position.x;
 				dy = position.y - obstacle.ValueRO.position.y;
 				float sqrDist = dx * dx + dy * dy;
-				if (sqrDist<config.ObstacleRadius*config.ObstacleRadius) {
+				if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
+				{
 					dist = math.sqrt(sqrDist);
 					dx /= dist;
 					dy /= dist;
@@ -175,7 +212,7 @@ public partial struct AntsManagementSystem : ISystem
 
 	        int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
 	        pheromones[index] +=
-		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * Time.fixedDeltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
+		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * Time.deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
 	        if (pheromones[index] > short.MaxValue - 1)
 	        {
 		        pheromones[index] = short.MaxValue;
