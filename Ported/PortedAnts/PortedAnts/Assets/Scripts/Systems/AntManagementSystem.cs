@@ -106,9 +106,9 @@ public partial struct AntsManagementSystem : ISystem
 		{ config = config, obstacles = obstacles };
 
 		state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
-		state.Dependency.Complete();
+		//
 
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+        /*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
             #region random steering
             {
@@ -116,9 +116,14 @@ public partial struct AntsManagementSystem : ISystem
             }
             #endregion
             
-        }
+        }*/
 
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+		RandomSteeringJob randomSteeringJob = new RandomSteeringJob() { config = config, random = random };
+		state.Dependency = randomSteeringJob.ScheduleParallel(state.Dependency);
+
+		state.Dependency.Complete();
+
+		foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
             #region pheromone steering
             {

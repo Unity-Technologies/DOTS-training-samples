@@ -49,3 +49,15 @@ public partial struct ObstacleAvoidanceJob : IJobEntity
 		#endregion
 	}
 }
+
+[BurstCompile]
+public partial struct RandomSteeringJob : IJobEntity
+{
+	public Config config;
+	public Unity.Mathematics.Random random;
+	
+	public void Execute(ref Ant ant)
+    {
+		ant.facingAngle += random.NextFloat(-config.RandomSteering, config.RandomSteering);
+	}
+}
