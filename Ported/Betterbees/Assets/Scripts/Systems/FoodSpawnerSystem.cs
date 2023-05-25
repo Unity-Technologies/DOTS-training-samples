@@ -2,14 +2,13 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEditor.PackageManager;
 
-[BurstCompile]
 public partial struct FoodSpawnerSystem : ISystem
 {
     [BurstCompile]
     public void OnCreate(ref SystemState state) {
         state.RequireForUpdate<Config>(); //Needed to be able to get singletons on first frame
+        state.RequireForUpdate<FoodSpawnerComponent>();
     }
 
     [BurstCompile]

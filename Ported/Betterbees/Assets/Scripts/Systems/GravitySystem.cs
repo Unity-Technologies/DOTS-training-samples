@@ -3,10 +3,14 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
-[BurstCompile]
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public partial struct GravitySystem : ISystem
 {
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Config>();
+    }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

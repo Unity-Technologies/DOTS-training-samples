@@ -8,8 +8,6 @@ using Unity.VisualScripting;
 using UnityEditor;
 using static UnityEngine.GraphicsBuffer;
 
-
-[BurstCompile]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct BeeSystem : ISystem
 {
@@ -24,6 +22,9 @@ public partial struct BeeSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
+        state.RequireForUpdate<BeeSettingsSingletonComponent>();
+
         _halfFloat = new float3(0.5f, 0.5f, 0.5f);
         {
             var builder = new EntityQueryBuilder(Allocator.Temp)

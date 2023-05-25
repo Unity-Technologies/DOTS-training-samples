@@ -10,6 +10,12 @@ using UnityEngine;
 public partial struct BloodSystem : ISystem
 {
     [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Config>();
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         // Store the destroy commands within a command buffer, this postpones structural changes while iterating through the query results

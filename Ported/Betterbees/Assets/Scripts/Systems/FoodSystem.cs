@@ -4,11 +4,16 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[BurstCompile]
 [UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct FoodSystem : ISystem
 {
     private uint _updateCounter;
+
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Config>();
+    }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)

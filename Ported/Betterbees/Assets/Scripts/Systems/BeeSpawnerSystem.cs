@@ -4,7 +4,6 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Random = Unity.Mathematics.Random;
 
-[BurstCompile]
 public partial struct BeeSpawnerSystem : ISystem
 {
     private uint _updateCounter;
@@ -14,6 +13,7 @@ public partial struct BeeSpawnerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<Config>();
     }
     
     [BurstCompile]
