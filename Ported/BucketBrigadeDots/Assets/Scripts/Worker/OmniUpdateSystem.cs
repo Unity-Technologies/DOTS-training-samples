@@ -24,23 +24,21 @@ public partial struct OmniUpdateSystem : ISystem
             switch (omniState.ValueRW.Value)
             {
                 case OmniStates.Idle:
-                    var bucketPosition = GetRandomBucketPosition(ref state, random);
+                    var bucketPosition = GetRandomBucketPosition(ref state, ref random);
                     nextPosition.ValueRW.Value = bucketPosition;
                     state.EntityManager.SetComponentEnabled<NextPosition>(omniEntity, true);
                     omniState.ValueRW.Value = OmniStates.MovingToBucket;
                     break;
                 case OmniStates.MovingToBucket:
-                    // If NextPosition is not enabled, it means that the omniWorker has reached the bucket.
                     if (!IsMoving(ref state, omniEntity))
                     {
-                        var waterPosition = GetRandomWaterPosition(ref state, random);
+                        var waterPosition = GetRandomWaterPosition(ref state, ref random);
                         nextPosition.ValueRW.Value = waterPosition;
                         state.EntityManager.SetComponentEnabled<NextPosition>(omniEntity, true);
                         omniState.ValueRW.Value = OmniStates.FillingBucket;
                     }
                     break;
                 case OmniStates.FillingBucket:
-                    // If NextPosition is not enabled, it means that the omniWorker has reached the bucket.
                     if (!IsMoving(ref state, omniEntity))
                     {
                         var firePos = GetNearestFirePosition(ref state, nextPosition.ValueRO.Value);
@@ -52,7 +50,10 @@ public partial struct OmniUpdateSystem : ISystem
                 case OmniStates.MovingToFire:
                     if (!IsMoving(ref state, omniEntity))
                     {
-                        UnityEngine.Debug.Log($"PUT OUT FIRE! ");
+                        var omniPosition = nextPosition.ValueRO.Value;
+                        var settings = SystemAPI.GetSingleton<GameSettings>();
+                        var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
+                        SystemUtilities.PutoutFire(omniPosition, in settings, ref temperatures);
                         omniState.ValueRW.Value = OmniStates.Idle;
                     }
                     break;
@@ -66,7 +67,7 @@ public partial struct OmniUpdateSystem : ISystem
         return state.EntityManager.IsComponentEnabled<NextPosition>(entity);
     }
 
-    float2 GetRandomBucketPosition(ref SystemState state, Random random)
+    float2 GetRandomBucketPosition(ref SystemState state, ref Random random)
     {
         var query = SystemAPI.QueryBuilder().WithAll<BucketData, LocalToWorld>().Build();
         var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
@@ -74,7 +75,7 @@ public partial struct OmniUpdateSystem : ISystem
         return transforms[randomIndex].Position.xz;
     }
     
-    float2 GetRandomWaterPosition(ref SystemState state, Random random)
+    float2 GetRandomWaterPosition(ref SystemState state, ref Random random)
     {
         var query = SystemAPI.QueryBuilder().WithAll<WaterCell, LocalToWorld>().Build();
         var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
