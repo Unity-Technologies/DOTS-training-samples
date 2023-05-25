@@ -43,7 +43,7 @@ public partial struct AntsManagementSystem : ISystem
                 homePosition = antTarget.ValueRO.position;
         }
 
-        /*{
+		/*{
 	        //init
 	        float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
 	        
@@ -60,8 +60,10 @@ public partial struct AntsManagementSystem : ISystem
 	        float speed, vx, vy, ovx, ovy;
         }*/
 
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+		/*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
+
+
 	        float2 position = ant.ValueRO.position;
 	        float dx, dy;
 	        var facingAngle = ant.ValueRO.facingAngle;
@@ -95,7 +97,16 @@ public partial struct AntsManagementSystem : ISystem
             }
             #endregion
 
-        }
+        }*/
+
+		var obstacleQuerry = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
+		var obstacles = obstacleQuerry.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
+
+		ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob() 
+		{ config = config, obstacles = obstacles };
+
+		state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
+		state.Dependency.Complete();
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
@@ -346,4 +357,6 @@ public partial struct AntsManagementSystem : ISystem
             return h2 <= circleRadius * circleRadius;
         }
     }
+
+	
 }
