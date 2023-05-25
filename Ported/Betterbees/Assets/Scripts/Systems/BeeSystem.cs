@@ -1,8 +1,10 @@
 using System.Diagnostics;
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Profiling;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -18,6 +20,18 @@ public partial struct BeeSystem : ISystem
 
     private NativeArray<float3> _boundaryNormals;
     private static readonly int _boundaryNormalCount = 3;
+
+    UnsafeList<NativeArray<Entity>> _beeTeams;
+
+    static readonly ProfilerMarker s_PerfMarkerIdle = new ProfilerMarker("Idle");
+    static readonly ProfilerMarker s_PerfMarkerGathering = new ProfilerMarker("Gathering");
+    static readonly ProfilerMarker s_PerfMarkerAttacking = new ProfilerMarker("Attacking");
+
+    static readonly ProfilerMarker s_PerfMarkerRemoveInvalidBeeTarget = new ProfilerMarker("RemoveInvalidBeeTarget");
+    static readonly ProfilerMarker s_PerfMarkerFindBeeTarget = new ProfilerMarker("FindBeeTarget");
+    static readonly ProfilerMarker s_PerfMarkerFindBeeTargetQuery = new ProfilerMarker("FindBeeTargetQuery");
+    static readonly ProfilerMarker s_PerfMarkerFlyToBeeTarget = new ProfilerMarker("FlyToBeeTarget");
+    static readonly ProfilerMarker s_PerfMarkerReturning = new ProfilerMarker("Returning");
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -57,6 +71,8 @@ public partial struct BeeSystem : ISystem
             normal[i] = 1;
             _boundaryNormals[i] = normal;
         }
+
+        _beeTeams = new UnsafeList<NativeArray<Entity>>((int)HiveTag.HiveCount, Allocator.Persistent);
     }
 
     [BurstCompile]
@@ -66,6 +82,8 @@ public partial struct BeeSystem : ISystem
             _boundaryNormals.Dispose();
         if (_availableBeesQueries.IsCreated)
             _availableBeesQueries.Dispose();
+        if (_beeTeams.IsCreated)
+            _beeTeams.Dispose();
     }
 
     [BurstCompile]
@@ -74,6 +92,12 @@ public partial struct BeeSystem : ISystem
         var config = SystemAPI.GetSingleton<Config>();
         var beeSettings = SystemAPI.GetSingleton<BeeSettingsSingletonComponent>();
         var random = Random.CreateFromIndex(_updateCounter++);
+
+        _beeTeams.Clear();
+        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
+            _beeTeams.Add(_availableBeesQueries[0].ToEntityArray(Allocator.Temp));
+
+        var availableFood = _availableFoodSourcesQuery.ToEntityArray(Allocator.Temp);
 
         using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
         {
@@ -86,9 +110,12 @@ public partial struct BeeSystem : ISystem
                 switch (beeState.ValueRO.state)
                 {
                     case BeeState.State.IDLE:
+                        s_PerfMarkerIdle.Begin();
                         Idle(beeState);
+                        s_PerfMarkerIdle.End();
                         break;
                     case BeeState.State.GATHERING:
+                        s_PerfMarkerGathering.Begin();
                         float agression = random.NextFloat();
                         int enemyCount = 0;
                         for (int i = 0; i < (int)HiveTag.HiveCount; i++)
@@ -103,14 +130,19 @@ public partial struct BeeSystem : ISystem
                         }
                         else
                         {
-                            Gathering(entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
+                            Gathering(availableFood, entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
                         }
+                        s_PerfMarkerGathering.End();
                         break;
                     case BeeState.State.ATTACKING:
+                        s_PerfMarkerAttacking.Begin();
                         Attacking(config, entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
+                        s_PerfMarkerAttacking.End();
                         break;
                     case BeeState.State.RETURNING:
+                        s_PerfMarkerReturning.Begin();
                         Returning(entity, beeState, transform, velocity, target, home, ref beeSettings, ref state, commandBuffer);
+                        s_PerfMarkerReturning.End();
                         break;
                 }
 
@@ -183,6 +215,7 @@ public partial struct BeeSystem : ISystem
     }
 
     private void Gathering(
+        in NativeArray<Entity> availableFood,
         Entity beeEntity,
         RefRW<BeeState> beeState,
         RefRW<LocalTransform> transform,
@@ -194,7 +227,7 @@ public partial struct BeeSystem : ISystem
         ref BeeSettingsSingletonComponent beeSettings)
     {
         RemoveInvalidTarget(target);
-        FindFoodTarget(target, beeState, ref random);
+        FindFoodTarget(availableFood, target, beeState, ref random);
         FlyToTarget(beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings);
     }
 
@@ -207,7 +240,7 @@ public partial struct BeeSystem : ISystem
         }
     }
 
-    private void FindFoodTarget(RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random)
+    private void FindFoodTarget(in NativeArray<Entity> availableFood, RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random)
     {
         bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
         if (alreadyHasTarget)
@@ -215,12 +248,10 @@ public partial struct BeeSystem : ISystem
             return;
         }
 
-        var foodEntities = _availableFoodSourcesQuery.ToEntityArray(Allocator.Temp);
-
-        if (foodEntities.Length > 0)
+        if (availableFood.Length > 0)
         {
-            int index = (int)(random.NextUInt() % foodEntities.Length);
-            target.ValueRW.Target = foodEntities[index];
+            int index = (int)(random.NextUInt() % availableFood.Length);
+            target.ValueRW.Target = availableFood[index];
         }
         else
         {
@@ -291,6 +322,7 @@ public partial struct BeeSystem : ISystem
 
     private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target, in BeeState beeState)
     {
+        s_PerfMarkerRemoveInvalidBeeTarget.Begin();
         bool hasInvalidTarget = false;
         if (target.ValueRO.Target != Entity.Null)
         {
@@ -307,17 +339,21 @@ public partial struct BeeSystem : ISystem
         {
             target.ValueRW.Target = Entity.Null;
         }
+        s_PerfMarkerRemoveInvalidBeeTarget.End();
     }
 
     private void FindBeeTarget(RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random, ref SystemState state)
     {
+        s_PerfMarkerFindBeeTarget.Begin();
         bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
         if (alreadyHasTarget)
         {
             return;
         }
 
-        var enemyBees = _availableBeesQueries[EnemyTag(ref random, beeState.ValueRO)].ToEntityArray(Allocator.Temp);
+        s_PerfMarkerFindBeeTargetQuery.Begin();
+        var enemyBees = _beeTeams[EnemyTag(ref random, beeState.ValueRO)];
+        s_PerfMarkerFindBeeTargetQuery.End();
 
         if (enemyBees.Length > 0)
         {
@@ -329,6 +365,7 @@ public partial struct BeeSystem : ISystem
         {
             beeState.ValueRW.state = BeeState.State.IDLE;
         }
+        s_PerfMarkerFindBeeTarget.End();
     }
 
     private void FlyToBeeTarget(
@@ -343,6 +380,7 @@ public partial struct BeeSystem : ISystem
         ref BeeSettingsSingletonComponent beeSettings,
         ref Random random)
     {
+        s_PerfMarkerFlyToBeeTarget.Begin();
         if (target.ValueRO.Target == Entity.Null)
         {
             return;
@@ -386,6 +424,8 @@ public partial struct BeeSystem : ISystem
 
             beeState.ValueRW.state = BeeState.State.IDLE;
         }
+
+        s_PerfMarkerFlyToBeeTarget.End();
     }
 
     private void Returning(
