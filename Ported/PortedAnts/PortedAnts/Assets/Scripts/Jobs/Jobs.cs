@@ -138,3 +138,35 @@ public partial struct LineOfSightJob : IJobEntity
 		return h2 <= circleRadius * circleRadius;
 	}
 }
+
+
+[BurstCompile]
+public partial struct GoalSteeringJob : IJobEntity
+{
+	public Config config;
+	public float2 homePosition, foodPosition;
+	
+	public void Execute(ref Ant ant)
+	{
+		if (ant.hasSpottedTarget)
+		{
+			float2 targetPosition = ant.hasFood ? homePosition : foodPosition;
+			float2 position = ant.position;
+			var facingAngle = ant.facingAngle;
+			float targetAngle = math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
+		            
+			if (targetAngle - facingAngle > math.PI)
+			{
+				ant.facingAngle += math.PI * 2f;
+			}
+			else if (targetAngle - facingAngle < -math.PI)
+			{
+				ant.facingAngle -= math.PI * 2f;
+			}
+			else if (math.abs(targetAngle - facingAngle) < math.PI * .5f)
+			{
+				ant.facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
+			}
+		}
+	}
+}

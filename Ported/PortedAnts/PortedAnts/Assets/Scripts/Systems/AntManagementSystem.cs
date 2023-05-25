@@ -9,33 +9,33 @@ using UnityEngine;
 
 public partial struct AntsManagementSystem : ISystem
 {
-	private uint RandomSeed;
-	
-	[BurstCompile] 
+    private uint RandomSeed;
+
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-	    RandomSeed = 1;
+        RandomSeed = 1;
         state.RequireForUpdate<Ant>();
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<Pheromone>();
     }
-    
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-	    var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
-	    if (pheromones.Length <= 0)
-	    {
-		    return;
-	    }
-	    
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>().Reinterpret<short>();
+        if (pheromones.Length <= 0)
+        {
+            return;
+        }
+
         var random = Unity.Mathematics.Random.CreateFromIndex(RandomSeed++); //this should be centralised
 
         var config = SystemAPI.GetSingleton<Config>();
 
         float2 foodPosition = float2.zero, homePosition = float2.zero;
 
-        foreach(var antTarget in SystemAPI.Query<RefRO<AntsTarget>>())
+        foreach (var antTarget in SystemAPI.Query<RefRO<AntsTarget>>())
         {
             if (!antTarget.ValueRO.isHome)
                 foodPosition = antTarget.ValueRO.position;
@@ -43,193 +43,186 @@ public partial struct AntsManagementSystem : ISystem
                 homePosition = antTarget.ValueRO.position;
         }
 
-		/*{
-	        //init
-	        float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-	        
-	        float2 position = ant.ValueRO.position;
+        /*{
+            //init
+            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+            
+            float2 position = ant.ValueRO.position;
 
-	        var facingAngle = ant.ValueRO.facingAngle;
+            var facingAngle = ant.ValueRO.facingAngle;
 
-	        float2 directionToTarget;
-	        float distanceToTarget;
+            float2 directionToTarget;
+            float distanceToTarget;
 
-	        var isTargetVisible = true;
-	        float dx, dy, dist;
+            var isTargetVisible = true;
+            float dx, dy, dist;
 
-	        float speed, vx, vy, ovx, ovy;
+            float speed, vx, vy, ovx, ovy;
         }*/
 
-		
-		var obstacleQuerry = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
-		var obstacles = obstacleQuerry.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
+        var obstacleQuerry = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
+        var obstacles = obstacleQuerry.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
 
-		ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob() 
-		{ config = config, obstacles = obstacles };
+        ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob()
+            { config = config, obstacles = obstacles };
 
-		state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
-		
-		RandomSteeringJob randomSteeringJob = new RandomSteeringJob() { config = config, random = random };
-		state.Dependency = randomSteeringJob.ScheduleParallel(state.Dependency);
+        state.Dependency = obstacleAvoidanceJob.ScheduleParallel(state.Dependency);
 
-		PheromoneSteeringJob pheromoneSteeringJob = new PheromoneSteeringJob() { config = config, pheromones = pheromones };
-		state.Dependency = pheromoneSteeringJob.ScheduleParallel(state.Dependency);
+        RandomSteeringJob randomSteeringJob = new RandomSteeringJob() { config = config, random = random };
+        state.Dependency = randomSteeringJob.ScheduleParallel(state.Dependency);
 
-		LineOfSightJob lineOfSightJob = new LineOfSightJob() { config = config, obstacles = obstacles, homePosition = homePosition, foodPosition = foodPosition };
-		state.Dependency = lineOfSightJob.ScheduleParallel(state.Dependency);
+        PheromoneSteeringJob pheromoneSteeringJob = new PheromoneSteeringJob() { config = config, pheromones = pheromones };
+        state.Dependency = pheromoneSteeringJob.ScheduleParallel(state.Dependency);
 
+        LineOfSightJob lineOfSightJob = new LineOfSightJob() { config = config, obstacles = obstacles, homePosition = homePosition, foodPosition = foodPosition };
+        state.Dependency = lineOfSightJob.ScheduleParallel(state.Dependency);
+
+        GoalSteeringJob goalSteeringJob = new GoalSteeringJob() { config = config, homePosition = homePosition, foodPosition = foodPosition };
+        state.Dependency = goalSteeringJob.ScheduleParallel(state.Dependency);
 
         state.Dependency.Complete();
-
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-            #region goal steering
-            {
-	            if (ant.ValueRO.hasSpottedTarget)
-	            {
-		            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-		            float2 position = ant.ValueRO.position;
-		            var facingAngle = ant.ValueRO.facingAngle;
-		            float targetAngle = math.atan2(targetPosition.y - position.y, targetPosition.x - position.x);
-		            
-		            if (targetAngle - facingAngle > math.PI)
-		            {
-			            ant.ValueRW.facingAngle += math.PI * 2f;
-		            }
-		            else if (targetAngle - facingAngle < -math.PI)
-		            {
-			            ant.ValueRW.facingAngle -= math.PI * 2f;
-		            }
-		            else if (math.abs(targetAngle - facingAngle) < math.PI * .5f)
-		            {
-			            ant.ValueRW.facingAngle += (targetAngle - facingAngle) * config.GoalSteerStrength;
-		            }
-	            }
-            }
-            #endregion
-            
-        } 
-
+    
         foreach (var (ant, transform, color) in SystemAPI.Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
         {
-	        float speed, vx, vy, ovx, ovy;
-	        float dx, dy, dist;
-	        
-	        float2 position = ant.ValueRO.position;
+            float speed, vx, vy, ovx, ovy;
+            float dx, dy, dist;
 
-	        var facingAngle = ant.ValueRO.facingAngle;
+            float2 position = ant.ValueRO.position;
+
+            var facingAngle = ant.ValueRO.facingAngle;
+
             #region movement
+
             {
-	            speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
+                speed = ant.ValueRO.speed * SystemAPI.Time.DeltaTime;
 
-	            vx = math.cos(facingAngle) * speed;
-	            vy = math.sin(facingAngle) * speed;
-	            ovx = vx;
-	            ovy = vy;
+                vx = math.cos(facingAngle) * speed;
+                vy = math.sin(facingAngle) * speed;
+                ovx = vx;
+                ovy = vy;
 
-	            if (position.x + vx < 0f || position.x + vx > config.MapSize)
-	            {
-		            vx = -vx;
-	            }
+                if (position.x + vx < 0f || position.x + vx > config.MapSize)
+                {
+                    vx = -vx;
+                }
 
-	            position.x += vx;
+                position.x += vx;
 
-	            if (position.y + vy < 0f || position.y + vy > config.MapSize)
-	            {
-		            vy = -vy;
-	            }
+                if (position.y + vy < 0f || position.y + vy > config.MapSize)
+                {
+                    vy = -vy;
+                }
 
-	            position.y += vy;
+                position.y += vy;
             }
+
             #endregion
+
             #region target collision reponse
+
             {
-	            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-	            var directionToTarget = targetPosition - position;
-	            var distanceToTarget = math.lengthsq(directionToTarget);
-	            if (distanceToTarget < config.TargetRadius * config.TargetRadius)
-	            {
-		            ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
-		            color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
-		            facingAngle += math.PI;
-	            }
+                float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
+                var directionToTarget = targetPosition - position;
+                var distanceToTarget = math.lengthsq(directionToTarget);
+                if (distanceToTarget < config.TargetRadius * config.TargetRadius)
+                {
+                    ant.ValueRW.hasFood = !ant.ValueRO.hasFood;
+                    color.ValueRW.Value = ant.ValueRO.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
+                    facingAngle += math.PI;
+                }
             }
+
             #endregion
+
             #region obstacle collision response
-            {
-	            foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
-	            {
-		            dx = position.x - obstacle.ValueRO.position.x;
-		            dy = position.y - obstacle.ValueRO.position.y;
-		            float sqrDist = dx * dx + dy * dy;
-		            if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
-		            {
-			            dist = math.sqrt(sqrDist);
-			            dx /= dist;
-			            dy /= dist;
-			            position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
-			            position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
 
-			            vx -= dx * (dx * vx + dy * vy) * 1.5f;
-			            vy -= dy * (dx * vx + dy * vy) * 1.5f;
-		            }
-	            }
+            {
+                foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
+                {
+                    dx = position.x - obstacle.ValueRO.position.x;
+                    dy = position.y - obstacle.ValueRO.position.y;
+                    float sqrDist = dx * dx + dy * dy;
+                    if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
+                    {
+                        dist = math.sqrt(sqrDist);
+                        dx /= dist;
+                        dy /= dist;
+                        position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
+                        position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
+
+                        vx -= dx * (dx * vx + dy * vy) * 1.5f;
+                        vy -= dy * (dx * vx + dy * vy) * 1.5f;
+                    }
+                }
             }
+
             #endregion
+
             #region post collision
-            {
-	            if (ovx != vx || ovy != vy)
-	            {
-		            facingAngle = math.atan2(vy, vx);
-	            }
-            }
-            #endregion
-            #region pheromone drop
-            {
-	            float excitement = .3f;
-	            if (ant.ValueRO.hasFood)
-	            {
-		            excitement = 1f;
-	            }
 
-	            //excitement *= ant.ValueRO.speed / antSpeed;
-	            DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
-		            SystemAPI.Time.DeltaTime);
+            {
+                if (ovx != vx || ovy != vy)
+                {
+                    facingAngle = math.atan2(vy, vx);
+                }
             }
+
             #endregion
+
+            #region pheromone drop
+
+            {
+                float excitement = .3f;
+                if (ant.ValueRO.hasFood)
+                {
+                    excitement = 1f;
+                }
+
+                //excitement *= ant.ValueRO.speed / antSpeed;
+                DropPheromones(position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
+                    SystemAPI.Time.DeltaTime);
+            }
+
+            #endregion
+
             #region write to ant
+
             {
-	            ant.ValueRW.facingAngle = facingAngle;
-	            ant.ValueRW.position = position;
+                ant.ValueRW.facingAngle = facingAngle;
+                ant.ValueRW.position = position;
             }
+
             #endregion
+
             #region update transform
+
             {
-	            transform.ValueRW = LocalTransform.FromPositionRotationScale(
-		            new float3(position.x, 0f, position.y),
-		            quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
-		            config.AntRadius * 2);
+                transform.ValueRW = LocalTransform.FromPositionRotationScale(
+                    new float3(position.x, 0f, position.y),
+                    quaternion.AxisAngle(new float3(0, 1, 0), -facingAngle),
+                    config.AntRadius * 2);
             }
+
             #endregion
         }
 
         void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
-	        DynamicBuffer<short> pheromones, float deltaTime)
+            DynamicBuffer<short> pheromones, float deltaTime)
         {
-	        int x = (int)math.floor(position.x);
-	        int y = (int)math.floor(position.y);
-	        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
-	        {
-		        return;
-	        }
+            int x = (int)math.floor(position.x);
+            int y = (int)math.floor(position.y);
+            if (x < 0 || y < 0 || x >= mapSize || y >= mapSize)
+            {
+                return;
+            }
 
-	        int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
-	        pheromones[index] +=
-		        (short)math.floor(trailAddSpeed * short.MaxValue * strength * deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
-	        if (pheromones[index] > short.MaxValue - 1)
-	        {
-		        pheromones[index] = short.MaxValue;
-	        }
+            int index = ((mapSize - 1) - x) + ((mapSize - 1) - y) * mapSize;
+            pheromones[index] +=
+                (short)math.floor(trailAddSpeed * short.MaxValue * strength * deltaTime * ((short.MaxValue - pheromones[index]) / (float)short.MaxValue));
+            if (pheromones[index] > short.MaxValue - 1)
+            {
+                pheromones[index] = short.MaxValue;
+            }
         }
 
         /*bool Linecast(float2 point1, float2 point2)
@@ -255,7 +248,7 @@ public partial struct AntsManagementSystem : ISystem
         {
             float2 AC = circlePosition - lineStart;
             float2 AB = lineEnd - lineStart;
-            float ab2 = AB.x * AB.x + AB.y * AB.y;// + AB.z * AB.z;
+            float ab2 = AB.x * AB.x + AB.y * AB.y; // + AB.z * AB.z;
             float acab = math.dot(AC, AB);
             float t = acab / ab2;
             if (t < 0)
@@ -267,6 +260,4 @@ public partial struct AntsManagementSystem : ISystem
             return h2 <= circleRadius * circleRadius;
         }
     }
-
-	
 }
