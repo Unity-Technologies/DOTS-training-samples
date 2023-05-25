@@ -203,6 +203,7 @@ MonoBehaviour:
   BucketFullColor: {r: 0.0627451, g: 0.47058824, b: 0.654902, a: 1}
   WorkerFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 1}
   WorkerEmptyColor: {r: 0.93333334, g: 0.7529412, b: 0.9254902, a: 1}
+  WorkerOmniColor: {r: 0.1254902, g: 0.1254902, b: 0.1254902, a: 1}
 --- !u!4 &867655830
 Transform:
   m_ObjectHideFlags: 0
@@ -341,8 +342,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WorkerPrefab: {fileID: 6054936227776843098, guid: 0e894ee8ccbcc4cb9829feb810c98ef2,
     type: 3}
-  NumberOfTeams: 2
-  WorkersPerTeam: 40
+  NumberOfTeams: 1
+  WorkersPerTeam: 4
 --- !u!4 &1764833416
 Transform:
   m_ObjectHideFlags: 0

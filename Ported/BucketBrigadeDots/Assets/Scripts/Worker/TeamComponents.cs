@@ -13,6 +13,7 @@ public struct TeamSpawner : IComponentData
     public Entity WorkerPrefab;
     public int NumberOfTeams;
     public int WorkersPerTeam;
+    public int OmniWorkers;
 }
 
 public struct TeamData : IComponentData

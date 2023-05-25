@@ -12,6 +12,7 @@ public class GameSettingsAuthoring : MonoBehaviour
     public Color WorkerFullColor = new Color32(197, 236, 188, 255);
     public Color WorkerEmptyColor = new Color32(238, 192, 236, 255);
     public Color RunnerWorkerColor = new Color32(0, 255, 39, 255);
+    public Color WorkerOmniColor = new Color32(32, 32, 32, 255);
 
     class Baker : Baker<GameSettingsAuthoring>
     {
@@ -22,11 +23,13 @@ public class GameSettingsAuthoring : MonoBehaviour
             {
                 RowsAndColumns = authoring.GridWidth,
                 StartingFires = authoring.StartingFires,
+                DefaultGridSize = 0.3f,
                 BucketEmptyColor = authoring.BucketEmptyColor.ToFloat4(),
                 BucketFullColor = authoring.BucketFullColor.ToFloat4(),
                 WorkerEmptyColor = authoring.WorkerEmptyColor.ToFloat4(),
                 WorkerFullColor = authoring.WorkerFullColor.ToFloat4(),
-                RunnerWorkerColor = authoring.RunnerWorkerColor.ToFloat4()
+                RunnerWorkerColor = authoring.RunnerWorkerColor.ToFloat4(),
+                WorkerOmniColor = authoring.WorkerOmniColor.ToFloat4()
             });
         }
     }
@@ -36,11 +39,13 @@ public struct GameSettings : IComponentData
 {
     public int RowsAndColumns;
     public int StartingFires;
+    public float DefaultGridSize;
     public float4 BucketEmptyColor;
     public float4 BucketFullColor;
     public float4 WorkerEmptyColor;
     public float4 WorkerFullColor;
     public float4 RunnerWorkerColor;
+    public float4 WorkerOmniColor;
 
     public int Size => RowsAndColumns * RowsAndColumns;
 }
