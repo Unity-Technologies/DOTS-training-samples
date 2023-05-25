@@ -42,13 +42,15 @@ public static class SystemUtilities
 
         closestPos = float2.zero;
         var closestDist = float.MaxValue;
-        
+
+        var random = Random.CreateFromIndex((uint)currentPosition.GetHashCode());
         for (var i = 0; i < size; i++)
         {
             if (temperatures[i] <= 0f) continue;
             
             var firePosition = new float2((i % cols) * settings.DefaultGridSize, (i / cols) * settings.DefaultGridSize);
             var dist = math.distancesq(currentPosition, firePosition);
+            dist += random.NextFloat(0, 10f);
             if (dist < closestDist)
             {
                 closestDist = dist;
@@ -65,10 +67,12 @@ public static class SystemUtilities
         closestPos = float2.zero;
         var closestDist = float.MaxValue;
 
+        var random = Random.CreateFromIndex((uint)currentPosition.GetHashCode());
         for (var i = 0; i < transforms.Length; i++)
         {
             var waterPosition = transforms[i].Position.xz;
             var dist = math.distancesq(currentPosition, waterPosition);
+            dist += random.NextFloat(0, 10f);
             if (dist < closestDist)
             {
                 closestDist = dist;
