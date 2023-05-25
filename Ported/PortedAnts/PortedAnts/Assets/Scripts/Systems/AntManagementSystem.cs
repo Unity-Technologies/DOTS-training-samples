@@ -121,9 +121,12 @@ public partial struct AntsManagementSystem : ISystem
 		RandomSteeringJob randomSteeringJob = new RandomSteeringJob() { config = config, random = random };
 		state.Dependency = randomSteeringJob.ScheduleParallel(state.Dependency);
 
+		PheromoneSteeringJob pheromoneSteeringJob = new PheromoneSteeringJob() { config = config, pheromones = pheromones };
+		state.Dependency = pheromoneSteeringJob.ScheduleParallel(state.Dependency);
+
 		state.Dependency.Complete();
 
-		foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
+		/*foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
             #region pheromone steering
             {
@@ -132,7 +135,7 @@ public partial struct AntsManagementSystem : ISystem
             }
             #endregion
             
-        }
+        }*/
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
@@ -282,30 +285,6 @@ public partial struct AntsManagementSystem : ISystem
 		            config.AntRadius * 2);
             }
             #endregion
-        }
-
-        float PheromoneSteering(Ant ant, float distance, int mapSize, ref DynamicBuffer<short> pheromones)
-        {
-	        int output = 0;
-
-            for (int i = -1; i <= 1; i += 2)
-            {
-                float angle = ant.facingAngle + i * math.PI * .25f;
-                float testX = ant.position.x + math.cos(angle) * distance;
-                float testY = ant.position.y + math.sin(angle) * distance;
-
-                if (testX < 0 || testY < 0 || testX >= mapSize || testY >= mapSize)
-                {
-
-                }
-                else
-                {
-                    int index = ((mapSize - 1) - (int)math.floor(testX)) + ((mapSize - 1) - (int)math.floor(testY)) * mapSize;
-                    short value = pheromones[index];
-                    output += value * i;
-                }
-            }
-            return math.sign(output);
         }
 
         void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,
