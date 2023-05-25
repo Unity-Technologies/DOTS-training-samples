@@ -1,71 +1,51 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateBefore(typeof(TransformSystemGroup))]
+[UpdateInGroup(typeof(PresentationSystemGroup))]
 public partial struct WaterAndFireLocatorSystem : ISystem
 {
-    const float k_DefaultGridSize = 0.3f;
-    
+    bool m_HasSetLocations;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<GameSettings>();
+        state.RequireForUpdate<FireTemperature>();
     }
     
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space))
+        if (!m_HasSetLocations)
         {
-            var gameSetting = SystemAPI.GetSingleton<GameSettings>();
-
-            var random = Random.CreateFromIndex((uint)SystemAPI.Time.ElapsedTime);
-            foreach (var (teamData, teamState) in SystemAPI.Query<
-                         RefRW<TeamData>, 
-                         RefRW<TeamState>>())
-            {
-                teamData.ValueRW.WaterPosition = GetRandomWaterPosition(ref state, ref random);
-                teamData.ValueRW.FirePosition = GetNearestFirePosition(ref teamData.ValueRW.WaterPosition);
-                teamState.ValueRW.Value = TeamStates.Idle;
-            }
+            SetFireAndWaterLocations(ref state);
+            m_HasSetLocations = true;
         }
+        
+        if (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space))
+            SetFireAndWaterLocations(ref state);
     }
 
-    private float2 GetNearestFirePosition(ref float2 waterPos)
+    void SetFireAndWaterLocations(ref SystemState state)
     {
         var settings = SystemAPI.GetSingleton<GameSettings>();
         var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
-
-        var cols = settings.RowsAndColumns;
-        var size = settings.Size;
-        
-        var closestPos = new float2();
-        var closestDist = float.MaxValue;
-        
-        for (var i = 0; i < size; i++)
+        var waterQuery = SystemAPI.QueryBuilder().WithAll<WaterCell, LocalToWorld>().Build();
+        var random = Random.CreateFromIndex((uint)(SystemAPI.Time.DeltaTime * 10000));
+        foreach (var (teamData, teamState) in SystemAPI.Query<
+                     RefRW<TeamData>, 
+                     RefRW<TeamState>>())
         {
-            if (temperatures[i] <= 0f) continue;
-            
-            var currentPos = new float2((i % cols) * k_DefaultGridSize, (i / cols) * k_DefaultGridSize);
-            var dist = math.distancesq(waterPos, currentPos);
-            if (dist < closestDist)
-            {
-                closestDist = dist;
-                closestPos = currentPos;
-            }
-        }
-
-        return closestPos;
-    }
-
-    float2 GetRandomWaterPosition(ref SystemState state, ref Random random)
-    {
-        var query = SystemAPI.QueryBuilder().WithAll<WaterCell, LocalToWorld>().Build();
-        var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
-        var randomIndex = random.NextInt(0, transforms.Length);
-        return transforms[randomIndex].Position.xz;
+            var randomPos = random.NextFloat2(float2.zero, settings.RowsAndColumns * settings.DefaultGridSize);
+            SystemUtilities.GetNearestWaterPosition(in randomPos, in settings, in waterQuery, out var waterPosition);
+            teamData.ValueRW.WaterPosition = waterPosition;
+                
+            SystemUtilities.GetNearestFirePosition(in waterPosition, in settings, in temperatures, out var firePosition);
+            teamData.ValueRW.FirePosition = firePosition;
+                
+            teamState.ValueRW.Value = TeamStates.Idle;
+        }        
     }
 }
