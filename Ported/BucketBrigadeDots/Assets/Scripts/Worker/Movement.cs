@@ -17,6 +17,9 @@ class Movement {
         var direction = math.normalize(delta);
 
         var moveAmount = direction * 10f * deltaTime;
+        if (math.length(moveAmount) > length)
+            moveAmount = direction * length;
+        
         transform.Position += new float3(moveAmount.x, 0f, moveAmount.y);
         return false;
     }
