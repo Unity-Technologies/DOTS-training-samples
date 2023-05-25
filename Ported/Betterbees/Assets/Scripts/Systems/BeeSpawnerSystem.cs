@@ -111,6 +111,9 @@ public partial struct BeeSpawnerSystem : ISystem
                     ecb.AddComponent(newBee, new HiveOrange());
                     break;
             }
+
+            ecb.AddComponent(newBee, new DeadBee());
+            ecb.SetComponentEnabled(newBee, typeof(DeadBee), false);
         }
     }
 }

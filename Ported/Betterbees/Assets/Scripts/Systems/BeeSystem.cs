@@ -25,6 +25,7 @@ public partial struct BeeSystem : ISystem
 
     UnsafeList<NativeArray<Entity>> _beeTeams;
     public ComponentLookup<LocalTransform> _localTransformLookup;
+    public ComponentLookup<TargetComponent> _targetComponentLookup;
 
     static readonly ProfilerMarker s_PerfMarkerIdle = new ProfilerMarker("Idle");
     static readonly ProfilerMarker s_PerfMarkerGathering = new ProfilerMarker("Gathering");
@@ -55,7 +56,7 @@ public partial struct BeeSystem : ISystem
                 .WithAll<BeeState, HiveYellow>();
             _availableBeesQueries[(int)HiveTag.HiveYellow] = state.GetEntityQuery(builder);
         }
-        { 
+        {
             var builder = new EntityQueryBuilder(Allocator.Temp)
                 .WithAll<BeeState, HiveBlue>();
             _availableBeesQueries[(int)HiveTag.HiveBlue] = state.GetEntityQuery(builder);
@@ -78,6 +79,7 @@ public partial struct BeeSystem : ISystem
         _enemyCounts = new NativeArray<int>((int)HiveTag.HiveCount, Allocator.Persistent);
 
         _localTransformLookup = state.GetComponentLookup<LocalTransform>(true);
+        _targetComponentLookup = state.GetComponentLookup<TargetComponent>(true);
     }
 
     [BurstCompile]
@@ -119,6 +121,7 @@ public partial struct BeeSystem : ISystem
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
         _localTransformLookup.Update(ref state);
+        _targetComponentLookup.Update(ref state);
 
         var beeJob = new BeeJob
         {
@@ -143,8 +146,16 @@ public partial struct BeeSystem : ISystem
         // depends on bee job since it modifies transforms which have to be constant in bee job
         var rotationAndScaleJobHandle = rotationAndScaleJob.ScheduleParallel(beeJobHandle);
 
-        state.Dependency = JobHandle.CombineDependencies(beeJobHandle, rotationAndScaleJobHandle);
-    }   
+        var ecbDeadBeeJob = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        var deadBeeJob = new DeadBeeJob
+        {
+            _commandBuffer = ecbDeadBeeJob.AsParallelWriter(),
+            _targetComponentLookup = _targetComponentLookup
+        };
+        var deadBeeJobHandle = deadBeeJob.ScheduleParallel(rotationAndScaleJobHandle);
+
+        state.Dependency = JobHandle.CombineDependencies(beeJobHandle, rotationAndScaleJobHandle, deadBeeJobHandle);
+    }
 
     [BurstCompile]
     private partial struct BeeJob : IJobEntity
@@ -438,16 +449,7 @@ public partial struct BeeSystem : ISystem
                     _commandBuffer.SetComponent(chunkIndex, blood, new VelocityComponent { Velocity = _random.NextFloat3() });
                 }
 
-                /*
-                var targetBeeState = _beeStateLookup[target.Target];
-                if (targetBeeState.state == BeeState.State.RETURNING)
-                {
-                    var foodTarget = _targetComponentLookup[target.Target];
-                    _commandBuffer.SetComponent<LocalTransform>(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(targetTransform.Position));
-                }
-                */
-                
-                _commandBuffer.DestroyEntity(chunkIndex, target.Target);
+                _commandBuffer.SetComponentEnabled(chunkIndex, target.Target, typeof(DeadBee), true);
 
                 beeState.state = BeeState.State.IDLE;
             }
@@ -511,6 +513,29 @@ public partial struct BeeSystem : ISystem
             float3 localScale = new float3(sideScale, sideScale, forwardScale);
 
             postTransformMatrix.Value = float4x4.Scale(localScale);
+        }
+    }
+
+    [BurstCompile]
+    private partial struct DeadBeeJob : IJobEntity
+    {
+        [ReadOnly]
+        public ComponentLookup<TargetComponent> _targetComponentLookup;
+        public EntityCommandBuffer.ParallelWriter _commandBuffer;
+
+        public void Execute(in DeadBee deadBee, in BeeState beeState, in LocalTransform transform, in Entity entity, [ChunkIndexInQuery] int chunkIndex)
+        {
+            if (beeState.state == BeeState.State.RETURNING)
+            {
+                var target = _targetComponentLookup[entity];
+                if (target.Target == Entity.Null)
+                    return;
+                
+                var foodTarget = _targetComponentLookup[target.Target];
+                _commandBuffer.SetComponent<LocalTransform>(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(transform.Position));
+
+            }
+            _commandBuffer.DestroyEntity(chunkIndex, entity);
         }
     }
 }
