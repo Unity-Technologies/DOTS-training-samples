@@ -42,26 +42,10 @@ public partial struct AntsManagementSystem : ISystem
             else
                 homePosition = antTarget.ValueRO.position;
         }
+        
 
-        /*{
-            //init
-            float2 targetPosition = ant.ValueRO.hasFood ? homePosition : foodPosition;
-            
-            float2 position = ant.ValueRO.position;
-
-            var facingAngle = ant.ValueRO.facingAngle;
-
-            float2 directionToTarget;
-            float distanceToTarget;
-
-            var isTargetVisible = true;
-            float dx, dy, dist;
-
-            float speed, vx, vy, ovx, ovy;
-        }*/
-
-        var obstacleQuerry = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
-        var obstacles = obstacleQuerry.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
+        var obstacleQuery = SystemAPI.QueryBuilder().WithAll<Obstacle>().Build();
+        var obstacles = obstacleQuery.ToComponentDataArray<Obstacle>(state.WorldUpdateAllocator);
 
         ObstacleAvoidanceJob obstacleAvoidanceJob = new ObstacleAvoidanceJob()
             { config = config, obstacles = obstacles };
@@ -80,95 +64,40 @@ public partial struct AntsManagementSystem : ISystem
         GoalSteeringJob goalSteeringJob = new GoalSteeringJob() { config = config, homePosition = homePosition, foodPosition = foodPosition };
         state.Dependency = goalSteeringJob.ScheduleParallel(state.Dependency);
         
-        AntsMovementJob antsMovementJob = new AntsMovementJob() { config = config};
+        AntsMovementJob antsMovementJob = new AntsMovementJob() { config = config, deltaTime = SystemAPI.Time.DeltaTime };
         state.Dependency = antsMovementJob.ScheduleParallel(state.Dependency);
         
         TargetCollisionJob targetCollisionJob = new TargetCollisionJob() { config = config, homePosition = homePosition, foodPosition = foodPosition };
         state.Dependency = targetCollisionJob.ScheduleParallel(state.Dependency);
 
+        ObstacleCollisionResponseJob obstacleCollisionResponseJob = new ObstacleCollisionResponseJob()
+            { config = config, obstacles = obstacles };
+        state.Dependency = obstacleCollisionResponseJob.ScheduleParallel(state.Dependency);
+        
+        PostCollisionUpdateJob postCollisionUpdateJob = new PostCollisionUpdateJob();
+        state.Dependency = postCollisionUpdateJob.ScheduleParallel(state.Dependency);
+
+        UpdateTransformJob updateTransformJob = new UpdateTransformJob() { config = config };
+        state.Dependency = updateTransformJob.ScheduleParallel(state.Dependency);
+
         state.Dependency.Complete();
 
-        foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
-        {
-
-            #region obstacle collision response
-
-            {
-                float dx, dy, dist;
-                
-                foreach (var obstacle in SystemAPI.Query<RefRO<Obstacle>>())
-                {
-                    dx = ant.ValueRO.position.x - obstacle.ValueRO.position.x;
-                    dy = ant.ValueRO.position.y - obstacle.ValueRO.position.y;
-                    float sqrDist = dx * dx + dy * dy;
-                    if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
-                    {
-                        dist = math.sqrt(sqrDist);
-                        dx /= dist;
-                        dy /= dist;
-                        ant.ValueRW.position.x = obstacle.ValueRO.position.x + dx * config.ObstacleRadius;
-                        ant.ValueRW.position.y = obstacle.ValueRO.position.y + dy * config.ObstacleRadius;
-
-                        vx -= dx * (dx * vx + dy * vy) * 1.5f;
-                        vy -= dy * (dx * vx + dy * vy) * 1.5f;
-                    }
-                }
-            }
-
-            #endregion
-        }
-
-        foreach (var (ant, transform, color) in SystemAPI
-                     .Query<RefRW<Ant>, RefRW<LocalTransform>, RefRW<URPMaterialPropertyBaseColor>>())
-        {
-
-            #region post collision
-
-            {
-                if (ovx != vx || ovy != vy)
-                {
-                    ant.ValueRW.facingAngle = math.atan2(vy, vx);
-                }
-            }
-
-            #endregion
-
-        }
+        #region pheromone drop
 
         foreach (var ant in SystemAPI.Query<RefRW<Ant>>())
         {
-            #region pheromone drop
-
+            float excitement = .3f;
+            if (ant.ValueRO.hasFood)
             {
-                float excitement = .3f;
-                if (ant.ValueRO.hasFood)
-                {
-                    excitement = 1f;
-                }
-
-                //excitement *= ant.ValueRO.speed / antSpeed;
-                DropPheromones(ant.ValueRO.position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
-                    SystemAPI.Time.DeltaTime);
+                excitement = 1f;
             }
 
-            #endregion
-
+            //excitement *= ant.ValueRO.speed / antSpeed;
+            DropPheromones(ant.ValueRO.position, excitement, config.MapSize, config.PheromoneAddSpeed, pheromones,
+                SystemAPI.Time.DeltaTime);
         }
 
-        foreach (var (ant, transform) in SystemAPI
-                     .Query<RefRO<Ant>, RefRW<LocalTransform>>())
-        {
-            #region update transform
-
-            {
-                transform.ValueRW = LocalTransform.FromPositionRotationScale(
-                    new float3(ant.ValueRO.position.x, 0f, ant.ValueRO.position.y),
-                    quaternion.AxisAngle(new float3(0, 1, 0), -ant.ValueRO.facingAngle),
-                    config.AntRadius * 2);
-            }
-
-            #endregion
-        }
+        #endregion
     }
 
     void DropPheromones(Vector2 position, float strength, int mapSize, float trailAddSpeed,

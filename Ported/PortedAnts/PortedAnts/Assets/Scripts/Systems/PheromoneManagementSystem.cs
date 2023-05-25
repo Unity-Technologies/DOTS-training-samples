@@ -1,5 +1,6 @@
 using System;
 using Components;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
@@ -9,6 +10,8 @@ using UnityEngine;
 public partial struct PheromoneManagementSystem : ISystem
 {
     private bool HasInitedBuffer;
+    
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         HasInitedBuffer = false;
@@ -16,6 +19,7 @@ public partial struct PheromoneManagementSystem : ISystem
         state.RequireForUpdate<Config>();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
@@ -38,8 +42,6 @@ public partial struct PheromoneManagementSystem : ISystem
         if (PheromoneTextureView.PheromoneTex == null)
         {
             PheromoneTextureView.Initialize(config.MapSize);
-            
-            
         }
 
         var pixels = pheromones.AsNativeArray().Reinterpret<short>();

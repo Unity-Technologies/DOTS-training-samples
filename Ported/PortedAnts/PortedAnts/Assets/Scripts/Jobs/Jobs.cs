@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
+using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
@@ -176,10 +177,11 @@ public partial struct GoalSteeringJob : IJobEntity
 public partial struct AntsMovementJob : IJobEntity
 {
 	public Config config;
+	public float deltaTime;
 	
 	public void Execute(ref Ant ant)
 	{
-		float speed = ant.speed * Time.deltaTime;
+		float speed = ant.speed * deltaTime;
 
 		ant.vx = math.cos(ant.facingAngle) * speed;
 		ant.vy = math.sin(ant.facingAngle) * speed;
@@ -218,6 +220,61 @@ public partial struct TargetCollisionJob : IJobEntity
 			ant.hasFood = !ant.hasFood;
 			color.Value = ant.hasFood ? config.AntHasFoodColor : config.AntHasNoFoodColor;
 			ant.facingAngle += math.PI;
+		}
+	}
+}
+
+[BurstCompile]
+public partial struct UpdateTransformJob : IJobEntity
+{
+	public Config config;
+	
+	public void Execute(Ant ant, ref LocalTransform transform)
+	{
+		transform = LocalTransform.FromPositionRotationScale(
+			new float3(ant.position.x, 0f, ant.position.y),
+			quaternion.AxisAngle(new float3(0, 1, 0), -ant.facingAngle),
+			config.AntRadius * 2);
+	}
+}
+
+[BurstCompile]
+public partial struct PostCollisionUpdateJob : IJobEntity
+{
+	public void Execute(ref Ant ant)
+	{
+		if (ant.ovx != ant.vx || ant.ovy != ant.vy)
+		{
+			ant.facingAngle = math.atan2(ant.vy, ant.vx);
+		}
+	}
+}
+
+[BurstCompile]
+public partial struct ObstacleCollisionResponseJob : IJobEntity
+{
+	public Config config;
+	[ReadOnly] public NativeArray<Obstacle> obstacles;
+	
+	public void Execute(ref Ant ant)
+	{
+		float dx, dy, dist;
+		foreach (var obstacle in obstacles)
+		{
+			dx = ant.position.x - obstacle.position.x;
+			dy = ant.position.y - obstacle.position.y;
+			float sqrDist = dx * dx + dy * dy;
+			if (sqrDist < config.ObstacleRadius * config.ObstacleRadius)
+			{
+				dist = math.sqrt(sqrDist);
+				dx /= dist;
+				dy /= dist;
+				ant.position.x = obstacle.position.x + dx * config.ObstacleRadius;
+				ant.position.y = obstacle.position.y + dy * config.ObstacleRadius;
+
+				ant.vx -= dx * (dx * ant.vx + dy * ant.vy) * 1.5f;
+				ant.vy -= dy * (dx * ant.vx + dy * ant.vy) * 1.5f;
+			}
 		}
 	}
 }
