@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Profiling;
 using Unity.Transforms;
@@ -15,13 +16,15 @@ public partial struct BeeSystem : ISystem
 {
     private EntityQuery _availableFoodSourcesQuery;
     private NativeArray<EntityQuery> _availableBeesQueries;
+    private NativeArray<int> _enemyCounts;
     private uint _updateCounter;
-    private float3 _halfFloat;
+    private static float3 _halfFloat = new float3(0.5f, 0.5f, 0.5f);
 
     private NativeArray<float3> _boundaryNormals;
     private static readonly int _boundaryNormalCount = 3;
 
     UnsafeList<NativeArray<Entity>> _beeTeams;
+    public ComponentLookup<LocalTransform> _localTransformLookup;
 
     static readonly ProfilerMarker s_PerfMarkerIdle = new ProfilerMarker("Idle");
     static readonly ProfilerMarker s_PerfMarkerGathering = new ProfilerMarker("Gathering");
@@ -39,7 +42,6 @@ public partial struct BeeSystem : ISystem
         state.RequireForUpdate<Config>();
         state.RequireForUpdate<BeeSettingsSingletonComponent>();
 
-        _halfFloat = new float3(0.5f, 0.5f, 0.5f);
         {
             var builder = new EntityQueryBuilder(Allocator.Temp)
                 .WithAll<FoodComponent>()
@@ -73,6 +75,9 @@ public partial struct BeeSystem : ISystem
         }
 
         _beeTeams = new UnsafeList<NativeArray<Entity>>((int)HiveTag.HiveCount, Allocator.Persistent);
+        _enemyCounts = new NativeArray<int>((int)HiveTag.HiveCount, Allocator.Persistent);
+
+        _localTransformLookup = state.GetComponentLookup<LocalTransform>(true);
     }
 
     [BurstCompile]
@@ -84,6 +89,8 @@ public partial struct BeeSystem : ISystem
             _availableBeesQueries.Dispose();
         if (_beeTeams.IsCreated)
             _beeTeams.Dispose();
+        if (_enemyCounts.IsCreated)
+            _enemyCounts.Dispose();
     }
 
     [BurstCompile]
@@ -95,380 +102,415 @@ public partial struct BeeSystem : ISystem
 
         _beeTeams.Clear();
         for (int i = 0; i < (int)HiveTag.HiveCount; i++)
-            _beeTeams.Add(_availableBeesQueries[0].ToEntityArray(Allocator.Temp));
-
-        var availableFood = _availableFoodSourcesQuery.ToEntityArray(Allocator.Temp);
-
-        using (var commandBuffer = new EntityCommandBuffer(Allocator.TempJob))
+            _beeTeams.Add(_availableBeesQueries[0].ToEntityArray(Allocator.TempJob));
+        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
         {
-            foreach (var (beeState, transform, velocity, target, home, postTransformMatrix, entity) in SystemAPI
-                .Query<RefRW<BeeState>, RefRW<LocalTransform>, RefRW<VelocityComponent>, RefRW<TargetComponent>, RefRO<ReturnHomeComponent>, RefRW<PostTransformMatrix>>()
-                .WithEntityAccess())
+            _enemyCounts[i] = 0;
+            for (int j = 0; j < (int)HiveTag.HiveCount; j++)
             {
-                BaseMovement(velocity, ref random, SystemAPI.Time.DeltaTime, ref beeSettings);
+                if (i != j)
+                    _enemyCounts[i] += _beeTeams[j].Length;
+            }
+        }
 
-                switch (beeState.ValueRO.state)
+        var availableFood = _availableFoodSourcesQuery.ToEntityArray(Allocator.TempJob);
+
+        var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+
+        _localTransformLookup.Update(ref state);
+
+        var beeJob = new BeeJob
+        {
+            _random = random,
+            _config = config,
+            _beeSettings = beeSettings,
+            _availableBeesQueries = _availableBeesQueries,
+            _availableFood = availableFood,
+            _enemyCounts = _enemyCounts,
+            _commandBuffer = ecb.AsParallelWriter(),
+            _transformsLookup = _localTransformLookup,
+            _beeTeams = _beeTeams,
+            _boundaryNormals = _boundaryNormals,
+            _deltaTime = SystemAPI.Time.DeltaTime
+        };
+        var beeJobHandle = beeJob.ScheduleParallel(state.Dependency);
+
+        var rotationAndScaleJob = new RotationAndScaleJob
+        {
+            _beeSettings = beeSettings
+        };
+        // depends on bee job since it modifies transforms which have to be constant in bee job
+        var rotationAndScaleJobHandle = rotationAndScaleJob.ScheduleParallel(beeJobHandle);
+
+        state.Dependency = JobHandle.CombineDependencies(beeJobHandle, rotationAndScaleJobHandle);
+    }   
+
+    [BurstCompile]
+    private partial struct BeeJob : IJobEntity
+    {
+        public Random _random;
+        public Config _config;
+        public BeeSettingsSingletonComponent _beeSettings;
+        [ReadOnly]
+        public NativeArray<EntityQuery> _availableBeesQueries;
+        [ReadOnly]
+        public NativeArray<Entity> _availableFood;
+        [ReadOnly]
+        public NativeArray<int> _enemyCounts;
+        public EntityCommandBuffer.ParallelWriter _commandBuffer;
+        [ReadOnly]
+        public ComponentLookup<LocalTransform> _transformsLookup;
+        [ReadOnly]
+        public UnsafeList<NativeArray<Entity>> _beeTeams;
+        [ReadOnly]
+        public NativeArray<float3> _boundaryNormals;
+        public float _deltaTime;
+
+        public void Execute(ref VelocityComponent velocity, ref BeeState beeState, ref TargetComponent target, in ReturnHomeComponent home, ref PostTransformMatrix postTransformMatrix, Entity entity, [ChunkIndexInQuery] int chunkIndex)
+        {
+            BaseMovement(ref velocity, _deltaTime);
+
+            var transform = _transformsLookup[entity];
+
+            switch (beeState.state)
+            {
+                case BeeState.State.IDLE:
+                    s_PerfMarkerIdle.Begin();
+                    Idle(ref beeState);
+                    s_PerfMarkerIdle.End();
+                    break;
+                case BeeState.State.GATHERING:
+                    s_PerfMarkerGathering.Begin();
+                    float agression = _random.NextFloat();
+                    if (_enemyCounts[(int)beeState.hiveTag] > 0 && agression < _beeSettings.aggressionPercentage)
+                    {
+                        target.Target = Entity.Null;
+                        beeState.state = BeeState.State.ATTACKING;
+                    }
+                    else
+                    {
+                        Gathering(entity, ref beeState, transform, ref velocity, ref target, chunkIndex);
+                    }
+                    s_PerfMarkerGathering.End();
+                    break;
+                case BeeState.State.ATTACKING:
+                    s_PerfMarkerAttacking.Begin();
+                    Attacking(entity, ref beeState, transform, ref velocity, ref target, chunkIndex);
+                    s_PerfMarkerAttacking.End();
+                    break;
+                case BeeState.State.RETURNING:
+                    s_PerfMarkerReturning.Begin();
+                    Returning(entity, ref beeState, transform, ref velocity, ref target, home, chunkIndex);
+                    s_PerfMarkerReturning.End();
+                    break;
+            }
+
+            ApplyBoundaries(transform.Position, ref velocity);
+        }
+
+        private void BaseMovement(
+            ref VelocityComponent velocity,
+            float dt)
+        {
+            velocity.Velocity += (_random.NextFloat3() - _halfFloat) * _beeSettings.flightJitter * dt;
+            velocity.Velocity *= (1f - _beeSettings.damping);
+        }
+
+        private void Idle(ref BeeState beeState)
+        {
+            beeState.state = BeeState.State.GATHERING;
+        }
+
+        private void Gathering(
+            Entity beeEntity,
+            ref BeeState beeState,
+            in LocalTransform transform,
+            ref VelocityComponent velocity,
+            ref TargetComponent target,
+            int chunkIndex)
+        {
+            RemoveInvalidTarget(ref target);
+            FindFoodTarget(ref target, ref beeState);
+            FlyToTarget(beeEntity, ref beeState, transform, ref velocity, ref target, chunkIndex);
+        }
+
+        private void RemoveInvalidTarget(ref TargetComponent target)
+        {
+            bool hasInvalidTarget = target.Target != Entity.Null && !_availableFood.Contains(target.Target);
+            if (hasInvalidTarget)
+            {
+                target.Target = Entity.Null;
+            }
+        }
+
+        private void FindFoodTarget(ref TargetComponent target, ref BeeState beeState)
+        {
+            bool alreadyHasTarget = target.Target != Entity.Null;
+            if (alreadyHasTarget)
+            {
+                return;
+            }
+
+            if (_availableFood.Length > 0)
+            {
+                int index = (int)(_random.NextUInt() % _availableFood.Length);
+                target.Target = _availableFood[index];
+            }
+            else
+            {
+                beeState.state = BeeState.State.IDLE;
+            }
+        }
+
+        private void FlyToTarget(
+            Entity beeEntity,
+            ref BeeState beeState,
+            in LocalTransform transform,
+            ref VelocityComponent velocity,
+            ref TargetComponent target,
+            int chunkIndex)
+        {
+            if (target.Target == Entity.Null)
+            {
+                return;
+            }
+
+            var targetTransform = _transformsLookup[target.Target];
+            float3 delta = targetTransform.Position - transform.Position;
+            float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+
+            if (dist2 > _beeSettings.grabDistance * _beeSettings.grabDistance)
+            {
+                float dist = math.sqrt(dist2);
+                velocity.Velocity += delta * (_beeSettings.chaseForce * _deltaTime / dist);
+            }
+            else
+            {
+                _commandBuffer.AddComponent(chunkIndex, target.Target, new Parent { Value = beeEntity });
+
+                targetTransform.Position = new float3();
+                targetTransform.Position.y = -0.08f;
+                _commandBuffer.SetComponent(chunkIndex, target.Target, targetTransform);
+
+                beeState.state = BeeState.State.RETURNING;
+            }
+        }
+
+        private void ApplyBoundaries(
+            float3 position,
+            ref VelocityComponent velocity)
+        {
+            float3 boundsNormal = float3.zero;
+            bool outsideBounds = false;
+            for (int i = 0; i < _boundaryNormalCount; i++)
+            {
+                if (position[i] > _config.bounds[i])
                 {
-                    case BeeState.State.IDLE:
-                        s_PerfMarkerIdle.Begin();
-                        Idle(beeState);
-                        s_PerfMarkerIdle.End();
+                    boundsNormal += -_boundaryNormals[i];
+                    outsideBounds = true;
+                }
+                else if (position[i] < -_config.bounds[i])
+                {
+                    boundsNormal += _boundaryNormals[i];
+                    outsideBounds = true;
+                }
+            }
+            boundsNormal = math.normalize(boundsNormal);
+
+            if (outsideBounds)
+            {
+                velocity.Velocity = boundsNormal;
+            }
+        }
+
+        private void Attacking(
+        Entity beeEntity,
+        ref BeeState beeState,
+        in LocalTransform transform,
+        ref VelocityComponent velocity,
+        ref TargetComponent target,
+        int chunkIndex)
+        {
+            s_PerfMarkerRemoveInvalidBeeTarget.Begin();
+            RemoveInvalidBeeTarget(ref target, beeState);
+            s_PerfMarkerRemoveInvalidBeeTarget.End();
+
+            s_PerfMarkerFindBeeTarget.Begin();
+            FindBeeTarget(ref target, ref beeState);
+            s_PerfMarkerFindBeeTarget.End();
+
+            s_PerfMarkerFlyToBeeTarget.Begin();
+            FlyToBeeTarget(beeEntity, ref beeState, transform, ref velocity, ref target, chunkIndex);
+            s_PerfMarkerFlyToBeeTarget.End();
+        }
+
+        private int EnemyTag(ref Random random, BeeState beeState)
+        {
+            int enemyHive = (int)(random.NextUInt() % (uint)HiveTag.HiveCount);
+            if (enemyHive == (int)beeState.hiveTag)
+                enemyHive = (enemyHive + 1) % (int)HiveTag.HiveCount;
+            return enemyHive;
+        }
+
+        private void RemoveInvalidBeeTarget(ref TargetComponent target, in BeeState beeState)
+        {
+            bool hasInvalidTarget = false;
+            if (target.Target != Entity.Null)
+            {
+                for (int i = 0; i < (int)HiveTag.HiveCount; i++)
+                {
+                    if (hasInvalidTarget)
                         break;
-                    case BeeState.State.GATHERING:
-                        s_PerfMarkerGathering.Begin();
-                        float agression = random.NextFloat();
-                        int enemyCount = 0;
-                        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
-                        {
-                            if (i != (int)beeState.ValueRO.hiveTag)
-                                enemyCount += _availableBeesQueries[i].CalculateEntityCount();
-                        }
-                        if (enemyCount > 0 && agression < beeSettings.aggressionPercentage)
-                        {
-                            target.ValueRW.Target = Entity.Null;
-                            beeState.ValueRW.state = BeeState.State.ATTACKING;
-                        }
-                        else
-                        {
-                            Gathering(availableFood, entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
-                        }
-                        s_PerfMarkerGathering.End();
-                        break;
-                    case BeeState.State.ATTACKING:
-                        s_PerfMarkerAttacking.Begin();
-                        Attacking(config, entity, beeState, transform, velocity, target, ref state, random, commandBuffer, ref beeSettings);
-                        s_PerfMarkerAttacking.End();
-                        break;
-                    case BeeState.State.RETURNING:
-                        s_PerfMarkerReturning.Begin();
-                        Returning(entity, beeState, transform, velocity, target, home, ref beeSettings, ref state, commandBuffer);
-                        s_PerfMarkerReturning.End();
-                        break;
+
+                    if (i != (int)beeState.hiveTag)
+                        hasInvalidTarget = !_availableBeesQueries[i].Matches(target.Target);
+                }
+            }
+            if (hasInvalidTarget)
+            {
+                target.Target = Entity.Null;
+            }
+        }
+
+        private void FindBeeTarget(ref TargetComponent target, ref BeeState beeState)
+        {
+            bool alreadyHasTarget = target.Target != Entity.Null;
+            if (alreadyHasTarget)
+            {
+                return;
+            }
+
+            s_PerfMarkerFindBeeTargetQuery.Begin();
+            var enemyBees = _beeTeams[EnemyTag(ref _random, beeState)];
+            s_PerfMarkerFindBeeTargetQuery.End();
+
+            if (enemyBees.Length > 0)
+            {
+                int index = (int)(_random.NextUInt() % enemyBees.Length);
+                var targetEntity = enemyBees[index];
+                target.Target = targetEntity;
+            }
+            else
+            {
+                beeState.state = BeeState.State.IDLE;
+            }
+        }
+
+        private void FlyToBeeTarget(
+            Entity beeEntity,
+            ref BeeState beeState,
+            in LocalTransform transform,
+            ref VelocityComponent velocity,
+            ref TargetComponent target,
+            int chunkIndex)
+        {
+            if (target.Target == Entity.Null)
+            {
+                return;
+            }
+
+            var targetTransform = _transformsLookup[target.Target];
+            float3 delta = targetTransform.Position - transform.Position;
+            float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+
+            if (dist2 > _beeSettings.attackDistance * _beeSettings.attackDistance)
+            {
+                float dist = math.sqrt(dist2);
+                velocity.Velocity += delta * (_beeSettings.chaseForce * _deltaTime / dist);
+            }
+            else if (dist2 > _beeSettings.hitDistance * _beeSettings.hitDistance)
+            {
+                float dist = math.sqrt(dist2);
+                velocity.Velocity += delta * (_beeSettings.attackForce * _deltaTime / dist);
+            }
+            else
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var blood = _commandBuffer.Instantiate(chunkIndex, _config.bloodEntity);
+                    _commandBuffer.SetComponent(chunkIndex, blood, new LocalTransform
+                    {
+                        Position = targetTransform.Position,
+                        Scale = _random.NextFloat(),
+                        Rotation = quaternion.identity
+                    });
+                    _commandBuffer.SetComponent(chunkIndex, blood, new VelocityComponent { Velocity = _random.NextFloat3() });
                 }
 
-                ApplyBoundaries(config, transform.ValueRO.Position, velocity);
-                UpdateRotationAndScale(beeSettings, transform, postTransformMatrix, velocity);
-            }
-
-            commandBuffer.Playback(state.EntityManager);
-        }
-    }
-
-    private void ApplyBoundaries(
-        in Config config,
-        float3 position,
-        RefRW<VelocityComponent> velocity)
-    {
-        float3 boundsNormal = float3.zero;
-        bool outsideBounds = false;
-        for (int i = 0; i < _boundaryNormalCount; i++)
-        {
-            if (position[i] > config.bounds[i])
-            {
-                boundsNormal += -_boundaryNormals[i];
-                outsideBounds = true;
-            }
-            else if (position[i] < -config.bounds[i])
-            {
-                boundsNormal += _boundaryNormals[i];
-                outsideBounds = true;
-            }
-        }
-        boundsNormal = math.normalize(boundsNormal);
-
-        if (outsideBounds)
-        {
-            velocity.ValueRW.Velocity = boundsNormal;
-        }
-    }
-
-    private void UpdateRotationAndScale(
-        in BeeSettingsSingletonComponent beeSettings,
-        RefRW<LocalTransform> transform,
-        RefRW<PostTransformMatrix> postTransformMatrix,
-        RefRW<VelocityComponent> velocity)
-    {
-        float3 direction = math.normalize(velocity.ValueRO.Velocity);
-        transform.ValueRW.Rotation = quaternion.LookRotation(direction, new float3(0, 1, 0));
-
-        float scale = math.length(velocity.ValueRO.Velocity) * beeSettings.scaleMultiplier;
-        float forwardScale = math.clamp(scale, beeSettings.minScale.x, beeSettings.maxScale.x);
-        float sideScale = math.clamp(1.0f / scale, beeSettings.minScale.y, beeSettings.maxScale.y);
-        float3 localScale = new float3(sideScale, sideScale, forwardScale);
-        
-        postTransformMatrix.ValueRW.Value = float4x4.Scale(localScale);
-    }
-
-    private void BaseMovement(
-        RefRW<VelocityComponent> velocity,
-        ref Random random,
-        float dt,
-        ref BeeSettingsSingletonComponent beeSettings)
-    {
-        velocity.ValueRW.Velocity += (random.NextFloat3() - _halfFloat) * beeSettings.flightJitter * dt;
-        velocity.ValueRW.Velocity *= (1f - beeSettings.damping);
-    }
-
-    private void Idle(RefRW<BeeState> beeState)
-    {
-        beeState.ValueRW.state = BeeState.State.GATHERING;
-    }
-
-    private void Gathering(
-        in NativeArray<Entity> availableFood,
-        Entity beeEntity,
-        RefRW<BeeState> beeState,
-        RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity,
-        RefRW<TargetComponent> target,
-        ref SystemState state,
-        Random random,
-        EntityCommandBuffer commandBuffer,
-        ref BeeSettingsSingletonComponent beeSettings)
-    {
-        RemoveInvalidTarget(target);
-        FindFoodTarget(availableFood, target, beeState, ref random);
-        FlyToTarget(beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings);
-    }
-
-    private void RemoveInvalidTarget(RefRW<TargetComponent> target)
-    {
-        bool hasInvalidTarget = target.ValueRO.Target != Entity.Null && !_availableFoodSourcesQuery.Matches(target.ValueRO.Target);
-        if (hasInvalidTarget)
-        {
-            target.ValueRW.Target = Entity.Null;
-        }
-    }
-
-    private void FindFoodTarget(in NativeArray<Entity> availableFood, RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random)
-    {
-        bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
-        if (alreadyHasTarget)
-        {
-            return;
-        }
-
-        if (availableFood.Length > 0)
-        {
-            int index = (int)(random.NextUInt() % availableFood.Length);
-            target.ValueRW.Target = availableFood[index];
-        }
-        else
-        {
-            beeState.ValueRW.state = BeeState.State.IDLE;
-        }
-    }
-
-    private void FlyToTarget(
-        Entity beeEntity,
-        RefRW<BeeState> beeState,
-        RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity,
-        RefRW<TargetComponent> target,
-        ref SystemState state,
-        EntityCommandBuffer commandBuffer,
-        ref BeeSettingsSingletonComponent beeSettings)
-    {
-        if (target.ValueRO.Target == Entity.Null)
-        {
-            return;
-        }
-
-        var targetTransform = state.EntityManager.GetComponentData<LocalTransform>(target.ValueRO.Target);
-        float3 delta = targetTransform.Position - transform.ValueRO.Position;
-        float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-
-        if (dist2 > beeSettings.grabDistance * beeSettings.grabDistance)
-        {
-            float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / dist);
-        }
-        else
-        {
-            commandBuffer.AddComponent(target.ValueRO.Target, new Parent { Value = beeEntity });
-
-            targetTransform.Position = new float3();
-            targetTransform.Position.y = -0.08f;
-            commandBuffer.SetComponent(target.ValueRO.Target, targetTransform);
-
-            beeState.ValueRW.state = BeeState.State.RETURNING;
-        }
-    }
-
-    private void Attacking(
-        in Config config,
-        Entity beeEntity,
-        RefRW<BeeState> beeState, 
-        RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity, 
-        RefRW<TargetComponent> target,
-        ref SystemState state,
-        Random random,
-        EntityCommandBuffer commandBuffer,
-        ref BeeSettingsSingletonComponent beeSettings)
-    {
-        s_PerfMarkerRemoveInvalidBeeTarget.Begin();
-        RemoveInvalidBeeTarget(target, beeState.ValueRO);
-        s_PerfMarkerRemoveInvalidBeeTarget.End();
-
-        s_PerfMarkerFindBeeTarget.Begin();
-        FindBeeTarget(target, beeState, ref random, ref state);
-        s_PerfMarkerFindBeeTarget.End();
-
-        s_PerfMarkerFlyToBeeTarget.Begin();
-        FlyToBeeTarget(config, beeEntity, beeState, transform, velocity, target, ref state, commandBuffer, ref beeSettings, ref random);
-        s_PerfMarkerFlyToBeeTarget.End();
-    }
-
-    private int EnemyTag(ref Random random, BeeState beeState)
-    {
-        int enemyHive = (int)(random.NextUInt() % (uint)HiveTag.HiveCount);
-        if (enemyHive == (int)beeState.hiveTag)
-            enemyHive = (enemyHive + 1) % (int)HiveTag.HiveCount;
-        return enemyHive;
-    }
-
-    private void RemoveInvalidBeeTarget(RefRW<TargetComponent> target, in BeeState beeState)
-    {
-        bool hasInvalidTarget = false;
-        if (target.ValueRO.Target != Entity.Null)
-        {
-            for (int i = 0; i < (int)HiveTag.HiveCount; i++)
-            {
-                if (hasInvalidTarget)
-                    break;
-                
-                if (i != (int)beeState.hiveTag)
-                    hasInvalidTarget = !_availableBeesQueries[i].Matches(target.ValueRO.Target);
-            }
-        }
-        if (hasInvalidTarget)
-        {
-            target.ValueRW.Target = Entity.Null;
-        }
-    }
-
-    private void FindBeeTarget(RefRW<TargetComponent> target, RefRW<BeeState> beeState, ref Random random, ref SystemState state)
-    {
-        bool alreadyHasTarget = target.ValueRO.Target != Entity.Null;
-        if (alreadyHasTarget)
-        {
-            return;
-        }
-
-        s_PerfMarkerFindBeeTargetQuery.Begin();
-        var enemyBees = _beeTeams[EnemyTag(ref random, beeState.ValueRO)];
-        s_PerfMarkerFindBeeTargetQuery.End();
-
-        if (enemyBees.Length > 0)
-        {
-            int index = (int)(random.NextUInt() % enemyBees.Length);
-            var targetEntity = enemyBees[index];
-            target.ValueRW.Target = targetEntity;
-        }
-        else
-        {
-            beeState.ValueRW.state = BeeState.State.IDLE;
-        }
-    }
-
-    private void FlyToBeeTarget(
-        in Config config,
-        Entity beeEntity,
-        RefRW<BeeState> beeState,
-        RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity,
-        RefRW<TargetComponent> target,
-        ref SystemState state,
-        EntityCommandBuffer commandBuffer,
-        ref BeeSettingsSingletonComponent beeSettings,
-        ref Random random)
-    {
-        if (target.ValueRO.Target == Entity.Null)
-        {
-            return;
-        }
-
-        var targetTransform = state.EntityManager.GetComponentData<LocalTransform>(target.ValueRO.Target);
-        float3 delta = targetTransform.Position - transform.ValueRO.Position;
-        float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
-
-        if (dist2 > beeSettings.attackDistance * beeSettings.attackDistance)
-        {
-            float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.chaseForce * SystemAPI.Time.DeltaTime / dist);
-        }
-        else if (dist2 > beeSettings.hitDistance * beeSettings.hitDistance)
-        {
-            float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.attackForce * SystemAPI.Time.DeltaTime / dist);
-        }
-        else
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                var blood = commandBuffer.Instantiate(config.bloodEntity);
-                commandBuffer.SetComponent(blood, new LocalTransform
+                /*
+                var targetBeeState = _beeStateLookup[target.Target];
+                if (targetBeeState.state == BeeState.State.RETURNING)
                 {
-                    Position = targetTransform.Position,
-                    Scale = random.NextFloat(),
-                    Rotation = quaternion.identity
-                });
-                commandBuffer.SetComponent(blood, new VelocityComponent { Velocity = random.NextFloat3() });
-            }
+                    var foodTarget = _targetComponentLookup[target.Target];
+                    _commandBuffer.SetComponent<LocalTransform>(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(targetTransform.Position));
+                }
+                */
+                
+                _commandBuffer.DestroyEntity(chunkIndex, target.Target);
 
-            var targetBeeState = state.EntityManager.GetComponentData<BeeState>(target.ValueRO.Target);
-            if (targetBeeState.state == BeeState.State.RETURNING)
+                beeState.state = BeeState.State.IDLE;
+            }
+        }
+
+        private void Returning(
+            Entity beeEntity,
+            ref BeeState beeState,
+            in LocalTransform transform,
+            ref VelocityComponent velocity,
+            ref TargetComponent target,
+            in ReturnHomeComponent home,
+            int chunkIndex)
+        {
+            float3 beePos = transform.Position;
+            float3 targetPos = math.clamp(beePos, home.HomeMinBounds, home.HomeMaxBounds);
+            float3 delta = targetPos - beePos;
+            float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+
+            if (dist2 > _beeSettings.grabDistance * _beeSettings.grabDistance)
             {
-                var foodTarget = state.EntityManager.GetComponentData<TargetComponent>(target.ValueRO.Target);
-                state.EntityManager.SetComponentData<LocalTransform>(foodTarget.Target, LocalTransform.FromPosition(targetTransform.Position)); 
+                float dist = math.sqrt(dist2);
+                velocity.Velocity += delta * (_beeSettings.carryForce * _deltaTime / dist);
             }
-            commandBuffer.DestroyEntity(target.ValueRO.Target);
+            else
+            {
+                Entity foodEntity = target.Target;
 
-            beeState.ValueRW.state = BeeState.State.IDLE;
+                if (_transformsLookup.HasComponent(foodEntity))
+                {
+                    _commandBuffer.RemoveComponent<Parent>(chunkIndex, foodEntity);
+
+                    var foodTransform = _transformsLookup[foodEntity];
+                    foodTransform.Position = transform.Position;
+                    _commandBuffer.SetComponent(chunkIndex, foodEntity, foodTransform);
+
+                    _commandBuffer.SetComponent(chunkIndex, foodEntity, velocity);
+
+                    _commandBuffer.AddComponent<GravityComponent>(chunkIndex, foodEntity);
+                }
+
+                beeState.state = BeeState.State.IDLE;
+                target.Target = Entity.Null;
+            }
         }
     }
 
-    private void Returning(
-        Entity beeEntity,
-        RefRW<BeeState> beeState,
-        RefRW<LocalTransform> transform,
-        RefRW<VelocityComponent> velocity,
-        RefRW<TargetComponent> target,
-        RefRO<ReturnHomeComponent> home,
-        ref BeeSettingsSingletonComponent beeSettings,
-        ref SystemState state,
-        EntityCommandBuffer commandBuffer)
+    [BurstCompile]
+    private partial struct RotationAndScaleJob : IJobEntity
     {
-        float3 beePos = transform.ValueRO.Position;
-        float3 targetPos = math.clamp(beePos, home.ValueRO.HomeMinBounds, home.ValueRO.HomeMaxBounds);
-        float3 delta = targetPos - beePos;
-        float dist2 = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
+        public BeeSettingsSingletonComponent _beeSettings;
 
-        if (dist2 > beeSettings.grabDistance * beeSettings.grabDistance)
-        { 
-            float dist = math.sqrt(dist2);
-            velocity.ValueRW.Velocity += delta * (beeSettings.carryForce * SystemAPI.Time.DeltaTime / dist);
-        }
-        else
+        public void Execute(in VelocityComponent velocity, ref LocalTransform transform, ref PostTransformMatrix postTransformMatrix, in BeeState beestate)
         {
-            Entity foodEntity = target.ValueRO.Target;
+            float3 direction = math.normalize(velocity.Velocity);
+            transform.Rotation = quaternion.LookRotation(direction, new float3(0, 1, 0));
 
-            if (state.EntityManager.Exists(foodEntity))
-            {
-                commandBuffer.RemoveComponent<Parent>(foodEntity);
+            float scale = math.length(velocity.Velocity) * _beeSettings.scaleMultiplier;
+            float forwardScale = math.clamp(scale, _beeSettings.minScale.x, _beeSettings.maxScale.x);
+            float sideScale = math.clamp(1.0f / scale, _beeSettings.minScale.y, _beeSettings.maxScale.y);
+            float3 localScale = new float3(sideScale, sideScale, forwardScale);
 
-                var foodTransform = state.EntityManager.GetComponentData<LocalTransform>(foodEntity);
-                foodTransform.Position = transform.ValueRO.Position;
-                commandBuffer.SetComponent(foodEntity, foodTransform);
-
-                commandBuffer.SetComponent(foodEntity, velocity.ValueRO);
-
-                commandBuffer.AddComponent<GravityComponent>(foodEntity);
-            }
-
-            beeState.ValueRW.state = BeeState.State.IDLE;
-            target.ValueRW.Target = Entity.Null;
+            postTransformMatrix.Value = float4x4.Scale(localScale);
         }
     }
 }
