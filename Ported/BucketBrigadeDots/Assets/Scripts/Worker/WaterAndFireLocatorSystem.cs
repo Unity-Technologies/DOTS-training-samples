@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct WaterAndFireLocatorSystem : ISystem
 {
     const float k_DefaultGridSize = 0.3f;

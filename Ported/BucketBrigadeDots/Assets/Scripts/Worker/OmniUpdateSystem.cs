@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct OmniUpdateSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -18,17 +19,21 @@ public partial struct OmniUpdateSystem : ISystem
         var settings = SystemAPI.GetSingleton<GameSettings>();
         var temperatures = SystemAPI.GetSingletonBuffer<FireTemperature>();
         
-        var random = Random.CreateFromIndex((uint)SystemAPI.Time.ElapsedTime);
-        foreach(var (omniState, nextPosition, omniEntity) in 
+        foreach(var (omniState, omniData, nextPosition, omniEntity) in 
                 SystemAPI.Query<
-                    RefRW<OmniState>, RefRW<NextPosition>>()
+                    RefRW<OmniState>, RefRW<OmniData>, RefRW<NextPosition>>()
                     .WithEntityAccess()
                     .WithOptions(EntityQueryOptions.IgnoreComponentEnabledState))
         {
+            var random = Random.CreateFromIndex((uint)(omniEntity.Index + (int)(SystemAPI.Time.DeltaTime * 1000f)));
+            
             switch (omniState.ValueRW.Value)
             {
                 case OmniStates.Idle:
                     var bucketPosition = GetRandomBucketPosition(ref state, ref random);
+                    if (math.abs(bucketPosition.x - float.MinValue) < math.EPSILON)
+                        return;
+                    
                     nextPosition.ValueRW.Value = bucketPosition;
                     state.EntityManager.SetComponentEnabled<NextPosition>(omniEntity, true);
                     omniState.ValueRW.Value = OmniStates.MovingToBucket;
@@ -36,8 +41,13 @@ public partial struct OmniUpdateSystem : ISystem
                 case OmniStates.MovingToBucket:
                     if (!IsMoving(ref state, omniEntity))
                     {
+                        omniData.ValueRW.HasBucket = true;
+                        
                         var query = SystemAPI.QueryBuilder().WithAll<WaterCell, LocalToWorld>().Build();
                         SystemUtilities.GetNearestWaterPosition(nextPosition.ValueRO.Value, in settings, in query, out var waterPosition);
+                        if (math.abs(waterPosition.x - float.MinValue) < math.EPSILON)
+                            return;
+
                         nextPosition.ValueRW.Value = waterPosition;
                         state.EntityManager.SetComponentEnabled<NextPosition>(omniEntity, true);
                         omniState.ValueRW.Value = OmniStates.FillingBucket;
@@ -47,6 +57,12 @@ public partial struct OmniUpdateSystem : ISystem
                     if (!IsMoving(ref state, omniEntity))
                     {
                         SystemUtilities.GetNearestFirePosition(nextPosition.ValueRO.Value, in settings, in temperatures, out var firePos);
+                        if (math.abs(firePos.x - float.MinValue) < math.EPSILON)
+                        {
+                            omniState.ValueRW.Value = omniData.ValueRO.HasBucket ? OmniStates.MovingToBucket : OmniStates.Idle;
+                            return;
+                        }
+                        
                         nextPosition.ValueRW.Value = firePos;
                         state.EntityManager.SetComponentEnabled<NextPosition>(omniEntity, true);
                         omniState.ValueRW.Value = OmniStates.MovingToFire;
@@ -72,8 +88,11 @@ public partial struct OmniUpdateSystem : ISystem
 
     float2 GetRandomBucketPosition(ref SystemState state, ref Random random)
     {
-        var query = SystemAPI.QueryBuilder().WithAll<BucketData, LocalToWorld>().Build();
-        var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
+        var query = SystemAPI.QueryBuilder().WithAll<BucketData, LocalTransform>().Build();
+        if (query.IsEmpty)
+            return new float2(float.MinValue);
+        
+        var transforms = query.ToComponentDataArray<LocalTransform>(Allocator.Temp);
         var randomIndex = random.NextInt(0, transforms.Length);
         return transforms[randomIndex].Position.xz;
     }

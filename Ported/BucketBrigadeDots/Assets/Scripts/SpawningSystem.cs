@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
+
 using Random = Unity.Mathematics.Random;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -34,7 +34,7 @@ public partial struct SpawningSystem : ISystem
         if (initialized) return;
         
         var gameSettings = SystemAPI.GetSingleton<GameSettings>();
-        var random = Random.CreateFromIndex(0);
+        var random = Random.CreateFromIndex((uint)(SystemAPI.Time.DeltaTime * 1000));
         
         InitHeatBuffer(ref state, ref gameSettings, ref random);
         SpawnFireCells(ref state, ref gameSettings);
@@ -126,12 +126,15 @@ public partial struct SpawningSystem : ISystem
         SpawnOmniWorkers(ref cmdBuffer, teamSpawner, gameSettings);
         cmdBuffer.Playback(state.EntityManager);
 
-        foreach (var workerTransform in SystemAPI.Query<RefRW<LocalTransform>>()
-                     .WithAny<WorkerState, OmniState, RunnerState>())
+        foreach (var (workerTransform, entity) in SystemAPI.Query<RefRW<LocalTransform>>()
+                     .WithAny<WorkerState, OmniState, RunnerState>()
+                     .WithAll<NextPosition>()
+                     .WithEntityAccess())
         {
             var randomGridPos = random.NextFloat2(float2.zero, new float2(gameSettings.RowsAndColumns, gameSettings.RowsAndColumns));
             randomGridPos *= gameSettings.DefaultGridSize;
             workerTransform.ValueRW.Position = new float3(randomGridPos.x, k_DefaultWorkerPosY, randomGridPos.y);
+            SystemAPI.SetComponentEnabled<NextPosition>(entity, false);
         }
     }
 
@@ -143,6 +146,9 @@ public partial struct SpawningSystem : ISystem
         var omniState = new OmniState()
         { Value = OmniStates.Idle };
         cmdBuffer.AddComponent(omniEntities, omniState);
+        var omniData = new OmniData()
+        { HasBucket = false };
+        cmdBuffer.AddComponent(omniEntities, omniData);
         cmdBuffer.AddComponent<NextPosition>(omniEntities);
         var baseColor = new URPMaterialPropertyBaseColor()
         { Value = gameSettings.WorkerOmniColor };

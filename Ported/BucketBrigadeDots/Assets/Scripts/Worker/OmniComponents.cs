@@ -12,3 +12,8 @@ public struct OmniState : IComponentData
 {
     public OmniStates Value;
 }
+
+public struct OmniData : IComponentData
+{
+    public bool HasBucket;
+}

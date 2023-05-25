@@ -40,7 +40,7 @@ public static class SystemUtilities
         var cols = settings.RowsAndColumns;
         var size = settings.Size;
 
-        closestPos = float2.zero;
+        closestPos = new float2(float.MinValue);
         var closestDist = float.MaxValue;
 
         var random = Random.CreateFromIndex((uint)currentPosition.GetHashCode());
@@ -64,7 +64,7 @@ public static class SystemUtilities
     public static void GetNearestWaterPosition(in float2 currentPosition, in GameSettings settings, in EntityQuery query, out float2 closestPos)
     {
         var transforms = query.ToComponentDataArray<LocalToWorld>(Allocator.Temp);
-        closestPos = float2.zero;
+        closestPos = new float2(float.MinValue);
         var closestDist = float.MaxValue;
 
         var random = Random.CreateFromIndex((uint)currentPosition.GetHashCode());
