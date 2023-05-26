@@ -4,7 +4,9 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateAfter(typeof(BeeSystem))]
+[UpdateBefore(typeof(BeeSystem))]
+[UpdateBefore(typeof(FoodSystem))]
+[UpdateBefore(typeof(DecaySystem))]
 public partial struct GravitySystem : ISystem
 {
     [BurstCompile]
