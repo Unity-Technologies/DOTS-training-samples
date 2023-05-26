@@ -290,13 +290,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GridWidth: 100
-  StartingFires: 8
+  StartingFires: 20
   MaxHeat: 1
   FlashPoint: 0.2
   HeatRadius: 2
   HeatTransferRate: 0.00068
   FireSimUpdateRate: 0.01
-  PutOutSize: 30
+  PutOutSize: 20
   BucketEmptyColor: {r: 0.67058825, g: 0.4117647, b: 0.12941177, a: 1}
   BucketFullColor: {r: 0.0627451, g: 0.47058824, b: 0.654902, a: 1}
   WorkerFullColor: {r: 0.77254903, g: 0.9254902, b: 0.7372549, a: 1}
@@ -352,7 +352,7 @@ MonoBehaviour:
     type: 3}
   NumberOfTeams: 1
   WorkersPerTeam: 8
-  OmniWorkers: 5
+  OmniWorkers: 8
 --- !u!4 &2007209845
 Transform:
   m_ObjectHideFlags: 0

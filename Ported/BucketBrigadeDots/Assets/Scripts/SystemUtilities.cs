@@ -37,8 +37,13 @@ public static class SystemUtilities
                 var y = gridPos.y + yD;
                 if (x >= 0 && x < cols && y >= 0 && y < cols)
                 {
-                    var index = GetGridIndex(new int2(x, y), cols);
-                    temperatures[index] = 0f;
+                    var newGridPos = new int2(x, y);
+                    var index = GetGridIndex(newGridPos, cols);
+                    var dist = math.distance(gridPos, newGridPos);
+                    var newTemp = math.lerp(0f, temperatures[index], dist / (float)putOutSize);
+                    if (newTemp < 0.1f)
+                        newTemp = 0f;
+                    temperatures[index] = newTemp;
                 }
             }
         }
