@@ -4,6 +4,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+[UpdateAfter(typeof(BeeSystem))]
 public partial struct GravitySystem : ISystem
 {
     [BurstCompile]
