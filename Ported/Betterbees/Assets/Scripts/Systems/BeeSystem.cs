@@ -180,17 +180,23 @@ public partial struct BeeSystem : ISystem
 
             var transform = _transformsLookup[entity];
 
+            float agression = _random.NextFloat();
             switch (beeState.state)
             {
                 case BeeState.State.IDLE:
                     Idle(ref beeState);
                     break;
                 case BeeState.State.GATHERING:
-                    float agression = _random.NextFloat();
                     if (_enemyCounts[(int)beeState.hiveTag] > 0 && agression < _beeSettings.aggressionPercentage)
+                    {
+                        beeState.aggresion += beeState.aggressionModifier * agression * _deltaTime;
+                    }
+
+                    if (beeState.aggresion > 1.0f)
                     {
                         target.Target = Entity.Null;
                         beeState.state = BeeState.State.ATTACKING;
+                        beeState.aggresion = 0.0f;
                     }
                     else
                     {
@@ -204,7 +210,7 @@ public partial struct BeeSystem : ISystem
                     Returning(entity, ref beeState, transform, ref velocity, ref target, home, chunkIndex);
                     break;
             }
-
+            
             ApplyBoundaries(transform.Position, ref velocity);
         }
 
@@ -430,6 +436,7 @@ public partial struct BeeSystem : ISystem
                 _commandBuffer.SetComponentEnabled<DeadBee>(chunkIndex, target.Target, true);
 
                 beeState.state = BeeState.State.IDLE;
+                beeState.aggresion = 0.0f;
             }
         }
 

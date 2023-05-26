@@ -303,7 +303,7 @@ MonoBehaviour:
   grabDistance: 0.1
   attackDistance: 5
   hitDistance: 0.5
-  aggressionPercentage: 0.001
+  aggressionPercentage: 0.642
   minScale: {x: 1, y: 0.2}
   maxScale: {x: 10, y: 1}
   scaleMultiplier: 1

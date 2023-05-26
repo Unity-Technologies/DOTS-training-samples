@@ -90,7 +90,9 @@ public partial struct BeeSpawnerSystem : ISystem
             ecb.SetComponent(newBee, new BeeState
             {
                 state = BeeState.State.IDLE,
-                hiveTag = hiveTag
+                hiveTag = hiveTag,
+                aggresion = 0.0f,
+                aggressionModifier = math.max(random.NextFloat(), 0.1f)
             });
 
             ecb.AddComponent(newBee, new PostTransformMatrix
