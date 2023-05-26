@@ -16,6 +16,7 @@ public partial struct BeeSystem : ISystem
 {
     private EntityQuery _availableFoodSourcesQuery;
     private NativeArray<EntityQuery> _availableBeesQueries;
+    private NativeArray<Entity> _availableFood;
     private NativeArray<int> _enemyCounts;
     private uint _updateCounter;
 
@@ -75,6 +76,11 @@ public partial struct BeeSystem : ISystem
         }
 
         _beeTeams = new UnsafeList<NativeArray<Entity>>((int)HiveTag.HiveCount, Allocator.Persistent);
+        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
+        {
+            _beeTeams.Add(_availableBeesQueries[i].ToEntityArray(Allocator.Persistent));
+        }
+
         _enemyCounts = new NativeArray<int>((int)HiveTag.HiveCount, Allocator.Persistent);
 
         _localTransformLookup = state.GetComponentLookup<LocalTransform>(true);
@@ -101,9 +107,6 @@ public partial struct BeeSystem : ISystem
         var beeSettings = SystemAPI.GetSingleton<BeeSettingsSingletonComponent>();
         var random = Random.CreateFromIndex(_updateCounter++);
 
-        _beeTeams.Clear();
-        for (int i = 0; i < (int)HiveTag.HiveCount; i++)
-            _beeTeams.Add(_availableBeesQueries[i].ToEntityArray(Allocator.TempJob));
         for (int i = 0; i < (int)HiveTag.HiveCount; i++)
         {
             _enemyCounts[i] = 0;
@@ -114,7 +117,7 @@ public partial struct BeeSystem : ISystem
             }
         }
 
-        var availableFood = _availableFoodSourcesQuery.ToEntityArray(Allocator.TempJob);
+        _availableFood = _availableFoodSourcesQuery.ToEntityArray(Allocator.Persistent);
 
         var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
@@ -129,7 +132,7 @@ public partial struct BeeSystem : ISystem
             _config = config,
             _beeSettings = beeSettings,
             _availableBeesQueries = _availableBeesQueries,
-            _availableFood = availableFood,
+            _availableFood = _availableFood,
             _enemyCounts = _enemyCounts,
             _commandBuffer = ecb.AsParallelWriter(),
             _transformsLookup = _localTransformLookup,
