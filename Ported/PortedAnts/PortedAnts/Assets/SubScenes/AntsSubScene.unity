@@ -201,8 +201,8 @@ MonoBehaviour:
   AntPrefab: {fileID: 1508247311607651877, guid: 0d6fb987dfe2cee4dbf18c8b60599a2b,
     type: 3}
   RandomSteering: 0.14
-  PheromoneAddSpeed: 0.015
-  PheromoneDecay: 0.9985
+  PheromoneAddSpeed: 0.2
+  PheromoneDecay: 0.99
   PheromoneSteering: 0.02
   TargetRadius: 3
   AntRadius: 0.5

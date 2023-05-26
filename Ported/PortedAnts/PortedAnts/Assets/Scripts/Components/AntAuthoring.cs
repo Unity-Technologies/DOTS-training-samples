@@ -19,7 +19,6 @@ namespace Components
                 position = float2.zero,
                 speed = 10f,
                 facingAngle = 1f,
-                deltaSteering = 0f,
                 hasFood = false,
                 hasSpottedTarget = false,
                 ovx = 0f,
@@ -35,7 +34,6 @@ namespace Components
         public float2 position;
         public float speed;
         public float facingAngle;
-        public float deltaSteering;
         public bool hasFood;
         public bool hasSpottedTarget;
         public float ovx;

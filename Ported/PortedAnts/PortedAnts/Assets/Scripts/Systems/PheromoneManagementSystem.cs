@@ -19,6 +19,7 @@ public partial struct PheromoneManagementSystem : ISystem
         state.RequireForUpdate<Config>();
     }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();

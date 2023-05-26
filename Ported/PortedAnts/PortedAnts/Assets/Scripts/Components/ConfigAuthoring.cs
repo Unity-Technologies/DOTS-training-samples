@@ -17,7 +17,6 @@ namespace Components
         public float4 AntHasFoodColor;
         public float4 AntHasNoFoodColor;
         public float AntSpeed;
-        public float AntAccel;
         public int AntsPopulation;
         public GameObject AntPrefab;
         public float RandomSteering;
@@ -50,7 +49,6 @@ namespace Components
                 AntHasFoodColor = authoring.AntHasFoodColor,
                 AntHasNoFoodColor = authoring.AntHasNoFoodColor,
                 AntSpeed = authoring.AntSpeed,
-                AntAccel = authoring.AntAccel,
                 AntsPopulation = authoring.AntsPopulation,
                 AntPrefab = GetEntity(authoring.AntPrefab, TransformUsageFlags.None),
                 RandomSteering = authoring.RandomSteering,
@@ -80,7 +78,6 @@ namespace Components
         public float4 AntHasFoodColor;
         public float4 AntHasNoFoodColor;
         public float AntSpeed;
-        public float AntAccel;
         public int AntsPopulation;
         public Entity AntPrefab;
         public float RandomSteering;
