@@ -517,22 +517,22 @@ public partial struct BeeSystem : ISystem
     }
 
     [BurstCompile]
+    [WithAll(typeof(DeadBee))]
     private partial struct DeadBeeJob : IJobEntity
     {
         [ReadOnly]
         public ComponentLookup<TargetComponent> _targetComponentLookup;
         public EntityCommandBuffer.ParallelWriter _commandBuffer;
 
-        public void Execute(in DeadBee deadBee, in BeeState beeState, in LocalTransform transform, in Entity entity, [ChunkIndexInQuery] int chunkIndex)
+        public void Execute(in BeeState beeState, in LocalTransform transform, in Entity entity, [ChunkIndexInQuery] int chunkIndex)
         {
             if (beeState.state == BeeState.State.RETURNING)
             {
-                var target = _targetComponentLookup[entity];
-                if (target.Target == Entity.Null)
-                    return;
-                
-                var foodTarget = _targetComponentLookup[target.Target];
-                _commandBuffer.SetComponent<LocalTransform>(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(transform.Position));
+                var foodTarget = _targetComponentLookup[entity];
+                if (foodTarget.Target != Entity.Null)
+                {
+                    _commandBuffer.SetComponent(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(transform.Position));
+                }
 
             }
             _commandBuffer.DestroyEntity(chunkIndex, entity);
