@@ -113,7 +113,7 @@ public partial struct BeeSpawnerSystem : ISystem
             }
 
             ecb.AddComponent(newBee, new DeadBee());
-            ecb.SetComponentEnabled(newBee, typeof(DeadBee), false);
+            ecb.SetComponentEnabled<DeadBee>(newBee, false);
         }
     }
 }

@@ -18,7 +18,6 @@ public partial struct BeeSystem : ISystem
     private NativeArray<EntityQuery> _availableBeesQueries;
     private NativeArray<int> _enemyCounts;
     private uint _updateCounter;
-    private static float3 _halfFloat = new float3(0.5f, 0.5f, 0.5f);
 
     private NativeArray<float3> _boundaryNormals;
     private static readonly int _boundaryNormalCount = 3;
@@ -126,6 +125,7 @@ public partial struct BeeSystem : ISystem
         var beeJob = new BeeJob
         {
             _random = random,
+            _halfFloat = new float3(0.5f, 0.5f, 0.5f),
             _config = config,
             _beeSettings = beeSettings,
             _availableBeesQueries = _availableBeesQueries,
@@ -161,6 +161,7 @@ public partial struct BeeSystem : ISystem
     private partial struct BeeJob : IJobEntity
     {
         public Random _random;
+        public float3 _halfFloat;
         public Config _config;
         public BeeSettingsSingletonComponent _beeSettings;
         [ReadOnly]
@@ -449,7 +450,7 @@ public partial struct BeeSystem : ISystem
                     _commandBuffer.SetComponent(chunkIndex, blood, new VelocityComponent { Velocity = _random.NextFloat3() });
                 }
 
-                _commandBuffer.SetComponentEnabled(chunkIndex, target.Target, typeof(DeadBee), true);
+                _commandBuffer.SetComponentEnabled<DeadBee>(chunkIndex, target.Target, true);
 
                 beeState.state = BeeState.State.IDLE;
             }
