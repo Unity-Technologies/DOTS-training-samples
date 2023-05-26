@@ -36,7 +36,7 @@ public partial struct BeeSystem : ISystem
         {
             var builder = new EntityQueryBuilder(Allocator.Temp)
                 .WithAll<FoodComponent>()
-                .WithNone<Parent, GravityComponent>();
+                .WithNone<Parent>();
 
             _availableFoodSourcesQuery = state.GetEntityQuery(builder);
         }
@@ -117,6 +117,9 @@ public partial struct BeeSystem : ISystem
         _localTransformLookup.Update(ref state);
         _targetComponentLookup.Update(ref state);
 
+        int availableFoodCount = _availableFood.Length;
+        float aggressionPercentage = availableFoodCount == 0 ? 1.0f : beeSettings.aggressionPercentage;
+
         var beeJob = new BeeJob
         {
             _random = random,
@@ -130,7 +133,8 @@ public partial struct BeeSystem : ISystem
             _transformsLookup = _localTransformLookup,
             _beeTeams = _beeTeams,
             _boundaryNormals = _boundaryNormals,
-            _deltaTime = SystemAPI.Time.DeltaTime
+            _deltaTime = SystemAPI.Time.DeltaTime,
+            _aggresionPercentage = aggressionPercentage
         };
         var beeJobHandle = beeJob.ScheduleParallel(state.Dependency);
 
@@ -173,6 +177,7 @@ public partial struct BeeSystem : ISystem
         [ReadOnly]
         public NativeArray<float3> _boundaryNormals;
         public float _deltaTime;
+        public float _aggresionPercentage;
 
         public void Execute(ref VelocityComponent velocity, ref BeeState beeState, ref TargetComponent target, in ReturnHomeComponent home, ref PostTransformMatrix postTransformMatrix, Entity entity, [ChunkIndexInQuery] int chunkIndex)
         {
@@ -187,12 +192,16 @@ public partial struct BeeSystem : ISystem
                     Idle(ref beeState);
                     break;
                 case BeeState.State.GATHERING:
-                    if (_enemyCounts[(int)beeState.hiveTag] > 0 && agression < _beeSettings.aggressionPercentage)
+                    if (_enemyCounts[(int)beeState.hiveTag] > 0 && agression < _aggresionPercentage)
                     {
-                        beeState.aggresion += beeState.aggressionModifier * agression * _deltaTime;
+                        float aggresionModifier = (_availableFood.Length > 0) ? beeState.aggressionModifier : 1.0f;
+                        beeState.aggresion += aggresionModifier * agression * _deltaTime;
                     }
 
-                    if (beeState.aggresion > 1.0f)
+                    if (_availableFood.Length == 0)
+                        beeState.aggresion = 1.0f;
+
+                    if (beeState.aggresion >= 1.0f)
                     {
                         target.Target = Entity.Null;
                         beeState.state = BeeState.State.ATTACKING;
