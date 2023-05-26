@@ -3,9 +3,10 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-[UpdateInGroup(typeof(PresentationSystemGroup))]
+[UpdateBefore(typeof(TransformSystemGroup))]
 public partial struct WaterAndFireLocatorSystem : ISystem
 {
+    bool m_HasDiscardedFirstFrame;
     bool m_HasSetLocations;
 
     [BurstCompile]
@@ -18,6 +19,13 @@ public partial struct WaterAndFireLocatorSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // Skipping first frame to let the transform system run once.
+        if (!m_HasDiscardedFirstFrame)
+        {
+            m_HasDiscardedFirstFrame = true;
+            return;
+        }
+        
         if (!m_HasSetLocations)
         {
             SetFireAndWaterLocations(ref state);

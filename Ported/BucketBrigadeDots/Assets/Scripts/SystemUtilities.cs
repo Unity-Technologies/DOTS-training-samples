@@ -12,8 +12,18 @@ public static class SystemUtilities
     {
         var gridSize = settings.DefaultGridSize;
         var cols = settings.RowsAndColumns;
-        var gridPos = new int2((int)math.round(centerPos.x / gridSize), (int)math.round(centerPos.y / gridSize));
+        var gridPos = GetGridPosition(in centerPos, gridSize);
         PutoutFire(in gridPos, ref temperatures, cols, settings.PutOutSize);
+    }
+    
+    public static int2 GetGridPosition(in float2 position, in float gridSize)
+    {
+        return new int2((int)math.round(position.x / gridSize), (int)math.round(position.y / gridSize));
+    }
+    
+    public static int GetGridIndex(in int2 gridPos, in int cols)
+    {
+        return gridPos.y * cols + gridPos.x;
     }
  
     [BurstCompile]
@@ -27,7 +37,7 @@ public static class SystemUtilities
                 var y = gridPos.y + yD;
                 if (x >= 0 && x < cols && y >= 0 && y < cols)
                 {
-                    var index = y * cols + x;
+                    var index = GetGridIndex(new int2(x, y), cols);
                     temperatures[index] = 0f;
                 }
             }
