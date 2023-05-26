@@ -104,7 +104,7 @@ public partial struct BeeSystem : ISystem
 
         _beeTeams.Clear();
         for (int i = 0; i < (int)HiveTag.HiveCount; i++)
-            _beeTeams.Add(_availableBeesQueries[0].ToEntityArray(Allocator.TempJob));
+            _beeTeams.Add(_availableBeesQueries[i].ToEntityArray(Allocator.TempJob));
         for (int i = 0; i < (int)HiveTag.HiveCount; i++)
         {
             _enemyCounts[i] = 0;
