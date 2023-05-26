@@ -29,17 +29,22 @@ public static class SystemUtilities
     [BurstCompile]
     static void PutoutFire(in int2 gridPos, ref DynamicBuffer<FireTemperature> temperatures, int cols, int putOutSize)
     {
-        for (var yD = ((putOutSize / 2) * -1); yD < (putOutSize / 2); yD++)
+        var halfSize = putOutSize / 2;
+        var scanSize = (int)math.round(halfSize * 1.5f);
+        for (var yD = (scanSize * -1); yD < scanSize; yD++)
         {
-            for (var xD = ((putOutSize / 2) * -1); xD < (putOutSize / 2); xD++)
+            for (var xD = (scanSize * -1); xD < scanSize; xD++)
             {
                 var x = gridPos.x + xD;
                 var y = gridPos.y + yD;
                 if (x >= 0 && x < cols && y >= 0 && y < cols)
                 {
                     var newGridPos = new int2(x, y);
-                    var index = GetGridIndex(newGridPos, cols);
                     var dist = math.distance(gridPos, newGridPos);
+                    if (dist >= halfSize)
+                        continue;
+                    
+                    var index = GetGridIndex(newGridPos, cols);
                     var newTemp = math.lerp(0f, temperatures[index], dist / (float)putOutSize);
                     if (newTemp < 0.1f)
                         newTemp = 0f;
