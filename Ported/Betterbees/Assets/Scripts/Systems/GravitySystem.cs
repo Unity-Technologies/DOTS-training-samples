@@ -1,5 +1,4 @@
 ﻿using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -31,13 +30,14 @@ public partial struct GravitySystem : ISystem
     }
 
     [BurstCompile]
+    [WithAll(typeof(GravityComponent))]
     private partial struct GravityJob : IJobEntity
     {
         public float lowerBounds;
         public float3 acceleration;
         public EntityCommandBuffer.ParallelWriter ecb;
 
-        public void Execute(in GravityComponent gravityComponent, ref LocalTransform transform, ref VelocityComponent velocity, Entity entity, [ChunkIndexInQuery] int chunkIndex)
+        public void Execute(ref LocalTransform transform, ref VelocityComponent velocity, Entity entity, [ChunkIndexInQuery] int chunkIndex)
         {
             if (transform.Position.y > lowerBounds)
             {

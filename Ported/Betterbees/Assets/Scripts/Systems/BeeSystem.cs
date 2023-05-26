@@ -488,7 +488,7 @@ public partial struct BeeSystem : ISystem
 
                     _commandBuffer.SetComponent(chunkIndex, foodEntity, velocity);
 
-                    _commandBuffer.AddComponent<GravityComponent>(chunkIndex, foodEntity);
+                    _commandBuffer.SetComponentEnabled<GravityComponent>(chunkIndex, target.Target, true);
                 }
 
                 beeState.state = BeeState.State.IDLE;
@@ -532,8 +532,8 @@ public partial struct BeeSystem : ISystem
                 if (foodTarget.Target != Entity.Null)
                 {
                     _commandBuffer.SetComponent(chunkIndex, foodTarget.Target, LocalTransform.FromPosition(transform.Position));
+                    _commandBuffer.SetComponentEnabled<GravityComponent>(chunkIndex, foodTarget.Target, true);
                 }
-
             }
             _commandBuffer.DestroyEntity(chunkIndex, entity);
         }
