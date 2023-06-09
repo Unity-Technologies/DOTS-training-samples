@@ -5,19 +5,22 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Rendering;
+using UnityEngine;
 
 [BurstCompile]
 [WithAll(typeof(Ant))]
 public partial struct ResourceDetection : IJobEntity
 {
-    public float distance;
     public float mapSize;
     public float obstacleSize;
-    public float steeringStrength;
     
     public int bucketResolution;
     public float2 resourcePosition;
     public float2 homePosition;
+    
+    [NativeDisableUnsafePtrRestriction]
+    public RefRW<Stats> stats;
+    
     [ReadOnly]
     public NativeArray<Bucket> buckets;
 
@@ -33,6 +36,9 @@ public partial struct ResourceDetection : IJobEntity
         // we are at the target
         if (dist < 4f)
         {
+            if (ant.hasResource)
+                stats.ValueRW.foodCount++;
+            
             ant.hasResource = !ant.hasResource;
             ant.resourceSteering = 180f;
             return;
@@ -62,18 +68,14 @@ public partial struct ResourceDetection : IJobEntity
         {
             float directionInRad = math.radians(direction.direction);
             float targetAngle = math.atan2(targetPosition.y - position.position.y, targetPosition.x - position.position.x);
-            if (targetAngle - directionInRad > math.PI/4f)
-            {
+            var dPositiveAngle = targetAngle - directionInRad;
+            while (dPositiveAngle < 0)
+                dPositiveAngle += math.PI * 2;
+            
+            if (dPositiveAngle > 0 && dPositiveAngle < math.PI)
                 ant.resourceSteering = 5f;
-            }
-            else if (targetAngle - directionInRad < -math.PI/4f)
-            {
-                ant.resourceSteering = -5f;
-            }
             else
-            {
-                ant.resourceSteering = math.degrees(targetAngle - directionInRad)/5;
-            }
+                ant.resourceSteering = -5f;
         }
     }
 }

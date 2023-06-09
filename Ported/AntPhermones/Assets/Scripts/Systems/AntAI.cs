@@ -33,8 +33,7 @@ public partial struct AntAI: ISystem
     public void OnUpdate(ref SystemState state)
     {
         var colony = SystemAPI.GetSingleton<Colony>();
-        var lookingForFoodPheromones = SystemAPI.GetSingletonBuffer<LookingForFoodPheromone>();
-        var lookingForHomePheromones = SystemAPI.GetSingletonBuffer<LookingForHomePheromone>();
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
 
         // SteeringRandomizer
         var steeringJob = new SteeringRandomizerJob
@@ -44,16 +43,13 @@ public partial struct AntAI: ISystem
         };
         var steeringJobHandle = steeringJob.ScheduleParallel(state.Dependency);
 
-
-
         // PheromoneDetection
         var pheromoneDetectionJob = new PheromoneDetectionJob
         {
             mapSize = (int)colony.mapSize,
             steeringStrength = colony.pheromoneSteerStrength,
             distance = colony.pheromoneSteerDistance,
-            lookingForFoodPheromones = lookingForFoodPheromones,
-            lookingForHomePheromones = lookingForHomePheromones
+            Pheromones = pheromones
         };
         var pheromoneDetectionJobHandle = pheromoneDetectionJob.ScheduleParallel(steeringJobHandle);
 
@@ -77,15 +73,16 @@ public partial struct AntAI: ISystem
         // ResourceDetection
         var resourceTransform = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Resource>());
         var homePosition = SystemAPI.GetComponent<LocalTransform>(SystemAPI.GetSingletonEntity<Home>());
+        
         var resourceJob = new ResourceDetection
         {
             obstacleSize = colony.obstacleSize,
             mapSize = colony.mapSize,
-            steeringStrength = colony.resourceSteerStrength,
             bucketResolution = colony.bucketResolution,
             buckets = SystemAPI.GetSingletonBuffer<Bucket>().AsNativeArray(),
             homePosition = new float2(homePosition.Position.x, homePosition.Position.y),
-            resourcePosition = new float2(resourceTransform.Position.x, resourceTransform.Position.y)
+            resourcePosition = new float2(resourceTransform.Position.x, resourceTransform.Position.y),
+            stats = SystemAPI.GetSingletonRW<Stats>()
         };
         var resourceJobHandle = resourceJob.ScheduleParallel(obstacleJobHandle);
 
@@ -104,16 +101,16 @@ public partial struct AntAI: ISystem
         // Drop Pheromones
         pheromoneDetectionJobHandle.Complete(); // needed before we work with the native array
         
-        var nativeLookingForFoodPheromones = lookingForFoodPheromones.AsNativeArray();
-        var nativeLookingForHomePheromones = lookingForHomePheromones.AsNativeArray();
+        
+        
+        
         var pheromoneDropJob = new PheromoneDropJob
         {
             deltaTime = SystemAPI.Time.fixedDeltaTime,
             mapSize = (int)colony.mapSize,
             antTargetSpeed = colony.antTargetSpeed,
             pheromoneGrowthRate = colony.pheromoneGrowthRate,
-            lookingForFoodPheromones = nativeLookingForFoodPheromones,
-            lookingForHomePheromones = nativeLookingForHomePheromones,
+            Pheromones = pheromones.AsNativeArray(),
         };
         var pheromoneDropJobHandle = pheromoneDropJob.ScheduleParallel(dynamicsJobHandle);
         pheromoneDropJobHandle.Complete(); // BUG???
@@ -122,9 +119,8 @@ public partial struct AntAI: ISystem
         var pheromoneDecayJob = new PheromoneDecayJob
         {
             pheromoneDecayRate = colony.pheromoneDecayRate,
-            lookingForFoodPheromones = lookingForFoodPheromones,
-            lookingForHomePheromones = lookingForHomePheromones
+            Pheromones = pheromones,
         };
-        state.Dependency = pheromoneDecayJob.Schedule(lookingForFoodPheromones.Length, 100, pheromoneDropJobHandle);
+        state.Dependency = pheromoneDecayJob.Schedule(pheromones.Length, 100, pheromoneDropJobHandle);
     }
 }

@@ -8,18 +8,12 @@ public struct PheromoneDecayJob : IJobParallelFor
 {
     public float pheromoneDecayRate;
     [NativeDisableParallelForRestriction]
-    public DynamicBuffer<LookingForFoodPheromone> lookingForFoodPheromones;
-    [NativeDisableParallelForRestriction]
-    public DynamicBuffer<LookingForHomePheromone> lookingForHomePheromones;
+    public DynamicBuffer<Pheromone> Pheromones;
 
     public void Execute(int index)
     {
-        var lookingForFoodPheromone = lookingForFoodPheromones[index];
-        lookingForFoodPheromone.strength *= pheromoneDecayRate;
-        lookingForFoodPheromones[index] = lookingForFoodPheromone;
-
-        var lookingForHomePheromone = lookingForHomePheromones[index];
-        lookingForHomePheromone.strength *= pheromoneDecayRate;
-        lookingForHomePheromones[index] = lookingForHomePheromone;
+        var pheromone = Pheromones[index];
+        pheromone.strength *= pheromoneDecayRate;
+        Pheromones[index] = pheromone;
     }
 }

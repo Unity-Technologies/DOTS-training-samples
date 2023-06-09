@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Collections.LowLevel.Unsafe;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [ChunkSerializable]
 public struct Bucket: IBufferElementData
@@ -42,8 +38,6 @@ public struct Colony: IComponentData
     public Entity obstaclePrefab;
     public Entity antPrefab;
     public Entity resourcePrefab;
-
-    //public NativeArray<UnsafeList<float2>> buckets;
 }
 
 public class ColonyAuthoring : MonoBehaviour
@@ -65,8 +59,14 @@ public class ColonyAuthoring : MonoBehaviour
             colony.obstaclePrefab = GetEntity(authoring.obstaclePrefab, TransformUsageFlags.Renderable);
             colony.antPrefab = GetEntity(authoring.antPrefab, TransformUsageFlags.Renderable);
             colony.resourcePrefab = GetEntity(authoring.resourcePrefab, TransformUsageFlags.Renderable);
+
             AddComponent<Colony>(entity, colony);
             AddBuffer<Bucket>(entity);
         }
     }
+}
+
+public struct Stats: IComponentData
+{
+   public int foodCount;
 }

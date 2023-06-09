@@ -12,9 +12,7 @@ public partial struct PheromoneDropJob : IJobEntity
     public float antTargetSpeed;
     public float pheromoneGrowthRate;
     [NativeDisableParallelForRestriction]
-    public NativeArray<LookingForFoodPheromone> lookingForFoodPheromones;
-    [NativeDisableParallelForRestriction]
-    public NativeArray<LookingForHomePheromone> lookingForHomePheromones;
+    public NativeArray<Pheromone> Pheromones;
 
     public void Execute(in Ant ant, in Position position, in Speed speed)
     {
@@ -28,18 +26,12 @@ public partial struct PheromoneDropJob : IJobEntity
         }
 
         var index = gridPosition.x + gridPosition.y * mapSize;
-
-        if (ant.hasResource)
-        {
-            var lookingForFoodPheromone = lookingForFoodPheromones[index];
-            lookingForFoodPheromone.strength += pheromoneGrowthRate * strength * (1f - lookingForFoodPheromone.strength) * deltaTime;
-            lookingForFoodPheromones[index] = lookingForFoodPheromone;
-        }
-        else
-        {
-            var lookingForHomePheromone = lookingForHomePheromones[index];
-            lookingForHomePheromone.strength += pheromoneGrowthRate * strength * (1f - lookingForHomePheromone.strength) * deltaTime;
-            lookingForHomePheromones[index] = lookingForHomePheromone;
-        }
+        index *= 2;
+        if (!ant.hasResource)
+            index++;
+        
+        var pheromone = Pheromones[index];
+        pheromone.strength += pheromoneGrowthRate * strength * (1f - pheromone.strength) * deltaTime;
+        Pheromones[index] = pheromone;
     }
 }

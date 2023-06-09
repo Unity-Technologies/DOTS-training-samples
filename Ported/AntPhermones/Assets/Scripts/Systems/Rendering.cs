@@ -1,10 +1,7 @@
-using Unity.Collections;
+using System;
+using TMPro;
 using Unity.Entities;
-using Unity.Transforms;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
-using Random = Unity.Mathematics.Random;
 
 [CreateAfter(typeof(Spawner))]
 public partial struct Rendering: ISystem
@@ -12,11 +9,12 @@ public partial struct Rendering: ISystem
     const string k_PheromoneTrailGameObjectPath = "PheromoneTrail";
     int m_MapSize;
     bool m_Initialized;
-    
+
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<LookingForFoodPheromone>();
+        state.RequireForUpdate<Pheromone>();
         state.RequireForUpdate<Colony>();
+        state.RequireForUpdate<Stats>();
         m_Initialized = false;
     }
 
@@ -31,7 +29,7 @@ public partial struct Rendering: ISystem
         var gameObject = GameObject.Find(k_PheromoneTrailGameObjectPath);
         var meshRenderer = gameObject.GetComponent<MeshRenderer>();
         var material = meshRenderer.material;
-        var texture2D = new Texture2D(m_MapSize,m_MapSize, TextureFormat.RFloat, false);
+        var texture2D = new Texture2D(m_MapSize,m_MapSize, TextureFormat.RGFloat, false);
         material.mainTexture = texture2D;
 
         var transform = gameObject.GetComponent<Transform>();
@@ -55,8 +53,15 @@ public partial struct Rendering: ISystem
         var material = meshRenderer.material;
         var texture2D = material.mainTexture as Texture2D;
 
-        var pheromones = SystemAPI.GetSingletonBuffer<LookingForFoodPheromone>();
+        var pheromones = SystemAPI.GetSingletonBuffer<Pheromone>();
         texture2D.SetPixelData(pheromones.AsNativeArray(), 0, 0);
         texture2D.Apply();
+        
+        // Text
+        var foodRateGO = GameObject.Find("Canvas/foodRate");
+        var textMeshPro = foodRateGO.GetComponent<TextMeshProUGUI>();
+        
+        var stats = SystemAPI.GetSingleton<Stats>();
+        textMeshPro.SetText($"Food Count: {stats.foodCount}");
     }
 }

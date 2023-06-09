@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -27,6 +28,7 @@ public partial struct Spawner: ISystem
         SpawnObstacles(ref state, colony);
         SpawnAnts(ref state, colony);
         SpawnPheromones(ref state, colony);
+        SpawnStats(ref state, colony);
         state.Enabled = false;
     }
 
@@ -44,6 +46,8 @@ public partial struct Spawner: ISystem
         float mapSize = colony.mapSize;
 
         float resourceAngle = Random.value * 2f * Mathf.PI;
+        
+        resourceAngle = 0;
         var localTransform = SystemAPI.GetComponentRW<LocalTransform>(resource, false);
         localTransform.ValueRW.Position = new float3(mapSize * 0.5f + Mathf.Cos(resourceAngle) * mapSize * 0.475f, mapSize * 0.5f + Mathf.Sin(resourceAngle) * mapSize * 0.475f, 0);
     }
@@ -86,7 +90,6 @@ public partial struct Spawner: ISystem
         }
 
         int bucketResolution = colony.bucketResolution;
-        //NativeArray<UnsafeList<float2>> buckets = new NativeArray<UnsafeList<float2>>(bucketResolution * bucketResolution, Allocator.Persistent);
         var buckets = SystemAPI.GetSingletonBuffer<Bucket>();
         buckets.Length = bucketResolution * bucketResolution;
         for (int i = 0; i < buckets.Length; ++i)
@@ -126,7 +129,7 @@ public partial struct Spawner: ISystem
         foreach (var (position, direction, localTransform, speed) in SystemAPI.Query<RefRW<Position>, RefRW<Direction>, RefRW<LocalTransform>, RefRW<Speed>>().WithAll<Ant>())
         {
             position.ValueRW.position = new float2(Random.Range(-5f,5f) + mapSize * 0.5f,Random.Range(-5f,5f) + mapSize * 0.5f);
-            direction.ValueRW.direction = Random.Range(0, 360);
+            direction.ValueRW.direction = 225;
             speed.ValueRW.speed = colony.antTargetSpeed;
             localTransform.ValueRW.Scale = colony.antScale;
         }
@@ -135,19 +138,16 @@ public partial struct Spawner: ISystem
     void SpawnPheromones(ref SystemState state, Colony colony)
     {
         var pheromones = state.EntityManager.CreateEntity();
-        var lookingForFoodPheromonesBuffer = state.EntityManager.AddBuffer<LookingForFoodPheromone>(pheromones);
-        lookingForFoodPheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
-        for (var i = 0; i < lookingForFoodPheromonesBuffer.Length; i++)
+        var pheromonesBuffer = state.EntityManager.AddBuffer<Pheromone>(pheromones);
+        pheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize * 2;
+        for (var i = 0; i < pheromonesBuffer.Length; i++)
         {
-            lookingForFoodPheromonesBuffer[i] = new LookingForFoodPheromone { strength = 0f };
+            pheromonesBuffer[i] = new Pheromone { strength = 0f };
         }
-
-        var lookingForHomePheromonesBuffer = state.EntityManager.AddBuffer<LookingForHomePheromone>(pheromones);
-        lookingForHomePheromonesBuffer.Length = (int)colony.mapSize * (int)colony.mapSize;
-        for (var i = 0; i < lookingForHomePheromonesBuffer.Length; i++)
-        {
-            lookingForHomePheromonesBuffer[i] = new LookingForHomePheromone { strength = 0f };
-        }
-
+    }
+    
+    void SpawnStats(ref SystemState state, Colony colony)
+    {
+        state.EntityManager.CreateSingleton<Stats>(new Stats { foodCount = 0 });
     }
 }
