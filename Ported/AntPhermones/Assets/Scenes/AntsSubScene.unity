@@ -170,6 +170,7 @@ MonoBehaviour:
     resourceSteerStrength: 2.291831
     wallPushbackUnits: 0.1
     mapSize: 128
+    foodRateSampleDuration: 1
   homePrefab: {fileID: 4564355054723898845, guid: 42ee2db2bf91bbe468df3f090bd1f5ad,
     type: 3}
   obstaclePrefab: {fileID: 4497485142559760226, guid: 24bb24f3c954dea4a8b54e2686946f9e,

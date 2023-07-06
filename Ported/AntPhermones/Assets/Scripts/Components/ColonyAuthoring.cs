@@ -34,6 +34,7 @@ public struct Colony: IComponentData
 
     public float mapSize;
 
+    public float foodRateSampleDuration;
     public Entity homePrefab;
     public Entity obstaclePrefab;
     public Entity antPrefab;
