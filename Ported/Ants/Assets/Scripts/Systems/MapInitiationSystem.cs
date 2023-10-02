@@ -48,7 +48,8 @@ public partial class MapInitiationSystem : SystemBase
             quadSystem = GameObject.Find("PlayArea").GetComponent<MapTextureManager>();
         }
 
-        if (quadSystem == null) return;
+        if (quadSystem is not null) 
+            return;
         
         MapDataAspect mapAspect = default;
         foreach (MapDataAspect mapDataAspect in SystemAPI.Query<MapDataAspect>())

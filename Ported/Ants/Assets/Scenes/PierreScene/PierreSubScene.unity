@@ -154,6 +154,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   AntPrefab: {fileID: 645541311283172120, guid: 2eccf794aa1f14342906eae094269de0, type: 3}
   WallPrefab: {fileID: 2964114387935423343, guid: 442b29374ee8c422ea615d6af25a9091, type: 3}
+  ColonyPrefab: {fileID: 2964114387935423343, guid: a2fbaf95dc56b470fa799c28f42de36d, type: 3}
+  ResourcePrefab: {fileID: 2964114387935423343, guid: e0620c8e6425a4c55a292f1fbe3d50a5, type: 3}
   Amount: 1000
   WallRingCount: 3
   WallPercentage: 0.8

@@ -22,6 +22,9 @@ partial struct SpeedModifiyerSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var config = SystemAPI.GetSingleton<Config>();
+        
+
+      
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
